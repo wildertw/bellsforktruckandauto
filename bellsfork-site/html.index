@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==============================
+       CORE META / SEO
+       ============================== -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Primary SEO -->
+  <title>Bells Fork Auto & Truck | Auto Repair & Truck Service in Greenville, NC</title>
+  <meta name="description" content="Bells Fork Auto & Truck provides trusted auto repair, truck repair, diesel diagnostics, maintenance, and inspections in Greenville, NC. Fast scheduling, transparent estimates, and reliable local service." />
+  <meta name="keywords" content="auto repair Greenville NC, truck repair Greenville NC, diesel diagnostics Greenville NC, brake repair Greenville NC, oil change Greenville NC, engine diagnostics Greenville NC, fleet maintenance Eastern NC, Bells Fork Auto and Truck" />
+  <!-- Canonical: update to your final live domain -->
+  <link rel="canonical" href="https://bellsforkautoandtruck.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bells Fork Auto & Truck | Auto Repair & Truck Service in Greenville, NC" />
+  <meta property="og:description" content="Local auto & truck repair in Greenville, NC. Diagnostics, maintenance, brakes, electrical, diesel service and more. Schedule your appointment today." />
+  <meta property="og:url" content="https://bellsforkautoandtruck.com/" />
+  <meta property="og:image" content="https://bellsforkautoandtruck.com/assets/og-image.jpg" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bells Fork Auto & Truck | Greenville, NC Auto & Truck Repair" />
+  <meta name="twitter:description" content="Trusted local auto repair, truck repair & diagnostics in Greenville, NC. Easy scheduling, reliable service." />
+  <meta name="twitter:image" content="https://bellsforkautoandtruck.com/assets/og-image.jpg" />
+
+  <!-- Performance: preconnect to Bootstrap CDN -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Bootstrap 5 (CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+  <!-- ==============================
+       LOCAL BUSINESS SCHEMA (JSON-LD)
+       Notes:
+       - Keep NAP consistent across site, Google Business Profile, directories.
+       - Replace placeholders like hours, geo, socials with real values.
+       ============================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["AutoRepair", "LocalBusiness"],
+        "@id": "https://bellsforkautoandtruck.com/#business",
+        "name": "Bells Fork Auto & Truck",
+        "url": "https://bellsforkautoandtruck.com/",
+        "telephone": "+1-252-496-0005",
+        "image": "https://bellsforkautoandtruck.com/assets/logo.png",
+        "description": "Local auto repair and truck service in Greenville, NC including diagnostics, maintenance, and repair for cars, trucks, and diesel vehicles.",
+        "priceRange": "$$",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "3840 Charles Blvd",
+          "addressLocality": "Greenville",
+          "addressRegion": "NC",
+          "postalCode": "27858",
+          "addressCountry": "US"
+        },
+        "areaServed": [
+          "Greenville, NC",
+          "Winterville, NC",
+          "Ayden, NC",
+          "Farmville, NC",
+          "Grifton, NC",
+          "Bethel, NC",
+          "Washington, NC"
+        ],
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+            "opens": "08:00",
+            "closes": "17:30"
+          }
+        ],
+        "sameAs": [
+          "https://www.facebook.com/people/Bells-Fork-Truck-Auto/61585590120772/"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://bellsforkautoandtruck.com/#website",
+        "url": "https://bellsforkautoandtruck.com/",
+        "name": "Bells Fork Auto & Truck",
+        "inLanguage": "en-US"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://bellsforkautoandtruck.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do you work on both cars and trucks?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. We service most makes and models of cars, light trucks, and many diesel vehicles. If you have a specialty request, call and we’ll confirm fit and availability."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I schedule an appointment?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Use the appointment request form on this page or call. We’ll confirm your time, collect vehicle details, and provide next steps."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do you offer emergency or same-day service?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When availability allows, we prioritize urgent diagnostics and safety concerns. Call first so we can advise the fastest option."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- ==============================
+       BASIC STYLES
+       - Keep CSS lightweight for speed.
+       - Ensure strong contrast for accessibility.
+       ============================== -->
+  <style>
+    :root{
+      --brand-dark:#0b1220;
+      --brand-accent:#f4b400; /* warm accent */
+      --brand-muted:#6c757d;
+    }
+    body{ scroll-behavior:smooth; }
+    .bg-brand-dark{ background:var(--brand-dark); }
+    .text-accent{ color:var(--brand-accent) !important; }
+    .btn-accent{
+      background:var(--brand-accent);
+      color:#111;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .btn-accent:hover{ filter:brightness(0.95); }
+    .skip-link{
+      position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;
+    }
+    .skip-link:focus{
+      position:static; width:auto; height:auto; padding:.5rem .75rem; background:#fff; border-radius:.5rem;
+      display:inline-block; margin:.5rem;
+    }
+    .hero{
+      background: linear-gradient(180deg, rgba(11,18,32,1) 0%, rgba(11,18,32,0.92) 55%, rgba(11,18,32,1) 100%),
+                  url("assets/hero-garage.jpg");
+      background-size:cover;
+      background-position:center;
+    }
+    .icon-badge{
+      width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:rgba(244,180,0,.12); border:1px solid rgba(244,180,0,.25);
+      flex: 0 0 auto;
+    }
+    .card{ border-radius:1rem; }
+    .shadow-soft{ box-shadow:0 12px 30px rgba(0,0,0,.08); }
+    .section-pad{ padding:4rem 0; }
+    .small-muted{ color:var(--brand-muted); font-size:.95rem; }
+    .list-check li{ margin-bottom:.5rem; }
+    .list-check li::marker{ content:"✓  "; color:var(--brand-accent); font-weight:700; }
+    footer a{ color:rgba(255,255,255,.85); }
+    footer a:hover{ color:#fff; }
+  </style>
+</head>
+
+<body>
+  <!-- Accessibility: skip to main content -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- ==============================
+       TOP BAR (NAP + HOURS)
+       SEO Note: Keep NAP consistent site-wide.
+       ============================== -->
+  <div class="bg-brand-dark text-white py-2 border-bottom border-2 border-warning border-opacity-25">
+    <div class="container">
+      <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+        <div class="small">
+          <strong>Bells Fork Auto &amp; Truck</strong> &middot;
+          <a class="text-white text-decoration-none" href="tel:+12524960005" aria-label="Call Bells Fork Auto and Truck at 252 496 0005">(252) 496-0005</a>
+          &nbsp;|&nbsp;
+          <span aria-label="Business address">3840 Charles Blvd, Greenville, NC 27858</span>
+        </div>
+        <div class="small">
+          <!-- Update these hours to match your real operating hours -->
+          <span class="text-accent fw-semibold">Hours:</span> Mon–Fri 8:00 AM–5:30 PM &nbsp;|&nbsp;
+          <a class="text-white text-decoration-none" href="#contact">Get Directions</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================
+       HEADER / NAV
+       - Semantic nav
+       - Internal links for crawlability
+       ============================== -->
+  <header class="bg-white sticky-top shadow-sm" role="banner">
+    <nav class="navbar navbar-expand-lg" aria-label="Primary navigation">
+      <div class="container">
+        <!-- Logo placeholder -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#top" aria-label="Bells Fork Auto and Truck home">
+          <img src="assets/logo.png" width="44" height="44" alt="Bells Fork Auto and Truck logo" loading="lazy" />
+          <div class="lh-sm">
+            <div class="fw-bold">Bells Fork Auto &amp; Truck</div>
+            <div class="small text-secondary">Greenville, North Carolina</div>
+          </div>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
+                aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation menu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMain">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+            <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
+            <li class="nav-item"><a class="nav-link" href="#service-area">Service Area</a></li>
+            <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+          </ul>
+
+          <!-- CTA buttons -->
+          <div class="d-flex gap-2 ms-lg-3">
+            <a class="btn btn-outline-dark" href="tel:+12524960005" aria-label="Call now for emergency or urgent service">Emergency / Call</a>
+            <a class="btn btn-accent fw-semibold" href="#appointment" aria-label="Schedule an appointment">Schedule</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ==============================
+       MAIN
+       ============================== -->
+  <main id="main">
+    <!-- ==============================
+         HERO
+         SEO: One clear H1 + local keywords.
+         ============================== -->
+    <section id="top" class="hero text-white">
+      <div class="container section-pad">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-7">
+            <h1 class="display-5 fw-bold">
+              Trusted Auto Repair &amp; Truck Service in <span class="text-accent">Greenville, NC</span>
+            </h1>
+            <p class="lead mt-3">
+              From routine maintenance to advanced diagnostics, Bells Fork Auto &amp; Truck helps drivers across Greenville and Eastern North Carolina
+              keep cars, trucks, and work vehicles reliable—without the stress.
+            </p>
+
+            <!-- Trust markers (avoid unverifiable claims; update as needed) -->
+            <ul class="list-check mt-4">
+              <li>Transparent estimates and clear communication</li>
+              <li>Modern diagnostics for check-engine and electrical issues</li>
+              <li>Truck &amp; diesel-focused service availability (call to confirm)</li>
+            </ul>
+
+            <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+              <a class="btn btn-accent btn-lg fw-semibold" href="#appointment">Request an Appointment</a>
+              <a class="btn btn-outline-light btn-lg" href="tel:+12524960005">Call (252) 496-0005</a>
+            </div>
+
+            <!-- Internal linking for SEO -->
+            <p class="small-muted mt-3">
+              Looking for a specific repair? Jump to <a class="text-white" href="#services">Services</a> or see our <a class="text-white" href="#faq">FAQ</a>.
+            </p>
+          </div>
+
+          <div class="col-lg-5">
+            <!-- Image placeholder: keep dimensions to prevent layout shift -->
+            <div class="card shadow-soft border-0">
+              <img src="assets/shop-front.jpg" width="960" height="640"
+                   class="card-img-top" alt="Bells Fork Auto and Truck service shop in Greenville North Carolina"
+                   loading="lazy" />
+              <div class="card-body">
+                <h2 class="h5 fw-bold mb-2">Fast scheduling. Reliable repairs.</h2>
+                <p class="mb-0 text-secondary">
+                  Tell us what you’re experiencing and we’ll confirm the best next step—inspection, diagnostic, or repair.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         QUICK VALUE PROPS
+         ============================== -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="d-flex gap-3">
+              <div class="icon-badge" aria-hidden="true">
+                <!-- Simple inline SVG icon (fast, no external requests) -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 2l3 7h7l-5.5 4 2.5 7L12 16l-7 4 2.5-7L2 9h7l3-7z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="h5 mb-1">Local shop you can trust</h2>
+                <p class="small-muted mb-0">Service built for Greenville drivers—everyday commuters, families, and work trucks.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex gap-3">
+              <div class="icon-badge" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 8v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10Z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="h5 mb-1">Efficient diagnostics</h2>
+                <p class="small-muted mb-0">Check engine light, electrical problems, drivability—start with accurate testing.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex gap-3">
+              <div class="icon-badge" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 7h10v10H7z" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="h5 mb-1">Cars &amp; trucks welcome</h2>
+                <p class="small-muted mb-0">Maintenance and repair options for many makes/models—ask about diesel service.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         SERVICES
+         SEO: H2 + keyword-rich service blocks + internal links.
+         ============================== -->
+    <section id="services" class="section-pad">
+      <div class="container">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-2 mb-4">
+          <div>
+            <h2 class="display-6 fw-bold">Auto &amp; Truck Repair Services</h2>
+            <p class="text-secondary mb-0">
+              Full-service automotive repair in Greenville, NC—maintenance, diagnostics, and repairs designed for safety and reliability.
+            </p>
+          </div>
+          <a class="btn btn-accent fw-semibold" href="#appointment">Schedule Service</a>
+        </div>
+
+        <div class="row g-4">
+          <!-- Service Card 1 -->
+          <div class="col-md-6 col-lg-3">
+            <article class="card h-100 shadow-soft">
+              <img src="assets/service-auto-repair.jpg" width="800" height="520" class="card-img-top"
+                   alt="Technician performing auto repair in Greenville North Carolina" loading="lazy" />
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Auto Repair</h3>
+                <p class="text-secondary">Brakes, suspension, steering, cooling systems, and general repairs for most cars and light SUVs.</p>
+                <a class="link-dark fw-semibold" href="#appointment">Request a repair quote →</a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Service Card 2 -->
+          <div class="col-md-6 col-lg-3">
+            <article class="card h-100 shadow-soft">
+              <img src="assets/service-truck-repair.jpg" width="800" height="520" class="card-img-top"
+                   alt="Truck service and repair bay for work vehicles in Greenville NC" loading="lazy" />
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Truck &amp; Work Vehicle Service</h3>
+                <p class="text-secondary">Repair and maintenance options for pickups and work vehicles—built around uptime and durability.</p>
+                <a class="link-dark fw-semibold" href="#appointment">Schedule truck service →</a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Service Card 3 -->
+          <div class="col-md-6 col-lg-3">
+            <article class="card h-100 shadow-soft">
+              <img src="assets/service-diagnostics.jpg" width="800" height="520" class="card-img-top"
+                   alt="Computer diagnostics scan tool checking engine codes" loading="lazy" />
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Diagnostics &amp; Electrical</h3>
+                <p class="text-secondary">Check engine lights, sensors, drivability issues, starting/charging, and complex electrical troubleshooting.</p>
+                <a class="link-dark fw-semibold" href="#faq">See diagnostic FAQ →</a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Service Card 4 -->
+          <div class="col-md-6 col-lg-3">
+            <article class="card h-100 shadow-soft">
+              <img src="assets/service-maintenance.jpg" width="800" height="520" class="card-img-top"
+                   alt="Oil change and routine maintenance service in Greenville North Carolina" loading="lazy" />
+              <div class="card-body">
+                <h3 class="h5 fw-bold">Maintenance</h3>
+                <p class="text-secondary">Oil changes, filters, fluid services, tire rotations, and factory-style maintenance schedules.</p>
+                <a class="link-dark fw-semibold" href="#appointment">Book maintenance →</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Extra service list for SEO breadth -->
+        <div class="row g-4 mt-1">
+          <div class="col-lg-6">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body">
+                <h3 class="h5 fw-bold mb-3">Popular Services in Greenville, NC</h3>
+                <ul class="list-check">
+                  <li>Brake repair &amp; brake inspections</li>
+                  <li>Engine performance &amp; check engine diagnostics</li>
+                  <li>Battery, alternator, and starter testing</li>
+                  <li>Cooling system service (thermostat, radiator, hoses)</li>
+                  <li>Suspension &amp; steering repairs</li>
+                  <li>Pre-purchase and safety inspections (where available)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card h-100 border-0 bg-light">
+              <div class="card-body">
+                <h3 class="h5 fw-bold mb-2">Diesel &amp; Fleet Support (Call to Confirm)</h3>
+                <p class="text-secondary mb-3">
+                  If you manage a small fleet or rely on a diesel truck, we can discuss service options, turnaround times, and maintenance plans.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                  <a class="btn btn-outline-dark" href="tel:+12524960005">Talk to Service Advisor</a>
+                  <a class="btn btn-accent fw-semibold" href="#appointment">Request Fleet Quote</a>
+                </div>
+                <!-- NOTE: If you want to claim "ASE-certified technicians", verify first and update copy accordingly. -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==============================
+         ABOUT
+         SEO: Location + trust messaging.
+         ============================== -->
+    <section id="about" class="section-pad bg-white">
+      <div class="container">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-6">
+            <img src="assets/about-team.jpg" width="1100" height="760"
+                 class="img-fluid rounded-4 shadow-soft"
+                 alt="Auto service team helping customers in Greenville NC" loading="lazy" />
+          </div>
+          <div class="col-lg-6">
+            <h2 class="display-6 fw-bold">Local Expertise You Can Rely On</h2>
+            <p class="text-secondary">
+              Bells Fork Auto &amp; Truck is here to serve Greenville, NC with practical, no-nonsense repairs that keep you safe and confident on the road.
+              We focus on accurate diagnostics, quality parts, and clear communication—so you know what your vehicle needs and why.
+            </p>
+            <p class="text-secondary mb-0">
+              <strong>Our promise:</strong> We treat your time like it matters. Whether it’s scheduled maintenance or an urgent problem,
+              we’ll work with you on the fastest path to a reliable fix.
+            </p>
+
+            <div class="mt-4 p-3 rounded-4 border">
+              <h3 class="h5 fw-bold mb-2">Why Greenville Drivers Choose Us</h3>
+              <ul class="list-check mb-0">
+                <li>Honest recommendations &amp; easy-to-understand estimates</li>
+                <li>Modern scan tools and diagnostic approach</li>
+                <li>Convenient location on Charles Blvd</li>
+              </ul>
+            </div>
+
+            <div class="mt-4">
+              <a class="btn btn-accent fw-semibold" href="#reviews">Read Customer Feedback</a>
+              <a class="btn btn-link link-dark fw-semibold" href="#contact">Visit Us &amp; Get Directions</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         REVIEWS / TESTIMONIALS
+         IMPORTANT: Do not fabricate reviews. Replace placeholders with real Google reviews.
+         ============================== -->
+    <section id="reviews" class="section-pad bg-light">
+      <div class="container">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-2 mb-4">
+          <div>
+            <h2 class="display-6 fw-bold">Customer Testimonials</h2>
+            <p class="text-secondary mb-0">
+              Real feedback builds trust. Replace the sample quotes below with your verified Google reviews.
+            </p>
+          </div>
+          <a class="btn btn-outline-dark" href="#contact">Ask for an Estimate</a>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <figure class="card h-100 shadow-soft">
+              <div class="card-body">
+                <blockquote class="mb-3">
+                  “They explained everything clearly and got my vehicle back on the road fast. Great experience.”
+                </blockquote>
+                <figcaption class="small text-secondary">— Verified Customer (Replace Name)</figcaption>
+              </div>
+            </figure>
+          </div>
+          <div class="col-md-4">
+            <figure class="card h-100 shadow-soft">
+              <div class="card-body">
+                <blockquote class="mb-3">
+                  “Honest shop in Greenville. No pressure, just the facts and a fair price.”
+                </blockquote>
+                <figcaption class="small text-secondary">— Verified Customer (Replace Name)</figcaption>
+              </div>
+            </figure>
+          </div>
+          <div class="col-md-4">
+            <figure class="card h-100 shadow-soft">
+              <div class="card-body">
+                <blockquote class="mb-3">
+                  “Diagnostics were spot on. They fixed the issue and I haven’t had problems since.”
+                </blockquote>
+                <figcaption class="small text-secondary">— Verified Customer (Replace Name)</figcaption>
+              </div>
+            </figure>
+          </div>
+        </div>
+
+        <div class="mt-4 small-muted">
+          <!-- Internal link opportunity -->
+          Tip: Add a “Leave a Review” link to your Google Business Profile here for conversion + local SEO.
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         SERVICE AREA
+         SEO: Nearby towns help local relevance without keyword stuffing.
+         ============================== -->
+    <section id="service-area" class="section-pad">
+      <div class="container">
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-7">
+            <h2 class="display-6 fw-bold">Proudly Serving Greenville &amp; Eastern North Carolina</h2>
+            <p class="text-secondary">
+              We’re based in Greenville, NC and commonly serve drivers across nearby communities.
+              If you’re searching for “auto repair near me” or “truck repair near Greenville,” start here.
+            </p>
+
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <div class="p-3 rounded-4 border h-100">
+                  <h3 class="h6 fw-bold mb-2">Primary Service Area</h3>
+                  <ul class="mb-0">
+                    <li>Greenville, NC</li>
+                    <li>Winterville, NC</li>
+                    <li>Ayden, NC</li>
+                    <li>Farmville, NC</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="p-3 rounded-4 border h-100">
+                  <h3 class="h6 fw-bold mb-2">Also Serving</h3>
+                  <ul class="mb-0">
+                    <li>Grifton, NC</li>
+                    <li>Bethel, NC</li>
+                    <li>Washington, NC</li>
+                    <li>And surrounding areas</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <a class="btn btn-accent fw-semibold" href="#contact">Get Directions</a>
+              <a class="btn btn-link link-dark fw-semibold" href="#appointment">Request an Appointment</a>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="card shadow-soft border-0">
+              <img src="assets/map-area.jpg" width="1000" height="700"
+                   class="img-fluid rounded-4"
+                   alt="Service area map for Greenville North Carolina and surrounding towns" loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         APPOINTMENT / CONTACT FORM
+         Technical: required fields + validation-friendly attributes.
+         ============================== -->
+    <section id="appointment" class="section-pad bg-light">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <h2 class="display-6 fw-bold">Request Service</h2>
+            <p class="text-secondary">
+              Tell us about your vehicle and the issue. We’ll confirm availability, next steps, and a recommended inspection/diagnostic path.
+            </p>
+
+            <form action="/api/appointment" method="post" class="needs-validation" novalidate aria-label="Appointment request form">
+              <!-- Name -->
+              <div class="mb-3">
+                <label for="fullName" class="form-label fw-semibold">Full Name</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" autocomplete="name"
+                       required minlength="2" placeholder="Your name">
+                <div class="invalid-feedback">Please enter your name.</div>
+              </div>
+
+              <!-- Phone -->
+              <div class="mb-3">
+                <label for="phone" class="form-label fw-semibold">Phone</label>
+                <input type="tel" class="form-control" id="phone" name="phone" autocomplete="tel"
+                       required pattern="^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$"
+                       placeholder="252-555-1234" aria-describedby="phoneHelp">
+                <div id="phoneHelp" class="form-text">Use a 10-digit US phone number.</div>
+                <div class="invalid-feedback">Please enter a valid phone number.</div>
+              </div>
+
+              <!-- Email -->
+              <div class="mb-3">
+                <label for="email" class="form-label fw-semibold">Email (optional)</label>
+                <input type="email" class="form-control" id="email" name="email" autocomplete="email"
+                       placeholder="you@example.com">
+              </div>
+
+              <!-- Vehicle -->
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="vehicleYear" class="form-label fw-semibold">Vehicle Year</label>
+                  <input type="number" class="form-control" id="vehicleYear" name="vehicleYear"
+                         min="1980" max="2035" required placeholder="2018">
+                  <div class="invalid-feedback">Enter a valid year.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="vehicleType" class="form-label fw-semibold">Vehicle Type</label>
+                  <select class="form-select" id="vehicleType" name="vehicleType" required>
+                    <option value="" selected disabled>Select one</option>
+                    <option>Car</option>
+                    <option>Truck</option>
+                    <option>SUV</option>
+                    <option>Diesel</option>
+                    <option>Work / Fleet Vehicle</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a vehicle type.</div>
+                </div>
+              </div>
+
+              <div class="mb-3 mt-3">
+                <label for="serviceNeeded" class="form-label fw-semibold">Service Needed</label>
+                <select class="form-select" id="serviceNeeded" name="serviceNeeded" required>
+                  <option value="" selected disabled>Select service category</option>
+                  <option>Diagnostics (Check Engine / Electrical)</option>
+                  <option>Maintenance (Oil Change / Fluids)</option>
+                  <option>Brakes</option>
+                  <option>Engine / Drivetrain</option>
+                  <option>Suspension / Steering</option>
+                  <option>Cooling System</option>
+                  <option>Other</option>
+                </select>
+                <div class="invalid-feedback">Please choose a service category.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="details" class="form-label fw-semibold">What’s going on?</label>
+                <textarea class="form-control" id="details" name="details" rows="4"
+                          required minlength="10"
+                          placeholder="Describe symptoms, warning lights, noises, when it happens, etc."></textarea>
+                <div class="invalid-feedback">Please add a short description (10+ characters).</div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="preferredDate" class="form-label fw-semibold">Preferred Date</label>
+                  <input type="date" class="form-control" id="preferredDate" name="preferredDate" required>
+                  <div class="invalid-feedback">Please select a date.</div>
+                </div>
+                <div class="col-md-6">
+                  <label for="preferredTime" class="form-label fw-semibold">Preferred Time</label>
+                  <select class="form-select" id="preferredTime" name="preferredTime" required>
+                    <option value="" selected disabled>Select a time window</option>
+                    <option>8:00 AM – 10:00 AM</option>
+                    <option>10:00 AM – 12:00 PM</option>
+                    <option>12:00 PM – 2:00 PM</option>
+                    <option>2:00 PM – 4:00 PM</option>
+                    <option>4:00 PM – 5:30 PM</option>
+                  </select>
+                  <div class="invalid-feedback">Please select a time window.</div>
+                </div>
+              </div>
+
+              <div class="form-check mt-3">
+                <input class="form-check-input" type="checkbox" value="yes" id="consent" name="consent" required>
+                <label class="form-check-label" for="consent">
+                  I agree to be contacted about this request.
+                </label>
+                <div class="invalid-feedback">Consent is required to submit.</div>
+              </div>
+
+              <button type="submit" class="btn btn-accent btn-lg fw-semibold mt-3">Submit Request</button>
+
+              <!-- SEO/Trust microcopy -->
+              <p class="small-muted mt-3 mb-0">
+                Prefer calling? Dial <a href="tel:+12524960005">(252) 496-0005</a> for the quickest scheduling in Greenville, NC.
+              </p>
+            </form>
+          </div>
+
+          <!-- Contact + Map -->
+          <div class="col-lg-6" id="contact">
+            <div class="card shadow-soft border-0 h-100">
+              <div class="card-body p-4">
+                <h2 class="h3 fw-bold mb-2">Visit &amp; Contact</h2>
+                <p class="text-secondary mb-4">
+                  Conveniently located in Greenville, NC. Call for urgent issues or to confirm diesel/truck service availability.
+                </p>
+
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <div class="p-3 rounded-4 border h-100">
+                      <h3 class="h6 fw-bold mb-1">Phone</h3>
+                      <a class="text-decoration-none" href="tel:+12524960005">(252) 496-0005</a>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="p-3 rounded-4 border h-100">
+                      <h3 class="h6 fw-bold mb-1">Address</h3>
+                      <div>3840 Charles Blvd<br>Greenville, NC 27858</div>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="p-3 rounded-4 border">
+                      <h3 class="h6 fw-bold mb-1">Hours</h3>
+                      <div class="text-secondary">Mon–Fri 8:00 AM–5:30 PM</div>
+                      <div class="small-muted">Update these hours to match your real schedule.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Embedded map placeholder -->
+                <div class="mt-4">
+                  <h3 class="h6 fw-bold mb-2">Map</h3>
+                  <!-- Replace the iframe src with your Google Maps embed link -->
+                  <div class="ratio ratio-16x9 rounded-4 overflow-hidden border" aria-label="Map showing Bells Fork Auto and Truck location">
+                    <iframe
+                      title="Bells Fork Auto and Truck map"
+                      src="about:blank"
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  </div>
+                  <p class="small-muted mt-2 mb-0">
+                    Tip: Use a real Google Maps embed for higher engagement and easier directions.
+                  </p>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Emergency CTA -->
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                  <a class="btn btn-outline-dark" href="tel:+12524960005" aria-label="Call Bells Fork Auto and Truck now">Emergency / Call Now</a>
+                  <a class="btn btn-accent fw-semibold" href="#appointment">Schedule Service</a>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================
+         FAQ (On-page)
+         ============================== -->
+    <section id="faq" class="section-pad">
+      <div class="container">
+        <h2 class="display-6 fw-bold">Frequently Asked Questions</h2>
+        <p class="text-secondary mb-4">Quick answers for Greenville, NC drivers. (Also marked up in schema for SEO.)</p>
+
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="faq1">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1"
+                      aria-expanded="true" aria-controls="faqCollapse1">
+                Do you work on both cars and trucks?
+              </button>
+            </h3>
+            <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary">
+                Yes—cars, light trucks, and many work vehicles. For diesel or specialty needs, call first so we can confirm availability.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="faq2">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2"
+                      aria-expanded="false" aria-controls="faqCollapse2">
+                What should I do if my check engine light comes on?
+              </button>
+            </h3>
+            <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary">
+                If the light is flashing or the vehicle runs rough, stop driving if safe and call us. Otherwise, schedule diagnostics so we can read codes and test the underlying cause.
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h3 class="accordion-header" id="faq3">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3"
+                      aria-expanded="false" aria-controls="faqCollapse3">
+                How do estimates work?
+              </button>
+            </h3>
+            <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+              <div class="accordion-body text-secondary">
+                We start with an inspection or diagnostic as needed, explain what we find, and provide clear options. You stay in control of the decision.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================
+       FOOTER
+       SEO: Repeat NAP + internal links + basic policy links.
+       ============================== -->
+  <footer class="bg-brand-dark text-white pt-5 pb-4" role="contentinfo">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <h2 class="h5 fw-bold">Bells Fork Auto &amp; Truck</h2>
+          <p class="small-muted">
+            Auto repair and truck service in Greenville, NC—diagnostics, maintenance, and repairs you can trust.
+          </p>
+          <p class="mb-1"><strong>Phone:</strong> <a href="tel:+12524960005">(252) 496-0005</a></p>
+          <p class="mb-1"><strong>Address:</strong> 3840 Charles Blvd, Greenville, NC 27858</p>
+          <p class="mb-0"><strong>Hours:</strong> Mon–Fri 8:00 AM–5:30 PM</p>
+        </div>
+
+        <div class="col-lg-4">
+          <h2 class="h6 fw-bold">Quick Links</h2>
+          <ul class="list-unstyled">
+            <li><a class="text-decoration-none" href="#services">Services</a></li>
+            <li><a class="text-decoration-none" href="#about">About</a></li>
+            <li><a class="text-decoration-none" href="#reviews">Reviews</a></li>
+            <li><a class="text-decoration-none" href="#service-area">Service Area</a></li>
+            <li><a class="text-decoration-none" href="#appointment">Schedule</a></li>
+            <li><a class="text-decoration-none" href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4">
+          <h2 class="h6 fw-bold">SEO Notes (Keep These Updated)</h2>
+          <ul class="small-muted mb-0">
+            <li>Keep your Name/Address/Phone identical everywhere (site, Google Business Profile, directories).</li>
+            <li>Add real service photos with descriptive file names + alt text (fast-loading WebP).</li>
+            <li>Replace sample testimonials with verified customer reviews.</li>
+            <li>Create location/service pages later (e.g., /brake-repair-greenville-nc/) for stronger rankings.</li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="border-light border-opacity-25 my-4">
+
+      <div class="d-flex flex-column flex-md-row justify-content-between gap-2 small">
+        <div>© <span id="year"></span> Bells Fork Auto &amp; Truck. All rights reserved.</div>
+        <div class="d-flex gap-3">
+          <a class="text-decoration-none" href="/privacy">Privacy</a>
+          <a class="text-decoration-none" href="/terms">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 (JS) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+          crossorigin="anonymous"></script>
+
+  <!-- Lightweight inline scripts -->
+  <script>
+    // Footer year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Bootstrap validation helper
+    (function () {
+      "use strict";
+      const forms = document.querySelectorAll(".needs-validation");
+      Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add("was-validated");
+        }, false);
+      });
+    })();
+  </script>
+</body>
+</html>
