@@ -1,0 +1,21 @@
+[build]
+  command = "node generate-vdp.js"
+  publish = "."
+
+[[redirects]]
+  from = "/blog/:slug"
+  to = "/blog-post.html?slug=:slug"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/blog"
+  to = "/blog-admin.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/admin/upload"
+  to = "/admin-upload.html"
+  status = 200
+  force = true

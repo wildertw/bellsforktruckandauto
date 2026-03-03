@@ -1,0 +1,23 @@
+{
+  "name": "bellsfork-site",
+  "version": "1.0.0",
+  "description": "Bells Fork Auto & Truck - site tooling",
+  "scripts": {
+    "lint": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,css,html,md}\"",
+    "build:js": "esbuild assets/js/utils.js inventory-loader.js vehicle-manager.js --bundle --minify --outfile=assets/js/bundle.min.js",
+    "build:css": "cleancss -o style.min.css style.css",
+    "build:vdp": "node generate-vdp.js",
+    "watch:vdp": "node watch-vdp.js",
+    "build": "npm run build:js && npm run build:css && npm run build:vdp"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "prettier": "^2.0.0",
+    "esbuild": "^0.18.0",
+    "clean-css-cli": "^5.6.3"
+  }
+}

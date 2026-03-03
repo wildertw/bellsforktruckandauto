@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bulk Import - Bells Fork Auto & Truck Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    /* ── Auth Guard ── redirect to login if no valid session ── */
+    (function(){
+      var s = sessionStorage.getItem('bf_admin_session');
+      if (!s) { window.location.replace('admin-login.html?redirect=admin-bulk.html'); return; }
+      try { var d = JSON.parse(s); if (!d || !d.authenticated) throw 0; }
+      catch(e) { sessionStorage.removeItem('bf_admin_session'); window.location.replace('admin-login.html?redirect=admin-bulk.html'); }
+    })();
+  </script>
+  <style>
+    body { background:#f8f9fa; padding-bottom:3rem; }
+    .admin-header{
+      background: linear-gradient(135deg, #111827 0%, #0b1220 100%);
+      color:#fff; padding:1.75rem 0; margin-bottom:1.25rem;
+    }
+    .brand-accent { color:#dc3545; }
+    .btn-accent{ background:#dc3545; border-color:#dc3545; color:#fff; }
+    .btn-accent:hover{ background:#b02a37; border-color:#b02a37; color:#fff; }
+    .step-pill .nav-link{ border-radius:999px; }
+    .step-pill .nav-link.active{ background:#dc3545; }
+    .dropzone{
+      border:2px dashed #cbd5e1; border-radius:12px; padding:1.25rem;
+      background:#fff; text-align:center;
+    }
+    .dropzone.dragover{ border-color:#dc3545; background:#fff5f5; }
+    .card-soft{ border:1px solid #e5e7eb; border-radius:12px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .table-sticky thead th{ position: sticky; top: 0; background: #fff; z-index: 1; }
+    .small-help{ color:#6b7280; }
+    .req::after{ content:" *"; color:#dc3545; }
+    .preview-photo{ width:100%; aspect-ratio: 16/10; object-fit: cover; border-radius:10px; background:#eee; }
+    .codebox{ background:#0b1220; color:#e5e7eb; border-radius:12px; padding:1rem; }
+    .codebox code{ color:#e5e7eb; }
+  </style>
+</head>
+<body>
+  <header class="admin-header">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+          <h1 class="h3 m-0">Bulk Import <span class="brand-accent">Admin</span></h1>
+          <div class="small opacity-75">CSV/XLSX → validate/enrich → save to <span class="mono">bellsfork_inventory</span> → export <span class="mono">inventory.json</span></div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <a class="btn btn-outline-light" href="admin.html">Single Add</a>
+          <a class="btn btn-outline-light" href="inventory.html">View Inventory</a>
+          <button class="btn btn-accent" id="exportBtnTop" type="button">Export inventory.json</button>
+          <span class="badge bg-light text-dark" id="adminUserBadge"></span>
+          <button class="btn btn-outline-light btn-sm" id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <ul class="nav nav-pills step-pill gap-2 mb-3" id="stepNav">
+      <li class="nav-item"><button class="nav-link active" data-step="1" type="button">1) Upload</button></li>
+      <li class="nav-item"><button class="nav-link" data-step="2" type="button" disabled>2) Map</button></li>
+      <li class="nav-item"><button class="nav-link" data-step="3" type="button" disabled>3) Validate</button></li>
+      <li class="nav-item"><button class="nav-link" data-step="4" type="button" disabled>4) Commit</button></li>
+    </ul>
+
+    <div class="row g-3">
+      <div class="col-lg-8">
+        <!-- STEP 1 -->
+        <section class="card card-soft p-3" id="step1">
+          <h2 class="h5 mb-2">Upload CSV or Excel</h2>
+          <div class="small-help mb-3">Headers will be auto-detected. Next you’ll map them to your website fields.</div>
+
+          <div class="dropzone" id="dropzone">
+            <div class="fw-semibold">Drag & drop a <span class="mono">.csv</span> or <span class="mono">.xlsx</span> file here</div>
+            <div class="small-help mt-1">or</div>
+            <label class="btn btn-accent mt-2">
+              Choose File <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
+            </label>
+            <div class="mt-3 small text-muted" id="fileMeta"></div>
+          </div>
+
+          <hr class="my-3">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-accent" id="toStep2Btn" type="button" disabled>Continue to Mapping</button>
+            <button class="btn btn-outline-secondary" id="resetBtn" type="button">Reset</button>
+          </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="card card-soft p-3 d-none" id="step2">
+          <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <h2 class="h5 m-0">Map Columns</h2>
+            <div class="small-help">Required fields are marked with <span class="req"></span></div>
+          </div>
+          <div class="small-help mt-2">We auto-suggest mappings based on your headers. Adjust anything you want.</div>
+
+          <div class="row g-2 mt-3" id="mappingGrid"></div>
+
+          <hr class="my-3">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-secondary" id="backTo1" type="button">Back</button>
+            <button class="btn btn-accent" id="toStep3Btn" type="button">Continue to Validation</button>
+          </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="card card-soft p-3 d-none" id="step3">
+          <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+            <h2 class="h5 m-0">Validate & Optional VIN Enrichment</h2>
+            <span class="badge text-bg-light border">Rows: <span id="rowCount">0</span></span>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="decodeToggle" checked>
+                <label class="form-check-label" for="decodeToggle">
+                  Auto-decode VINs to fill missing trim/engine/fuel/drivetrain/type (optional)
+                </label>
+              </div>
+              <div class="small-help mt-1">Decoding is rate-limited; you’ll see progress below.</div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="overwriteToggle">
+                <label class="form-check-label" for="overwriteToggle">
+                  Overwrite duplicates (same stock/public id)
+                </label>
+              </div>
+              <div class="small-help mt-1">Default is “skip duplicates”.</div>
+            </div>
+          </div>
+
+          <div class="mt-3 d-none" id="decodeProgressWrap">
+            <div class="d-flex justify-content-between small mb-1">
+              <span>VIN Decode Progress</span>
+              <span><span id="decodeDone">0</span>/<span id="decodeTotal">0</span></span>
+            </div>
+            <div class="progress" role="progressbar" aria-label="VIN decode progress">
+              <div class="progress-bar bg-danger" id="decodeProgress" style="width:0%"></div>
+            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="table-responsive table-sticky" style="max-height: 340px;">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Stock</th>
+                  <th>VIN</th>
+                  <th>Year</th>
+                  <th>Make</th>
+                  <th>Model</th>
+                  <th>Status</th>
+                  <th>Issues</th>
+                  <th class="text-end">Import</th>
+                </tr>
+              </thead>
+              <tbody id="validateTbody"></tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-danger d-none mt-3" id="hardErrorBox"></div>
+
+          <hr class="my-3">
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-secondary" id="backTo2" type="button">Back</button>
+            <button class="btn btn-accent" id="toStep4Btn" type="button" disabled>Continue to Commit</button>
+          </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="card card-soft p-3 d-none" id="step4">
+          <h2 class="h5">Commit Import</h2>
+          <div class="small-help">Writes to localStorage (<span class="mono">bellsfork_inventory</span>) and downloads an updated <span class="mono">inventory.json</span>.</div>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-4">
+              <div class="p-3 border rounded-3 bg-white">
+                <div class="small text-muted">Will Import</div>
+                <div class="display-6 m-0" id="importCount">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 border rounded-3 bg-white">
+                <div class="small text-muted">Skipped</div>
+                <div class="display-6 m-0" id="skipCount">0</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-3 border rounded-3 bg-white">
+                <div class="small text-muted">Hard Errors</div>
+                <div class="display-6 m-0" id="errorCount">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-accent" id="commitBtn" type="button">Commit & Download inventory.json</button>
+            <button class="btn btn-outline-secondary" id="backTo3" type="button">Back</button>
+            <button class="btn btn-outline-secondary" id="exportBtn" type="button">Export inventory.json</button>
+          </div>
+
+          <div class="alert alert-success mt-3 d-none" id="commitSuccess"></div>
+
+          <hr class="my-3">
+          <h3 class="h6">Generate Vehicle Pages (VDPs)</h3>
+          <div class="codebox">
+            <div class="small text-muted mb-2">From your project folder (where <span class="mono">inventory.json</span> sits):</div>
+            <code class="mono">python3 generate_vdp_pages.py --inventory inventory.json --out .</code>
+            <div class="small text-muted mt-2">Deploy the updated site files (including the generated <span class="mono">/vdp/</span> folder) to Netlify.</div>
+          </div>
+
+          <hr class="my-3">
+          <h3 class="h6">Recently Added</h3>
+          <div class="table-responsive" style="max-height: 280px;">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>Date</th><th>Stock</th><th>Year</th><th>Make</th><th>Model</th><th>Status</th></tr></thead>
+              <tbody id="recentTbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Preview column -->
+      <div class="col-lg-4">
+        <div class="card card-soft p-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <h2 class="h6 m-0">Live Preview</h2>
+            <span class="badge text-bg-light border" id="previewBadge">—</span>
+          </div>
+          <div class="small-help mt-1">Preview updates from your first row (mapped fields).</div>
+
+          <div class="mt-3">
+            <img class="preview-photo" id="previewImg" alt="Preview image" src="assets/vehicles/placeholder.jpg" onerror="this.style.display='none'">
+          </div>
+
+          <div class="mt-3">
+            <div class="fw-bold" id="previewTitle">—</div>
+            <div class="d-flex justify-content-between mt-2">
+              <div><span class="text-muted small">Price</span><div class="fw-semibold" id="previewPrice">—</div></div>
+              <div class="text-end"><span class="text-muted small">Mileage</span><div class="fw-semibold" id="previewMiles">—</div></div>
+            </div>
+            <hr>
+            <div class="small text-muted">URL (safe)</div>
+            <div class="mono small" id="previewUrl">—</div>
+          </div>
+
+          <hr class="my-3">
+          <div class="small-help">
+            <div class="fw-semibold mb-1">Guarantee</div>
+            VIN will <strong>never</strong> be used in URLs. If Stock # is missing, a hashed ID is used.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 small text-muted">
+      Storage key: <span class="mono">bellsfork_inventory</span> (same as your existing single-add admin).
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+
+  <script>
+    // ─────────────────────────────────────────────────────────────────────────
+    // State + helpers
+    // ─────────────────────────────────────────────────────────────────────────
+    const STORAGE_KEY = 'bellsfork_inventory';
+    const state = { file:null, headers:[], rows:[], mapping:{}, normalized:[], issues:[], decisions:[] };
+
+    function fnv1a32(str) {
+      let h = 0x811c9dc5;
+      const s = String(str || '');
+      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+      return ('00000000' + h.toString(16)).slice(-8);
+    }
+    function normalizeId(raw) { return String(raw || '').replace(/[^a-z0-9]/gi, ''); }
+    function getPublicId(v) {
+      const base = String(v.publicId || v.stockNumber || '').trim();
+      if (base) return normalizeId(base);
+      const vin = String(v.vin || '').trim().toUpperCase();
+      if (vin) return 'V' + fnv1a32(vin);
+      const fallback = `${v.year||''}|${v.make||''}|${v.model||''}|${v.dateAdded||''}|${v.id||''}`;
+      return 'V' + fnv1a32(fallback);
+    }
+    function sanitizeSlugPart(s) { return String(s || '').trim().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+    function buildVDPUrl(v) {
+      const make  = sanitizeSlugPart(v.make);
+      const model = sanitizeSlugPart(v.model);
+      const trim  = sanitizeSlugPart(v.trim);
+      const slug  = `Used-${v.year}-${make}-${model}${trim ? '-' + trim : ''}-for-sale-in-Greenville-NC-27858`;
+      return `/vdp/${getPublicId(v)}/${slug}/`;
+    }
+    function getInventory() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"vehicles":[]}'); }
+      catch { return { vehicles: [] }; }
+    }
+    function setInventory(inv) {
+      inv.lastUpdated = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(inv));
+    }
+    function downloadJson(filename, obj) {
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    function fmtPrice(p) {
+      const n = Number(String(p).replace(/[^0-9.]/g, ''));
+      if (!isFinite(n) || n <= 0) return 'Call for Price';
+      return '$' + Math.round(n).toLocaleString();
+    }
+    function fmtMiles(m) {
+      const n = Number(String(m).replace(/[^0-9.]/g, ''));
+      if (!isFinite(n) || n <= 0) return '—';
+      return Math.round(n).toLocaleString() + ' miles';
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Step navigation
+    // ─────────────────────────────────────────────────────────────────────────
+    const stepButtons = [...document.querySelectorAll('#stepNav .nav-link')];
+    function showStep(n) {
+      stepButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.step === String(n)));
+      document.getElementById('step1').classList.toggle('d-none', n !== 1);
+      document.getElementById('step2').classList.toggle('d-none', n !== 2);
+      document.getElementById('step3').classList.toggle('d-none', n !== 3);
+      document.getElementById('step4').classList.toggle('d-none', n !== 4);
+    }
+    function enableStep(n) {
+      const btn = stepButtons.find(b => b.dataset.step === String(n));
+      if (btn) btn.disabled = false;
+    }
+    stepButtons.forEach(btn => btn.addEventListener('click', () => { if (!btn.disabled) showStep(Number(btn.dataset.step)); }));
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Upload parsing
+    // ─────────────────────────────────────────────────────────────────────────
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault(); dropzone.classList.remove('dragover');
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (file) handleFile(file);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+    document.getElementById('backTo1').addEventListener('click', () => showStep(1));
+    document.getElementById('backTo2').addEventListener('click', () => showStep(2));
+    document.getElementById('backTo3').addEventListener('click', () => showStep(3));
+    document.getElementById('exportBtnTop').addEventListener('click', () => downloadJson('inventory.json', getInventory()));
+    document.getElementById('exportBtn').addEventListener('click', () => downloadJson('inventory.json', getInventory()));
+
+    function resetAll() {
+      state.file=null; state.headers=[]; state.rows=[]; state.mapping={};
+      state.normalized=[]; state.issues=[]; state.decisions=[];
+      fileInput.value = '';
+      document.getElementById('fileMeta').textContent = '';
+      document.getElementById('toStep2Btn').disabled = true;
+      document.getElementById('toStep4Btn').disabled = true;
+      stepButtons.forEach(btn => { if (Number(btn.dataset.step) > 1) btn.disabled = true; });
+      document.getElementById('mappingGrid').innerHTML = '';
+      document.getElementById('validateTbody').innerHTML = '';
+      document.getElementById('rowCount').textContent = '0';
+      updatePreview(null);
+      showStep(1);
+    }
+
+    async function handleFile(file) {
+      state.file = file;
+      document.getElementById('fileMeta').textContent = `${file.name} • ${(file.size/1024).toFixed(1)} KB`;
+      const ext = (file.name.split('.').pop() || '').toLowerCase();
+
+      try {
+        if (ext === 'csv') {
+          const text = await file.text();
+          const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+          if (parsed.errors && parsed.errors.length) throw new Error(parsed.errors[0].message || 'CSV parse error');
+          state.rows = parsed.data || [];
+        } else if (ext === 'xlsx' || ext === 'xls') {
+          const buf = await file.arrayBuffer();
+          const wb = XLSX.read(buf, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          state.rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        } else {
+          throw new Error('Unsupported file type. Upload CSV or XLSX.');
+        }
+
+        state.headers = state.rows.length ? Object.keys(state.rows[0]) : [];
+        if (!state.headers.length) throw new Error('No headers found. Ensure the first row contains column names.');
+
+        state.mapping = suggestMapping(state.headers);
+        document.getElementById('toStep2Btn').disabled = false;
+        enableStep(2);
+
+        // preview from first row
+        updatePreview(buildVehicleFromRow(state.rows[0], state.mapping));
+      } catch (err) {
+        console.error(err);
+        alert(err.message || 'Could not read file.');
+        resetAll();
+      }
+    }
+
+    document.getElementById('toStep2Btn').addEventListener('click', () => { renderMapping(); showStep(2); });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Mapping UI
+    // ─────────────────────────────────────────────────────────────────────────
+    const FIELD_DEFS = [
+      { key: 'stockNumber', label: 'Stock #', required: true },
+      { key: 'vin', label: 'VIN', required: true },
+      { key: 'year', label: 'Year', required: true },
+      { key: 'make', label: 'Make', required: true },
+      { key: 'model', label: 'Model', required: true },
+      { key: 'trim', label: 'Trim', required: false },
+      { key: 'price', label: 'Price', required: false },
+      { key: 'mileage', label: 'Mileage', required: false },
+      { key: 'type', label: 'Type (truck/suv/sedan)', required: false },
+      { key: 'exteriorColor', label: 'Exterior Color', required: false },
+      { key: 'interiorColor', label: 'Interior Color', required: false },
+      { key: 'transmission', label: 'Transmission', required: false },
+      { key: 'fuelType', label: 'Fuel Type', required: false },
+      { key: 'engine', label: 'Engine', required: false },
+      { key: 'drivetrain', label: 'Drivetrain', required: false },
+      { key: 'features', label: 'Features (comma/semicolon list)', required: false },
+      { key: 'images', label: 'Image filenames (comma list)', required: false },
+      { key: 'status', label: 'Status (available/pending/sold)', required: false },
+      { key: 'badge', label: 'Badge', required: false },
+      { key: 'dateAdded', label: 'Date Added', required: false },
+      { key: 'description', label: 'Description', required: false },
+    ];
+
+    function suggestMapping(headers) {
+      const lower = headers.map(h => ({ h, l: String(h).toLowerCase().trim() }));
+      const pick = (preds) => {
+        for (const p of preds) {
+          const found = lower.find(x => p(x.l));
+          if (found) return found.h;
+        }
+        return '';
+      };
+      return {
+        stockNumber: pick([l => l === 'stock #' || l === 'stock#' || l.includes('stock') || l.includes('unit')]),
+        vin:         pick([l => l === 'vin' || l.includes('vin')]),
+        year:        pick([l => l === 'year' || l.includes('year')]),
+        make:        pick([l => l === 'make' || l.includes('make')]),
+        model:       pick([l => l === 'model' || l.includes('model')]),
+        trim:        pick([l => l === 'trim' || l.includes('trim')]),
+        price:       pick([l => l === 'price' || l.includes('price') || l.includes('retail')]),
+        mileage:     pick([l => l === 'mileage' || l.includes('miles') || l.includes('odometer')]),
+        exteriorColor: pick([l => l.includes('exterior') && l.includes('color')]),
+        interiorColor: pick([l => l.includes('interior') && l.includes('color')]),
+        transmission:  pick([l => l.includes('trans')]),
+        fuelType:      pick([l => l.includes('fuel')]),
+        engine:        pick([l => l.includes('engine')]),
+        drivetrain:    pick([l => l.includes('drive')]),
+        features:      pick([l => l.includes('feature') || l.includes('options')]),
+        images:        pick([l => l.includes('image') || l.includes('photo')]),
+        status:        pick([l => l.includes('status')]),
+        badge:         pick([l => l.includes('badge')]),
+        dateAdded:     pick([l => l.includes('date') && (l.includes('added') || l.includes('listed') || l.includes('acquired'))]),
+        description:   pick([l => l.includes('description') || l.includes('desc')]),
+        type:          pick([l => l === 'type' || l.includes('body')]),
+      };
+    }
+
+    function renderMapping() {
+      const grid = document.getElementById('mappingGrid');
+      grid.innerHTML = '';
+      if (!state.headers.length) return;
+
+      for (const def of FIELD_DEFS) {
+        const col = document.createElement('div');
+        col.className = 'col-md-6';
+
+        const label = document.createElement('label');
+        label.className = 'form-label ' + (def.required ? 'req' : '');
+        label.textContent = def.label;
+
+        const select = document.createElement('select');
+        select.className = 'form-select';
+        select.dataset.field = def.key;
+
+        const optNone = document.createElement('option');
+        optNone.value = '';
+        optNone.textContent = def.required ? '— Select column (required) —' : '— Not mapped —';
+        select.appendChild(optNone);
+
+        state.headers.forEach(h => {
+          const opt = document.createElement('option');
+          opt.value = h; opt.textContent = h;
+          select.appendChild(opt);
+        });
+
+        select.value = state.mapping[def.key] || '';
+        select.addEventListener('change', () => {
+          state.mapping[def.key] = select.value;
+          if (state.rows[0]) updatePreview(buildVehicleFromRow(state.rows[0], state.mapping));
+        });
+
+        col.appendChild(label);
+        col.appendChild(select);
+        grid.appendChild(col);
+      }
+    }
+
+    document.getElementById('toStep3Btn').addEventListener('click', async () => {
+      const missingMap = FIELD_DEFS.filter(d => d.required && !state.mapping[d.key]);
+      if (missingMap.length) return alert('Missing required mappings: ' + missingMap.map(m => m.label).join(', '));
+      enableStep(3);
+      await runValidation();
+      showStep(3);
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Normalization + Validation + VIN Decode
+    // ─────────────────────────────────────────────────────────────────────────
+    function readField(row, key) {
+      const col = state.mapping[key];
+      return col ? row[col] : '';
+    }
+    function parseList(val) {
+      const s = String(val || '').trim();
+      if (!s) return [];
+      return s.split(/\s*[;|,]\s*/g).map(x => x.trim()).filter(Boolean);
+    }
+
+    function buildVehicleFromRow(row, mapping) {
+      const m = mapping || state.mapping;
+      const get = (k) => m[k] ? row[m[k]] : '';
+      const vin = String(get('vin') || '').trim().toUpperCase();
+      const stockNumber = String(get('stockNumber') || '').trim();
+      const yearRaw = String(get('year') || '').trim();
+
+      const v = {
+        stockNumber: stockNumber || '',
+        publicId: stockNumber ? normalizeId(stockNumber) : '',
+        vin,
+        year: yearRaw,
+        make: String(get('make') || '').trim(),
+        model: String(get('model') || '').trim(),
+        trim: String(get('trim') || '').trim(),
+        price: String(get('price') || '').trim(),
+        mileage: String(get('mileage') || '').trim(),
+        type: String(get('type') || '').trim() || 'used',
+        exteriorColor: String(get('exteriorColor') || '').trim(),
+        interiorColor: String(get('interiorColor') || '').trim(),
+        transmission: String(get('transmission') || '').trim(),
+        fuelType: String(get('fuelType') || '').trim(),
+        engine: String(get('engine') || '').trim(),
+        drivetrain: String(get('drivetrain') || '').trim(),
+        features: parseList(get('features')),
+        images: parseList(get('images')),
+        status: (String(get('status') || '').trim().toLowerCase() || 'available'),
+        badge: String(get('badge') || '').trim(),
+        description: String(get('description') || '').trim(),
+        dateAdded: String(get('dateAdded') || '').trim() || new Date().toISOString(),
+      };
+
+      if (!['available','pending','sold',''].includes(v.status)) v.status = 'available';
+      if (!v.publicId) v.publicId = getPublicId(v);
+
+      // numeric conversions (best effort)
+      const y = Number(String(v.year).replace(/[^0-9]/g,''));
+      if (isFinite(y) && y > 1900) v.year = y;
+
+      const p = Number(String(v.price).replace(/[^0-9.]/g,''));
+      if (isFinite(p) && p > 0) v.price = Math.round(p);
+
+      const mi = Number(String(v.mileage).replace(/[^0-9.]/g,''));
+      if (isFinite(mi) && mi >= 0) v.mileage = Math.round(mi);
+
+      return v;
+    }
+
+    function rowIssues(v) {
+      const out = { hard: [], warn: [] };
+      if (!v.year) out.hard.push('Missing year');
+      if (!v.make) out.hard.push('Missing make');
+      if (!v.model) out.hard.push('Missing model');
+
+      if (!v.stockNumber) out.warn.push('Missing stock # (URL uses hashed id)');
+      if (!v.vin) out.warn.push('Missing VIN (no decode)');
+      if (v.vin && String(v.vin).length !== 17) out.warn.push('VIN not 17 chars');
+      if (!v.price) out.warn.push('Missing price');
+      if (v.mileage === '' || v.mileage === null || typeof v.mileage === 'undefined') out.warn.push('Missing mileage');
+      return out;
+    }
+
+    async function decodeVin(vin) {
+      const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${encodeURIComponent(vin)}?format=json`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('VIN decode network error');
+      const data = await res.json();
+      const results = data && data.Results ? data.Results : [];
+      const get = (name) => {
+        const hit = results.find(r => r.Variable && r.Variable.toLowerCase() === String(name).toLowerCase());
+        return hit && hit.Value ? String(hit.Value).trim() : '';
+      };
+      return {
+        make: get('Make'),
+        model: get('Model'),
+        trim: get('Trim') || get('Series'),
+        year: get('Model Year'),
+        engine: get('Engine Model') || get('Engine Configuration') || get('Displacement (L)'),
+        fuelType: get('Fuel Type - Primary'),
+        transmission: get('Transmission Style') || get('Transmission Type'),
+        drivetrain: get('Drive Type'),
+      };
+    }
+
+    function renderValidationTable() {
+      const tbody = document.getElementById('validateTbody');
+      tbody.innerHTML = '';
+      document.getElementById('rowCount').textContent = String(state.rows.length || 0);
+
+      state.normalized.forEach((v, idx) => {
+        const iss = state.issues[idx] || { hard: [], warn: [] };
+        const issueText = [
+          iss.hard.length ? `❌ ${iss.hard.join('; ')}` : '',
+          iss.warn.length ? `⚠️ ${iss.warn.join('; ')}` : ''
+        ].filter(Boolean).join('  ') || '—';
+
+        const statusClass = v.status === 'sold' ? 'secondary' : (v.status === 'pending' ? 'warning' : 'success');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-muted">${idx+1}</td>
+          <td class="mono">${v.stockNumber || ''}</td>
+          <td class="mono">${v.vin || ''}</td>
+          <td>${v.year || ''}</td>
+          <td>${v.make || ''}</td>
+          <td>${v.model || ''}</td>
+          <td><span class="badge text-bg-${statusClass}">${v.status || 'available'}</span></td>
+          <td class="${iss.hard.length ? 'text-danger' : (iss.warn.length ? 'text-warning' : 'text-muted')} small">${issueText}</td>
+          <td class="text-end">
+            <input type="checkbox" class="form-check-input importCheck" data-idx="${idx}" ${state.decisions[idx] ? 'checked' : ''} ${iss.hard.length ? 'disabled' : ''}>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.importCheck').forEach(ch => {
+        ch.addEventListener('change', () => {
+          const idx = Number(ch.dataset.idx);
+          state.decisions[idx] = !!ch.checked;
+          updateCommitCounts();
+        });
+      });
+
+      updatePreview(state.normalized[0] || null);
+    }
+
+    async function runValidation() {
+      state.normalized = state.rows.map(r => buildVehicleFromRow(r, state.mapping));
+      state.issues = state.normalized.map(v => rowIssues(v));
+      state.decisions = state.issues.map(iss => iss.hard.length === 0);
+
+      const doDecode = document.getElementById('decodeToggle').checked;
+      const decodeWrap = document.getElementById('decodeProgressWrap');
+
+      if (doDecode) {
+        const targets = state.normalized
+          .map((v, idx) => ({ v, idx }))
+          .filter(x => x.v.vin && String(x.v.vin).length === 17);
+
+        if (targets.length) {
+          decodeWrap.classList.remove('d-none');
+          document.getElementById('decodeTotal').textContent = String(targets.length);
+          document.getElementById('decodeDone').textContent = '0';
+          document.getElementById('decodeProgress').style.width = '0%';
+
+          let done = 0;
+          const queue = [...targets];
+          const concurrency = 3;
+
+          async function worker() {
+            while (queue.length) {
+              const item = queue.shift();
+              try {
+                const d = await decodeVin(item.v.vin);
+                if (!item.v.make && d.make) item.v.make = d.make;
+                if (!item.v.model && d.model) item.v.model = d.model;
+                if (!item.v.trim && d.trim) item.v.trim = d.trim;
+                if ((!item.v.year || String(item.v.year).length < 4) && d.year) item.v.year = Number(d.year) || d.year;
+                if (!item.v.engine && d.engine) item.v.engine = d.engine;
+                if (!item.v.fuelType && d.fuelType) item.v.fuelType = d.fuelType;
+                if (!item.v.transmission && d.transmission) item.v.transmission = d.transmission;
+                if (!item.v.drivetrain && d.drivetrain) item.v.drivetrain = d.drivetrain;
+
+                state.issues[item.idx] = rowIssues(item.v);
+                state.decisions[item.idx] = state.issues[item.idx].hard.length === 0;
+              } catch (e) {
+                state.issues[item.idx].warn.push('VIN decode failed');
+              } finally {
+                done++;
+                document.getElementById('decodeDone').textContent = String(done);
+                document.getElementById('decodeProgress').style.width = Math.round((done / targets.length) * 100) + '%';
+              }
+            }
+          }
+          await Promise.all(Array.from({ length: concurrency }, () => worker()));
+          document.getElementById('decodeProgress').style.width = '100%';
+        } else {
+          decodeWrap.classList.add('d-none');
+        }
+      } else {
+        decodeWrap.classList.add('d-none');
+      }
+
+      renderValidationTable();
+      updateCommitCounts();
+      enableStep(4);
+      document.getElementById('toStep4Btn').disabled = false;
+    }
+
+    document.getElementById('decodeToggle').addEventListener('change', () => {
+      if (state.rows.length) runValidation();
+    });
+
+    document.getElementById('toStep4Btn').addEventListener('click', () => {
+      updateCommitCounts();
+      renderRecent();
+      showStep(4);
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Commit
+    // ─────────────────────────────────────────────────────────────────────────
+    function updateCommitCounts() {
+      const hardErrors = state.issues.filter(i => i && i.hard && i.hard.length).length;
+      const willImport = state.decisions.filter(Boolean).length;
+      const skipped = state.normalized.length - willImport;
+
+      document.getElementById('importCount').textContent = String(willImport);
+      document.getElementById('skipCount').textContent = String(skipped);
+      document.getElementById('errorCount').textContent = String(hardErrors);
+    }
+
+    function upsertVehicles(existing, incoming, overwrite) {
+      const map = new Map();
+      existing.forEach(v => map.set(getPublicId(v), v));
+
+      let imported = 0, skipped = 0;
+      incoming.forEach(v => {
+        const id = getPublicId(v);
+        if (map.has(id) && !overwrite) { skipped++; return; }
+        map.set(id, v);
+        imported++;
+      });
+      return { vehicles: Array.from(map.values()), imported, skipped };
+    }
+
+    function renderRecent() {
+      const inv = getInventory();
+      const vehicles = inv.vehicles || [];
+      const sorted = [...vehicles].sort((a,b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
+      const recent = sorted.slice(0, 15);
+
+      const tbody = document.getElementById('recentTbody');
+      tbody.innerHTML = recent.map(v => {
+        const statusClass = v.status === 'sold' ? 'secondary' : (v.status === 'pending' ? 'warning' : 'success');
+        return `
+          <tr>
+            <td class="small text-muted">${String(v.dateAdded || '').slice(0,10)}</td>
+            <td class="mono">${v.stockNumber || ''}</td>
+            <td>${v.year || ''}</td>
+            <td>${v.make || ''}</td>
+            <td>${v.model || ''}</td>
+            <td><span class="badge text-bg-${statusClass}">${v.status || 'available'}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function commitImport() {
+      const overwrite = document.getElementById('overwriteToggle').checked;
+      const selected = state.normalized.filter((v, idx) => !!state.decisions[idx]);
+
+      const inv = getInventory();
+      const existing = inv.vehicles || [];
+
+      selected.forEach(v => { v.publicId = getPublicId(v); });
+
+      const { vehicles, imported, skipped } = upsertVehicles(existing, selected, overwrite);
+      const out = { lastUpdated: new Date().toISOString(), vehicles };
+
+      setInventory(out);
+      downloadJson('inventory.json', out);
+
+      const box = document.getElementById('commitSuccess');
+      box.classList.remove('d-none');
+      box.innerHTML = `<strong>Done.</strong> Imported ${imported}. Skipped ${skipped}. Total vehicles now: ${vehicles.length}.`;
+      renderRecent();
+    }
+
+    document.getElementById('commitBtn').addEventListener('click', commitImport);
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Preview
+    // ─────────────────────────────────────────────────────────────────────────
+    function updatePreview(v) {
+      const badge = document.getElementById('previewBadge');
+      const title = document.getElementById('previewTitle');
+      const price = document.getElementById('previewPrice');
+      const miles = document.getElementById('previewMiles');
+      const url   = document.getElementById('previewUrl');
+
+      if (!v) {
+        badge.textContent = '—'; title.textContent = '—'; price.textContent='—'; miles.textContent='—'; url.textContent='—';
+        return;
+      }
+      badge.textContent = v.status || 'available';
+      title.textContent = `${v.year || ''} ${v.make || ''} ${v.model || ''}${v.trim ? ' ' + v.trim : ''}`.trim() || '—';
+      price.textContent = fmtPrice(v.price);
+      miles.textContent = fmtMiles(v.mileage);
+      url.textContent   = buildVDPUrl(v);
+    }
+
+    // Init
+    resetAll();
+
+    /* ── Session UI ── */
+    (function(){
+      try {
+        var s = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+        var badge = document.getElementById('adminUserBadge');
+        if (badge && s.user) badge.textContent = 'Logged in as ' + s.user;
+      } catch(e){}
+      document.getElementById('logoutBtn').addEventListener('click', function(){
+        sessionStorage.removeItem('bf_admin_session');
+        window.location.replace('admin-login.html');
+      });
+    })();
+  </script>
+</body>
+</html>

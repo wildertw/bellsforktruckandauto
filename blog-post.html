@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="pageTitle">Blog Post | Bells Fork Auto & Truck</title>
+  <meta name="description" id="metaDescription" content="Read the latest Bells Fork Auto & Truck article." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" id="canonicalLink" href="https://bellsforkautoandtruck.com/blog.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" id="ogTitle" content="Blog Post | Bells Fork Auto & Truck" />
+  <meta property="og:description" id="ogDescription" content="Read the latest Bells Fork Auto & Truck article." />
+  <meta property="og:url" id="ogUrl" content="https://bellsforkautoandtruck.com/blog.html" />
+  <meta property="og:image" id="ogImage" content="https://bellsforkautoandtruck.com/assets/shop-front.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" id="twTitle" content="Blog Post | Bells Fork Auto & Truck" />
+  <meta name="twitter:description" id="twDescription" content="Read the latest Bells Fork Auto & Truck article." />
+  <meta name="twitter:image" id="twImage" content="https://bellsforkautoandtruck.com/assets/shop-front.jpg" />
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <style>
+    .bfat-navlink { font-size:.88rem; letter-spacing:.07em; color:#fff !important; transition:background .18s,color .18s; }
+    .bfat-navlink:hover,.bfat-navlink:focus,.bfat-navlink.active { background:#dc3545 !important; color:#fff !important; }
+    .article-wrap { max-width: 900px; margin: 0 auto; }
+    .article-hero { border-radius: 14px; overflow: hidden; margin-bottom: 1.25rem; background: #f2f4f7; }
+    .article-hero img { width: 100%; max-height: 460px; object-fit: cover; }
+    .article-content { font-size: 1.02rem; line-height: 1.75; color: #2f3338; }
+    .article-content img { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
+    .article-content h2,.article-content h3,.article-content h4 { margin-top: 1.7rem; margin-bottom: .75rem; }
+    .share-btn { border: 1px solid #d6dae0; border-radius: 999px; padding: .35rem .85rem; font-size: .85rem; text-decoration: none; color: #2b2f33; }
+    .share-btn:hover { border-color: #dc3545; color: #dc3545; }
+    .comment-card { border: 1px solid #e7eaee; border-radius: 12px; background: #fff; }
+    .comment-meta { font-size: .82rem; color: #6c757d; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="sticky-top" role="banner" style="z-index:1030;">
+    <nav class="navbar navbar-expand-lg navbar-dark py-0" style="background:#111;">
+      <div class="container-fluid">
+        <a href="index.html" class="navbar-brand py-2">
+          <img src="assets/logo.png" height="46" alt="Bells Fork Auto and Truck Logo">
+        </a>
+        <button class="navbar-toggler border-0 ms-auto py-3" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-center" id="navMain">
+          <ul class="navbar-nav align-items-lg-center">
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="inventory.html">Inventory</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="about.html">About</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="financing.html">Financing</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink active" href="blog.html" aria-current="page">Blog</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="contact.html#visit">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" class="py-5">
+    <div class="container article-wrap">
+      <nav aria-label="Breadcrumb" class="mb-3">
+        <a href="blog.html" class="text-decoration-none">&larr; Back to Blog</a>
+      </nav>
+
+      <div id="loadingState" class="text-center py-5">
+        <div class="spinner-border text-danger mb-3" role="status"></div>
+        <p class="text-muted mb-0">Loading article...</p>
+      </div>
+
+      <article id="article" style="display:none;">
+        <header class="mb-4">
+          <span id="postCategory" class="badge bg-danger mb-2">General</span>
+          <h1 id="postTitle" class="fw-bold mb-2"></h1>
+          <div class="text-muted small">
+            <span id="postDate"></span>
+            <span class="mx-2">|</span>
+            <span id="postAuthor"></span>
+          </div>
+        </header>
+
+        <div id="postHero" class="article-hero" style="display:none;">
+          <img id="postHeroImg" src="" alt="" loading="eager" />
+        </div>
+
+        <section id="postContent" class="article-content"></section>
+
+        <section class="mt-4 pt-3 border-top">
+          <h2 class="h6 text-uppercase text-muted mb-3">Share this post</h2>
+          <div class="d-flex flex-wrap gap-2">
+            <a id="shareFacebook" class="share-btn" href="#" target="_blank" rel="noopener">Facebook</a>
+            <a id="shareX" class="share-btn" href="#" target="_blank" rel="noopener">X</a>
+            <a id="shareEmail" class="share-btn" href="#">Email</a>
+            <button id="copyLinkBtn" class="share-btn bg-white" type="button">Copy Link</button>
+          </div>
+        </section>
+
+        <section class="mt-5">
+          <h2 class="h5 mb-3">Comments</h2>
+          <div id="commentStatus" class="small mb-2"></div>
+          <form id="commentForm" class="mb-4">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <input id="commentName" type="text" class="form-control" placeholder="Your name" required maxlength="80">
+              </div>
+              <div class="col-md-8">
+                <input id="commentWebsite" type="text" class="form-control d-none" autocomplete="off" tabindex="-1" aria-hidden="true">
+              </div>
+            </div>
+            <div class="mt-2">
+              <textarea id="commentBody" class="form-control" rows="4" placeholder="Write a comment..." required maxlength="1200"></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger mt-2">Post Comment</button>
+          </form>
+          <div id="commentsList" class="d-grid gap-2"></div>
+        </section>
+      </article>
+
+      <section id="errorState" style="display:none;" class="text-center py-5">
+        <h2 class="h4 mb-2">Post not found</h2>
+        <p class="text-muted">The article may have been moved or is still in draft mode.</p>
+        <a href="blog.html" class="btn btn-outline-dark">Return to Blog</a>
+      </section>
+    </div>
+  </main>
+
+  <footer style="background:#111;border-top:1px solid #333;padding:1rem 0;">
+    <div class="container text-center" style="font-size:.82rem;color:#aaa;">
+      &copy; <span id="year"></span> Bells Fork Auto &amp; Truck
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/blog-post.js" defer></script>
+</body>
+</html>
+

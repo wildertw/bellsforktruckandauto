@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\"/*.html \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\"/*.js \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\"/style.css)",
+      "Bash(file \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\"/*.json \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\"/*.yaml)",
+      "Bash(find \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" -type f \\\\\\( -name \"*.html\" -o -name \"*.js\" -o -name \"*.css\" -o -name \"*.json\" -o -name \"*.yaml\" -o -name \"*.md\" \\\\\\) -exec wc -l {} +)",
+      "Bash(node generate-vdp.js)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"C:/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/generate-vdp.js\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" -e \"try { require.resolve\\(''http-server''\\); console.log\\(''http-server available''\\); } catch\\(e\\) { console.log\\(''http-server not installed''\\); }\")",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" --help)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(printf '%s' 'admin')",
+      "Bash(printf '%s' 'Tina1234')",
+      "Bash(xargs head -100)",
+      "WebFetch(domain:vpic.nhtsa.dot.gov)",
+      "Bash(grep -rn \"assets/style.css\\\\|href=\"\"style.css\"\"\\\\|href=\"\"assets/style\" \"C:/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/\"*.html)",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" \"/c/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/fix-vins.js\")",
+      "Bash(\"/c/Program Files/nodejs/node.exe\" generate-vdp.js)"
+    ]
+  }
+}
