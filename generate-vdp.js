@@ -896,6 +896,9 @@ ${buildSchema(v)}
             <li class="nav-item">
               <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}contact.html#visit">Contact</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}blog.html">Blog</a>
+            </li>
           </ul>
         </div>
       </div>

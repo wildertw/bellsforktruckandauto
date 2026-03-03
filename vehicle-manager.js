@@ -104,6 +104,9 @@ function getPhotoBaseId() {
   const model = normalizePhotoToken(($('model')?.value || '').trim(), 'model');
   const stock = normalizePhotoToken(($('stockNumber')?.value || '').trim(), '');
   const vin = normalizePhotoToken(($('vin')?.value || '').trim().toUpperCase(), '');
+  if (!stock && vin) {
+    return `VEHICLE-${vin}`;
+  }
   const trailingId = stock || vin || String(Date.now());
 
   const parts = exteriorColor
@@ -1125,10 +1128,10 @@ function updatePhotoUploadHint() {
   const config  = getCloudinaryConfig();
   if (!hint) return;
   if (config) {
-    hint.innerHTML = 'Select up to 10 photos. Names use <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span> (or <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span> if exterior color is blank).';
+    hint.innerHTML = 'Select up to 10 photos. Names use <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span> when color is blank, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs stand in for stock numbers.';
     if (dlBtn) dlBtn.style.display = 'none';
   } else {
-    hint.innerHTML = 'Select up to 10 photos. First photo is the main image. Photos use <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span> (or <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span> when exterior color is blank).';
+    hint.innerHTML = 'Select up to 10 photos. First photo is the main image. Photos should follow <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span>, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs replace stock numbers.';
     if (dlBtn) dlBtn.style.display = '';
   }
 }
@@ -1235,15 +1238,26 @@ async function generateAIDescription() {
     .map(([k, v]) => `${k}: ${v}`)
     .join('\n');
 
-  const prompt = `Write a short, compelling used car dealer description (2-4 sentences) for this vehicle listing. Be professional, highlight key selling points, and make it appealing to buyers. Do not use excessive exclamation marks. Do not invent features not listed. Return only the description text.
+  const prompt = `You are helping populate a used car dealer listing. Based on the vehicle details and any provided photos, fill in the following fields. Return ONLY a valid JSON object (no markdown, no code fences) with these exact keys:
+- "description": a 2-4 sentence compelling dealer description, professional and appealing to buyers. Do not use excessive exclamation marks. Do not invent features not listed.
+- "trim": vehicle trim level (e.g., "XLT", "Sport", "Limited") or "-"
+- "engine": engine description (e.g., "5.0L V8", "2.5L 4-Cylinder") or "-"
+- "vehicleType": one of these exact values: car, truck, suv, diesel, van — based on the vehicle body style, or "-"
+- "drivetrain": one of these exact values: FWD, RWD, AWD, 4WD — or "-"
+- "mpgCity": city fuel economy as a number only (e.g., 18) or "-"
+- "mpgHwy": highway fuel economy as a number only (e.g., 25) or "-"
+- "exteriorColor": exterior color (e.g., "Black", "Oxford White", "Silver") — examine provided photos carefully, or "-"
+- "interiorColor": interior color (e.g., "Gray", "Black Leather", "Tan") — examine provided photos carefully, or "-"
+- "features": comma-separated list of notable features for this vehicle (e.g., "4WD, V8, Backup Camera, Bluetooth, Tow Package, Running Boards")
+
+Use your knowledge of this year/make/model/trim for MPG and specs when not provided. Examine any photos for color and visible features. If a value truly cannot be determined, use exactly "-".
 
 Vehicle Details:
 ${detailLines}`;
 
-  // Build message content — include first photo if available
+  // Build message content — include up to 4 photos if available
   const content = [];
-  const photoFile = NEW_IMAGE_FILES.length ? NEW_IMAGE_FILES[0] : null;
-  if (photoFile) {
+  for (const photoFile of NEW_IMAGE_FILES.slice(0, 4)) {
     try {
       const dataUrl = await fileToDataUrl(photoFile);
       content.push({ type: 'image_url', image_url: { url: dataUrl, detail: 'low' } });
@@ -1266,7 +1280,7 @@ ${detailLines}`;
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
-        max_tokens: 300,
+        max_tokens: 700,
         messages: [{ role: 'user', content }],
       }),
     });
@@ -1277,11 +1291,85 @@ ${detailLines}`;
     }
 
     const result = await res.json();
-    const text = result.choices?.[0]?.message?.content || '';
-    if (text && descField) {
-      descField.value = text.trim();
-      updateLivePreview();
+    let rawText = result.choices?.[0]?.message?.content || '';
+    rawText = rawText.trim()
+      .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
+    let aiData = {};
+    try {
+      aiData = JSON.parse(rawText);
+    } catch (e) {
+      // Fallback: treat entire response as description only
+      aiData = { description: rawText };
     }
+
+    // Only set a field if the AI returned a real (non-dash) value
+    function setField(id, val) {
+      const el = $(id);
+      if (!el || !val || val === '-') return;
+      el.value = val;
+    }
+
+    // Description
+    if (aiData.description && descField) descField.value = aiData.description.trim();
+
+    // Trim
+    setField('trim', aiData.trim);
+
+    // Engine
+    setField('engine', aiData.engine);
+
+    // Vehicle type (select)
+    if (aiData.vehicleType && aiData.vehicleType !== '-') {
+      const typeEl = $('type');
+      const validTypes = ['car', 'truck', 'suv', 'diesel', 'van'];
+      const aiType = String(aiData.vehicleType).toLowerCase().trim();
+      if (typeEl && validTypes.includes(aiType)) typeEl.value = aiType;
+    }
+
+    // Drivetrain (select)
+    if (aiData.drivetrain && aiData.drivetrain !== '-') {
+      const driveEl = $('drivetrain');
+      const validDrive = ['FWD', 'RWD', 'AWD', '4WD'];
+      const aiDrive = String(aiData.drivetrain).toUpperCase().trim();
+      if (driveEl && validDrive.includes(aiDrive)) driveEl.value = aiDrive;
+    }
+
+    // MPG City
+    if (aiData.mpgCity && aiData.mpgCity !== '-') {
+      const mpgCityEl = $('mpgCity');
+      if (mpgCityEl) mpgCityEl.value = String(aiData.mpgCity).replace(/[^0-9]/g, '');
+    }
+
+    // MPG Highway
+    if (aiData.mpgHwy && aiData.mpgHwy !== '-') {
+      const mpgHwyEl = $('mpgHighway');
+      if (mpgHwyEl) mpgHwyEl.value = String(aiData.mpgHwy).replace(/[^0-9]/g, '');
+    }
+
+    // Exterior color
+    setField('exteriorColor', aiData.exteriorColor);
+
+    // Interior color
+    setField('interiorColor', aiData.interiorColor);
+
+    // Features / tags — merge with any existing values, no duplicates
+    if (aiData.features && aiData.features !== '-') {
+      const featEl = $('features');
+      if (featEl) {
+        const existing = featEl.value.trim();
+        if (!existing) {
+          featEl.value = aiData.features;
+        } else {
+          const existingList = existing.split(',').map(f => f.trim().toLowerCase());
+          const newList = String(aiData.features).split(',').map(f => f.trim());
+          const toAdd = newList.filter(f => f && !existingList.includes(f.toLowerCase()));
+          if (toAdd.length) featEl.value = existing + ', ' + toAdd.join(', ');
+        }
+      }
+    }
+
+    updateLivePreview();
   } catch (error) {
     console.error('AI Description Error:', error);
     alert(`Could not generate description: ${error.message}`);
