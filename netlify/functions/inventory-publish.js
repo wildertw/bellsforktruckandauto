@@ -84,8 +84,8 @@ exports.handler = async (event) => {
   }
 
   const GITHUB_TOKEN      = process.env.GITHUB_TOKEN;
-  const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER;
-  const GITHUB_REPO_NAME  = process.env.GITHUB_REPO_NAME;
+  const GITHUB_REPO_OWNER = process.env.GH_REPO_OWNER;
+  const GITHUB_REPO_NAME  = process.env.GH_REPO_NAME;
 
   if (!GITHUB_TOKEN || !GITHUB_REPO_OWNER || !GITHUB_REPO_NAME) {
     return {
