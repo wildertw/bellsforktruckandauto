@@ -1,9 +1,5 @@
 (function () {
   const inventoryKey = 'dashboardInventory';
-  const credentials = [
-    { user: 'trey', pass: 'admin1' },
-    { user: 'frank', pass: 'Tina1234' },
-  ];
   const BLOG_API = '/.netlify/functions/blog';
   const BLOG_AUTH = '/.netlify/functions/blog-auth';
   let blogToken = '';
@@ -161,19 +157,21 @@
     event.preventDefault();
     const user = document.getElementById('loginUser').value.trim();
     const pass = document.getElementById('loginPass').value;
-    const match = credentials.find((c) => c.user.toLowerCase() === user.toLowerCase() && c.pass === pass);
-    if (match) {
-      loginUser(match.user === 'Frank' ? 'Frank' : match.user);
-      try {
-        const data = await requestBlogToken(match.user, pass);
-        blogToken = data.token;
-        blogUser = data.user || match.user;
-        await loadBlogPosts();
-      } catch (err) {
-        loginFeedback.classList.remove('hide');
-        loginFeedback.textContent = `Logged in, but blog auth failed: ${err.message}`;
-      }
+    if (!user || !pass) {
+      loginFeedback.classList.remove('hide');
+      loginFeedback.textContent = 'Enter username and password.';
       return;
+    }
+    try {
+      const data = await requestBlogToken(user, pass);
+      const displayUser = data.user || user;
+      blogToken = data.token;
+      blogUser = displayUser;
+      loginUser(displayUser);
+      await loadBlogPosts();
+      return;
+    } catch (err) {
+      // Fall through to generic invalid credentials message for security.
     }
     loginFeedback.classList.remove('hide');
     loginFeedback.textContent = 'Credentials do not match.';
