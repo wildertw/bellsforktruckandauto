@@ -1,1 +1,381 @@
-﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bells Fork Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+  <div class="dashboard-bg" aria-hidden="true"></div>
+
+  <div class="auth-panel" id="authPanel">
+    <div class="auth-card">
+      <h1>Admin Login</h1>
+      <p>Sign in to access inventory, sales, and blog controls.</p>
+      <form id="loginForm" class="auth-form">
+        <label>
+          Username
+          <input id="loginUser" type="text" autocomplete="username" required>
+        </label>
+        <label>
+          Password
+          <input id="loginPass" type="password" autocomplete="current-password" required>
+        </label>
+        <button class="primary-btn" type="submit">Sign In</button>
+        <p id="loginFeedback" class="feedback hide" role="status"></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-frame" id="dashboard" data-no-scroll="false">
+    <header class="top-nav">
+      <div class="brand-wrap">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <strong>Bells Fork Truck &amp; Auto</strong>
+      </div>
+      <div class="top-nav-right">
+        <label class="search-control" aria-label="Search dashboard">
+          <span aria-hidden="true">Search</span>
+          <input type="search" placeholder="Search models, SKUs, notes">
+        </label>
+        <button class="icon-btn" type="button" aria-label="Settings">S</button>
+        <button class="icon-btn" type="button" aria-label="Notifications">N <span class="dot"></span></button>
+        <div class="avatar">BF</div>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar">
+        <nav class="tab-nav" aria-label="Dashboard sections">
+          <button class="tab active" type="button" data-tab="overview">Dashboard</button>
+          <button class="tab" type="button" data-tab="inventory">Inventory</button>
+          <button class="tab" type="button" data-tab="add">Add Vehicle</button>
+          <button class="tab" type="button" data-tab="bulk">Bulk Actions</button>
+          <button class="tab" type="button" data-tab="blog">Blog CMS</button>
+        </nav>
+
+        <div class="sidebar-group">
+          <div class="side-label">Bookings</div>
+          <button class="rail-btn" type="button">Calendar</button>
+          <button class="rail-btn" type="button">Waiting List</button>
+        </div>
+      </aside>
+
+      <main class="content-area">
+        <section class="tab-panel active" data-panel="overview">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Dashboard</p>
+              <h1>Weekly Overview</h1>
+              <p class="muted" id="overviewDateRange">19 April, 2025 - 26 April, 2025</p>
+            </div>
+            <div class="header-actions">
+              <button class="ghost-btn" type="button">Filter</button>
+              <button class="ghost-btn" type="button" aria-label="More">...</button>
+              <span class="user-badge" id="currentUser">Signed out</span>
+              <button id="logoutBtn" class="primary-btn" type="button">Logout</button>
+            </div>
+          </div>
+
+          <section class="card kpi-strip" aria-label="KPI summary">
+            <article class="kpi-cell">
+              <div class="kpi-label">Total Leads</div>
+              <div class="kpi-value" id="kpiLeads">0</div>
+              <div class="kpi-meta"><span class="delta positive" id="kpiLeadsDelta">+0%</span><span class="muted">vs last week</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-label">Total Orders</div>
+              <div class="kpi-value" id="kpiOrders">0</div>
+              <div class="kpi-meta"><span class="delta negative" id="kpiOrdersDelta">-0%</span><span class="muted">vs last week</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-label">Total Sold Cars</div>
+              <div class="kpi-value" id="kpiSold">0</div>
+              <div class="kpi-meta"><span class="delta positive" id="kpiSoldDelta">+0%</span><span class="muted">vs last week</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-label">Total Profit</div>
+              <div class="kpi-value" id="kpiProfit">$0</div>
+              <div class="kpi-meta"><span class="delta info" id="kpiProfitDelta">+0%</span><span class="muted">vs last week</span></div>
+            </article>
+          </section>
+
+          <section class="mid-grid">
+            <article class="card revenue-card">
+              <div class="card-head">
+                <h2>Active Revenue</h2>
+              </div>
+              <p class="money" id="revenueValue">$0</p>
+              <div class="bar-chart" aria-hidden="true">
+                <span style="--h:35%"></span>
+                <span style="--h:52%"></span>
+                <span style="--h:68%"></span>
+                <span style="--h:88%"></span>
+                <span style="--h:60%"></span>
+              </div>
+            </article>
+
+            <article class="card map-card">
+              <div class="card-head">
+                <h2>Geo Activity</h2>
+              </div>
+              <div class="map-texture" aria-hidden="true">
+                <span class="node n1"></span>
+                <span class="node n2"></span>
+                <span class="node n3"></span>
+                <span class="node n4"></span>
+              </div>
+            </article>
+
+            <article class="card inventory-hero">
+              <div class="card-head">
+                <h2>Latest Inventory</h2>
+                <button class="ghost-btn" type="button">View All</button>
+              </div>
+              <div class="vehicle-platform"></div>
+              <div class="hero-details">
+                <div><span class="muted">Model</span><strong id="latestModel">-</strong></div>
+                <div><span class="muted">Price</span><strong id="latestPrice">-</strong></div>
+              </div>
+              <div class="chip-row" id="latestFeatures"></div>
+            </article>
+          </section>
+
+          <section class="bottom-grid">
+            <article class="card recent-card">
+              <div class="card-head">
+                <div>
+                  <h2>Recent Selling Cars</h2>
+                  <p class="muted">Live from your current inventory records.</p>
+                </div>
+                <button class="ghost-btn" type="button">View All</button>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Car Model</th>
+                      <th>Car Type</th>
+                      <th>Tracking Number</th>
+                      <th>Customer</th>
+                      <th>Order Date</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentSalesBody"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <article class="card agents-card">
+              <div class="card-head">
+                <h2>Top Agents</h2>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Agent Name</th>
+                    <th>Age</th>
+                    <th>Total Sales</th>
+                  </tr>
+                </thead>
+                <tbody id="topAgentsBody"></tbody>
+              </table>
+              <button class="pill-btn" type="button">120+ Sales Agents</button>
+            </article>
+          </section>
+        </section>
+
+        <section class="tab-panel" data-panel="inventory">
+          <div class="card panel-card">
+            <div class="panel-actions">
+              <div class="search-wrap">
+                <input id="editSearch" type="search" placeholder="Search SKU, name, category, supplier">
+              </div>
+              <div class="pagination-controls">
+                <button id="prevPage" class="ghost-btn" type="button">Prev</button>
+                <span id="pageInfo">Page 1 / 1</span>
+                <button id="nextPage" class="ghost-btn" type="button">Next</button>
+              </div>
+            </div>
+            <p id="editFeedback" class="feedback hide" role="status"></p>
+            <div class="table-container">
+              <table id="inventoryTable">
+                <thead>
+                  <tr>
+                    <th>SKU</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="add">
+          <form id="addInventoryForm" class="card panel-card panel-grid">
+            <label>Item Name<input id="addName" type="text" required></label>
+            <label>SKU<input id="addSku" type="text" required></label>
+            <label>Category<input id="addCategory" type="text" required></label>
+            <label>Quantity<input id="addQuantity" type="number" min="0" value="1"></label>
+            <label>Price<input id="addPrice" type="number" min="0" step="0.01" value="0"></label>
+            <label>Description<textarea id="addDescription"></textarea></label>
+            <label>Supplier<input id="addSupplier" type="text"></label>
+            <label>Year<input id="addYear" type="number" min="1950" max="2099"></label>
+            <label>Make<input id="addMake" type="text"></label>
+            <label>Model<input id="addModel" type="text"></label>
+            <label>Trim<input id="addTrim" type="text"></label>
+            <label>VIN<input id="addVin" type="text"></label>
+            <label>Stock #<input id="addStock" type="text"></label>
+            <label>Engine<input id="addEngine" type="text"></label>
+            <label>Transmission<input id="addTransmission" type="text"></label>
+            <label>Mileage<input id="addMileage" type="number" min="0" value="0"></label>
+            <label>MPG City<input id="addMpgCity" type="number" min="0"></label>
+            <label>MPG Hwy<input id="addMpgHighway" type="number" min="0"></label>
+            <label>Exterior Color<input id="addExteriorColor" type="text"></label>
+            <label>Interior Color<input id="addInteriorColor" type="text"></label>
+            <label>Status
+              <select id="addStatus">
+                <option value="available">Available</option>
+                <option value="pending">Pending</option>
+                <option value="sold">Sold</option>
+              </select>
+            </label>
+            <label class="full">Features (comma separated)<input id="addFeatures" type="text" placeholder="4x4, Tow package"></label>
+            <p id="addFeedback" class="feedback hide full" role="status"></p>
+            <div class="form-actions">
+              <button id="clearAdd" class="ghost-btn" type="button">Clear</button>
+              <button class="primary-btn" type="submit">Save Vehicle</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="tab-panel" data-panel="bulk">
+          <div class="card panel-card">
+            <div class="bulk-actions">
+              <div class="upload-card">
+                <h3>Bulk Upload</h3>
+                <p class="muted">Upload CSV rows into your current inventory data.</p>
+                <input id="bulkUpload" type="file" accept=".csv">
+                <button id="downloadTemplate" class="ghost-btn" type="button">Download Template</button>
+              </div>
+              <div class="export-card">
+                <h3>Export</h3>
+                <select id="exportFilter"></select>
+                <button id="exportBtn" class="ghost-btn" type="button">Export CSV</button>
+              </div>
+              <div class="update-card">
+                <h3>Mass Update</h3>
+                <label>Price +/- %<input id="massPrice" type="number" step="0.1" value="0"></label>
+                <label>Replace Category<input id="massCategory" type="text" placeholder="Optional"></label>
+                <button id="applyMass" class="primary-btn" type="button">Apply</button>
+              </div>
+            </div>
+            <div class="progress-wrap"><div id="bulkProgress" class="progress-bar"></div></div>
+            <p id="bulkFeedback" class="feedback hide" role="status"></p>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="blog">
+          <div class="card panel-card">
+            <div class="editor-panel">
+              <div class="editor-header">
+                <strong>Post Editor</strong>
+                <div>
+                  <button id="previewPost" type="button">Preview</button>
+                </div>
+              </div>
+              <div class="panel-grid">
+                <label>Title<input id="blogTitle" type="text"></label>
+                <label>Category<input id="blogCategory" type="text" placeholder="Updates"></label>
+                <label>Tags<input id="blogTags" type="text" placeholder="comma, separated"></label>
+                <label>Publish Date<input id="blogDate" type="date"></label>
+                <label>Status
+                  <select id="blogStatus">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                  </select>
+                </label>
+                <label>Featured Image URL<input id="blogImage" type="text"></label>
+                <label>Upload Image<input id="blogImageFile" type="file" accept="image/*"></label>
+              </div>
+              <div id="blogEditor" class="rich-editor" contenteditable="true" data-placeholder="Write your post content..."></div>
+              <div class="blog-actions">
+                <button id="blogSave" class="primary-btn" type="button">Save Post</button>
+                <p id="blogStatusLine" class="status-line" role="status"></p>
+              </div>
+            </div>
+
+            <div class="blog-list-panel">
+              <div class="search-wrap">
+                <input id="blogSearch" type="search" placeholder="Search posts">
+                <select id="blogFilter">
+                  <option value="">All statuses</option>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </select>
+              </div>
+              <div id="blogList"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal-dialog">
+      <h3 id="editModalTitle">Edit Inventory Item</h3>
+      <form id="editForm" class="modal-content">
+        <label>Name<input id="editName" type="text" required></label>
+        <label>SKU<input id="editSku" type="text" readonly></label>
+        <label>Category<input id="editCategory" type="text" required></label>
+        <label>Year<input id="editYear" type="number"></label>
+        <label>Make<input id="editMake" type="text"></label>
+        <label>Model<input id="editModel" type="text"></label>
+        <label>Trim<input id="editTrim" type="text"></label>
+        <label>VIN<input id="editVin" type="text"></label>
+        <label>Quantity<input id="editQuantity" type="number" min="0"></label>
+        <label>Price<input id="editPrice" type="number" min="0" step="0.01"></label>
+        <label>Engine<input id="editEngine" type="text"></label>
+        <label>Transmission<input id="editTransmission" type="text"></label>
+        <label>Status
+          <select id="editStatus">
+            <option value="available">Available</option>
+            <option value="pending">Pending</option>
+            <option value="sold">Sold</option>
+          </select>
+        </label>
+        <div class="form-actions">
+          <button id="cancelEdit" class="ghost-btn" type="button" data-close>Cancel</button>
+          <button class="primary-btn" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="previewModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+    <div class="modal-dialog">
+      <h3 id="previewTitle" class="preview-title">Preview</h3>
+      <div id="previewContent" class="preview-content"></div>
+      <div class="form-actions">
+        <button class="ghost-btn" type="button" data-close>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>
