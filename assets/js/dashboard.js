@@ -66,6 +66,8 @@
   let editPhotoFiles = [];
   let addPhotoFiles = [];
   let editKeptImages = []; // existing Cloudinary URLs to keep when editing
+  let addPreviewIndex = 0;     // which new photo is the preview in Add form
+  let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -530,23 +532,8 @@
       // Reset photo state
       editPhotoFiles = [];
       editKeptImages = item.images ? item.images.slice() : [];
-      $('editPhotoPreview').innerHTML = '';
-      // Show existing photos with remove buttons
-      if (editKeptImages.length) {
-        editKeptImages.forEach(function (url, i) {
-          var div = document.createElement('div');
-          div.className = 'photo-thumb';
-          div.dataset.url = url;
-          div.innerHTML = '<img src="' + url + '" alt="Photo ' + (i + 1) + '">' +
-            '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
-            '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
-          div.querySelector('.photo-remove-btn').addEventListener('click', function () {
-            editKeptImages = editKeptImages.filter(function (u) { return u !== url; });
-            div.remove();
-          });
-          $('editPhotoPreview').appendChild(div);
-        });
-      }
+      editPreviewName = editKeptImages.length ? editKeptImages[0] : null;
+      renderEditPhotoPreview();
       // Reset VIN decode display
       $('editVinResult').classList.add('hide');
       editVinDecodeData = null;
@@ -623,7 +610,18 @@
       }
 
       // Merge: kept existing images + newly uploaded images
-      editingItem.images = (editKeptImages || []).concat(newImageUrls);
+      var mergedImages = (editKeptImages || []).concat(newImageUrls);
+      // Move the selected preview image to front
+      if (editPreviewName && editPreviewName.startsWith('new-')) {
+        var newIdx = parseInt(editPreviewName.replace('new-', ''), 10);
+        if (newIdx >= 0 && newIdx < newImageUrls.length) {
+          var previewUrl = newImageUrls[newIdx];
+          mergedImages = [previewUrl].concat(mergedImages.filter(function (u) { return u !== previewUrl; }));
+        }
+      } else if (editPreviewName && mergedImages.includes(editPreviewName)) {
+        mergedImages = [editPreviewName].concat(mergedImages.filter(function (u) { return u !== editPreviewName; }));
+      }
+      editingItem.images = mergedImages;
 
       // Save to localStorage
       persistInventory();
@@ -744,9 +742,14 @@
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
 
     try {
-      // Upload photos to Cloudinary if any
+      // Reorder photos so the selected preview is first, then upload
       var imageUrls = [];
       if (addPhotoFiles.length > 0) {
+        if (addPreviewIndex > 0 && addPreviewIndex < addPhotoFiles.length) {
+          var previewFile = addPhotoFiles.splice(addPreviewIndex, 1)[0];
+          addPhotoFiles.unshift(previewFile);
+          addPreviewIndex = 0;
+        }
         showToast('Uploading photos...');
         imageUrls = await uploadPhotos(addPhotoFiles, function (current, total) {
           showToast('Uploading photo ' + current + ' of ' + total + '...');
@@ -782,6 +785,7 @@
         showFeedback(addFeedback, 'Vehicle saved.');
         addForm.reset();
         addPhotoFiles = [];
+        addPreviewIndex = 0;
         if ($('photoPreview')) $('photoPreview').innerHTML = '';
       }
 
@@ -1042,22 +1046,35 @@
     const files = event.target.files;
     if (!files || !files.length) return;
     addPhotoFiles = Array.from(files).slice(0, 10);
-    const preview = $('photoPreview');
-    preview.innerHTML = '';
-    addPhotoFiles.forEach((file, i) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const div = document.createElement('div');
-        div.className = 'photo-thumb';
-        div.innerHTML = '<img src="' + e.target.result + '" alt="Photo ' + (i + 1) + '">' +
-          '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
-        preview.appendChild(div);
-      };
-      reader.readAsDataURL(file);
-    });
+    addPreviewIndex = 0;
+    renderAddPhotoPreview();
     // Show scan button hint
     var scanBtn = $('addScanPhotosBtn');
     if (scanBtn) scanBtn.classList.remove('hide');
+  }
+
+  function renderAddPhotoPreview() {
+    var preview = $('photoPreview');
+    if (!preview) return;
+    preview.innerHTML = '';
+    addPhotoFiles.forEach(function (file, i) {
+      var div = document.createElement('div');
+      div.className = 'photo-thumb' + (i === addPreviewIndex ? ' is-preview' : '');
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = div.querySelector('img');
+        if (img) img.src = e.target.result;
+      };
+      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
+        (i === addPreviewIndex ? '<div class="photo-preview-badge">Preview</div>' : '') +
+        '<span class="photo-label">' + (i === addPreviewIndex ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+      div.addEventListener('click', function () {
+        addPreviewIndex = i;
+        renderAddPhotoPreview();
+      });
+      preview.appendChild(div);
+      reader.readAsDataURL(file);
+    });
   }
 
   // ─── AI Photo Scan ─────────────────────────────────────────────────────────
@@ -1434,20 +1451,65 @@
   function editHandlePhotoSelect(event) {
     var files = event.target.files;
     if (!files || !files.length) return;
-    var preview = $('editPhotoPreview');
-    preview.innerHTML = '';
     editPhotoFiles = Array.from(files).slice(0, 10);
+    renderEditPhotoPreview();
+  }
+
+  function renderEditPhotoPreview() {
+    var preview = $('editPhotoPreview');
+    if (!preview) return;
+    preview.innerHTML = '';
+    // Determine effective preview
+    var effectivePreview = editPreviewName;
+    if (!effectivePreview) {
+      effectivePreview = editKeptImages.length ? editKeptImages[0] : (editPhotoFiles.length ? 'new-0' : null);
+    }
+    // Render kept (existing) images
+    editKeptImages.forEach(function (url, i) {
+      var isPreview = (url === effectivePreview);
+      var div = document.createElement('div');
+      div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
+      div.dataset.url = url;
+      div.innerHTML = '<img src="' + url + '" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
+        '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
+        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        editKeptImages = editKeptImages.filter(function (u) { return u !== url; });
+        if (editPreviewName === url) editPreviewName = null;
+        renderEditPhotoPreview();
+      });
+      div.addEventListener('click', function () {
+        editPreviewName = url;
+        renderEditPhotoPreview();
+      });
+      preview.appendChild(div);
+    });
+    // Render new (uploaded) files
     editPhotoFiles.forEach(function (file, i) {
+      var newId = 'new-' + i;
+      var isPreview = (newId === effectivePreview);
+      var div = document.createElement('div');
+      div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
       var reader = new FileReader();
       reader.onload = function (e) {
-        var div = document.createElement('div');
-        div.className = 'photo-thumb';
-        div.innerHTML = '<img src="' + e.target.result + '" alt="Photo ' + (i + 1) + '">' +
-          '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
-        preview.appendChild(div);
+        var img = div.querySelector('img');
+        if (img) img.src = e.target.result;
       };
+      div.innerHTML = '<img src="" alt="New photo ' + (i + 1) + '" title="Click to set as preview">' +
+        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Preview' : 'New ' + (i + 1)) + '</span>';
+      div.addEventListener('click', function () {
+        editPreviewName = newId;
+        renderEditPhotoPreview();
+      });
+      preview.appendChild(div);
       reader.readAsDataURL(file);
     });
+    // Show/hide scan button
+    var scanBtn = $('editScanPhotosBtn');
+    if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length && !editPhotoFiles.length);
   }
 
   function setupEditPhotoDrop() {

@@ -8,6 +8,7 @@ let EDIT_ORIGINAL_DATE = null;
 let EXISTING_IMAGE_NAMES = [];   // filenames already in inventory
 let NEW_IMAGE_FILES = [];        // File objects selected in this session
 let NEW_IMAGE_NAMES = [];        // generated filenames for NEW_IMAGE_FILES
+let PREVIEW_IMAGE_NAME = null;  // user-chosen preview image (null = first image)
 const PHOTO_OUTPUT_EXT = 'png';
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
@@ -136,6 +137,13 @@ function uniqueKeepOrder(arr) {
     out.push(x);
   }
   return out;
+}
+
+function getEffectivePreviewName() {
+  if (PREVIEW_IMAGE_NAME) return PREVIEW_IMAGE_NAME;
+  if (NEW_IMAGE_NAMES.length) return NEW_IMAGE_NAMES[0];
+  if (EXISTING_IMAGE_NAMES.length) return EXISTING_IMAGE_NAMES[0];
+  return null;
 }
 
 async function convertFileToPngBlob(file) {
@@ -626,21 +634,28 @@ function renderImagePreview() {
 
   const allExisting = Array.isArray(EXISTING_IMAGE_NAMES) ? EXISTING_IMAGE_NAMES : [];
   const allNew = Array.isArray(NEW_IMAGE_FILES) ? NEW_IMAGE_FILES : [];
+  const effectivePreview = getEffectivePreviewName();
 
-  // Existing images (click X to remove)
+  // Existing images (click X to remove, click image to set as preview)
   allExisting.forEach((name, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'img-wrap';
 
     const img = document.createElement('img');
-    img.className = 'img-thumb';
+    const isPreview = (name === effectivePreview);
+    img.className = 'img-thumb' + (isPreview ? ' is-preview' : '');
     img.alt = `Existing photo ${idx + 1}`;
+    img.title = 'Click to set as preview image';
     img.src = String(name || '').startsWith('http') ? name : `assets/vehicles/${name}`;
     img.onerror = () => {
       img.style.objectFit = 'contain';
       img.style.padding = '18px';
       img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="12" rx="1" fill="none" stroke="#adb5bd"/><circle cx="5.2" cy="14" r="1.2" fill="#adb5bd"/><circle cx="12.8" cy="14" r="1.2" fill="#adb5bd"/></svg>');
     };
+    img.addEventListener('click', () => {
+      PREVIEW_IMAGE_NAME = name;
+      renderImagePreview();
+    });
 
     const label = document.createElement('div');
     label.className = 'img-label';
@@ -652,12 +667,20 @@ function renderImagePreview() {
     btn.setAttribute('aria-label', 'Remove photo');
     btn.innerHTML = '&times;';
     btn.addEventListener('click', () => {
+      const removedName = EXISTING_IMAGE_NAMES[idx];
       EXISTING_IMAGE_NAMES.splice(idx, 1);
+      if (PREVIEW_IMAGE_NAME === removedName) PREVIEW_IMAGE_NAME = null;
       renderImagePreview();
     });
 
     wrap.appendChild(btn);
     wrap.appendChild(img);
+    if (isPreview) {
+      const badge = document.createElement('div');
+      badge.className = 'img-preview-badge';
+      badge.textContent = 'Preview';
+      wrap.appendChild(badge);
+    }
     wrap.appendChild(label);
     preview.appendChild(wrap);
   });
@@ -666,14 +689,21 @@ function renderImagePreview() {
   allNew.forEach((file, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'img-wrap';
+    const imgName = NEW_IMAGE_NAMES[idx] || file.name;
+    const isPreview = (imgName === effectivePreview);
 
     const img = document.createElement('img');
-    img.className = 'img-thumb';
+    img.className = 'img-thumb' + (isPreview ? ' is-preview' : '');
     img.alt = `Selected photo ${idx + 1}`;
+    img.title = 'Click to set as preview image';
+    img.addEventListener('click', () => {
+      PREVIEW_IMAGE_NAME = NEW_IMAGE_NAMES[idx] || file.name;
+      renderImagePreview();
+    });
 
     const label = document.createElement('div');
     label.className = 'img-label';
-    label.textContent = NEW_IMAGE_NAMES[idx] || file.name;
+    label.textContent = imgName;
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -681,8 +711,10 @@ function renderImagePreview() {
     btn.setAttribute('aria-label', 'Remove photo');
     btn.innerHTML = '&times;';
     btn.addEventListener('click', () => {
+      const removedName = NEW_IMAGE_NAMES[idx] || NEW_IMAGE_FILES[idx]?.name;
       NEW_IMAGE_FILES.splice(idx, 1);
       NEW_IMAGE_NAMES.splice(idx, 1);
+      if (PREVIEW_IMAGE_NAME === removedName) PREVIEW_IMAGE_NAME = null;
       // Clear input if empty
       if (!NEW_IMAGE_FILES.length) {
         const photos = $('photos');
@@ -693,6 +725,12 @@ function renderImagePreview() {
 
     wrap.appendChild(btn);
     wrap.appendChild(img);
+    if (isPreview) {
+      const badge = document.createElement('div');
+      badge.className = 'img-preview-badge';
+      badge.textContent = 'Preview';
+      wrap.appendChild(badge);
+    }
     wrap.appendChild(label);
     preview.appendChild(wrap);
 
@@ -822,11 +860,15 @@ function setupFormHandlers() {
       vehicle.description = parts.join(', ');
     }
 
-    // Images: if new photos selected, add them first (main photo = first selected)
-    const combined = NEW_IMAGE_NAMES.length
+    // Images: build combined list, then move selected preview to front
+    let combined = NEW_IMAGE_NAMES.length
       ? [...NEW_IMAGE_NAMES, ...EXISTING_IMAGE_NAMES]
       : [...EXISTING_IMAGE_NAMES];
-    vehicle.images = uniqueKeepOrder(combined);
+    combined = uniqueKeepOrder(combined);
+    if (PREVIEW_IMAGE_NAME && combined.includes(PREVIEW_IMAGE_NAME)) {
+      combined = [PREVIEW_IMAGE_NAME, ...combined.filter(n => n !== PREVIEW_IMAGE_NAME)];
+    }
+    vehicle.images = combined;
 
     const inv = readInventory();
 
@@ -872,6 +914,7 @@ function startEdit(idx) {
   EXISTING_IMAGE_NAMES = Array.isArray(v.images) ? [...v.images] : [];
   NEW_IMAGE_FILES = [];
   NEW_IMAGE_NAMES = [];
+  PREVIEW_IMAGE_NAME = (Array.isArray(v.images) && v.images.length) ? v.images[0] : null;
 
   // Fill form
   const set = (id, val) => { const el = $(id); if (el !== null && el !== undefined && el) el.value = (val ?? ''); };
@@ -927,6 +970,7 @@ function cancelEdit() {
   EXISTING_IMAGE_NAMES = [];
   NEW_IMAGE_FILES = [];
   NEW_IMAGE_NAMES = [];
+  PREVIEW_IMAGE_NAME = null;
 
   const form = $('vehicleForm');
   if (form) form.reset();
@@ -1131,7 +1175,7 @@ function updatePhotoUploadHint() {
     hint.innerHTML = 'Select up to 10 photos. Names use <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span> when color is blank, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs stand in for stock numbers.';
     if (dlBtn) dlBtn.style.display = 'none';
   } else {
-    hint.innerHTML = 'Select up to 10 photos. First photo is the main image. Photos should follow <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span>, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs replace stock numbers.';
+    hint.innerHTML = 'Select up to 10 photos. Click any thumbnail to set it as the preview image. Photos should follow <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span>, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs replace stock numbers.';
     if (dlBtn) dlBtn.style.display = '';
   }
 }
@@ -1190,6 +1234,9 @@ async function uploadPhotosToCloud() {
   }
 
   // Replace generated names with cloud URLs
+  if (PREVIEW_IMAGE_NAME && !urls.includes(PREVIEW_IMAGE_NAME) && !EXISTING_IMAGE_NAMES.includes(PREVIEW_IMAGE_NAME)) {
+    PREVIEW_IMAGE_NAME = null;
+  }
   NEW_IMAGE_NAMES = urls;
   renderImagePreview();
 
