@@ -108,7 +108,7 @@ function resolveImg(img, prefix = '') {
   return img.startsWith('http') ? img : `${prefix}assets/vehicles/${img}`;
 }
 function resolveImgAbs(img) {
-  if (!img) return `${SITE_URL}/assets/shop-front.webp`;
+  if (!img) return `${SITE_URL}/assets/shop-front.jpg`;
   return img.startsWith('http') ? img : `${SITE_URL}/assets/vehicles/${img}`;
 }
 
@@ -365,7 +365,7 @@ function generateVDPHtml(v, allVehicles) {
     : '';
   const mainImageAbs = v.images && v.images.length > 0
     ? resolveImgAbs(v.images[0])
-    : `${SITE_URL}/assets/shop-front.webp`;
+    : `${SITE_URL}/assets/shop-front.jpg`;
 
   const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
   const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}#appointment`;
