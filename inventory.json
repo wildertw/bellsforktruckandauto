@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-05T16:33:48.255Z",
+  "lastUpdated": "2026-03-05T16:36:59.442Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -502,7 +502,16 @@
       "features": [],
       "status": "available",
       "badge": "",
-      "images": [],
+      "images": [
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
+      ],
       "dateAdded": "2026-03-05"
     },
     {
