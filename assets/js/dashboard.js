@@ -334,8 +334,8 @@
     const barWidth = Math.max(12, Math.floor((chart.clientWidth - 40) / dailyBreakdown.length) - 4);
 
     chart.innerHTML = '<div class="chart-bars">' + dailyBreakdown.map((day) => {
-      const viewH = Math.max(4, Math.round((day.views / maxViews) * 140));
-      const uniqH = Math.max(2, Math.round((day.uniques / maxViews) * 140));
+      const viewH = Math.max(4, Math.round((day.views / maxViews) * 120));
+      const uniqH = Math.max(2, Math.round((day.uniques / maxViews) * 120));
       const dateLabel = day.date.slice(5); // MM-DD
       return '<div class="chart-bar-group" style="width:' + barWidth + 'px">' +
         '<div class="chart-bar bar-views" style="height:' + viewH + 'px" title="' + day.views + ' views"></div>' +

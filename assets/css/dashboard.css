@@ -323,6 +323,7 @@ h2, h3, p { margin: 0; }
 .traffic-chart {
   margin-top: var(--space-md); height: 180px;
   display: flex; align-items: flex-end; justify-content: center;
+  overflow: hidden;
 }
 .chart-bars {
   display: flex; align-items: flex-end; gap: 4px;
