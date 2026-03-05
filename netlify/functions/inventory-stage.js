@@ -17,7 +17,7 @@ const { getStore } = require('@netlify/blobs');
 // V1 function blob config — required for legacy exports.handler functions
 function blobStore(nameOrOpts) {
   const siteID = process.env.SITE_ID;
-  const token = process.env.NETLIFY_API_TOKEN;
+  const token = process.env.NF_API_TOKEN;
   if (!siteID || !token) {
     throw new Error('Blob config missing: SITE_ID=' + (siteID ? 'set' : 'UNSET') + ', NETLIFY_API_TOKEN=' + (token ? 'set' : 'UNSET'));
   }
