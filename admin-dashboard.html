@@ -602,29 +602,135 @@
 
   <!-- Edit Modal -->
   <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-    <div class="modal-dialog">
-      <h3 id="editModalTitle">Edit Inventory Item</h3>
-      <form id="editForm" class="modal-content">
-        <label>Name<input id="editName" type="text" required></label>
-        <label>SKU<input id="editSku" type="text" readonly></label>
-        <label>Category<input id="editCategory" type="text" required></label>
-        <label>Year<input id="editYear" type="number"></label>
-        <label>Make<input id="editMake" type="text"></label>
-        <label>Model<input id="editModel" type="text"></label>
-        <label>Trim<input id="editTrim" type="text"></label>
-        <label>VIN<input id="editVin" type="text"></label>
-        <label>Quantity<input id="editQuantity" type="number" min="0"></label>
-        <label>Price<input id="editPrice" type="number" min="0" step="0.01"></label>
-        <label>Engine<input id="editEngine" type="text"></label>
-        <label>Transmission<input id="editTransmission" type="text"></label>
-        <label>Status
-          <select id="editStatus">
-            <option value="available">Available</option>
-            <option value="pending">Pending</option>
-            <option value="sold">Sold</option>
-          </select>
-        </label>
-        <div class="form-actions">
+    <div class="modal-dialog modal-edit">
+      <div class="edit-header">
+        <h3 id="editModalTitle">Edit Vehicle</h3>
+        <button id="editAiMasterBtn" class="primary-btn edit-ai-btn" type="button">&#9889; Generate with AI</button>
+      </div>
+      <form id="editForm">
+        <div class="edit-layout">
+          <!-- Left Column: Vehicle Details -->
+          <div class="edit-fields-col">
+            <!-- VIN Decoder Row -->
+            <div class="edit-vin-row">
+              <label class="edit-vin-label">VIN
+                <div class="edit-vin-input-wrap">
+                  <input id="editVin" type="text" maxlength="17" placeholder="Enter 17-character VIN" autocomplete="off">
+                  <button id="editDecodeVinBtn" class="ghost-btn" type="button">Decode</button>
+                </div>
+              </label>
+            </div>
+            <div id="editVinResult" class="edit-vin-result hide">
+              <div class="vin-grid">
+                <div><span class="muted">Year</span><strong id="editDecodedYear">-</strong></div>
+                <div><span class="muted">Make</span><strong id="editDecodedMake">-</strong></div>
+                <div><span class="muted">Model</span><strong id="editDecodedModel">-</strong></div>
+                <div><span class="muted">Trim</span><strong id="editDecodedTrim">-</strong></div>
+                <div><span class="muted">Drive</span><strong id="editDecodedDrive">-</strong></div>
+                <div><span class="muted">Fuel</span><strong id="editDecodedFuel">-</strong></div>
+                <div><span class="muted">Engine</span><strong id="editDecodedEngine">-</strong></div>
+                <div><span class="muted">Body</span><strong id="editDecodedBody">-</strong></div>
+              </div>
+              <button id="editApplyVinBtn" class="ghost-btn" type="button">Apply to Form</button>
+            </div>
+
+            <!-- Field Grid -->
+            <div class="panel-grid">
+              <label>Year<input id="editYear" type="number" min="1950" max="2099"></label>
+              <label>Make<input id="editMake" type="text"></label>
+              <label>Model<input id="editModel" type="text"></label>
+              <label>Trim<input id="editTrim" type="text"></label>
+              <label>Stock #<input id="editStock" type="text"></label>
+              <label>Name<input id="editName" type="text" required></label>
+              <label>SKU<input id="editSku" type="text" readonly></label>
+              <label>Category
+                <select id="editCategory" required>
+                  <option value="">Select type...</option>
+                  <option value="Truck">Truck</option>
+                  <option value="SUV">SUV / Crossover</option>
+                  <option value="Sedan">Sedan / Car</option>
+                  <option value="Diesel">Diesel Vehicle</option>
+                  <option value="Van">Van / Minivan</option>
+                  <option value="used">Used</option>
+                </select>
+              </label>
+              <label>Price<input id="editPrice" type="number" min="0" step="0.01"></label>
+              <label>Mileage<input id="editMileage" type="number" min="0"></label>
+              <label>Engine<input id="editEngine" type="text"></label>
+              <label>Transmission<input id="editTransmission" type="text"></label>
+              <label>Drivetrain
+                <select id="editDrivetrain">
+                  <option value="">Select...</option>
+                  <option value="FWD">FWD</option>
+                  <option value="RWD">RWD</option>
+                  <option value="AWD">AWD</option>
+                  <option value="4WD">4WD</option>
+                </select>
+              </label>
+              <label>Fuel Type
+                <select id="editFuelType">
+                  <option value="">Select...</option>
+                  <option value="Gasoline">Gasoline</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="Electric">Electric</option>
+                  <option value="Flex Fuel">Flex Fuel</option>
+                </select>
+              </label>
+              <label>MPG City<input id="editMpgCity" type="number" min="0"></label>
+              <label>MPG Hwy<input id="editMpgHighway" type="number" min="0"></label>
+              <label>Ext. Color<input id="editExteriorColor" type="text"></label>
+              <label>Int. Color<input id="editInteriorColor" type="text"></label>
+              <label>Quantity<input id="editQuantity" type="number" min="0"></label>
+              <label>Status
+                <select id="editStatus">
+                  <option value="available">Available</option>
+                  <option value="pending">Pending</option>
+                  <option value="sold">Sold</option>
+                </select>
+              </label>
+              <label>Badge
+                <select id="editBadge">
+                  <option value="">No Badge</option>
+                  <option value="Great Value">Great Value</option>
+                  <option value="Low Miles">Low Miles</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="One Owner">One Owner</option>
+                  <option value="Recently Added">Recently Added</option>
+                </select>
+              </label>
+              <label>Supplier<input id="editSupplier" type="text"></label>
+            </div>
+
+            <!-- Full-width fields -->
+            <label class="full-field">
+              <span class="desc-label-row">
+                <span>Description</span>
+                <button id="editGenDescBtn" class="ghost-btn small-btn" type="button">Generate with AI</button>
+              </span>
+              <textarea id="editDescription" placeholder="Vehicle description..."></textarea>
+            </label>
+            <label class="full-field">Features (comma separated)
+              <input id="editFeatures" type="text" placeholder="4x4, Tow package, Bluetooth">
+            </label>
+          </div>
+
+          <!-- Right Column: Photos -->
+          <div class="edit-photos-col">
+            <div class="edit-photos-section">
+              <h4>Vehicle Photos</h4>
+              <div class="edit-photo-drop" id="editPhotoDrop">
+                <span>&#128247;</span>
+                <p>Drop photos here or click to upload</p>
+                <input id="editPhotos" type="file" multiple accept="image/*">
+              </div>
+              <div id="editPhotoPreview" class="photo-grid"></div>
+            </div>
+            <p id="editFeedback" class="feedback hide" role="status"></p>
+          </div>
+        </div>
+
+        <div class="form-actions edit-footer">
           <button id="cancelEdit" class="ghost-btn" type="button" data-close>Cancel</button>
           <button class="primary-btn" type="submit">Save Changes</button>
         </div>

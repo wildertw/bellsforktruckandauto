@@ -60,6 +60,8 @@
   let editingItem = null;
   let filteredInventory = [];
   let vinDecodeData = null;
+  let editVinDecodeData = null;
+  let editPhotoFiles = [];
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -396,19 +398,50 @@
     if (!item) return;
     if (action === 'edit') {
       editingItem = item;
-      $('editName').value = item.name;
-      $('editSku').value = item.sku;
-      $('editCategory').value = item.category;
+      // Basic fields
+      $('editName').value = item.name || '';
+      $('editSku').value = item.sku || '';
+      $('editCategory').value = item.category || '';
       $('editYear').value = item.year || '';
       $('editMake').value = item.make || '';
       $('editModel').value = item.model || '';
       $('editTrim').value = item.trim || '';
       $('editVin').value = item.vin || '';
-      $('editQuantity').value = item.quantity;
-      $('editPrice').value = item.price;
+      $('editQuantity').value = item.quantity || 1;
+      $('editPrice').value = item.price || '';
       $('editEngine').value = item.engine || '';
       $('editTransmission').value = item.transmission || '';
       $('editStatus').value = item.status || 'available';
+      // Extended fields
+      $('editStock').value = item.stockNumber || '';
+      $('editMileage').value = item.mileage || '';
+      $('editDrivetrain').value = item.drivetrain || '';
+      $('editFuelType').value = item.fuelType || '';
+      $('editMpgCity').value = item.mpgCity || '';
+      $('editMpgHighway').value = item.mpgHighway || '';
+      $('editExteriorColor').value = item.exteriorColor || '';
+      $('editInteriorColor').value = item.interiorColor || '';
+      $('editBadge').value = item.badge || '';
+      $('editSupplier').value = item.supplier || '';
+      $('editDescription').value = item.description || '';
+      $('editFeatures').value = Array.isArray(item.features) ? item.features.join(', ') : (item.features || '');
+      // Reset photo state
+      editPhotoFiles = [];
+      $('editPhotoPreview').innerHTML = '';
+      // Show existing photos if available
+      if (item.images && item.images.length) {
+        item.images.forEach(function (url, i) {
+          var div = document.createElement('div');
+          div.className = 'photo-thumb';
+          div.innerHTML = '<img src="' + url + '" alt="Photo ' + (i + 1) + '">' +
+            '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
+          $('editPhotoPreview').appendChild(div);
+        });
+      }
+      // Reset VIN decode display
+      $('editVinResult').classList.add('hide');
+      editVinDecodeData = null;
+      hideFeedback($('editFeedback'));
       editModal.classList.add('active');
     } else if (action === 'delete') {
       if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
@@ -423,6 +456,7 @@
   function handleEditSubmit(event) {
     event.preventDefault();
     if (!editingItem) return;
+    // Basic fields
     editingItem.name = $('editName').value.trim();
     editingItem.category = $('editCategory').value.trim();
     editingItem.year = Number($('editYear').value) || editingItem.year;
@@ -435,6 +469,20 @@
     editingItem.engine = $('editEngine').value.trim() || editingItem.engine;
     editingItem.transmission = $('editTransmission').value.trim() || editingItem.transmission;
     editingItem.status = $('editStatus').value;
+    // Extended fields
+    editingItem.stockNumber = $('editStock').value.trim() || editingItem.stockNumber;
+    editingItem.mileage = Number($('editMileage').value) || editingItem.mileage;
+    editingItem.drivetrain = $('editDrivetrain').value || editingItem.drivetrain;
+    editingItem.fuelType = $('editFuelType').value || editingItem.fuelType;
+    editingItem.mpgCity = Number($('editMpgCity').value) || editingItem.mpgCity;
+    editingItem.mpgHighway = Number($('editMpgHighway').value) || editingItem.mpgHighway;
+    editingItem.exteriorColor = $('editExteriorColor').value.trim() || editingItem.exteriorColor;
+    editingItem.interiorColor = $('editInteriorColor').value.trim() || editingItem.interiorColor;
+    editingItem.badge = $('editBadge').value;
+    editingItem.supplier = $('editSupplier').value.trim() || editingItem.supplier;
+    editingItem.description = $('editDescription').value.trim();
+    var featVal = $('editFeatures').value.trim();
+    editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
     persistInventory();
     renderInventoryTable();
     showFeedback(editFeedback, 'Item updated.');
@@ -814,6 +862,196 @@
         preview.appendChild(div);
       };
       reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── Edit Modal: VIN Decoder ────────────────────────────────────────────────
+  async function editDecodeVin() {
+    var vin = $('editVin').value.trim().toUpperCase();
+    if (vin.length !== 17) {
+      showFeedback($('editFeedback'), 'VIN must be exactly 17 characters.', true);
+      return;
+    }
+    hideFeedback($('editFeedback'));
+    $('editDecodeVinBtn').disabled = true;
+    $('editDecodeVinBtn').textContent = 'Decoding...';
+
+    try {
+      var res = await fetch(NHTSA_API + '/' + vin + '?format=json');
+      var data = await res.json();
+      var result = data.Results && data.Results[0];
+      if (!result || result.ErrorCode === '6') throw new Error('VIN not found');
+
+      editVinDecodeData = {
+        year: result.ModelYear, make: result.Make, model: result.Model,
+        trim: result.Trim, body: result.BodyClass, drive: result.DriveType,
+        fuel: result.FuelTypePrimary,
+        engine: [result.DisplacementL ? result.DisplacementL + 'L' : '', result.EngineCylinders ? 'V' + result.EngineCylinders : ''].filter(Boolean).join(' '),
+        transmission: result.TransmissionStyle || '',
+      };
+
+      $('editDecodedYear').textContent = editVinDecodeData.year || '-';
+      $('editDecodedMake').textContent = editVinDecodeData.make || '-';
+      $('editDecodedModel').textContent = editVinDecodeData.model || '-';
+      $('editDecodedTrim').textContent = editVinDecodeData.trim || '-';
+      $('editDecodedBody').textContent = editVinDecodeData.body || '-';
+      $('editDecodedDrive').textContent = editVinDecodeData.drive || '-';
+      $('editDecodedFuel').textContent = editVinDecodeData.fuel || '-';
+      $('editDecodedEngine').textContent = editVinDecodeData.engine || '-';
+      $('editVinResult').classList.remove('hide');
+    } catch (err) {
+      showFeedback($('editFeedback'), 'VIN decode failed: ' + err.message, true);
+    } finally {
+      $('editDecodeVinBtn').disabled = false;
+      $('editDecodeVinBtn').textContent = 'Decode';
+    }
+  }
+
+  function editApplyVinData() {
+    if (!editVinDecodeData) return;
+    if (editVinDecodeData.year) $('editYear').value = editVinDecodeData.year;
+    if (editVinDecodeData.make) $('editMake').value = editVinDecodeData.make;
+    if (editVinDecodeData.model) $('editModel').value = editVinDecodeData.model;
+    if (editVinDecodeData.trim) $('editTrim').value = editVinDecodeData.trim;
+    if (editVinDecodeData.engine) $('editEngine').value = editVinDecodeData.engine;
+    if (editVinDecodeData.transmission) $('editTransmission').value = editVinDecodeData.transmission;
+    if (editVinDecodeData.fuel) {
+      var fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
+      var match = Object.keys(fuelMap).find(function (k) { return (editVinDecodeData.fuel || '').includes(k); });
+      if (match) $('editFuelType').value = fuelMap[match];
+    }
+    if (editVinDecodeData.drive) {
+      var driveMap = { '4WD': '4WD', 'AWD': 'AWD', 'FWD': 'FWD', 'RWD': 'RWD', '4x4': '4WD', '4X4': '4WD' };
+      var match2 = Object.keys(driveMap).find(function (k) { return (editVinDecodeData.drive || '').includes(k); });
+      if (match2) $('editDrivetrain').value = driveMap[match2];
+    }
+    // Auto-fill name if empty
+    var autoName = [editVinDecodeData.year, editVinDecodeData.make, editVinDecodeData.model].filter(Boolean).join(' ');
+    if (autoName && !$('editName').value) $('editName').value = autoName;
+    showFeedback($('editFeedback'), 'VIN data applied to form.');
+  }
+
+  // ─── Edit Modal: AI Description ───────────────────────────────────────────
+  async function editGenerateDescription() {
+    var apiKey = localStorage.getItem('bf_openai_key');
+    if (!apiKey) {
+      showFeedback($('editFeedback'), 'Set your OpenAI API key in Settings first.', true);
+      return;
+    }
+    var year = $('editYear').value;
+    var make = $('editMake').value;
+    var model = $('editModel').value;
+    var trim2 = $('editTrim').value;
+    var engine = $('editEngine').value;
+    var mileage = $('editMileage').value;
+    var features = $('editFeatures').value;
+
+    if (!make || !model) {
+      showFeedback($('editFeedback'), 'Enter at least Make and Model first.', true);
+      return;
+    }
+
+    $('editGenDescBtn').disabled = true;
+    $('editGenDescBtn').textContent = 'Generating...';
+
+    try {
+      var prompt = 'Write a brief 2-sentence used car listing description for a ' +
+        [year, make, model, trim2].filter(Boolean).join(' ') +
+        (engine ? ' with ' + engine + ' engine' : '') +
+        (mileage ? ', ' + Number(mileage).toLocaleString() + ' miles' : '') +
+        (features ? '. Features: ' + features : '') +
+        '. Keep it professional and appealing for a dealership website.';
+
+      var res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo', max_tokens: 120,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      var data = await res.json();
+      if (data.choices && data.choices[0]) {
+        $('editDescription').value = data.choices[0].message.content.trim();
+        showFeedback($('editFeedback'), 'AI description generated.');
+      }
+    } catch (err) {
+      showFeedback($('editFeedback'), 'AI generation failed: ' + err.message, true);
+    } finally {
+      $('editGenDescBtn').disabled = false;
+      $('editGenDescBtn').textContent = 'Generate with AI';
+    }
+  }
+
+  // ─── Edit Modal: Master AI Button ─────────────────────────────────────────
+  async function editMasterAI() {
+    var btn = $('editAiMasterBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Working...';
+    hideFeedback($('editFeedback'));
+
+    try {
+      // Step 1: Decode VIN if available
+      var vin = $('editVin').value.trim().toUpperCase();
+      if (vin.length === 17) {
+        await editDecodeVin();
+        if (editVinDecodeData) editApplyVinData();
+      }
+
+      // Step 2: Generate AI description
+      var apiKey = localStorage.getItem('bf_openai_key');
+      var make = $('editMake').value;
+      var model = $('editModel').value;
+      if (apiKey && make && model) {
+        await editGenerateDescription();
+      } else if (!apiKey) {
+        showFeedback($('editFeedback'), 'VIN decoded. Set OpenAI key in Settings to also generate descriptions.', false);
+      } else {
+        showFeedback($('editFeedback'), 'VIN decoded and applied. Need Make & Model for AI description.', false);
+      }
+    } catch (err) {
+      showFeedback($('editFeedback'), 'AI generate error: ' + err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚡ Generate with AI';
+    }
+  }
+
+  // ─── Edit Modal: Photo Handling ───────────────────────────────────────────
+  function editHandlePhotoSelect(event) {
+    var files = event.target.files;
+    if (!files || !files.length) return;
+    var preview = $('editPhotoPreview');
+    preview.innerHTML = '';
+    editPhotoFiles = Array.from(files).slice(0, 10);
+    editPhotoFiles.forEach(function (file, i) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var div = document.createElement('div');
+        div.className = 'photo-thumb';
+        div.innerHTML = '<img src="' + e.target.result + '" alt="Photo ' + (i + 1) + '">' +
+          '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
+        preview.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function setupEditPhotoDrop() {
+    var dropZone = $('editPhotoDrop');
+    var fileInput = $('editPhotos');
+    if (!dropZone || !fileInput) return;
+
+    dropZone.addEventListener('click', function () { fileInput.click(); });
+    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-active'); });
+    dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-active'); });
+    dropZone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropZone.classList.remove('drag-active');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        editHandlePhotoSelect({ target: fileInput });
+      }
     });
   }
 
@@ -1364,6 +1602,15 @@
       currentPage = Math.min(totalPages, currentPage + 1);
       renderInventoryTable();
     });
+
+    // Edit modal — VIN, AI, photos
+    $('editDecodeVinBtn').addEventListener('click', editDecodeVin);
+    $('editApplyVinBtn').addEventListener('click', editApplyVinData);
+    $('editGenDescBtn').addEventListener('click', editGenerateDescription);
+    $('editAiMasterBtn').addEventListener('click', editMasterAI);
+    $('editPhotos').addEventListener('change', editHandlePhotoSelect);
+    $('editVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
+    setupEditPhotoDrop();
 
     // Inventory import/export
     $('loadFromSiteBtn').addEventListener('click', loadInventoryFromSite);

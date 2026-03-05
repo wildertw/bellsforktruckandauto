@@ -751,6 +751,70 @@ select option { background: #1d2730; }
   box-shadow: var(--shadow-soft), var(--inner-stroke);
 }
 .modal-wide { width: min(780px, 100%); }
+.modal-edit { width: min(960px, calc(100vw - 40px)); }
+
+/* ─── Edit Vehicle Modal Layout ─────────────────────────────────────────── */
+.edit-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--space-md);
+}
+.edit-header h3 { font-size: 20px; margin: 0; }
+.edit-ai-btn { font-size: 13px; height: 36px; }
+
+.edit-layout {
+  display: grid; grid-template-columns: 1fr 260px;
+  gap: var(--space-lg);
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.edit-fields-col { display: flex; flex-direction: column; gap: var(--space-sm); }
+.edit-photos-col { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+.edit-vin-row {
+  margin-bottom: var(--space-xs);
+}
+.edit-vin-label {
+  display: grid; gap: 6px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.edit-vin-input-wrap {
+  display: flex; gap: var(--space-xs); align-items: center;
+}
+.edit-vin-input-wrap input {
+  flex: 1; text-transform: uppercase; letter-spacing: 1px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.edit-vin-input-wrap .ghost-btn { white-space: nowrap; height: 38px; }
+
+.edit-vin-result {
+  margin-bottom: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: 10px;
+  background: rgba(103, 103, 247, 0.06);
+  border: 1px solid rgba(103, 103, 247, 0.15);
+}
+
+.edit-photos-section h4 { font-size: 14px; font-weight: 600; margin: 0 0 var(--space-xs); }
+
+.edit-photo-drop {
+  border: 2px dashed var(--divider); border-radius: 12px;
+  padding: var(--space-lg) var(--space-md);
+  text-align: center; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.edit-photo-drop:hover { border-color: var(--secondary-500); }
+.edit-photo-drop.drag-active { border-color: var(--secondary-500); background: rgba(103, 103, 247, 0.05); }
+.edit-photo-drop span { font-size: 28px; display: block; margin-bottom: 4px; }
+.edit-photo-drop p { font-size: 12px; color: var(--text-muted); margin: 0; }
+.edit-photo-drop input[type="file"] { display: none; }
+
+.edit-footer {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--divider);
+}
 .preview-title { font-size: 20px; }
 .preview-content { margin-top: 10px; color: var(--text-secondary); }
 
@@ -771,6 +835,7 @@ button:hover {
   .inventory-hero { grid-column: 1 / -1; }
   .add-vehicle-layout { grid-template-columns: 1fr; }
   .add-vehicle-preview { display: none; }
+  .edit-layout { grid-template-columns: 1fr; }
   .blog-layout { grid-template-columns: 1fr; }
 }
 
@@ -826,6 +891,9 @@ button:hover {
   .header-actions, .page-header { flex-direction: column; align-items: flex-start; }
   .bulk-actions { flex-direction: column; }
   .vin-row { flex-direction: column; }
+  .edit-layout { grid-template-columns: 1fr; }
+  .edit-header { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
+  .modal-edit { width: 100%; border-radius: 0; }
   .review-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
