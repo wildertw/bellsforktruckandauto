@@ -8,6 +8,7 @@
   const STAGE_API = '/.netlify/functions/inventory-stage';
   const PUBLISH_API = '/.netlify/functions/inventory-publish';
   const NHTSA_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues';
+  const STATS_API = '/.netlify/functions/dashboard-stats';
 
   let blogToken = '';
   let blogUser = '';
@@ -17,6 +18,8 @@
   let quillEditor = null;
   let currentBlogSlug = '';
   let parsedPublishInventory = null;
+  let currentPeriod = 'week';
+  let statsCache = { data: null, time: 0, period: '' };
 
   let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || 'null') || [
     {
@@ -194,57 +197,132 @@
   });
 
   // ─── Overview ───────────────────────────────────────────────────────────────
-  function renderOverview() {
-    const leadsEl = $('kpiLeads');
-    if (!leadsEl) return;
+  const PERIOD_LABELS = { day: 'Today', week: 'Last 7 days', month: 'Last 30 days' };
+  const PERIOD_TITLES = { day: 'Daily Overview', week: 'Weekly Overview', month: 'Monthly Overview' };
 
-    // Date range
+  async function fetchDashboardStats(period) {
+    // Return cached data if fresh (5 min) and same period
+    const now = Date.now();
+    if (statsCache.data && statsCache.period === period && (now - statsCache.time) < 300000) {
+      return statsCache.data;
+    }
+
+    // Build Basic auth from stored session
+    const session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    const user = session.username || session.user || '';
+    const hash = session.passwordHash || authPasswordHash || '';
+    if (!user || !hash) throw new Error('Not authenticated');
+
+    const authStr = btoa(user + ':' + hash);
+    const res = await fetch(STATS_API + '?period=' + period, {
+      headers: { 'Authorization': 'Basic ' + authStr },
+    });
+    if (!res.ok) throw new Error('Stats fetch failed: ' + res.status);
+    const data = await res.json();
+    statsCache = { data: data, time: now, period: period };
+    return data;
+  }
+
+  function renderTrafficChart(dailyBreakdown) {
+    const chart = $('trafficChart');
+    if (!chart || !dailyBreakdown || !dailyBreakdown.length) return;
+
+    const maxViews = Math.max(1, ...dailyBreakdown.map((d) => d.views));
+    const barWidth = Math.max(12, Math.floor((chart.clientWidth - 40) / dailyBreakdown.length) - 4);
+
+    chart.innerHTML = '<div class="chart-bars">' + dailyBreakdown.map((day) => {
+      const viewH = Math.max(4, Math.round((day.views / maxViews) * 140));
+      const uniqH = Math.max(2, Math.round((day.uniques / maxViews) * 140));
+      const dateLabel = day.date.slice(5); // MM-DD
+      return '<div class="chart-bar-group" style="width:' + barWidth + 'px">' +
+        '<div class="chart-bar bar-views" style="height:' + viewH + 'px" title="' + day.views + ' views"></div>' +
+        '<div class="chart-bar bar-uniques" style="height:' + uniqH + 'px" title="' + day.uniques + ' unique"></div>' +
+        '<span class="chart-date">' + dateLabel + '</span>' +
+      '</div>';
+    }).join('') + '</div>';
+  }
+
+  async function renderOverview() {
+    const visEl = $('kpiVisitors');
+    if (!visEl) return;
+
+    // Update date range display
     const now = new Date();
-    const weekAgo = new Date(now.getTime() - 7 * 86400000);
+    const daysMap = { day: 1, week: 7, month: 30 };
+    const daysBack = daysMap[currentPeriod] || 7;
+    const startDate = new Date(now.getTime() - daysBack * 86400000);
     const fmt = (d) => d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
     const dateRange = $('overviewDateRange');
-    if (dateRange) dateRange.textContent = fmt(weekAgo) + ' - ' + fmt(now);
+    if (dateRange) dateRange.textContent = fmt(startDate) + ' - ' + fmt(now);
+    const titleEl = $('overviewTitle');
+    if (titleEl) titleEl.textContent = PERIOD_TITLES[currentPeriod] || 'Weekly Overview';
+    const chartLabel = $('chartPeriodLabel');
+    if (chartLabel) chartLabel.textContent = PERIOD_LABELS[currentPeriod] || 'Last 7 days';
 
-    const totalItems = inventory.length;
-    const totalUnits = inventory.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
-    const soldCount = inventory.filter((item) => String(item.status || '').toLowerCase() === 'sold').length;
-    const pendingCount = inventory.filter((item) => String(item.status || '').toLowerCase() === 'pending').length;
-    const totalOrders = soldCount + pendingCount + Math.max(0, Math.round(totalUnits * 0.35));
-    const totalLeads = Math.max(totalOrders * 3, totalItems * 24 + totalUnits * 4);
-    const totalRevenue = inventory.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0)), 0);
-    const estimatedProfit = totalRevenue * 0.11;
+    // Show latest inventory from local data regardless of API status
+    renderLatestInventory();
 
-    leadsEl.textContent = String(totalLeads);
-    $('kpiOrders').textContent = String(totalOrders);
-    $('kpiSold').textContent = String(soldCount + pendingCount);
-    $('kpiProfit').textContent = formatMoney(estimatedProfit);
-    $('revenueValue').textContent = formatMoney(totalRevenue);
+    try {
+      const stats = await fetchDashboardStats(currentPeriod);
 
-    const leadDelta = Math.min(18.4, 4 + totalItems * 0.8);
-    const orderDelta = Math.max(-8.5, 2.2 - (totalItems * 0.55));
-    const soldDelta = Math.max(2.1, 6.5 + soldCount * 0.4);
-    const profitDelta = Math.min(12.5, 3.2 + totalUnits * 0.12);
+      // Row 1: Traffic & Inventory
+      visEl.textContent = String(stats.visitors.period);
+      $('kpiVisitorsToday').textContent = String(stats.visitors.today);
+      $('kpiUniques').textContent = String(stats.uniqueVisitors.period);
+      $('kpiUniquesToday').textContent = String(stats.uniqueVisitors.today);
+      $('kpiInventory').textContent = String(stats.carsInInventory);
+      $('kpiInventoryMeta').textContent = stats.totalVehicles + ' total vehicles';
+      $('kpiSold').textContent = String(stats.carsSold);
+      $('kpiSoldMeta').textContent = stats.carsPending > 0 ? stats.carsPending + ' pending' : 'all time';
 
-    $('kpiLeadsDelta').textContent = '+' + leadDelta.toFixed(2) + '%';
-    $('kpiOrdersDelta').textContent = (orderDelta >= 0 ? '+' : '') + orderDelta.toFixed(2) + '%';
-    $('kpiSoldDelta').textContent = '+' + soldDelta.toFixed(2) + '%';
-    $('kpiProfitDelta').textContent = '+' + profitDelta.toFixed(2) + '%';
+      // Row 2: Leads
+      $('kpiLeads').textContent = String(stats.totalLeads);
+      $('kpiWebLeads').textContent = String(stats.leadsFromWebsite);
+      $('kpiCalls').textContent = String(stats.callsFromWebsite);
+      $('kpiForms').textContent = String(stats.formsSubmitted);
+      $('kpiFormsMeta').textContent = 'this ' + currentPeriod;
 
-    // Bar chart
-    const categories = {};
-    inventory.forEach((item) => {
-      const key = item.category || 'Other';
-      categories[key] = (categories[key] || 0) + (Number(item.quantity) || 0);
-    });
-    const categoryValues = Object.values(categories).sort((a, b) => b - a).slice(0, 5);
-    const maxCategory = Math.max(1, ...categoryValues);
-    document.querySelectorAll('.bar-chart span').forEach((bar, index) => {
-      const amount = categoryValues[index] || Math.max(2, maxCategory * 0.35);
-      const height = Math.max(30, Math.round((amount / maxCategory) * 92));
-      bar.style.setProperty('--h', height + '%');
-    });
+      // Traffic chart
+      renderTrafficChart(stats.dailyBreakdown);
 
-    // Latest inventory
+      // Recent activity summary
+      const actEl = $('recentActivity');
+      if (actEl && stats.dailyBreakdown.length) {
+        const today = stats.dailyBreakdown[stats.dailyBreakdown.length - 1] || {};
+        actEl.innerHTML =
+          '<div class="activity-item"><strong>' + (today.views || 0) + '</strong> page views today</div>' +
+          '<div class="activity-item"><strong>' + (today.uniques || 0) + '</strong> unique visitors today</div>' +
+          '<div class="activity-item"><strong>' + (today.calls || 0) + '</strong> phone calls today</div>' +
+          '<div class="activity-item"><strong>' + (today.forms || 0) + '</strong> forms submitted today</div>' +
+          '<div class="activity-item muted" style="margin-top:8px">Data tracked via site analytics</div>';
+      }
+
+      // Top pages (from today's data - aggregate from breakdown not available, show placeholder)
+      const topPagesBody = $('topPagesBody');
+      if (topPagesBody) {
+        // The daily breakdown doesn't include per-page data in the aggregation,
+        // so show a summary of activity per day instead
+        topPagesBody.innerHTML = stats.dailyBreakdown.slice(-7).reverse().map((d) => {
+          return '<tr><td>' + d.date + '</td><td>' + d.views + ' views / ' + d.uniques + ' unique</td></tr>';
+        }).join('') || '<tr><td colspan="2" class="muted">No data yet</td></tr>';
+      }
+    } catch (err) {
+      console.warn('Dashboard stats unavailable:', err.message);
+      // Show zero state
+      ['kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiWebLeads', 'kpiCalls', 'kpiForms'].forEach((id) => {
+        const el = $(id);
+        if (el) el.textContent = '-';
+      });
+      const chart = $('trafficChart');
+      if (chart) chart.innerHTML = '<div class="chart-loading">Analytics data unavailable. Stats will appear once the site is deployed with tracking enabled.</div>';
+      const topPagesBody = $('topPagesBody');
+      if (topPagesBody) topPagesBody.innerHTML = '<tr><td colspan="2" class="muted">No data available</td></tr>';
+      const actEl = $('recentActivity');
+      if (actEl) actEl.innerHTML = '<p class="muted">Analytics will appear after deployment.</p>';
+    }
+  }
+
+  function renderLatestInventory() {
     const latest = inventory[0];
     const latestModel = $('latestModel');
     const latestPrice = $('latestPrice');
@@ -258,36 +336,18 @@
         : [latest.category || 'Vehicle', latest.engine || 'Stock', latest.transmission || 'Auto', (latest.quantity || 0) + ' in stock'];
       latestFeatures.innerHTML = featureList.map((f) => '<span class="chip">' + f + '</span>').join('');
     }
-
-    // Recent sales table
-    const recentSalesBody = $('recentSalesBody');
-    if (recentSalesBody) {
-      recentSalesBody.innerHTML = inventory.slice().sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0)).slice(0, 5).map((item, index) => {
-        const status = String(item.status || '').toLowerCase() === 'sold' ? 'Delivered' : 'In Transit';
-        const orderDate = new Date(Date.now() - (index * 86400000 * 3)).toLocaleDateString('en-US');
-        const tracking = item.stockNumber || (item.vin ? 'TRK-' + item.vin.slice(-6) : 'TRK-' + item.sku);
-        const customer = item.supplier || 'Retail Buyer';
-        const name = [item.make, item.model].filter(Boolean).join(' ') || item.name || item.sku;
-        return '<tr><td>' + name + '</td><td>' + (item.category || 'Vehicle') + '</td><td>' + tracking + '</td><td>' + customer + '</td><td>' + orderDate + '</td><td><span class="status-pill">' + status + '</span></td></tr>';
-      }).join('');
-    }
-
-    // Top agents
-    const topAgentsBody = $('topAgentsBody');
-    if (topAgentsBody) {
-      const supplierStats = {};
-      inventory.forEach((item) => {
-        const supplier = item.supplier || 'Retail Team';
-        if (!supplierStats[supplier]) supplierStats[supplier] = { sales: 0, qty: 0 };
-        supplierStats[supplier].qty += Number(item.quantity) || 0;
-        supplierStats[supplier].sales += (Number(item.price) || 0) * (Number(item.quantity) || 0);
-      });
-      topAgentsBody.innerHTML = Object.entries(supplierStats).sort((a, b) => b[1].sales - a[1].sales).slice(0, 5).map(([name, stats]) => {
-        const age = 27 + (name.length % 14);
-        return '<tr><td>' + name + '</td><td>' + age + '</td><td>' + formatMoney(stats.sales) + '</td></tr>';
-      }).join('');
-    }
   }
+
+  // Period toggle
+  document.querySelectorAll('.period-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPeriod = btn.dataset.period;
+      statsCache = { data: null, time: 0, period: '' }; // clear cache on period change
+      renderOverview();
+    });
+  });
 
   // ─── Inventory Table ────────────────────────────────────────────────────────
   function refreshExportFilter() {
@@ -325,7 +385,6 @@
       '</td></tr>'
     ).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
-    renderOverview();
   }
 
   // ─── Inventory Table Actions ────────────────────────────────────────────────

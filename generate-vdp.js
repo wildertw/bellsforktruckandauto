@@ -1288,6 +1288,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
     });
   })();
   </script>
+  <script src="/assets/js/tracker.js" defer></script>
 
 </body>
 </html>`;

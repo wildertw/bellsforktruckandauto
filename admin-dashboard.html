@@ -77,63 +77,89 @@
           <div class="page-header">
             <div>
               <p class="eyebrow">Dashboard</p>
-              <h1>Weekly Overview</h1>
+              <h1 id="overviewTitle">Weekly Overview</h1>
               <p class="muted" id="overviewDateRange"></p>
             </div>
             <div class="header-actions">
-              <button class="ghost-btn" type="button">Filter</button>
+              <div class="period-toggle" role="group" aria-label="Select period">
+                <button class="period-btn" type="button" data-period="day">Day</button>
+                <button class="period-btn active" type="button" data-period="week">Week</button>
+                <button class="period-btn" type="button" data-period="month">Month</button>
+              </div>
               <span class="user-badge" id="currentUser">Signed out</span>
               <button id="logoutBtn" class="primary-btn" type="button">Logout</button>
             </div>
           </div>
 
-          <section class="card kpi-strip" aria-label="KPI summary">
+          <!-- Row 1: Traffic & Inventory KPIs -->
+          <section class="card kpi-strip" aria-label="Traffic and inventory metrics">
             <article class="kpi-cell">
-              <div class="kpi-label">Total Leads</div>
-              <div class="kpi-value" id="kpiLeads">0</div>
-              <div class="kpi-meta"><span class="delta positive" id="kpiLeadsDelta">+0%</span><span class="muted">vs last week</span></div>
+              <div class="kpi-icon">&#128065;</div>
+              <div class="kpi-label">Visitors</div>
+              <div class="kpi-value" id="kpiVisitors"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted">Today: <strong id="kpiVisitorsToday">-</strong></span></div>
             </article>
             <article class="kpi-cell">
-              <div class="kpi-label">Total Orders</div>
-              <div class="kpi-value" id="kpiOrders">0</div>
-              <div class="kpi-meta"><span class="delta negative" id="kpiOrdersDelta">-0%</span><span class="muted">vs last week</span></div>
+              <div class="kpi-icon">&#128100;</div>
+              <div class="kpi-label">Unique Visitors</div>
+              <div class="kpi-value" id="kpiUniques"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted">Today: <strong id="kpiUniquesToday">-</strong></span></div>
             </article>
             <article class="kpi-cell">
-              <div class="kpi-label">Total Sold Cars</div>
-              <div class="kpi-value" id="kpiSold">0</div>
-              <div class="kpi-meta"><span class="delta positive" id="kpiSoldDelta">+0%</span><span class="muted">vs last week</span></div>
+              <div class="kpi-icon">&#128663;</div>
+              <div class="kpi-label">Cars in Inventory</div>
+              <div class="kpi-value" id="kpiInventory"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted" id="kpiInventoryMeta">available</span></div>
             </article>
             <article class="kpi-cell">
-              <div class="kpi-label">Total Profit</div>
-              <div class="kpi-value" id="kpiProfit">$0</div>
-              <div class="kpi-meta"><span class="delta info" id="kpiProfitDelta">+0%</span><span class="muted">vs last week</span></div>
+              <div class="kpi-icon">&#9989;</div>
+              <div class="kpi-label">Total Cars Sold</div>
+              <div class="kpi-value" id="kpiSold"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted" id="kpiSoldMeta">all time</span></div>
             </article>
           </section>
 
-          <section class="mid-grid">
-            <article class="card revenue-card">
-              <div class="card-head">
-                <h2>Active Revenue</h2>
-              </div>
-              <p class="money" id="revenueValue">$0</p>
-              <div class="bar-chart" aria-hidden="true">
-                <span style="--h:35%"></span>
-                <span style="--h:52%"></span>
-                <span style="--h:68%"></span>
-                <span style="--h:88%"></span>
-                <span style="--h:60%"></span>
-              </div>
+          <!-- Row 2: Lead KPIs -->
+          <section class="card kpi-strip" aria-label="Lead metrics">
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#127919;</div>
+              <div class="kpi-label">Total Leads</div>
+              <div class="kpi-value" id="kpiLeads"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted">calls + forms</span></div>
             </article>
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128233;</div>
+              <div class="kpi-label">Leads from Website</div>
+              <div class="kpi-value" id="kpiWebLeads"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted">form submissions</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128222;</div>
+              <div class="kpi-label">Calls from Website</div>
+              <div class="kpi-value" id="kpiCalls"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted">click-to-call</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128203;</div>
+              <div class="kpi-label">Forms Submitted</div>
+              <div class="kpi-value" id="kpiForms"><span class="kpi-loading"></span></div>
+              <div class="kpi-meta"><span class="muted" id="kpiFormsMeta">this period</span></div>
+            </article>
+          </section>
 
-            <article class="card map-card">
+          <!-- Traffic Chart -->
+          <section class="mid-grid">
+            <article class="card traffic-chart-card">
               <div class="card-head">
-                <h2>Geo Activity</h2>
+                <h2>Daily Visitors</h2>
+                <span class="muted" id="chartPeriodLabel">Last 7 days</span>
               </div>
-              <div class="map-texture" aria-hidden="true">
-                <span class="node n1"></span>
-                <span class="node n2"></span>
-                <span class="node n3"></span>
-                <span class="node n4"></span>
+              <div class="traffic-chart" id="trafficChart" aria-label="Daily visitor chart">
+                <div class="chart-loading">Loading analytics data...</div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-dot legend-views"></span> Page Views
+                <span class="legend-dot legend-uniques"></span> Unique Visitors
               </div>
             </article>
 
@@ -151,46 +177,37 @@
             </article>
           </section>
 
+          <!-- Page Breakdown -->
           <section class="bottom-grid">
             <article class="card recent-card">
               <div class="card-head">
                 <div>
-                  <h2>Recent Selling Cars</h2>
-                  <p class="muted">Live from your current inventory records.</p>
+                  <h2>Top Pages</h2>
+                  <p class="muted">Most visited pages this period.</p>
                 </div>
-                <button class="ghost-btn" type="button" data-goto="inventory">View All</button>
               </div>
               <div class="table-container">
                 <table>
                   <thead>
                     <tr>
-                      <th>Car Model</th>
-                      <th>Car Type</th>
-                      <th>Tracking Number</th>
-                      <th>Customer</th>
-                      <th>Order Date</th>
-                      <th>Status</th>
+                      <th>Page</th>
+                      <th>Views</th>
                     </tr>
                   </thead>
-                  <tbody id="recentSalesBody"></tbody>
+                  <tbody id="topPagesBody">
+                    <tr><td colspan="2" class="muted">Loading...</td></tr>
+                  </tbody>
                 </table>
               </div>
             </article>
 
             <article class="card agents-card">
               <div class="card-head">
-                <h2>Top Agents</h2>
+                <h2>Recent Activity</h2>
               </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Agent Name</th>
-                    <th>Age</th>
-                    <th>Total Sales</th>
-                  </tr>
-                </thead>
-                <tbody id="topAgentsBody"></tbody>
-              </table>
+              <div id="recentActivity" class="recent-activity">
+                <p class="muted">Loading...</p>
+              </div>
             </article>
           </section>
         </section>
