@@ -1207,35 +1207,39 @@
       </div>
     </section>
 
-    <!-- REVIEWS -->
+    <!-- REVIEWS (dynamically loaded from Google) -->
     <section id="reviews" class="section-pad bg-light">
       <div class="container">
          <h2 class="section-title text-center mx-auto mb-5">Customer Reviews</h2>
-         <div class="row g-4">
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Found a great F-150 at Bells Fork. The price was fair and they were upfront about everything. No pressure, no games. Highly recommend."</p>
-               <div class="fw-bold mt-auto">– Michael R.</div>
-             </div>
-           </div>
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Bought a used RAV4 here and it was exactly as described. They showed me the inspection report and walked me through everything. Honest dealers are hard to find."</p>
-               <div class="fw-bold mt-auto">– Sarah J.</div>
-             </div>
-           </div>
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Picked up a diesel RAM for my business. They had it ready and the whole process was smooth. Best vehicle buying experience I've had."</p>
-               <div class="fw-bold mt-auto">– David P.</div>
-             </div>
-           </div>
-         </div>
+         <div class="row g-4" id="homeReviews"></div>
       </div>
     </section>
+    <script>
+    (function(){
+      var el=document.getElementById('homeReviews');if(!el)return;
+      function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):''}
+      function card(r){
+        var stars='';for(var i=0;i<5;i++)stars+=i<r.rating?'\u2605':'\u2606';
+        return '<div class="col-md-4"><div class="card p-4 h-100 border-0 shadow-sm">'+
+          '<div class="text-warning mb-2">'+stars+'</div>'+
+          '<p class="fst-italic text-muted">\u201c'+esc(r.text)+'\u201d</p>'+
+          '<div class="fw-bold mt-auto">\u2013 '+esc(r.author)+'</div></div></div>';
+      }
+      var fallback=[
+        {author:'Michael R.',rating:5,text:'Found a great F-150 at Bells Fork. The price was fair and they were upfront about everything. No pressure, no games. Highly recommend.'},
+        {author:'Sarah J.',rating:5,text:'Bought a used RAV4 here and it was exactly as described. They showed me the inspection report and walked me through everything. Honest dealers are hard to find.'},
+        {author:'David P.',rating:5,text:'Picked up a diesel RAM for my business. They had it ready and the whole process was smooth. Best vehicle buying experience I\'ve had.'}
+      ];
+      fetch('/.netlify/functions/fetch-reviews').then(function(r){return r.json()}).then(function(data){
+        if(!data.ok||!data.reviews)throw 0;
+        var withText=data.reviews.filter(function(r){return r.text&&r.text.trim().length>0});
+        if(!withText.length)throw 0;
+        el.innerHTML=withText.slice(0,3).map(card).join('');
+      }).catch(function(){
+        el.innerHTML=fallback.map(card).join('');
+      });
+    })();
+    </script>
 
     <!-- CONTACT / MAP -->
     <section id="contact" class="py-0">
