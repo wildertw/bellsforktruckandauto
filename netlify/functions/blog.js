@@ -1,6 +1,13 @@
 const { getStore } = require('@netlify/blobs');
 const crypto = require('crypto');
 
+// V1 function blob config — required for legacy exports.handler functions
+function blobStore(nameOrOpts) {
+  const cfg = { siteID: process.env.SITE_ID, token: process.env.NETLIFY_API_TOKEN };
+  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
+  return getStore({ ...nameOrOpts, ...cfg });
+}
+
 const POSTS_STORE = 'blog-posts';
 const COMMENTS_STORE = 'blog-comments';
 const IMAGES_STORE = 'blog-images';
@@ -190,9 +197,9 @@ exports.handler = async (event) => {
   const params = event.queryStringParameters || {};
   const action = params.action || 'list';
 
-  const postStore = getStore(POSTS_STORE);
-  const commentStore = getStore(COMMENTS_STORE);
-  const imageStore = getStore(IMAGES_STORE);
+  const postStore = blobStore(POSTS_STORE);
+  const commentStore = blobStore(COMMENTS_STORE);
+  const imageStore = blobStore(IMAGES_STORE);
 
   // Public image serving endpoint
   if (event.httpMethod === 'GET' && action === 'image') {

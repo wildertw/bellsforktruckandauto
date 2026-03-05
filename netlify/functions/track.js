@@ -8,6 +8,13 @@
 
 const { getStore } = require('@netlify/blobs');
 
+// V1 function blob config — required for legacy exports.handler functions
+function blobStore(nameOrOpts) {
+  const cfg = { siteID: process.env.SITE_ID, token: process.env.NETLIFY_API_TOKEN };
+  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
+  return getStore({ ...nameOrOpts, ...cfg });
+}
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -63,7 +70,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore({ name: 'site-analytics', consistency: 'strong' });
+    const store = blobStore({ name: 'site-analytics', consistency: 'strong' });
     const key = todayKey();
 
     // Read current daily aggregate

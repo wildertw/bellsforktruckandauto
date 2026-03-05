@@ -9,6 +9,13 @@
 const crypto = require('crypto');
 const { getStore } = require('@netlify/blobs');
 
+// V1 function blob config — required for legacy exports.handler functions
+function blobStore(nameOrOpts) {
+  const cfg = { siteID: process.env.SITE_ID, token: process.env.NETLIFY_API_TOKEN };
+  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
+  return getStore({ ...nameOrOpts, ...cfg });
+}
+
 const FALLBACK_USERS = {
   frank: '8e0a49d96938eca5a973cb170f392fa6e117ac8e0bbae8f281f365d7fd3c4139',
   trey:  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
@@ -97,7 +104,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const analyticsStore = getStore({ name: 'site-analytics', consistency: 'strong' });
+    const analyticsStore = blobStore({ name: 'site-analytics', consistency: 'strong' });
 
     // Gather daily blobs for the period
     const now = new Date();
@@ -160,7 +167,7 @@ exports.handler = async (event) => {
     let carsPending = 0;
     let vehicles = [];
 
-    const inventoryStore = getStore('inventory');
+    const inventoryStore = blobStore('inventory');
     const currentInventory = await inventoryStore.get('current', { type: 'json' });
 
     if (currentInventory && currentInventory.vehicles) {
