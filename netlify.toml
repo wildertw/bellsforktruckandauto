@@ -1,6 +1,7 @@
 [build]
   command = "node generate-vdp.js"
   publish = "."
+  functions = "netlify/functions"
 
 [[redirects]]
   from = "/blog/:slug"
