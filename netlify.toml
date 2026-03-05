@@ -9,13 +9,19 @@
   force = true
 
 [[redirects]]
+  from = "/admin"
+  to = "/admin-dashboard.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/admin/blog"
-  to = "/blog-admin.html"
+  to = "/admin-dashboard.html"
   status = 200
   force = true
 
 [[redirects]]
   from = "/admin/upload"
-  to = "/admin-upload.html"
+  to = "/admin-dashboard.html"
   status = 200
   force = true

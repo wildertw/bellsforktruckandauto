@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bells Fork Admin Dashboard</title>
   <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/dashboard.css">
 </head>
 <body>
@@ -43,7 +45,6 @@
           <span aria-hidden="true">Search</span>
           <input type="search" placeholder="Search models, SKUs, notes">
         </label>
-        <button class="icon-btn" type="button" aria-label="Settings">S</button>
         <button class="icon-btn" type="button" aria-label="Notifications">N <span class="dot"></span></button>
         <div class="avatar">BF</div>
       </div>
@@ -55,7 +56,7 @@
           <button class="tab active" type="button" data-tab="overview">Dashboard</button>
           <button class="tab" type="button" data-tab="inventory">Inventory</button>
           <button class="tab" type="button" data-tab="add">Add Vehicle</button>
-          <button class="tab" type="button" data-tab="bulk">Bulk Actions</button>
+          <button class="tab" type="button" data-tab="publish">Publish</button>
           <button class="tab" type="button" data-tab="blog">Blog CMS</button>
         </nav>
 
@@ -64,19 +65,23 @@
           <button class="rail-btn" type="button">Calendar</button>
           <button class="rail-btn" type="button">Waiting List</button>
         </div>
+
+        <div class="sidebar-group">
+          <button class="tab" type="button" data-tab="settings">Settings</button>
+        </div>
       </aside>
 
       <main class="content-area">
+        <!-- ═══ OVERVIEW ═══ -->
         <section class="tab-panel active" data-panel="overview">
           <div class="page-header">
             <div>
               <p class="eyebrow">Dashboard</p>
               <h1>Weekly Overview</h1>
-              <p class="muted" id="overviewDateRange">19 April, 2025 - 26 April, 2025</p>
+              <p class="muted" id="overviewDateRange"></p>
             </div>
             <div class="header-actions">
               <button class="ghost-btn" type="button">Filter</button>
-              <button class="ghost-btn" type="button" aria-label="More">...</button>
               <span class="user-badge" id="currentUser">Signed out</span>
               <button id="logoutBtn" class="primary-btn" type="button">Logout</button>
             </div>
@@ -135,7 +140,7 @@
             <article class="card inventory-hero">
               <div class="card-head">
                 <h2>Latest Inventory</h2>
-                <button class="ghost-btn" type="button">View All</button>
+                <button class="ghost-btn" type="button" data-goto="inventory">View All</button>
               </div>
               <div class="vehicle-platform"></div>
               <div class="hero-details">
@@ -153,7 +158,7 @@
                   <h2>Recent Selling Cars</h2>
                   <p class="muted">Live from your current inventory records.</p>
                 </div>
-                <button class="ghost-btn" type="button">View All</button>
+                <button class="ghost-btn" type="button" data-goto="inventory">View All</button>
               </div>
               <div class="table-container">
                 <table>
@@ -165,7 +170,6 @@
                       <th>Customer</th>
                       <th>Order Date</th>
                       <th>Status</th>
-                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody id="recentSalesBody"></tbody>
@@ -187,16 +191,24 @@
                 </thead>
                 <tbody id="topAgentsBody"></tbody>
               </table>
-              <button class="pill-btn" type="button">120+ Sales Agents</button>
             </article>
           </section>
         </section>
 
+        <!-- ═══ INVENTORY TABLE ═══ -->
         <section class="tab-panel" data-panel="inventory">
           <div class="card panel-card">
             <div class="panel-actions">
               <div class="search-wrap">
                 <input id="editSearch" type="search" placeholder="Search SKU, name, category, supplier">
+              </div>
+              <div class="inv-toolbar">
+                <button id="loadFromSiteBtn" class="ghost-btn" type="button">Load from Site</button>
+                <label class="ghost-btn import-label">
+                  Import JSON
+                  <input id="importInventoryFile" type="file" accept="application/json,.json" hidden>
+                </label>
+                <button id="clearLocalBtn" class="ghost-btn" type="button">Clear Local</button>
               </div>
               <div class="pagination-controls">
                 <button id="prevPage" class="ghost-btn" type="button">Prev</button>
@@ -204,6 +216,7 @@
                 <button id="nextPage" class="ghost-btn" type="button">Next</button>
               </div>
             </div>
+            <p id="inventoryStatus" class="muted small-text"></p>
             <p id="editFeedback" class="feedback hide" role="status"></p>
             <div class="table-container">
               <table id="inventoryTable">
@@ -224,60 +237,231 @@
           </div>
         </section>
 
+        <!-- ═══ ADD VEHICLE ═══ -->
         <section class="tab-panel" data-panel="add">
-          <form id="addInventoryForm" class="card panel-card panel-grid">
-            <label>Item Name<input id="addName" type="text" required></label>
-            <label>SKU<input id="addSku" type="text" required></label>
-            <label>Category<input id="addCategory" type="text" required></label>
-            <label>Quantity<input id="addQuantity" type="number" min="0" value="1"></label>
-            <label>Price<input id="addPrice" type="number" min="0" step="0.01" value="0"></label>
-            <label>Description<textarea id="addDescription"></textarea></label>
-            <label>Supplier<input id="addSupplier" type="text"></label>
-            <label>Year<input id="addYear" type="number" min="1950" max="2099"></label>
-            <label>Make<input id="addMake" type="text"></label>
-            <label>Model<input id="addModel" type="text"></label>
-            <label>Trim<input id="addTrim" type="text"></label>
-            <label>VIN<input id="addVin" type="text"></label>
-            <label>Stock #<input id="addStock" type="text"></label>
-            <label>Engine<input id="addEngine" type="text"></label>
-            <label>Transmission<input id="addTransmission" type="text"></label>
-            <label>Mileage<input id="addMileage" type="number" min="0" value="0"></label>
-            <label>MPG City<input id="addMpgCity" type="number" min="0"></label>
-            <label>MPG Hwy<input id="addMpgHighway" type="number" min="0"></label>
-            <label>Exterior Color<input id="addExteriorColor" type="text"></label>
-            <label>Interior Color<input id="addInteriorColor" type="text"></label>
-            <label>Status
-              <select id="addStatus">
-                <option value="available">Available</option>
-                <option value="pending">Pending</option>
-                <option value="sold">Sold</option>
-              </select>
-            </label>
-            <label class="full">Features (comma separated)<input id="addFeatures" type="text" placeholder="4x4, Tow package"></label>
-            <p id="addFeedback" class="feedback hide full" role="status"></p>
-            <div class="form-actions">
-              <button id="clearAdd" class="ghost-btn" type="button">Clear</button>
-              <button class="primary-btn" type="submit">Save Vehicle</button>
+          <div class="add-vehicle-layout">
+            <div class="add-vehicle-main">
+              <!-- VIN Decoder -->
+              <div class="card panel-card vin-section">
+                <h3>VIN Decoder</h3>
+                <div class="vin-row">
+                  <input id="addVin" type="text" maxlength="17" placeholder="1FTFW1ET5DFC10312" class="vin-input" autocomplete="off">
+                  <button id="decodeVinBtn" class="primary-btn" type="button">Decode VIN</button>
+                </div>
+                <div id="vinDecodeResult" class="vin-result hide">
+                  <div class="vin-grid">
+                    <div><span class="muted">Year</span><strong id="decodedYear">-</strong></div>
+                    <div><span class="muted">Make</span><strong id="decodedMake">-</strong></div>
+                    <div><span class="muted">Model</span><strong id="decodedModel">-</strong></div>
+                    <div><span class="muted">Trim</span><strong id="decodedTrim">-</strong></div>
+                    <div><span class="muted">Body Style</span><strong id="decodedBody">-</strong></div>
+                    <div><span class="muted">Drive Type</span><strong id="decodedDrive">-</strong></div>
+                    <div><span class="muted">Fuel Type</span><strong id="decodedFuel">-</strong></div>
+                    <div><span class="muted">Engine</span><strong id="decodedEngine">-</strong></div>
+                  </div>
+                  <button id="applyVinBtn" class="ghost-btn" type="button">Apply to Form</button>
+                </div>
+                <p id="vinFeedback" class="feedback hide" role="status"></p>
+              </div>
+
+              <!-- Vehicle Form -->
+              <form id="addInventoryForm" class="card panel-card">
+                <div class="form-section-header">
+                  <h3 id="addFormTitle">Vehicle Details</h3>
+                  <span id="editModeBadge" class="user-badge hide">Editing</span>
+                </div>
+                <div class="panel-grid">
+                  <label>Year<input id="addYear" type="number" min="1950" max="2099"></label>
+                  <label>Make<input id="addMake" type="text"></label>
+                  <label>Model<input id="addModel" type="text"></label>
+                  <label>Trim<input id="addTrim" type="text"></label>
+                  <label>Stock #<input id="addStock" type="text" placeholder="D2601"></label>
+                  <label>Item Name<input id="addName" type="text" required></label>
+                  <label>SKU<input id="addSku" type="text" required></label>
+                  <label>Category
+                    <select id="addCategory" required>
+                      <option value="">Select type...</option>
+                      <option value="Truck">Truck</option>
+                      <option value="SUV">SUV / Crossover</option>
+                      <option value="Sedan">Sedan / Car</option>
+                      <option value="Diesel">Diesel Vehicle</option>
+                      <option value="Van">Van / Minivan</option>
+                    </select>
+                  </label>
+                  <label>Price<input id="addPrice" type="number" min="0" step="0.01" value="0"></label>
+                  <label>Mileage<input id="addMileage" type="number" min="0" value="0"></label>
+                  <label>Engine<input id="addEngine" type="text" placeholder="5.0L V8"></label>
+                  <label>Transmission<input id="addTransmission" type="text" placeholder="Automatic"></label>
+                  <label>Drivetrain
+                    <select id="addDrivetrain">
+                      <option value="">Select...</option>
+                      <option value="FWD">FWD</option>
+                      <option value="RWD">RWD</option>
+                      <option value="AWD">AWD</option>
+                      <option value="4WD">4WD</option>
+                    </select>
+                  </label>
+                  <label>Fuel Type
+                    <select id="addFuelType">
+                      <option value="">Select...</option>
+                      <option value="Gasoline">Gasoline</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="Hybrid">Hybrid</option>
+                      <option value="Electric">Electric</option>
+                      <option value="Flex Fuel">Flex Fuel</option>
+                    </select>
+                  </label>
+                  <label>MPG City<input id="addMpgCity" type="number" min="0"></label>
+                  <label>MPG Hwy<input id="addMpgHighway" type="number" min="0"></label>
+                  <label>Exterior Color<input id="addExteriorColor" type="text"></label>
+                  <label>Interior Color<input id="addInteriorColor" type="text"></label>
+                  <label>Quantity<input id="addQuantity" type="number" min="0" value="1"></label>
+                  <label>Status
+                    <select id="addStatus">
+                      <option value="available">Available</option>
+                      <option value="pending">Pending</option>
+                      <option value="sold">Sold</option>
+                    </select>
+                  </label>
+                  <label>Badge
+                    <select id="addBadge">
+                      <option value="">No Badge</option>
+                      <option value="Great Value">Great Value</option>
+                      <option value="Low Miles">Low Miles</option>
+                      <option value="Diesel">Diesel</option>
+                      <option value="One Owner">One Owner</option>
+                      <option value="Recently Added">Recently Added</option>
+                    </select>
+                  </label>
+                  <label>Supplier<input id="addSupplier" type="text"></label>
+                </div>
+                <label class="full-field">
+                  <span class="desc-label-row">
+                    <span>Description</span>
+                    <button id="generateDescBtn" class="ghost-btn small-btn" type="button">Generate with AI</button>
+                  </span>
+                  <textarea id="addDescription" placeholder="4WD SuperCrew, 5.0L V8, clean interior"></textarea>
+                </label>
+                <label class="full-field">Features (comma separated)<input id="addFeatures" type="text" placeholder="4x4, Tow package, Bluetooth"></label>
+
+                <!-- Photo Upload -->
+                <div class="photo-section full-field">
+                  <label>Vehicle Photos
+                    <input id="addPhotos" type="file" multiple accept="image/*">
+                  </label>
+                  <div id="photoPreview" class="photo-grid"></div>
+                </div>
+
+                <p id="addFeedback" class="feedback hide full-field" role="status"></p>
+                <div class="form-actions">
+                  <button id="clearAdd" class="ghost-btn" type="button">Clear</button>
+                  <button id="cancelEditVehicle" class="ghost-btn hide" type="button">Cancel Edit</button>
+                  <button class="primary-btn" type="submit" id="submitVehicleBtn">Save Vehicle</button>
+                </div>
+              </form>
             </div>
-          </form>
+
+            <!-- Live Preview Sidebar -->
+            <div class="add-vehicle-preview">
+              <div class="card panel-card sticky-preview">
+                <div class="card-head">
+                  <h3>Live Preview</h3>
+                  <span class="chip">Card</span>
+                </div>
+                <div id="vehiclePreview" class="preview-placeholder">
+                  <p class="muted">Fill in details to see preview</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section class="tab-panel" data-panel="bulk">
+        <!-- ═══ PUBLISH ═══ -->
+        <section class="tab-panel" data-panel="publish">
           <div class="card panel-card">
+            <div class="page-header">
+              <div>
+                <h2>Publish Inventory</h2>
+                <p class="muted">Upload, review, stage, and publish your inventory.json to the live site.</p>
+              </div>
+            </div>
+
+            <div class="publish-steps">
+              <!-- Step 1: Upload -->
+              <div class="publish-step">
+                <div class="step-header">
+                  <span class="step-badge" id="pubBadge1">1</span>
+                  <strong>Upload inventory.json</strong>
+                </div>
+                <div class="drop-zone" id="publishDropZone">
+                  <input type="file" id="publishFileInput" accept="application/json,.json" hidden>
+                  <div class="drop-icon">&#8593;</div>
+                  <div id="publishDropLabel"><strong>Drag &amp; drop inventory.json here</strong></div>
+                  <p class="muted">or click to browse</p>
+                  <button class="ghost-btn" type="button" onclick="document.getElementById('publishFileInput').click()">Choose File</button>
+                </div>
+                <p id="publishParseStatus" class="feedback hide" role="status"></p>
+              </div>
+
+              <!-- Step 2: Review -->
+              <div id="publishReviewSection" class="publish-step hide">
+                <div class="step-header">
+                  <span class="step-badge done" id="pubBadge2">2</span>
+                  <strong>Review Changes</strong>
+                </div>
+                <div class="review-stats" id="publishReviewStats"></div>
+                <div id="publishDiffSection" class="diff-section hide">
+                  <div class="diff-added" id="publishAddedList"></div>
+                  <div class="diff-removed" id="publishRemovedList"></div>
+                </div>
+                <details class="publish-details">
+                  <summary class="muted">Show all vehicles in this upload</summary>
+                  <div class="table-container">
+                    <table>
+                      <thead><tr><th>Year</th><th>Make</th><th>Model</th><th>Stock #</th><th>Price</th><th>Status</th></tr></thead>
+                      <tbody id="publishVehicleTable"></tbody>
+                    </table>
+                  </div>
+                </details>
+                <button id="stageBtn" class="primary-btn full-width" type="button">Stage for Review</button>
+                <p id="publishStageStatus" class="feedback hide" role="status"></p>
+              </div>
+
+              <!-- Step 3: Publish -->
+              <div id="publishCommitSection" class="publish-step hide">
+                <div class="step-header">
+                  <span class="step-badge" id="pubBadge3">3</span>
+                  <strong>Publish to Live Site</strong>
+                </div>
+                <div class="publish-zone" id="publishZone">
+                  <strong>Staged &amp; Ready to Publish</strong>
+                  <p class="muted" id="publishStageInfo"></p>
+                  <div class="publish-warning">This will update the live site. Netlify will rebuild automatically (~30 seconds).</div>
+                  <button id="publishBtn" class="primary-btn full-width" type="button">Publish Inventory Live</button>
+                </div>
+                <p id="publishCommitStatus" class="feedback hide" role="status"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bulk Actions -->
+          <div class="card panel-card bulk-card">
+            <h3>Quick Bulk Actions</h3>
             <div class="bulk-actions">
-              <div class="upload-card">
-                <h3>Bulk Upload</h3>
-                <p class="muted">Upload CSV rows into your current inventory data.</p>
+              <div class="bulk-action-card">
+                <h4>CSV Upload</h4>
+                <p class="muted">Upload CSV rows into your current inventory.</p>
                 <input id="bulkUpload" type="file" accept=".csv">
                 <button id="downloadTemplate" class="ghost-btn" type="button">Download Template</button>
               </div>
-              <div class="export-card">
-                <h3>Export</h3>
+              <div class="bulk-action-card">
+                <h4>Export</h4>
                 <select id="exportFilter"></select>
                 <button id="exportBtn" class="ghost-btn" type="button">Export CSV</button>
+                <button id="exportJsonBtn" class="ghost-btn" type="button">Export JSON</button>
               </div>
-              <div class="update-card">
-                <h3>Mass Update</h3>
+              <div class="bulk-action-card">
+                <h4>Mass Update</h4>
                 <label>Price +/- %<input id="massPrice" type="number" step="0.1" value="0"></label>
                 <label>Replace Category<input id="massCategory" type="text" placeholder="Optional"></label>
                 <button id="applyMass" class="primary-btn" type="button">Apply</button>
@@ -288,46 +472,110 @@
           </div>
         </section>
 
+        <!-- ═══ BLOG CMS ═══ -->
         <section class="tab-panel" data-panel="blog">
           <div class="card panel-card">
-            <div class="editor-panel">
-              <div class="editor-header">
-                <strong>Post Editor</strong>
-                <div>
-                  <button id="previewPost" type="button">Preview</button>
+            <div class="blog-layout">
+              <div class="editor-panel">
+                <div class="editor-header">
+                  <strong>Post Editor</strong>
+                  <div class="editor-toolbar-btns">
+                    <button id="newPostBtn" class="ghost-btn" type="button">New Post</button>
+                    <button id="previewPost" class="ghost-btn" type="button">Preview</button>
+                    <button id="deletePostBtn" class="ghost-btn danger-text" type="button">Delete</button>
+                  </div>
+                </div>
+                <div class="panel-grid">
+                  <label>Title<input id="blogTitle" type="text" required maxlength="160"></label>
+                  <label>Slug<input id="blogSlug" type="text" maxlength="100" placeholder="auto-generated"></label>
+                  <label>Author<input id="blogAuthor" type="text" maxlength="80"></label>
+                  <label>Category<input id="blogCategory" type="text" placeholder="Updates"></label>
+                  <label>Tags<input id="blogTags" type="text" placeholder="comma, separated"></label>
+                  <label>Publish Date<input id="blogDate" type="date"></label>
+                  <label>Status
+                    <select id="blogStatus">
+                      <option value="draft">Draft</option>
+                      <option value="published">Published</option>
+                    </select>
+                  </label>
+                  <label>Featured Image URL<input id="blogImage" type="text" placeholder="https://..."></label>
+                  <label>Upload Image<input id="blogImageFile" type="file" accept="image/*"></label>
+                  <label>Excerpt<textarea id="blogExcerpt" rows="2" maxlength="320" placeholder="Brief summary..."></textarea></label>
+                  <label>Meta Description<input id="blogMeta" type="text" maxlength="320"></label>
+                </div>
+                <div id="quillEditor"></div>
+                <div class="blog-actions">
+                  <button id="blogSave" class="primary-btn" type="button">Save Post</button>
+                  <p id="blogStatusLine" class="status-line" role="status"></p>
                 </div>
               </div>
-              <div class="panel-grid">
-                <label>Title<input id="blogTitle" type="text"></label>
-                <label>Category<input id="blogCategory" type="text" placeholder="Updates"></label>
-                <label>Tags<input id="blogTags" type="text" placeholder="comma, separated"></label>
-                <label>Publish Date<input id="blogDate" type="date"></label>
-                <label>Status
-                  <select id="blogStatus">
+
+              <div class="blog-list-panel">
+                <div class="search-wrap">
+                  <input id="blogSearch" type="search" placeholder="Search posts">
+                  <select id="blogFilter">
+                    <option value="">All statuses</option>
                     <option value="draft">Draft</option>
                     <option value="published">Published</option>
                   </select>
-                </label>
-                <label>Featured Image URL<input id="blogImage" type="text"></label>
-                <label>Upload Image<input id="blogImageFile" type="file" accept="image/*"></label>
-              </div>
-              <div id="blogEditor" class="rich-editor" contenteditable="true" data-placeholder="Write your post content..."></div>
-              <div class="blog-actions">
-                <button id="blogSave" class="primary-btn" type="button">Save Post</button>
-                <p id="blogStatusLine" class="status-line" role="status"></p>
+                </div>
+                <div id="blogList"></div>
               </div>
             </div>
+          </div>
 
-            <div class="blog-list-panel">
-              <div class="search-wrap">
-                <input id="blogSearch" type="search" placeholder="Search posts">
-                <select id="blogFilter">
-                  <option value="">All statuses</option>
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
+          <!-- Comments Section -->
+          <div class="card panel-card comments-card">
+            <div class="card-head">
+              <h3>Comment Moderation</h3>
+              <button id="refreshCommentsBtn" class="ghost-btn" type="button">Refresh</button>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Post</th>
+                    <th>Name</th>
+                    <th>Comment</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="commentTableBody">
+                  <tr><td colspan="6" class="muted">Sign in to load comments.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ SETTINGS ═══ -->
+        <section class="tab-panel" data-panel="settings">
+          <div class="card panel-card">
+            <h2>Settings</h2>
+            <p class="muted">API keys are stored in this browser only and are never sent to our servers.</p>
+
+            <div class="settings-grid">
+              <div class="settings-section">
+                <h3>OpenAI API Key</h3>
+                <p class="muted">Used for generating vehicle descriptions with AI.</p>
+                <div class="settings-row">
+                  <input id="settingsOpenaiKey" type="password" placeholder="sk-...">
+                  <button id="saveOpenaiKey" class="primary-btn" type="button">Save</button>
+                </div>
               </div>
-              <div id="blogList"></div>
+
+              <div class="settings-section">
+                <h3>Cloudinary</h3>
+                <p class="muted">Used for uploading vehicle photos to the cloud.</p>
+                <div class="panel-grid">
+                  <label>Cloud Name<input id="settingsCloudName" type="text" placeholder="mydealer123"></label>
+                  <label>Upload Preset<input id="settingsCloudPreset" type="text" placeholder="unsigned_preset"></label>
+                </div>
+                <button id="saveCloudinary" class="primary-btn" type="button">Save Cloudinary Settings</button>
+                <p id="settingsCloudStatus" class="feedback hide" role="status"></p>
+              </div>
             </div>
           </div>
         </section>
@@ -335,6 +583,7 @@
     </div>
   </div>
 
+  <!-- Edit Modal -->
   <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
     <div class="modal-dialog">
       <h3 id="editModalTitle">Edit Inventory Item</h3>
@@ -366,8 +615,9 @@
     </div>
   </div>
 
+  <!-- Preview Modal -->
   <div id="previewModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-wide">
       <h3 id="previewTitle" class="preview-title">Preview</h3>
       <div id="previewContent" class="preview-content"></div>
       <div class="form-actions">
@@ -376,6 +626,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
   <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
