@@ -9,6 +9,7 @@
   const PUBLISH_API = '/.netlify/functions/inventory-publish';
   const NHTSA_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues';
   const STATS_API = '/.netlify/functions/dashboard-stats';
+  const VISION_API = '/.netlify/functions/vehicle-vision';
 
   let blogToken = '';
   let blogUser = '';
@@ -549,6 +550,11 @@
       $('editVinResult').classList.add('hide');
       editVinDecodeData = null;
       hideFeedback($('editFeedback'));
+      // Show/hide photo scan button based on image availability
+      var scanBtn = $('editScanPhotosBtn');
+      if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length);
+      var scanResults = $('editScanResults');
+      if (scanResults) { scanResults.classList.add('hide'); scanResults.innerHTML = ''; }
       editModal.classList.add('active');
     } else if (action === 'delete') {
       if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
@@ -888,7 +894,11 @@
       vinDecodeData = {
         year: result.ModelYear, make: result.Make, model: result.Model,
         trim: result.Trim, body: result.BodyClass, drive: result.DriveType,
-        fuel: result.FuelTypePrimary, engine: [result.DisplacementL ? result.DisplacementL + 'L' : '', result.EngineCylinders ? 'V' + result.EngineCylinders : ''].filter(Boolean).join(' '),
+        fuel: result.FuelTypePrimary,
+        engine: [result.DisplacementL ? result.DisplacementL + 'L' : '', result.EngineCylinders ? 'V' + result.EngineCylinders : ''].filter(Boolean).join(' '),
+        transmission: result.TransmissionStyle || '',
+        doors: result.Doors || '',
+        engineHP: result.EngineHP || '',
       };
 
       $('decodedYear').textContent = vinDecodeData.year || '-';
@@ -915,6 +925,7 @@
     if (vinDecodeData.model) $('addModel').value = vinDecodeData.model;
     if (vinDecodeData.trim) $('addTrim').value = vinDecodeData.trim;
     if (vinDecodeData.engine) $('addEngine').value = vinDecodeData.engine;
+    if (vinDecodeData.transmission) $('addTransmission').value = vinDecodeData.transmission;
     if (vinDecodeData.fuel) {
       const fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
       const match = Object.keys(fuelMap).find((k) => (vinDecodeData.fuel || '').includes(k));
@@ -1043,6 +1054,207 @@
       };
       reader.readAsDataURL(file);
     });
+    // Show scan button hint
+    var scanBtn = $('addScanPhotosBtn');
+    if (scanBtn) scanBtn.classList.remove('hide');
+  }
+
+  // ─── AI Photo Scan ─────────────────────────────────────────────────────────
+  async function scanPhotosWithAI(imageUrls, feedbackEl, resultsEl, btnEl) {
+    if (!imageUrls || !imageUrls.length) {
+      showFeedback(feedbackEl, 'No photos available to scan.', true);
+      return null;
+    }
+
+    // Filter to only valid HTTPS URLs (skip relative paths)
+    var validUrls = imageUrls.filter(function (u) { return typeof u === 'string' && u.startsWith('https://'); });
+    if (!validUrls.length) {
+      showFeedback(feedbackEl, 'No scannable photos. Upload photos to Cloudinary first.', true);
+      return null;
+    }
+
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      showFeedback(feedbackEl, 'Not authenticated. Please log in again.', true);
+      return null;
+    }
+
+    var origText = btnEl.textContent;
+    btnEl.disabled = true;
+    btnEl.textContent = 'Scanning photos...';
+    hideFeedback(feedbackEl);
+
+    try {
+      var headers = { 'Content-Type': 'application/json' };
+      var apiKey = localStorage.getItem('bf_openai_key');
+      if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
+
+      var res = await fetch(VISION_API, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          imageUrls: validUrls.slice(0, 5),
+        }),
+      });
+
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Photo scan failed');
+
+      displayScanResults(data.analysis, resultsEl);
+      showFeedback(feedbackEl, 'Photo scan complete. Review results below.');
+      return data.analysis;
+    } catch (err) {
+      showFeedback(feedbackEl, 'Photo scan failed: ' + err.message, true);
+      return null;
+    } finally {
+      btnEl.disabled = false;
+      btnEl.textContent = origText;
+    }
+  }
+
+  function displayScanResults(analysis, container) {
+    if (!analysis || !container) return;
+    container.classList.remove('hide');
+
+    var html = '<div class="scan-label">AI Photo Analysis Results</div>';
+    html += '<div class="scan-grid">';
+
+    var fields = [
+      { key: 'exteriorColor', label: 'Exterior Color' },
+      { key: 'interiorColor', label: 'Interior Color' },
+      { key: 'interiorMaterial', label: 'Interior Material' },
+      { key: 'bodyStyle', label: 'Body Style' },
+      { key: 'make', label: 'Make' },
+      { key: 'model', label: 'Model' },
+      { key: 'approximateYear', label: 'Approx. Year' },
+      { key: 'condition', label: 'Condition' },
+      { key: 'cabType', label: 'Cab Type' },
+      { key: 'bedLength', label: 'Bed Length' },
+      { key: 'driveType', label: 'Drive Type' },
+      { key: 'trimLevel', label: 'Trim Level' },
+    ];
+
+    fields.forEach(function (f) {
+      if (analysis[f.key]) {
+        html += '<div class="scan-item"><span class="muted">' + f.label + '</span><strong>' + analysis[f.key] + '</strong></div>';
+      }
+    });
+    html += '</div>';
+
+    if (analysis.features && analysis.features.length) {
+      html += '<div class="scan-features"><span class="muted">Features Detected</span><div class="chip-row">';
+      analysis.features.forEach(function (f) {
+        html += '<span class="chip">' + f + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    html += '<div class="scan-actions">';
+    html += '<button type="button" class="primary-btn small-btn scan-apply-btn">Apply to Form</button>';
+    html += '<button type="button" class="ghost-btn small-btn scan-dismiss-btn">Dismiss</button>';
+    html += '</div>';
+
+    container.innerHTML = html;
+  }
+
+  function applyEditScanResults(analysis) {
+    if (!analysis) return;
+    // Colors always come from photos (VIN cannot provide)
+    if (analysis.exteriorColor) $('editExteriorColor').value = analysis.exteriorColor;
+    if (analysis.interiorColor) {
+      var interior = analysis.interiorColor;
+      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
+      $('editInteriorColor').value = interior;
+    }
+
+    // Body style -> category mapping (only if empty)
+    if (analysis.bodyStyle) {
+      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var cat = catMap[analysis.bodyStyle];
+      if (cat && !$('editCategory').value) $('editCategory').value = cat;
+    }
+
+    // Only fill make/model/year/trim if form fields are currently empty (VIN priority)
+    if (analysis.make && !$('editMake').value) $('editMake').value = analysis.make;
+    if (analysis.model && !$('editModel').value) $('editModel').value = analysis.model;
+    if (analysis.trimLevel && !$('editTrim').value) $('editTrim').value = analysis.trimLevel;
+    if (analysis.approximateYear && !$('editYear').value) {
+      var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
+      if (yearMatch) $('editYear').value = yearMatch[1];
+    }
+
+    // Drive type — only if empty
+    if (analysis.driveType && !$('editDrivetrain').value) {
+      var driveMap = { '4WD': '4WD', 'AWD': 'AWD', 'FWD': 'FWD', 'RWD': 'RWD', '4x4': '4WD', '4X4': '4WD' };
+      var match = Object.keys(driveMap).find(function (k) { return (analysis.driveType || '').includes(k); });
+      if (match) $('editDrivetrain').value = driveMap[match];
+    }
+
+    // Merge detected features into existing features
+    if (analysis.features && analysis.features.length) {
+      var existing = $('editFeatures').value.split(',').map(function (f) { return f.trim(); }).filter(Boolean);
+      var existingLower = existing.map(function (f) { return f.toLowerCase(); });
+      analysis.features.forEach(function (f) {
+        if (!existingLower.includes(f.toLowerCase())) {
+          existing.push(f);
+        }
+      });
+      // Add cab type and bed length as features too
+      if (analysis.cabType && !existingLower.includes(analysis.cabType.toLowerCase())) existing.push(analysis.cabType);
+      if (analysis.bedLength && !existingLower.includes(analysis.bedLength.toLowerCase())) existing.push(analysis.bedLength);
+      $('editFeatures').value = existing.join(', ');
+    }
+
+    showFeedback($('editFeedback'), 'Photo scan data applied to form.');
+  }
+
+  function applyAddScanResults(analysis) {
+    if (!analysis) return;
+    // Colors always from photos
+    if (analysis.exteriorColor) $('addExteriorColor').value = analysis.exteriorColor;
+    if (analysis.interiorColor) {
+      var interior = analysis.interiorColor;
+      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
+      $('addInteriorColor').value = interior;
+    }
+
+    // Body style -> category (only if empty)
+    if (analysis.bodyStyle) {
+      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var cat = catMap[analysis.bodyStyle];
+      if (cat && !$('addCategory').value) $('addCategory').value = cat;
+    }
+
+    // Only fill if empty (VIN priority)
+    if (analysis.make && !$('addMake').value) $('addMake').value = analysis.make;
+    if (analysis.model && !$('addModel').value) $('addModel').value = analysis.model;
+    if (analysis.trimLevel && !$('addTrim').value) $('addTrim').value = analysis.trimLevel;
+    if (analysis.approximateYear && !$('addYear').value) {
+      var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
+      if (yearMatch) $('addYear').value = yearMatch[1];
+    }
+
+    if (analysis.driveType && !$('addDrivetrain').value) {
+      var driveMap = { '4WD': '4WD', 'AWD': 'AWD', 'FWD': 'FWD', 'RWD': 'RWD', '4x4': '4WD', '4X4': '4WD' };
+      var match = Object.keys(driveMap).find(function (k) { return (analysis.driveType || '').includes(k); });
+      if (match) $('addDrivetrain').value = driveMap[match];
+    }
+
+    // Merge features
+    if (analysis.features && analysis.features.length) {
+      var existing = $('addFeatures').value.split(',').map(function (f) { return f.trim(); }).filter(Boolean);
+      var existingLower = existing.map(function (f) { return f.toLowerCase(); });
+      analysis.features.forEach(function (f) {
+        if (!existingLower.includes(f.toLowerCase())) existing.push(f);
+      });
+      if (analysis.cabType && !existingLower.includes(analysis.cabType.toLowerCase())) existing.push(analysis.cabType);
+      if (analysis.bedLength && !existingLower.includes(analysis.bedLength.toLowerCase())) existing.push(analysis.bedLength);
+      $('addFeatures').value = existing.join(', ');
+    }
+
+    showFeedback(addFeedback, 'Photo scan data applied to form.');
+    updateLivePreview();
   }
 
   // ─── Edit Modal: VIN Decoder ────────────────────────────────────────────────
@@ -1068,6 +1280,8 @@
         fuel: result.FuelTypePrimary,
         engine: [result.DisplacementL ? result.DisplacementL + 'L' : '', result.EngineCylinders ? 'V' + result.EngineCylinders : ''].filter(Boolean).join(' '),
         transmission: result.TransmissionStyle || '',
+        doors: result.Doors || '',
+        engineHP: result.EngineHP || '',
       };
 
       $('editDecodedYear').textContent = editVinDecodeData.year || '-';
@@ -1167,7 +1381,7 @@
   async function editMasterAI() {
     var btn = $('editAiMasterBtn');
     btn.disabled = true;
-    btn.textContent = '⏳ Working...';
+    btn.textContent = '⏳ VIN Decode...';
     hideFeedback($('editFeedback'));
 
     try {
@@ -1178,17 +1392,35 @@
         if (editVinDecodeData) editApplyVinData();
       }
 
-      // Step 2: Generate AI description
+      // Step 2: Scan photos with AI if available
+      btn.textContent = '⏳ Scanning Photos...';
+      var allImages = (editKeptImages || []).slice();
+      if (allImages.length > 0) {
+        var analysis = await scanPhotosWithAI(
+          allImages, $('editFeedback'), $('editScanResults'), btn
+        );
+        if (analysis) {
+          applyEditScanResults(analysis);
+          // Wire up Apply/Dismiss in results
+          var applyBtn = $('editScanResults') && $('editScanResults').querySelector('.scan-apply-btn');
+          if (applyBtn) applyBtn.onclick = function () { applyEditScanResults(analysis); };
+          var dismissBtn = $('editScanResults') && $('editScanResults').querySelector('.scan-dismiss-btn');
+          if (dismissBtn) dismissBtn.onclick = function () { $('editScanResults').classList.add('hide'); };
+        }
+      }
+
+      // Step 3: Generate AI description
+      btn.textContent = '⏳ AI Description...';
       var apiKey = localStorage.getItem('bf_openai_key');
       var make = $('editMake').value;
       var model = $('editModel').value;
       if (apiKey && make && model) {
         await editGenerateDescription();
       } else if (!apiKey) {
-        showFeedback($('editFeedback'), 'VIN decoded. Set OpenAI key in Settings to also generate descriptions.', false);
-      } else {
-        showFeedback($('editFeedback'), 'VIN decoded and applied. Need Make & Model for AI description.', false);
+        showFeedback($('editFeedback'), 'Set OpenAI key in Settings to generate descriptions.', false);
       }
+
+      showFeedback($('editFeedback'), 'AI analysis complete: VIN + Photos + Description.');
     } catch (err) {
       showFeedback($('editFeedback'), 'AI generate error: ' + err.message, true);
     } finally {
@@ -1791,6 +2023,29 @@
     $('editPhotos').addEventListener('change', editHandlePhotoSelect);
     $('editVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
     setupEditPhotoDrop();
+
+    // Edit modal — AI photo scan
+    if ($('editScanPhotosBtn')) {
+      $('editScanPhotosBtn').addEventListener('click', function () {
+        var urls = (editKeptImages || []).slice();
+        scanPhotosWithAI(urls, $('editFeedback'), $('editScanResults'), $('editScanPhotosBtn'))
+          .then(function (analysis) {
+            if (analysis) {
+              var applyBtn = $('editScanResults').querySelector('.scan-apply-btn');
+              if (applyBtn) applyBtn.onclick = function () { applyEditScanResults(analysis); };
+              var dismissBtn = $('editScanResults').querySelector('.scan-dismiss-btn');
+              if (dismissBtn) dismissBtn.onclick = function () { $('editScanResults').classList.add('hide'); };
+            }
+          });
+      });
+    }
+
+    // Add form — AI photo scan (works only after save since photos need Cloudinary URLs)
+    if ($('addScanPhotosBtn')) {
+      $('addScanPhotosBtn').addEventListener('click', function () {
+        showFeedback(addFeedback, 'Photos must be uploaded to Cloudinary first. Save the vehicle, then edit it to scan photos with AI.', true);
+      });
+    }
 
     // Inventory import/export
     $('loadFromSiteBtn').addEventListener('click', loadInventoryFromSite);

@@ -818,6 +818,55 @@ select option { background: #1d2730; }
 .preview-title { font-size: 20px; }
 .preview-content { margin-top: 10px; color: var(--text-secondary); }
 
+/* ─── AI Photo Scan ─────────────────────────────────────────────────────── */
+.scan-photos-btn {
+  margin-top: var(--space-xs);
+  width: 100%;
+}
+.scan-results {
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: 10px;
+  background: rgba(103, 103, 247, 0.06);
+  border: 1px solid rgba(103, 103, 247, 0.15);
+}
+.scan-results .scan-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+}
+.scan-results .scan-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+}
+.scan-results .scan-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.scan-results .scan-item .muted { font-size: 11px; }
+.scan-results .scan-item strong { font-size: 13px; }
+.scan-results .scan-features { margin-top: var(--space-xs); }
+.scan-results .scan-features .chip-row {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px;
+}
+.scan-results .scan-features .chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--control-bg);
+  color: var(--text-secondary);
+}
+.scan-results .scan-actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
 /* ─── Focus ──────────────────────────────────────────────────────────────── */
 button:focus-visible, input:focus-visible, textarea:focus-visible,
 select:focus-visible {
