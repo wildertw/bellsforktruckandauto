@@ -62,6 +62,8 @@
   let vinDecodeData = null;
   let editVinDecodeData = null;
   let editPhotoFiles = [];
+  let addPhotoFiles = [];
+  let editKeptImages = []; // existing Cloudinary URLs to keep when editing
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -114,6 +116,104 @@
 
   function persistInventory() {
     localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+  }
+
+  // ─── Toast Notifications ──────────────────────────────────────────────────
+  function showToast(message, type) {
+    var toast = document.getElementById('autoSaveToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.className = 'auto-save-toast show';
+    if (type) toast.classList.add(type);
+  }
+  function hideToast() {
+    var toast = document.getElementById('autoSaveToast');
+    if (toast) toast.className = 'auto-save-toast';
+  }
+
+  // ─── Cloudinary Upload ────────────────────────────────────────────────────
+  async function uploadToCloudinary(file) {
+    var cloudName = localStorage.getItem('bf_cloud_name');
+    var preset = localStorage.getItem('bf_cloud_preset');
+    if (!cloudName || !preset) {
+      throw new Error('Cloudinary not configured. Go to Settings to add Cloud Name and Upload Preset.');
+    }
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', preset);
+    var res = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/image/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) {
+      var err = await res.json().catch(function () { return {}; });
+      throw new Error(err.error && err.error.message ? err.error.message : 'Cloudinary upload failed');
+    }
+    var data = await res.json();
+    return data.secure_url;
+  }
+
+  async function uploadPhotos(files, progressCb) {
+    var urls = [];
+    for (var i = 0; i < files.length; i++) {
+      if (progressCb) progressCb(i + 1, files.length);
+      var url = await uploadToCloudinary(files[i]);
+      urls.push(url);
+    }
+    return urls;
+  }
+
+  // ─── Auto Publish (Stage + Publish in one step) ───────────────────────────
+  async function autoPublish() {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username) {
+      throw new Error('Not authenticated. Please log in again.');
+    }
+
+    // Build publish-ready inventory (same format as exportInventoryJSON)
+    var vehicles = inventory.map(function (item) {
+      return {
+        vin: item.vin, stockNumber: item.stockNumber || item.sku,
+        year: item.year, make: item.make, model: item.model, trim: item.trim,
+        engine: item.engine, transmission: item.transmission,
+        drivetrain: item.drivetrain, fuelType: item.fuelType,
+        mpgCity: item.mpgCity, mpgHighway: item.mpgHighway,
+        mileage: item.mileage, price: item.price,
+        type: item.category, exteriorColor: item.exteriorColor,
+        interiorColor: item.interiorColor, description: item.description,
+        features: item.features, status: item.status,
+        badge: item.badge, images: item.images || [],
+        dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
+      };
+    });
+    var publishData = { vehicles: vehicles, lastUpdated: new Date().toISOString() };
+
+    // Stage
+    showToast('Staging inventory...');
+    var stageRes = await fetch(STAGE_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
+        inventory: publishData,
+      }),
+    });
+    var stageResult = await stageRes.json();
+    if (!stageRes.ok) throw new Error(stageResult.error || 'Staging failed');
+
+    // Publish
+    showToast('Publishing to live site...');
+    var pubRes = await fetch(PUBLISH_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
+      }),
+    });
+    var pubResult = await pubRes.json();
+    if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed');
+
+    return pubResult;
   }
 
   // ─── Auth ───────────────────────────────────────────────────────────────────
@@ -427,14 +527,21 @@
       $('editFeatures').value = Array.isArray(item.features) ? item.features.join(', ') : (item.features || '');
       // Reset photo state
       editPhotoFiles = [];
+      editKeptImages = item.images ? item.images.slice() : [];
       $('editPhotoPreview').innerHTML = '';
-      // Show existing photos if available
-      if (item.images && item.images.length) {
-        item.images.forEach(function (url, i) {
+      // Show existing photos with remove buttons
+      if (editKeptImages.length) {
+        editKeptImages.forEach(function (url, i) {
           var div = document.createElement('div');
           div.className = 'photo-thumb';
+          div.dataset.url = url;
           div.innerHTML = '<img src="' + url + '" alt="Photo ' + (i + 1) + '">' +
+            '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
             '<span class="photo-label">' + (i === 0 ? 'Main' : 'Photo ' + (i + 1)) + '</span>';
+          div.querySelector('.photo-remove-btn').addEventListener('click', function () {
+            editKeptImages = editKeptImages.filter(function (u) { return u !== url; });
+            div.remove();
+          });
           $('editPhotoPreview').appendChild(div);
         });
       }
@@ -449,44 +556,91 @@
         persistInventory();
         renderInventoryTable();
         showFeedback(editFeedback, 'Item removed.');
+        // Auto-publish deletion to live site
+        showToast('Publishing deletion to live site...');
+        autoPublish().then(function () {
+          showToast('\u2713 Deleted & published! Live in ~30 seconds.', 'success');
+          setTimeout(hideToast, 5000);
+        }).catch(function (err) {
+          showToast('Error publishing: ' + err.message, 'error');
+          setTimeout(hideToast, 8000);
+        });
       }
     }
   }
 
-  function handleEditSubmit(event) {
+  async function handleEditSubmit(event) {
     event.preventDefault();
     if (!editingItem) return;
-    // Basic fields
-    editingItem.name = $('editName').value.trim();
-    editingItem.category = $('editCategory').value.trim();
-    editingItem.year = Number($('editYear').value) || editingItem.year;
-    editingItem.make = $('editMake').value.trim() || editingItem.make;
-    editingItem.model = $('editModel').value.trim() || editingItem.model;
-    editingItem.trim = $('editTrim').value.trim() || editingItem.trim;
-    editingItem.vin = $('editVin').value.trim() || editingItem.vin;
-    editingItem.quantity = Number($('editQuantity').value);
-    editingItem.price = Number($('editPrice').value);
-    editingItem.engine = $('editEngine').value.trim() || editingItem.engine;
-    editingItem.transmission = $('editTransmission').value.trim() || editingItem.transmission;
-    editingItem.status = $('editStatus').value;
-    // Extended fields
-    editingItem.stockNumber = $('editStock').value.trim() || editingItem.stockNumber;
-    editingItem.mileage = Number($('editMileage').value) || editingItem.mileage;
-    editingItem.drivetrain = $('editDrivetrain').value || editingItem.drivetrain;
-    editingItem.fuelType = $('editFuelType').value || editingItem.fuelType;
-    editingItem.mpgCity = Number($('editMpgCity').value) || editingItem.mpgCity;
-    editingItem.mpgHighway = Number($('editMpgHighway').value) || editingItem.mpgHighway;
-    editingItem.exteriorColor = $('editExteriorColor').value.trim() || editingItem.exteriorColor;
-    editingItem.interiorColor = $('editInteriorColor').value.trim() || editingItem.interiorColor;
-    editingItem.badge = $('editBadge').value;
-    editingItem.supplier = $('editSupplier').value.trim() || editingItem.supplier;
-    editingItem.description = $('editDescription').value.trim();
-    var featVal = $('editFeatures').value.trim();
-    editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
-    persistInventory();
-    renderInventoryTable();
-    showFeedback(editFeedback, 'Item updated.');
-    editModal.classList.remove('active');
+
+    // Disable submit button during save
+    var submitBtn = event.target.querySelector('[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+
+    try {
+      // Basic fields
+      editingItem.name = $('editName').value.trim();
+      editingItem.category = $('editCategory').value.trim();
+      editingItem.year = Number($('editYear').value) || editingItem.year;
+      editingItem.make = $('editMake').value.trim() || editingItem.make;
+      editingItem.model = $('editModel').value.trim() || editingItem.model;
+      editingItem.trim = $('editTrim').value.trim() || editingItem.trim;
+      editingItem.vin = $('editVin').value.trim() || editingItem.vin;
+      editingItem.quantity = Number($('editQuantity').value);
+      editingItem.price = Number($('editPrice').value);
+      editingItem.engine = $('editEngine').value.trim() || editingItem.engine;
+      editingItem.transmission = $('editTransmission').value.trim() || editingItem.transmission;
+      editingItem.status = $('editStatus').value;
+      // Extended fields
+      editingItem.stockNumber = $('editStock').value.trim() || editingItem.stockNumber;
+      editingItem.mileage = Number($('editMileage').value) || editingItem.mileage;
+      editingItem.drivetrain = $('editDrivetrain').value || editingItem.drivetrain;
+      editingItem.fuelType = $('editFuelType').value || editingItem.fuelType;
+      editingItem.mpgCity = Number($('editMpgCity').value) || editingItem.mpgCity;
+      editingItem.mpgHighway = Number($('editMpgHighway').value) || editingItem.mpgHighway;
+      editingItem.exteriorColor = $('editExteriorColor').value.trim() || editingItem.exteriorColor;
+      editingItem.interiorColor = $('editInteriorColor').value.trim() || editingItem.interiorColor;
+      editingItem.badge = $('editBadge').value;
+      editingItem.supplier = $('editSupplier').value.trim() || editingItem.supplier;
+      editingItem.description = $('editDescription').value.trim();
+      var featVal = $('editFeatures').value.trim();
+      editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
+
+      // Upload new photos to Cloudinary if any were selected
+      var newImageUrls = [];
+      if (editPhotoFiles.length > 0) {
+        showToast('Uploading photos...');
+        newImageUrls = await uploadPhotos(editPhotoFiles, function (current, total) {
+          showToast('Uploading photo ' + current + ' of ' + total + '...');
+        });
+      }
+
+      // Merge: kept existing images + newly uploaded images
+      editingItem.images = (editKeptImages || []).concat(newImageUrls);
+
+      // Save to localStorage
+      persistInventory();
+      renderInventoryTable();
+
+      // Close modal
+      editModal.classList.remove('active');
+
+      // Auto-publish to live site
+      showToast('Publishing to live site...');
+      await autoPublish();
+      showToast('\u2713 Saved & published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      // Only show inline feedback if modal is still open (photo upload errors)
+      if (editModal.classList.contains('active')) {
+        showFeedback(editFeedback, 'Save error: ' + err.message, true);
+      }
+      setTimeout(hideToast, 8000);
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Changes'; }
+      editPhotoFiles = [];
+    }
   }
 
   // ─── Inventory Import/Export ────────────────────────────────────────────────
@@ -568,7 +722,7 @@
   }
 
   // ─── Add Vehicle ────────────────────────────────────────────────────────────
-  function handleAddSubmit(event) {
+  async function handleAddSubmit(event) {
     event.preventDefault();
     const name = $('addName').value.trim();
     const sku = $('addSku').value.trim();
@@ -577,41 +731,65 @@
       showFeedback(addFeedback, 'Please fill required fields (Name, SKU, Category).', true);
       return;
     }
-    if (inventory.some((item) => item.sku === sku) && !$('cancelEditVehicle').classList.contains('hide') === false) {
-      // Only check duplicate if not editing
-      if (!$('editModeBadge').classList.contains('hide')) {
-        // Editing mode - update existing
-        const existing = inventory.find((item) => item.sku === sku);
-        if (existing) Object.assign(existing, buildVehicleFromForm());
-      } else if (inventory.some((item) => item.sku === sku)) {
-        showFeedback(addFeedback, 'SKU already exists.', true);
-        return;
-      }
-    }
 
-    if ($('editModeBadge') && !$('editModeBadge').classList.contains('hide')) {
-      // Edit mode - update existing
-      const idx = inventory.findIndex((item) => item.sku === sku);
-      if (idx >= 0) {
-        inventory[idx] = buildVehicleFromForm();
+    // Disable submit button
+    var submitBtn = event.target.querySelector('[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+
+    try {
+      // Upload photos to Cloudinary if any
+      var imageUrls = [];
+      if (addPhotoFiles.length > 0) {
+        showToast('Uploading photos...');
+        imageUrls = await uploadPhotos(addPhotoFiles, function (current, total) {
+          showToast('Uploading photo ' + current + ' of ' + total + '...');
+        });
+      }
+
+      var vehicle = buildVehicleFromForm();
+      vehicle.images = imageUrls;
+
+      if ($('editModeBadge') && !$('editModeBadge').classList.contains('hide')) {
+        // Edit mode - update existing
+        const idx = inventory.findIndex((item) => item.sku === sku);
+        if (idx >= 0) {
+          // Keep existing images if no new ones uploaded
+          if (imageUrls.length === 0 && inventory[idx].images) {
+            vehicle.images = inventory[idx].images;
+          }
+          inventory[idx] = vehicle;
+          persistInventory();
+          renderInventoryTable();
+          showFeedback(addFeedback, 'Vehicle updated.');
+          exitEditMode();
+        }
+      } else {
+        if (inventory.some((item) => item.sku === sku)) {
+          showFeedback(addFeedback, 'SKU already exists.', true);
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
+          return;
+        }
+        inventory.unshift(vehicle);
         persistInventory();
         renderInventoryTable();
-        showFeedback(addFeedback, 'Vehicle updated.');
-        exitEditMode();
-        return;
+        showFeedback(addFeedback, 'Vehicle saved.');
+        addForm.reset();
+        addPhotoFiles = [];
+        if ($('photoPreview')) $('photoPreview').innerHTML = '';
       }
-    }
 
-    if (inventory.some((item) => item.sku === sku)) {
-      showFeedback(addFeedback, 'SKU already exists.', true);
-      return;
+      // Auto-publish to live site
+      showToast('Publishing to live site...');
+      await autoPublish();
+      showToast('\u2713 Saved & published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      showFeedback(addFeedback, 'Save error: ' + err.message, true);
+      setTimeout(hideToast, 8000);
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
     }
-
-    inventory.unshift(buildVehicleFromForm());
-    persistInventory();
-    renderInventoryTable();
-    showFeedback(addFeedback, 'Vehicle saved.');
-    addForm.reset();
   }
 
   function buildVehicleFromForm() {
@@ -641,6 +819,7 @@
       badge: $('addBadge').value,
       features: $('addFeatures').value.split(',').map((t) => t.trim()).filter(Boolean),
       status: $('addStatus').value,
+      images: [],
     };
   }
 
@@ -850,9 +1029,10 @@
   function handlePhotoSelect(event) {
     const files = event.target.files;
     if (!files || !files.length) return;
+    addPhotoFiles = Array.from(files).slice(0, 10);
     const preview = $('photoPreview');
     preview.innerHTML = '';
-    Array.from(files).slice(0, 10).forEach((file, i) => {
+    addPhotoFiles.forEach((file, i) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const div = document.createElement('div');

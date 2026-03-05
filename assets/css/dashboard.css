@@ -897,6 +897,70 @@ button:hover {
   .review-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* ─── Auto-Save Toast ────────────────────────────────────────────────────── */
+.auto-save-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--surface1);
+  color: var(--text-primary);
+  border: 1px solid var(--divider);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+  max-width: 360px;
+}
+.auto-save-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.auto-save-toast.success {
+  background: #065f46;
+  color: #d1fae5;
+  border-color: #10b981;
+}
+.auto-save-toast.error {
+  background: #7f1d1d;
+  color: #fecaca;
+  border-color: #ef4444;
+}
+
+/* ─── Photo Remove Button ────────────────────────────────────────────────── */
+.photo-thumb {
+  position: relative;
+}
+.photo-remove-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.photo-thumb:hover .photo-remove-btn {
+  opacity: 1;
+}
+
 /* ─── Light Mode ─────────────────────────────────────────────────────────── */
 @media (prefers-color-scheme: light) {
   :root {
