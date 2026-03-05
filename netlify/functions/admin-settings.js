@@ -107,6 +107,10 @@ exports.handler = async (event) => {
       }
       if (settings.cloudName) existing.cloudName = settings.cloudName;
       if (settings.cloudPreset) existing.cloudPreset = settings.cloudPreset;
+      if (settings.googleKey && !settings.googleKey.startsWith('*')) {
+        existing.googleKey = settings.googleKey;
+      }
+      if (settings.placeId) existing.placeId = settings.placeId;
 
       await store.set(BLOB_KEY, JSON.stringify(existing));
 
@@ -146,6 +150,9 @@ exports.handler = async (event) => {
           openaiKeySet: !!saved.openaiKey,
           cloudName: saved.cloudName || '',
           cloudPreset: saved.cloudPreset || '',
+          googleKey: saved.googleKey ? '********' : '',
+          googleKeySet: !!saved.googleKey,
+          placeId: saved.placeId || '',
         },
       }),
     };

@@ -595,6 +595,17 @@
                 <button id="saveCloudinary" class="primary-btn" type="button">Save Cloudinary Settings</button>
                 <p id="settingsCloudStatus" class="feedback hide" role="status"></p>
               </div>
+
+              <div class="settings-section">
+                <h3>Google Reviews</h3>
+                <p class="muted">Used for fetching 5-star Google reviews to display on the site. Set these as environment variables in Netlify (GOOGLE_PLACES_API_KEY and GOOGLE_PLACE_ID).</p>
+                <div class="panel-grid">
+                  <label>Google Places API Key<input id="settingsGoogleKey" type="password" placeholder="AIza..."></label>
+                  <label>Google Place ID<input id="settingsPlaceId" type="text" placeholder="ChIJ..."></label>
+                </div>
+                <button id="saveGoogleReviews" class="primary-btn" type="button">Save Google Reviews Settings</button>
+                <p id="settingsGoogleStatus" class="feedback hide" role="status"></p>
+              </div>
             </div>
           </div>
         </section>

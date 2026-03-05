@@ -1964,9 +1964,13 @@
     var openaiKey = localStorage.getItem('bf_openai_key') || '';
     var cloudName = localStorage.getItem('bf_cloud_name') || '';
     var cloudPreset = localStorage.getItem('bf_cloud_preset') || '';
+    var googleKey = localStorage.getItem('bf_google_key') || '';
+    var placeId = localStorage.getItem('bf_place_id') || '';
     if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = openaiKey ? '********' : '';
     if ($('settingsCloudName')) $('settingsCloudName').value = cloudName;
     if ($('settingsCloudPreset')) $('settingsCloudPreset').value = cloudPreset;
+    if ($('settingsGoogleKey')) $('settingsGoogleKey').value = googleKey ? '********' : '';
+    if ($('settingsPlaceId')) $('settingsPlaceId').value = placeId;
 
     // Then try to load from server (authoritative, survives browser changes)
     try {
@@ -1988,11 +1992,18 @@
       }
       if (s.openaiKeySet) {
         if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '********';
-        // If localStorage doesn't have the key but server does, we can't retrieve the
-        // actual key (it's masked). But the vision function uses the server env var anyway.
-        // Mark that we know a key is set so the UI shows correctly.
         if (!localStorage.getItem('bf_openai_key')) {
           localStorage.setItem('bf_openai_key', '__server__');
+        }
+      }
+      if (s.placeId) {
+        localStorage.setItem('bf_place_id', s.placeId);
+        if ($('settingsPlaceId')) $('settingsPlaceId').value = s.placeId;
+      }
+      if (s.googleKeySet) {
+        if ($('settingsGoogleKey')) $('settingsGoogleKey').value = '********';
+        if (!localStorage.getItem('bf_google_key')) {
+          localStorage.setItem('bf_google_key', '__server__');
         }
       }
     } catch (e) {
@@ -2043,6 +2054,30 @@
       }
     } catch (e) { /* server save failed, localStorage still has it */ }
     showFeedback($('settingsCloudStatus'), 'Cloudinary settings saved.');
+  }
+
+  async function saveGoogleReviewsSettings() {
+    const googleKey = $('settingsGoogleKey').value.trim();
+    const placeId = $('settingsPlaceId').value.trim();
+    if (!googleKey && !placeId) return;
+    if (googleKey && !googleKey.startsWith('*')) localStorage.setItem('bf_google_key', googleKey);
+    if (placeId) localStorage.setItem('bf_place_id', placeId);
+    // Save to server
+    try {
+      var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+      if (session.username && session.passwordHash) {
+        await fetch(SETTINGS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auth: { user: session.username, passwordHash: session.passwordHash },
+            settings: { googleKey: googleKey.startsWith('*') ? undefined : googleKey, placeId: placeId || undefined },
+          }),
+        });
+      }
+    } catch (e) { /* server save failed, localStorage still has it */ }
+    if (googleKey && !googleKey.startsWith('*')) $('settingsGoogleKey').value = '********';
+    showFeedback($('settingsGoogleStatus'), 'Google Reviews settings saved. Set GOOGLE_PLACES_API_KEY and GOOGLE_PLACE_ID as Netlify environment variables for the reviews to load.');
   }
 
   // ─── Modal Close ────────────────────────────────────────────────────────────
@@ -2158,6 +2193,7 @@
     // Settings
     $('saveOpenaiKey').addEventListener('click', saveOpenaiKey);
     $('saveCloudinary').addEventListener('click', saveCloudinarySettings);
+    $('saveGoogleReviews').addEventListener('click', saveGoogleReviewsSettings);
     loadSettings();
 
     // Modals

@@ -468,6 +468,14 @@
     .footer-link:hover {
       color: #fff !important;
     }
+    /* Review card styles */
+    .review-card { transition: transform .15s; }
+    .review-card:hover { transform: translateY(-3px); }
+    .review-stars { display: inline-flex; gap: 1px; }
+    .star.filled { color: #f5a623; font-size: 1.1rem; }
+    .star.empty { color: #ddd; font-size: 1.1rem; }
+    .review-source { margin-left: 8px; display: inline-flex; align-items: center; }
+    .review-source svg { vertical-align: middle; }
     /* Identity bar — keep position:relative for absolute logo centering */
     .site-identity-bar {
       position: relative;
@@ -580,28 +588,10 @@
 <section id="reviews" class="section-pad bg-light">
       <div class="container">
          <h2 class="section-title text-center mx-auto mb-5">Customer Reviews</h2>
-         <div class="row g-4">
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Found a great F-150 at Bells Fork. The price was fair and they were upfront about everything. No pressure, no games. Highly recommend."</p>
-               <div class="fw-bold mt-auto">– Michael R.</div>
-             </div>
-           </div>
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Bought a used RAV4 here and it was exactly as described. They showed me the inspection report and walked me through everything. Honest dealers are hard to find."</p>
-               <div class="fw-bold mt-auto">– Sarah J.</div>
-             </div>
-           </div>
-           <div class="col-md-4">
-             <div class="card p-4 h-100 border-0 shadow-sm">
-               <div class="text-warning mb-2">★★★★★</div>
-               <p class="fst-italic text-muted">"Picked up a diesel RAM for my business. They had it ready and the whole process was smooth. Best vehicle buying experience I've had."</p>
-               <div class="fw-bold mt-auto">– David P.</div>
-             </div>
-           </div>
+         <div id="reviewStats"></div>
+         <div class="row g-4" id="reviewsGrid">
+           <!-- Dynamic reviews loaded by reviews-loader.js -->
+           <!-- Fallback static reviews shown if API is unavailable -->
          </div>
       </div>
     </section>
@@ -753,6 +743,7 @@
        href="https://www.google.com/maps?q=3840+Charles+Blvd+Greenville+NC+27858"
        target="_blank" rel="noopener">Directions</a>
   </nav>
+  <script src="assets/js/reviews-loader.js"></script>
   <script src="assets/js/tracker.js" defer></script>
 </body>
 </html>
