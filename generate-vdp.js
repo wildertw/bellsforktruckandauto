@@ -1235,7 +1235,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
     </div>
     <div style="background:#111;border-top:1px solid #333;padding:1rem 0;">
       <div class="container text-center" style="font-size:.82rem;color:#666;">
-        &copy; <span id="year"></span> ${DEALER_NAME} &bull; ${DEALER_ADDRESS} &bull; ${DEALER_PHONE}
+        &copy; <span id="year"></span> ${DEALER_NAME} &bull; ${DEALER_ADDRESS} &bull; ${DEALER_PHONE} &bull; Built by <a href="https://workflowefficiency.ai/" target="_blank" rel="noopener" style="color:#aaa;text-decoration:none;">Workflow Efficiency</a>
       </div>
     </div>
   </footer>
