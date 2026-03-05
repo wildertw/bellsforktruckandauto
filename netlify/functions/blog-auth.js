@@ -15,7 +15,7 @@
 const crypto = require('crypto');
 
 const FALLBACK_USERS = {
-  trey: '25f43b1486ad95a1398e3eeb3d83bc4010015fcc9bedb35b432e00298d5021f7',
+  trey:  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
   frank: '8e0a49d96938eca5a973cb170f392fa6e117ac8e0bbae8f281f365d7fd3c4139',
 };
 
