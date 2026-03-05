@@ -103,8 +103,24 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'No valid HTTPS image URLs provided' }) };
   }
 
-  // Resolve OpenAI API key: env var first, then Authorization header fallback
+  // Resolve OpenAI API key: env var → blob settings → Authorization header
   let openaiKey = process.env.OPENAI_API_KEY || '';
+  if (!openaiKey) {
+    // Try loading from saved admin settings in Netlify Blobs
+    try {
+      const { getStore } = require('@netlify/blobs');
+      const siteID = process.env.SITE_ID;
+      const token = process.env.NF_API_TOKEN;
+      if (siteID && token) {
+        const store = getStore({ name: 'admin-config', siteID, token, apiURL: 'https://api.netlify.com' });
+        const raw = await store.get('admin-settings');
+        if (raw) {
+          const saved = JSON.parse(raw);
+          if (saved.openaiKey) openaiKey = saved.openaiKey;
+        }
+      }
+    } catch { /* blob read failed, try header next */ }
+  }
   if (!openaiKey) {
     const authHeader = (event.headers['authorization'] || event.headers['Authorization'] || '');
     if (authHeader.startsWith('Bearer ')) {

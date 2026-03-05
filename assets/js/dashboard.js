@@ -10,6 +10,7 @@
   const NHTSA_API = 'https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues';
   const STATS_API = '/.netlify/functions/dashboard-stats';
   const VISION_API = '/.netlify/functions/vehicle-vision';
+  const SETTINGS_API = '/.netlify/functions/admin-settings';
 
   let blogToken = '';
   let blogUser = '';
@@ -1958,29 +1959,89 @@
   }
 
   // ─── Settings ───────────────────────────────────────────────────────────────
-  function loadSettings() {
-    const openaiKey = localStorage.getItem('bf_openai_key') || '';
-    const cloudName = localStorage.getItem('bf_cloud_name') || '';
-    const cloudPreset = localStorage.getItem('bf_cloud_preset') || '';
+  async function loadSettings() {
+    // Load from localStorage first (instant)
+    var openaiKey = localStorage.getItem('bf_openai_key') || '';
+    var cloudName = localStorage.getItem('bf_cloud_name') || '';
+    var cloudPreset = localStorage.getItem('bf_cloud_preset') || '';
     if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = openaiKey ? '********' : '';
     if ($('settingsCloudName')) $('settingsCloudName').value = cloudName;
     if ($('settingsCloudPreset')) $('settingsCloudPreset').value = cloudPreset;
-  }
 
-  function saveOpenaiKey() {
-    const key = $('settingsOpenaiKey').value.trim();
-    if (key && !key.startsWith('*')) {
-      localStorage.setItem('bf_openai_key', key);
-      $('settingsOpenaiKey').value = '********';
-      alert('OpenAI key saved.');
+    // Then try to load from server (authoritative, survives browser changes)
+    try {
+      var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+      if (!session.username || !session.passwordHash) return;
+      var res = await fetch(SETTINGS_API + '?user=' + encodeURIComponent(session.username) + '&hash=' + encodeURIComponent(session.passwordHash));
+      if (!res.ok) return;
+      var data = await res.json();
+      if (!data.ok || !data.settings) return;
+      var s = data.settings;
+      // Sync server settings into localStorage
+      if (s.cloudName) {
+        localStorage.setItem('bf_cloud_name', s.cloudName);
+        if ($('settingsCloudName')) $('settingsCloudName').value = s.cloudName;
+      }
+      if (s.cloudPreset) {
+        localStorage.setItem('bf_cloud_preset', s.cloudPreset);
+        if ($('settingsCloudPreset')) $('settingsCloudPreset').value = s.cloudPreset;
+      }
+      if (s.openaiKeySet) {
+        if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '********';
+        // If localStorage doesn't have the key but server does, we can't retrieve the
+        // actual key (it's masked). But the vision function uses the server env var anyway.
+        // Mark that we know a key is set so the UI shows correctly.
+        if (!localStorage.getItem('bf_openai_key')) {
+          localStorage.setItem('bf_openai_key', '__server__');
+        }
+      }
+    } catch (e) {
+      // Server load failed — localStorage values still apply
     }
   }
 
-  function saveCloudinarySettings() {
+  async function saveOpenaiKey() {
+    const key = $('settingsOpenaiKey').value.trim();
+    if (!key || key.startsWith('*')) return;
+    // Save to localStorage
+    localStorage.setItem('bf_openai_key', key);
+    $('settingsOpenaiKey').value = '********';
+    // Save to server
+    try {
+      var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+      if (session.username && session.passwordHash) {
+        await fetch(SETTINGS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auth: { user: session.username, passwordHash: session.passwordHash },
+            settings: { openaiKey: key },
+          }),
+        });
+      }
+    } catch (e) { /* server save failed, localStorage still has it */ }
+    alert('OpenAI key saved.');
+  }
+
+  async function saveCloudinarySettings() {
     const name = $('settingsCloudName').value.trim();
     const preset = $('settingsCloudPreset').value.trim();
     if (name) localStorage.setItem('bf_cloud_name', name);
     if (preset) localStorage.setItem('bf_cloud_preset', preset);
+    // Save to server
+    try {
+      var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+      if (session.username && session.passwordHash) {
+        await fetch(SETTINGS_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auth: { user: session.username, passwordHash: session.passwordHash },
+            settings: { cloudName: name, cloudPreset: preset },
+          }),
+        });
+      }
+    } catch (e) { /* server save failed, localStorage still has it */ }
     showFeedback($('settingsCloudStatus'), 'Cloudinary settings saved.');
   }
 
