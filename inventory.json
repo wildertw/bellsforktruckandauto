@@ -1,38 +1,6 @@
 {
-  "lastUpdated": "2026-03-06T06:04:08.852Z",
+  "lastUpdated": "2026-03-06T06:08:01.887Z",
   "vehicles": [
-    {
-      "vin": "3GTU2NEC3HG114142",
-      "stockNumber": "02881BF",
-      "year": 2017,
-      "make": "Gmc",
-      "model": "SIERRA 1500",
-      "trim": "SLT",
-      "engine": "L83 -Spark Ignited Direct Injection, Variable Valve Timing, AFM, E85 MAX, ALUM",
-      "transmission": "",
-      "drivetrain": "4WD",
-      "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 142000,
-      "price": 35000,
-      "type": "truck",
-      "exteriorColor": "Dark Sky Metallic",
-      "interiorColor": "Tan",
-      "description": "This Pickup has been well cared for by the Two Previous Owners plus the automatic transmission makes driving easier in stop-and-go traffic and on hilly roads.",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "02881bf-01.jpg",
-        "02881bf-02.jpg",
-        "02881bf-03.jpg",
-        "02881bf-04.jpg",
-        "02881bf-05.jpg"
-      ],
-      "dateAdded": "2026-03-06"
-    },
     {
       "vin": "1GNSKBKC2LR309210",
       "stockNumber": "02937BF",
