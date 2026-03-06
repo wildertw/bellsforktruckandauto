@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T15:57:51.926Z",
+  "lastUpdated": "2026-03-06T15:58:03.339Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -505,7 +505,7 @@
       "features": [],
       "status": "available",
       "badge": "",
-      "featured": false,
+      "featured": true,
       "images": [
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png",
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-02.png",
