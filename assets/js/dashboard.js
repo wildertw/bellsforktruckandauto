@@ -176,6 +176,15 @@
     return keys;
   }
 
+  // ─── Resolve image name to a displayable src URL ────────────────────────
+  function resolveImageSrc(name) {
+    if (!name) return '';
+    if (typeof name !== 'string') return '';
+    if (name.startsWith('http://') || name.startsWith('https://')) return name;
+    if (name.startsWith('blob:')) return '/photos/' + name.slice(5);
+    return 'assets/vehicles/' + name;
+  }
+
   // ─── Auto Publish (Stage + Publish in one step) ───────────────────────────
   async function autoPublish() {
     var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
@@ -1530,7 +1539,7 @@
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
       div.dataset.url = url;
-      div.innerHTML = '<img src="' + url + '" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
+      div.innerHTML = '<img src="' + resolveImageSrc(url) + '" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
         '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
         (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
         '<span class="photo-label">' + (isPreview ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';

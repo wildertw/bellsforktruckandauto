@@ -1239,8 +1239,10 @@
 
     const mainImage = v.images && v.images.length > 0 ? String(v.images[0]).trim() : '';
     const isRemoteImage = mainImage.startsWith('http');
+    const isBlobImage = mainImage.startsWith('blob:');
+    const resolvedSrc = isBlobImage ? 'photos/' + mainImage.slice(5) : (isRemoteImage ? mainImage : 'assets/vehicles/' + mainImage);
     const imgHtml = mainImage
-      ? `<img src="${isRemoteImage ? escapeAttr(mainImage) : `assets/vehicles/${escapeAttr(mainImage)}`}" alt="${escapeAttr(title)}" loading="lazy"${isRemoteImage ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
+      ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy"${(isRemoteImage || isBlobImage) ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
       : `<div class="inv-img-placeholder">
            <svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16">
              <rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
