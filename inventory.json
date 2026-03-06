@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T05:53:47.353Z",
+  "lastUpdated": "2026-03-06T05:57:54.857Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -294,25 +294,36 @@
     {
       "vin": "1GCRRC7E4B2393745",
       "stockNumber": "02930BF",
-      "year": 2011,
+      "year": 1981,
       "make": "CHEVROLET",
       "model": "SILVERADO 1500",
-      "trim": "",
-      "engine": "2BBL",
-      "transmission": "",
+      "trim": "LS",
+      "engine": "5.7L V8",
+      "transmission": "AUTOMATIC",
       "drivetrain": "",
       "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
+      "mileage": 138000,
+      "price": 11995,
       "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
+      "exteriorColor": "Pewter",
+      "interiorColor": "Gray",
+      "description": "This classic 1981 Chevrolet Silverado 1500 LS features a powerful 5.7L V8 engine and has only 138,000 miles on the odometer. With its iconic design and impressive performance, this Silverado is a must-have for any truck enthusiast looking for a reliable and timeless vehicle.",
       "features": [],
       "status": "available",
       "badge": "",
       "featured": false,
-      "images": [],
+      "images": [
+        "blob:02930BF-01.jpg",
+        "blob:02930BF-02.jpg",
+        "blob:02930BF-03.jpg",
+        "blob:02930BF-04.jpg",
+        "blob:02930BF-05.jpg",
+        "blob:02930BF-06.jpg",
+        "blob:02930BF-07.jpg",
+        "blob:02930BF-08.jpg",
+        "blob:02930BF-09.jpg",
+        "blob:02930BF-10.jpg"
+      ],
       "dateAdded": "2026-03-06"
     },
     {
