@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T05:57:54.857Z",
+  "lastUpdated": "2026-03-06T06:00:14.352Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -292,23 +292,27 @@
       "dateAdded": "2026-03-06"
     },
     {
-      "vin": "1GCRRC7E4B2393745",
+      "vin": "1GCRCREA2BZ393745",
       "stockNumber": "02930BF",
-      "year": 1981,
+      "year": 2011,
       "make": "CHEVROLET",
-      "model": "SILVERADO 1500",
-      "trim": "LS",
-      "engine": "5.7L V8",
+      "model": "Silverado",
+      "trim": "LT",
+      "engine": "4.8L V8",
       "transmission": "AUTOMATIC",
       "drivetrain": "",
       "fuelType": "Gasoline",
       "mileage": 138000,
       "price": 11995,
       "type": "used",
-      "exteriorColor": "Pewter",
+      "exteriorColor": "Silver",
       "interiorColor": "Gray",
-      "description": "This classic 1981 Chevrolet Silverado 1500 LS features a powerful 5.7L V8 engine and has only 138,000 miles on the odometer. With its iconic design and impressive performance, this Silverado is a must-have for any truck enthusiast looking for a reliable and timeless vehicle.",
-      "features": [],
+      "description": "This 2011 CHEVROLET Silverado LT offers a powerful 4.8L V8 engine with 138,000 miles, perfect for your towing needs. With its sleek chrome wheels, tow hitch, and Extended Cab, this truck is ready to tackle any task ahead.",
+      "features": [
+        "chrome wheels",
+        "tow hitch",
+        "Extended Cab"
+      ],
       "status": "available",
       "badge": "",
       "featured": false,
