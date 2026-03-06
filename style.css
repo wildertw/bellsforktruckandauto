@@ -733,6 +733,32 @@ html {
   border-color: #c82333;
 }
 
+/* Image skeleton loading — shimmer effect while images load */
+.inventory-img-wrap,
+.inv-img-col {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.inventory-img-wrap img,
+.inv-img-col img {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.inventory-img-wrap img.loaded,
+.inv-img-col img.loaded,
+.inventory-img-wrap img[complete],
+.inv-img-col img[complete] {
+  opacity: 1;
+}
+
 /* Performance: render offscreen sections lazily (supported browsers only) */
 @supports (content-visibility: auto) {
   main > section:not(.hero) {

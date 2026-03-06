@@ -133,7 +133,7 @@
     const pageUrl = `${window.location.origin}/blog/${post.slug}`;
     const desc = post.metaDescription || post.excerpt || 'Bells Fork Auto & Truck blog post';
     const title = `${post.title} | Bells Fork Auto & Truck Blog`;
-    const image = post.featuredImage || `${window.location.origin}/assets/shop-front.jpg`;
+    const image = post.featuredImage || `${window.location.origin}/assets/hero/shop-front-og.jpg`;
 
     document.title = title;
     document.getElementById('pageTitle').textContent = title;

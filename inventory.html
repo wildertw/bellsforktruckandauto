@@ -38,14 +38,14 @@
   <meta property="og:title" content="Bells Fork Auto & Truck | Used Cars & Trucks in Greenville, NC" />
   <meta property="og:description" content="Quality pre-owned cars, trucks, SUVs, and diesel vehicles for sale in Greenville, NC. Inspected and priced fairly at Bells Fork Auto & Truck." />
   <meta property="og:url" content="https://bellsforkautoandtruck.com/inventory.html" />
-  <meta property="og:image" content="https://bellsforkautoandtruck.com/assets/shop-front.jpg" />
+  <meta property="og:image" content="https://bellsforkautoandtruck.com/assets/hero/shop-front-og.jpg" />
   <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Bells Fork Auto & Truck | Used Vehicles in Greenville, NC" />
   <meta name="twitter:description" content="Shop quality pre-owned cars, trucks, and diesel vehicles at Bells Fork Auto & Truck in Greenville, NC. Fair prices, honest deals." />
-  <meta name="twitter:image" content="https://bellsforkautoandtruck.com/assets/shop-front.jpg" />
+  <meta name="twitter:image" content="https://bellsforkautoandtruck.com/assets/hero/shop-front-og.jpg" />
 
   <!-- Additional Open Graph for GEO -->
   <meta property="og:site_name" content="Bells Fork Auto & Truck" />
@@ -73,7 +73,7 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
   <!-- Custom Styles -->
-  <link href="style.css" rel="stylesheet">
+  <link href="style.min.css" rel="stylesheet">
 
   <!-- Schema.org — Expanded Structured Data for SEO & Generative Engine Optimization -->
   <script type="application/ld+json">
@@ -108,7 +108,7 @@
         "inLanguage": "en-US",
         "primaryImageOfPage": {
           "@type": "ImageObject",
-          "url": "https://bellsforkautoandtruck.com/assets/shop-front.jpg",
+          "url": "https://bellsforkautoandtruck.com/assets/hero/shop-front-og.jpg",
           "caption": "Bells Fork Auto and Truck dealership storefront in Greenville, NC"
         }
       },
@@ -121,7 +121,7 @@
         "telephone": "+1-252-496-0005",
         "image": [
           "https://bellsforkautoandtruck.com/assets/logo.png",
-          "https://bellsforkautoandtruck.com/assets/shop-front.jpg"
+          "https://bellsforkautoandtruck.com/assets/hero/shop-front-og.jpg"
         ],
         "logo": {
           "@type": "ImageObject",
@@ -699,6 +699,58 @@
       margin-bottom: 1.25rem;
     }
 
+    /* ── Mobile filter chips ── */
+    .mobile-filter-chips {
+      display: none;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: .5rem;
+      padding: .25rem 0 .75rem;
+      margin-bottom: .5rem;
+    }
+    .mobile-filter-chips::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0;
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      border: 1.5px solid #dc3545;
+      background: #fff;
+      color: #dc3545;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .filter-chip.active {
+      background: #dc3545;
+      color: #fff;
+    }
+    .sort-chip {
+      flex-shrink: 0;
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      border: 1.5px solid #333;
+      background: #fff;
+      color: #333;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s;
+      margin-left: auto;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sort-chip.active {
+      background: #333;
+      color: #fff;
+    }
+    @media (max-width: 767.98px) {
+      .mobile-filter-chips { display: flex; }
+    }
+
     /* ── Responsive ── */
   </style>
 </head>
@@ -805,6 +857,16 @@
     <div id="inventory-view">
       <section class="py-4" style="background:#f4f4f4;">
         <div class="container">
+
+          <!-- Mobile filter chips -->
+          <div class="mobile-filter-chips" id="mobileChips">
+            <button class="filter-chip active" data-type="all">All</button>
+            <button class="filter-chip" data-type="truck">Trucks</button>
+            <button class="filter-chip" data-type="suv">SUVs</button>
+            <button class="filter-chip" data-type="car">Cars</button>
+            <button class="filter-chip" data-type="diesel">Diesel</button>
+            <button class="sort-chip" id="sortChip" data-sort="newest">Newest First</button>
+          </div>
 
           <!-- Filter bar -->
           <div class="filter-section">
@@ -1057,6 +1119,43 @@
     document.getElementById('searchVehicle').addEventListener('keyup', e => { if (e.key === 'Enter') applyFilters(); });
     document.getElementById('filterType').addEventListener('change', applyFilters);
     document.getElementById('filterPrice').addEventListener('change', applyFilters);
+
+    // Mobile filter chips
+    document.querySelectorAll('#mobileChips .filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('#mobileChips .filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        // Sync with dropdown
+        document.getElementById('filterType').value = chip.dataset.type;
+        applyFilters();
+      });
+    });
+
+    // Mobile sort chip
+    const sortChip = document.getElementById('sortChip');
+    const sortModes = [
+      { key: 'newest', label: 'Newest First' },
+      { key: 'priceLow', label: 'Price: Low' },
+      { key: 'priceHigh', label: 'Price: High' },
+      { key: 'milesLow', label: 'Miles: Low' }
+    ];
+    let sortIdx = 0;
+    sortChip.addEventListener('click', () => {
+      sortIdx = (sortIdx + 1) % sortModes.length;
+      sortChip.textContent = sortModes[sortIdx].label;
+      sortChip.dataset.sort = sortModes[sortIdx].key;
+      sortChip.classList.add('active');
+      if (sortModes[sortIdx].key === 'newest') sortChip.classList.remove('active');
+      applyFilters();
+    });
+
+    // Sync dropdown changes back to chips
+    document.getElementById('filterType').addEventListener('change', () => {
+      const val = document.getElementById('filterType').value;
+      document.querySelectorAll('#mobileChips .filter-chip').forEach(c => {
+        c.classList.toggle('active', c.dataset.type === val);
+      });
+    });
   });
 
   async function loadVehicles() {
@@ -1079,6 +1178,8 @@
     const q     = document.getElementById('searchVehicle').value.trim().toLowerCase();
     const type  = document.getElementById('filterType').value;
     const price = document.getElementById('filterPrice').value;
+    const sortChip = document.getElementById('sortChip');
+    const sortMode = sortChip ? sortChip.dataset.sort : 'newest';
 
     const filtered = ALL_VEHICLES.filter(v => {
       const searchable = `${v.year} ${v.make} ${v.model} ${v.trim||''} ${v.description||''} ${v.vin||''}`.toLowerCase();
@@ -1088,6 +1189,17 @@
       const matchPrice = price === 'all' || pr === price;
       return matchQ && matchType && matchPrice;
     });
+
+    // Sort based on active sort mode
+    if (sortMode === 'priceLow') {
+      filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortMode === 'priceHigh') {
+      filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortMode === 'milesLow') {
+      filtered.sort((a, b) => (a.mileage || 0) - (b.mileage || 0));
+    } else {
+      filtered.sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
+    }
 
     renderList(filtered);
   }
@@ -1242,7 +1354,7 @@
     const isBlobImage = mainImage.startsWith('blob:');
     const resolvedSrc = isBlobImage ? 'photos/' + mainImage.slice(5) : (isRemoteImage ? mainImage : 'assets/vehicles/' + mainImage);
     const imgHtml = mainImage
-      ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy"${(isRemoteImage || isBlobImage) ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
+      ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy" decoding="async" onload="this.classList.add('loaded')"${(isRemoteImage || isBlobImage) ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
       : `<div class="inv-img-placeholder">
            <svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16">
              <rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -1294,6 +1406,6 @@
   }
   </script>
   <script src="assets/js/tracker.js" defer></script>
-
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>

@@ -5,11 +5,11 @@
   "scripts": {
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write \"**/*.{js,css,html,md}\"",
-    "build:js": "esbuild assets/js/utils.js inventory-loader.js vehicle-manager.js --bundle --minify --outfile=assets/js/bundle.min.js",
+    "build:js": "esbuild assets/js/utils.js inventory-loader.js vehicle-manager.js --bundle --minify --outdir=assets/js/dist",
     "build:css": "cleancss -o style.min.css style.css",
     "build:vdp": "node generate-vdp.js",
     "watch:vdp": "node watch-vdp.js",
-    "build": "npm run build:js && npm run build:css && npm run build:vdp"
+    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.0"
@@ -18,6 +18,7 @@
     "clean-css-cli": "^5.6.3",
     "esbuild": "^0.27.3",
     "eslint": "^8.0.0",
-    "prettier": "^2.0.0"
+    "prettier": "^2.0.0",
+    "sharp": "^0.34.5"
   }
 }

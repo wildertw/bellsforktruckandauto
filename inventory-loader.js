@@ -37,7 +37,7 @@ class InventoryLoader {
   // Load inventory from JSON
   async loadInventory() {
     try {
-      const response = await fetch(this.jsonPath, { cache: 'no-store' });
+      const response = await fetch(this.jsonPath);
       if (!response.ok) throw new Error('Could not load inventory');
 
       const data = await response.json();
@@ -140,7 +140,8 @@ class InventoryLoader {
                      alt="${v.year} ${v.make} ${v.model}"
                      class="card-img-top"
                      style="height:220px; object-fit:cover;"
-                     loading="lazy"${localImageAttr}>
+                     loading="lazy" decoding="async"
+                     onload="this.classList.add('loaded')"${localImageAttr}>
               </a>
             ` : `
               <div class="inventory-placeholder d-flex align-items-center justify-content-center bg-light" style="height:220px;">

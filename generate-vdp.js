@@ -110,7 +110,7 @@ function resolveImg(img, prefix = '') {
   return `${prefix}assets/vehicles/${img}`;
 }
 function resolveImgAbs(img) {
-  if (!img) return `${SITE_URL}/assets/shop-front.jpg`;
+  if (!img) return `${SITE_URL}/assets/hero/shop-front-og.jpg`;
   if (img.startsWith('http')) return img;
   if (img.startsWith('blob:')) return `${SITE_URL}/photos/${img.slice(5)}`;
   return `${SITE_URL}/assets/vehicles/${img}`;
@@ -369,7 +369,7 @@ function generateVDPHtml(v, allVehicles) {
     : '';
   const mainImageAbs = v.images && v.images.length > 0
     ? resolveImgAbs(v.images[0])
-    : `${SITE_URL}/assets/shop-front.jpg`;
+    : `${SITE_URL}/assets/hero/shop-front-og.jpg`;
 
   const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
   const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}#appointment`;
@@ -490,9 +490,10 @@ function generateVDPHtml(v, allVehicles) {
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 
   <!-- Custom Styles -->
-  <link href="${ASSET_PREFIX}style.css" rel="stylesheet">
+  <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
 
   <!-- Schema.org Structured Data -->
   <script type="application/ld+json">
@@ -927,15 +928,20 @@ ${buildSchema(v)}
     </nav>
 
     <!-- Photo Gallery -->
-    <section class="vdp-gallery" aria-label="Vehicle photos">
-${v.images && v.images.length > 0 ? `      <img id="vdpMainImg" class="vdp-main-img" src="${resolveImg(v.images[0], ASSET_PREFIX)}" alt="${escapeAttr(title)} - Photo 1 of ${v.images.length}">
-      <div class="vdp-photo-count" aria-label="${v.images.length} photos">
-        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
-        ${v.images.length} Photo${v.images.length !== 1 ? 's' : ''}
+    <section aria-label="Vehicle photos">
+${v.images && v.images.length > 0 ? `      <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
+        <div class="swiper-wrapper">
+          ${v.images.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-prev d-none d-md-flex"></div>
+        <div class="swiper-button-next d-none d-md-flex"></div>
       </div>
-${v.images.length > 1 ? `      <div class="vdp-thumbs container" role="list" aria-label="Photo thumbnails">
-${v.images.map((img, i) => `        <img class="vdp-thumb${i === 0 ? ' active' : ''}" src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)} photo ${i + 1}" data-full="${resolveImg(img, ASSET_PREFIX)}" role="listitem" tabindex="0">`).join('\n')}
-      </div>` : ''}` : `      <div class="d-flex align-items-center justify-content-center" style="height:300px;background:#e9e9e9;color:#999;">
+      <div class="swiper vdp-thumbs mt-2" style="height:80px;">
+        <div class="swiper-wrapper">
+          ${v.images.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+        </div>
+      </div>` : `      <div class="d-flex align-items-center justify-content-center" style="height:300px;background:#e9e9e9;color:#999;">
         <div class="text-center">
           <svg width="80" height="80" fill="currentColor" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></svg>
           <p class="mt-2">Photo Coming Soon</p>
@@ -1283,25 +1289,16 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
     btn.replaceWith(s);
   }
 
-  // Photo gallery thumbnail switching
-  (function() {
-    const mainImg = document.getElementById('vdpMainImg');
-    if (!mainImg) return;
-    const thumbs = document.querySelectorAll('.vdp-thumb');
-    thumbs.forEach(thumb => {
-      const handler = () => {
-        mainImg.src = thumb.dataset.full;
-        mainImg.alt = thumb.alt;
-        thumbs.forEach(t => t.classList.remove('active'));
-        thumb.classList.add('active');
-      };
-      thumb.addEventListener('click', handler);
-      thumb.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
-    });
-  })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+  <script>
+document.addEventListener('DOMContentLoaded',function(){
+  var thumbs=new Swiper('.vdp-thumbs',{slidesPerView:'auto',spaceBetween:8,freeMode:true,watchSlidesProgress:true});
+  new Swiper('.vdp-gallery',{loop:true,spaceBetween:10,pagination:{el:'.swiper-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},thumbs:{swiper:thumbs}});
+});
   </script>
   <script src="/assets/js/tracker.js" defer></script>
-
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>`;
 }
