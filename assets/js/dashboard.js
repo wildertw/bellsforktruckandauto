@@ -186,7 +186,8 @@
         type: item.category, exteriorColor: item.exteriorColor,
         interiorColor: item.interiorColor, description: item.description,
         features: item.features, status: item.status,
-        badge: item.badge, images: item.images || [],
+        badge: item.badge, featured: item.featured || false,
+        images: item.images || [],
         dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
       };
     });
@@ -469,6 +470,13 @@
   function renderInventoryTable() {
     refreshExportFilter();
     updateInventoryStatus();
+    // Update featured count indicator
+    var featuredCount = inventory.filter(function(v) { return v.featured; }).length;
+    var featuredStatusEl = $('featuredStatus');
+    if (featuredStatusEl) {
+      featuredStatusEl.innerHTML = '\u2605 <strong>' + featuredCount + '/5</strong> vehicles featured on homepage' +
+        (featuredCount === 0 ? ' (showing last 5 added by default)' : '');
+    }
     const search = $('editSearch').value.trim().toLowerCase();
     filteredInventory = inventory.filter((item) => {
       if (!search) return true;
@@ -478,18 +486,29 @@
     currentPage = Math.min(currentPage, totalPages);
     const start = (currentPage - 1) * pageSize;
     const pageSlice = filteredInventory.slice(start, start + pageSize);
-    inventoryTableBody.innerHTML = pageSlice.map((item) => '<tr>' +
+    inventoryTableBody.innerHTML = pageSlice.map(function(item) {
+      var canFeature = item.featured || featuredCount < 5;
+      return '<tr>' +
       '<td>' + item.sku + '</td>' +
       '<td>' + item.name + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
-      '<td>' + item.quantity + '</td>' +
+      '<td class="featured-toggle-cell">' +
+        '<button class="featured-star' + (item.featured ? ' active' : '') + '"' +
+          ' data-action="toggle-featured" data-sku="' + item.sku + '"' +
+          ' type="button"' +
+          ' title="' + (item.featured ? 'Remove from featured' : (canFeature ? 'Add to featured' : 'Maximum 5 featured reached')) + '"' +
+          (canFeature ? '' : ' disabled') +
+        '>' +
+          (item.featured ? '\u2605' : '\u2606') +
+        '</button>' +
+      '</td>' +
       '<td>' + formatMoney(item.price) + '</td>' +
       '<td class="table-actions">' +
         '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
         '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>' +
-      '</td></tr>'
-    ).join('');
+      '</td></tr>';
+    }).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
   }
 
@@ -500,6 +519,28 @@
     const sku = event.target.dataset.sku;
     const item = inventory.find((row) => row.sku === sku);
     if (!item) return;
+    if (action === 'toggle-featured') {
+      var featuredCount = inventory.filter(function(v) { return v.featured; }).length;
+      if (item.featured) {
+        item.featured = false;
+      } else if (featuredCount < 5) {
+        item.featured = true;
+      } else {
+        showFeedback(editFeedback, 'Maximum 5 featured vehicles allowed. Unfeature one first.', true);
+        return;
+      }
+      persistInventory();
+      renderInventoryTable();
+      showToast('Publishing featured change...');
+      autoPublish().then(function () {
+        showToast('\u2713 Featured updated & published! Live in ~30 seconds.', 'success');
+        setTimeout(hideToast, 5000);
+      }).catch(function (err) {
+        showToast('Error publishing: ' + err.message, 'error');
+        setTimeout(hideToast, 8000);
+      });
+      return;
+    }
     if (action === 'edit') {
       editingItem = item;
       // Basic fields
@@ -671,7 +712,8 @@
           mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
           exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
           features: v.features || [], status: v.status || 'available',
-          badge: v.badge, drivetrain: v.drivetrain, fuelType: v.fuelType,
+          badge: v.badge, featured: v.featured || false,
+          drivetrain: v.drivetrain, fuelType: v.fuelType,
           images: v.images,
         }));
         persistInventory();
@@ -704,7 +746,8 @@
           mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
           exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
           features: v.features || [], status: v.status || 'available',
-          badge: v.badge, drivetrain: v.drivetrain, fuelType: v.fuelType,
+          badge: v.badge, featured: v.featured || false,
+          drivetrain: v.drivetrain, fuelType: v.fuelType,
           images: v.images,
         }));
         persistInventory();
@@ -830,6 +873,7 @@
       badge: $('addBadge').value,
       features: $('addFeatures').value.split(',').map((t) => t.trim()).filter(Boolean),
       status: $('addStatus').value,
+      featured: false,
       images: [],
     };
   }
@@ -1592,8 +1636,9 @@
       type: item.category, exteriorColor: item.exteriorColor,
       interiorColor: item.interiorColor, description: item.description,
       features: item.features, status: item.status,
-      badge: item.badge, images: item.images || [],
-      dateAdded: new Date().toISOString().split('T')[0],
+      badge: item.badge, featured: item.featured || false,
+      images: item.images || [],
+      dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
     }));
     const json = JSON.stringify({ vehicles, lastUpdated: new Date().toISOString() }, null, 2);
     const blob = new Blob([json], { type: 'application/json' });

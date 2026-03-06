@@ -13,7 +13,7 @@ class InventoryLoader {
     this.limit = this.grid ? parseInt(this.grid.getAttribute('data-limit') || '', 10) : NaN;
 
     // Home modules
-    this.featuredTrack = document.getElementById('featuredTrack');
+    this.featuredGrid = document.getElementById('featuredGrid');
     this.homeMake = document.getElementById('homeMake');
     this.homeModel = document.getElementById('homeModel');
     this.homeMaxPrice = document.getElementById('homeMaxPrice');
@@ -22,10 +22,6 @@ class InventoryLoader {
     this.popBody = document.getElementById('popularBodyStyles');
     this.popMakes = document.getElementById('popularMakes');
     this.popMakeModels = document.getElementById('popularMakeModels');
-
-    this._featuredIndex = 0;
-    this._featuredTimer = null;
-    this._featuredVehicles = [];
   }
 
   // Build SEO-friendly VDP URL matching generate_vdp_pages.py format
@@ -290,7 +286,7 @@ class InventoryLoader {
   // ==========================================
   initHomeModules() {
     this.initHomeSearch();
-    this.initFeaturedCarousel();
+    this.initFeaturedGrid();
     this.renderPopularSections();
   }
 
@@ -337,102 +333,46 @@ class InventoryLoader {
     });
   }
 
-  initFeaturedCarousel() {
-    if (!this.featuredTrack) return;
+  initFeaturedGrid() {
+    if (!this.featuredGrid) return;
 
-    const prevBtn = document.getElementById('featuredPrev');
-    const nextBtn = document.getElementById('featuredNext');
-    const wrap = this.featuredTrack.closest('.featured-wrap');
+    // Priority 1: vehicles explicitly marked as featured
+    let featured = this.vehicles.filter(v => v.featured === true);
 
-    this._featuredVehicles = this.getMostRecent(this.vehicles).slice(0, 10);
-    this._featuredIndex = 0;
-
-    const render = (fade = true) => {
-      const visible = this.getFeaturedVisibleCount();
-      const list = this.getWindowSlice(this._featuredVehicles, this._featuredIndex, visible);
-
-      if (fade) {
-        this.featuredTrack.classList.add('is-fading');
-        window.setTimeout(() => this.featuredTrack.classList.remove('is-fading'), 140);
-      }
-
-      this.featuredTrack.innerHTML = list.map(v => this.createFeaturedCard(v)).join('');
-      // Make cards share width nicely
-      const cards = this.featuredTrack.querySelectorAll('.featured-card');
-      cards.forEach(c => c.style.flexBasis = `${Math.max(160, Math.floor(100 / visible))}%`);
-      this.bindImageFallbacks(this.featuredTrack);
-    };
-
-    const step = (dir) => {
-      if (!this._featuredVehicles.length) return;
-      this._featuredIndex = (this._featuredIndex + dir) % this._featuredVehicles.length;
-      if (this._featuredIndex < 0) this._featuredIndex += this._featuredVehicles.length;
-      render(true);
-    };
-
-    if (prevBtn) prevBtn.addEventListener('click', () => step(-1));
-    if (nextBtn) nextBtn.addEventListener('click', () => step(1));
-    window.addEventListener('resize', () => render(false));
-
-    // Auto-rotate
-    const startTimer = () => {
-      this.stopFeaturedTimer();
-      this._featuredTimer = window.setInterval(() => step(1), 4500);
-    };
-    const stopTimer = () => this.stopFeaturedTimer();
-
-    if (wrap) {
-      wrap.addEventListener('mouseenter', stopTimer);
-      wrap.addEventListener('mouseleave', startTimer);
-      wrap.addEventListener('focusin', stopTimer);
-      wrap.addEventListener('focusout', startTimer);
+    // Priority 2: fallback to last 5 by dateAdded if none featured
+    if (featured.length === 0) {
+      featured = [...this.vehicles].sort((a, b) => {
+        const dateA = a.dateAdded ? new Date(a.dateAdded) : new Date(0);
+        const dateB = b.dateAdded ? new Date(b.dateAdded) : new Date(0);
+        return dateB - dateA;
+      });
     }
 
-    render(false);
-    startTimer();
-  }
+    // Limit to 5
+    featured = featured.slice(0, 5);
 
-  stopFeaturedTimer() {
-    if (this._featuredTimer) {
-      window.clearInterval(this._featuredTimer);
-      this._featuredTimer = null;
+    if (featured.length === 0) {
+      this.featuredGrid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">No vehicles available.</p>';
+      return;
     }
-  }
 
-  getFeaturedVisibleCount() {
-    const w = window.innerWidth || 1200;
-    if (w >= 1200) return 5;
-    if (w >= 992) return 4;
-    if (w >= 768) return 2;
-    return 1;
-  }
-
-  getWindowSlice(arr, start, count) {
-    const out = [];
-    if (!arr || arr.length === 0) return out;
-    for (let i = 0; i < Math.min(count, arr.length); i++) {
-      out.push(arr[(start + i) % arr.length]);
-    }
-    return out;
+    this.featuredGrid.innerHTML = featured.map(v => this.createFeaturedCard(v)).join('');
+    this.bindImageFallbacks(this.featuredGrid);
   }
 
   createFeaturedCard(v) {
     const make = this.titleCase(v.make);
     const model = this.titleCase(v.model);
-    const trim = this.titleCase(v.trim);
-    const title = `${v.year || ''} ${make} ${model}${trim ? ' ' + trim : ''}`.trim();
-
-    const mainImage = (v.images && v.images.length) ? v.images[0] : '';
+    const yearMake = `${v.year || ''} ${make}`.trim();
     const href = this.buildVDPUrl(v);
 
-    const miles = v.mileage ? `${Number(v.mileage).toLocaleString()} miles` : '';
+    const mainImage = (v.images && v.images.length) ? v.images[0] : '';
 
     const imgHtml = mainImage
-      ? `<img src="${mainImage.startsWith('http') ? this.escapeAttr(mainImage) : 'assets/vehicles/' + this.escapeAttr(mainImage)}" alt="${this.escapeAttr(title)}" loading="lazy"${mainImage.startsWith('http') ? '' : ` data-local-image="${this.escapeAttr(mainImage)}"`}>`
-      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;">
+      ? `<img src="${mainImage.startsWith('http') ? this.escapeAttr(mainImage) : 'assets/vehicles/' + this.escapeAttr(mainImage)}" alt="${this.escapeAttr(yearMake + ' ' + model)}" loading="lazy"${mainImage.startsWith('http') ? '' : ` data-local-image="${this.escapeAttr(mainImage)}"`}>`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;background:#e9e9e9;">
            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
              <rect x="3" y="7" width="18" height="10" rx="2"></rect>
-             <path d="M7 17l2 3h6l2-3"></path>
              <circle cx="7.5" cy="17.5" r="1.3"></circle>
              <circle cx="16.5" cy="17.5" r="1.3"></circle>
            </svg>
@@ -442,11 +382,12 @@ class InventoryLoader {
       <a class="featured-card" href="${href}">
         <div class="featured-img">
           ${imgHtml}
-          ${v.price ? `<div class="featured-price">${this.formatMoney(v.price)}</div>` : ''}
+          <span class="featured-badge">Shop Online</span>
         </div>
         <div class="featured-body">
-          <div class="featured-title" title="${this.escapeAttr(title)}">${this.escapeHtml(title)}</div>
-          <p class="featured-sub">${miles ? this.escapeHtml(miles) : '&nbsp;'}</p>
+          <p class="featured-ymm">${this.escapeHtml(yearMake)}</p>
+          <p class="featured-model">${this.escapeHtml(model)}</p>
+          ${v.price ? `<p class="featured-price">${this.formatMoney(v.price)}</p>` : ''}
         </div>
       </a>
     `;

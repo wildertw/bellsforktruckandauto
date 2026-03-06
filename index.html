@@ -174,37 +174,29 @@
     }
     .home-search-row .btn:hover{ background:#9e1b20; border-color:#9e1b20; }
 
-    .featured-wrap{
-      position:relative;
+    .featured-grid{
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
       margin-top: 1.75rem;
     }
-    .featured-viewport{
-      overflow:hidden;
-      padding: .25rem 2.75rem; /* room for arrows */
-    }
-    .featured-track{
-      display:flex;
-      gap: 1.1rem;
-      align-items:stretch;
-      transition: opacity .18s ease;
-      will-change: opacity;
-    }
-    .featured-track.is-fading{ opacity:.35; }
-
     .featured-card{
       background:#fff;
       color:#111;
-      border: 1px solid #d6d6d6;
+      overflow:hidden;
       box-shadow: 0 6px 18px rgba(0,0,0,.28);
       text-decoration:none;
       display:flex;
       flex-direction:column;
-      min-width: 220px;
-      flex: 1 0 0;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .featured-card:hover{
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.35);
     }
     .featured-img{
       position:relative;
-      height: 180px;
+      aspect-ratio: 4 / 3;
       overflow:hidden;
       background:#e9e9e9;
     }
@@ -213,58 +205,42 @@
       height:100%;
       object-fit:cover;
       display:block;
-      transition: transform .25s ease;
     }
-    .featured-card:hover .featured-img img{ transform: scale(1.03); }
-
-    .featured-price{
+    .featured-badge{
       position:absolute;
-      left:0; right:0; bottom:0;
+      bottom: 10px;
+      left: 0;
       background:#b21f24;
       color:#fff;
       font-weight:800;
-      padding: .45rem .7rem;
-      font-size: 1.05rem;
-      letter-spacing:.02em;
+      font-size: .68rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      padding: 5px 12px;
     }
     .featured-body{
-      padding: .9rem .9rem 1rem;
-      border-top: 3px solid #b21f24;
-      min-height: 92px;
+      padding: .85rem .9rem 1rem;
     }
-    .featured-title{
-      font-size: 1.02rem;
+    .featured-ymm{
+      font-size: .92rem;
+      font-weight:800;
       text-transform:uppercase;
-      letter-spacing:.04em;
-      margin: 0 0 .35rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      letter-spacing:.03em;
+      margin: 0 0 .1rem;
+      color:#111;
     }
-    .featured-sub{
-      color:#444;
-      font-size: .95rem;
+    .featured-model{
+      font-size: .88rem;
+      color:#555;
+      margin: 0 0 .3rem;
+      text-transform:uppercase;
+    }
+    .featured-price{
+      font-size: 1.05rem;
+      font-weight:800;
+      color:#b21f24;
       margin:0;
     }
-
-    .carousel-nav{
-      position:absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 44px;
-      height: 64px;
-      border: 0;
-      background: rgba(255,255,255,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      z-index:2;
-    }
-    .carousel-nav:hover{ background: rgba(255,255,255,.34); }
-    .carousel-nav.prev{ left: 0; }
-    .carousel-nav.next{ right: 0; }
-    .carousel-nav svg{ width:26px; height:26px; fill:#fff; }
 
     .home-viewall{
       margin-top: 1.75rem;
@@ -281,19 +257,20 @@
     }
     .home-viewall .btn:hover{ background:#9e1b20; border-color:#9e1b20; }
 
-    /* Responsive: fewer cards */
     @media (max-width: 1199.98px){
-      .featured-viewport{ padding: .25rem 2.5rem; }
+      .featured-grid{ grid-template-columns: repeat(4, 1fr); }
     }
     @media (max-width: 991.98px){
-      .featured-img{ height: 170px; }
+      .featured-grid{ grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 767.98px){
       .home-inventory{ padding: 2.75rem 0; }
       .home-search-row .form-select,
       .home-search-row .btn{ height: 52px; font-size: 1rem; }
-      .featured-viewport{ padding: .25rem 2.25rem; }
-      .carousel-nav{ width: 38px; height: 58px; }
+      .featured-grid{ grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+    }
+    @media (max-width: 480px){
+      .featured-grid{ grid-template-columns: 1fr; max-width: 320px; margin-left: auto; margin-right: auto; }
     }
 
     /* ===== Popular sections ===== */
@@ -462,26 +439,8 @@
     /* Featured cards: softer, more modern card look */
     .featured-card{
       border-radius: var(--bf-radius);
-      overflow: hidden;
-      border-color: var(--bf-border);
+      border: 1px solid var(--bf-border);
       box-shadow: var(--bf-shadow-sm);
-    }
-    .featured-img{
-      height: 190px;
-    }
-    .featured-body{
-      border-top: 0; /* keep the red accent via price bar; avoid double emphasis */
-    }
-    .featured-title{
-      font-weight: 800;
-      letter-spacing: .03em;
-    }
-    .featured-sub{
-      color: rgba(0,0,0,.62);
-    }
-    .carousel-nav{
-      border-radius: var(--bf-radius-sm);
-      backdrop-filter: blur(6px);
     }
 
     /* Popular grids: slightly better readability without changing layout */
@@ -501,17 +460,12 @@
       .home-search-row .btn{
         height: 54px;
       }
-      .featured-viewport{
-        padding-left: 2.25rem;
-        padding-right: 2.25rem;
-      }
     }
 
     /* Reduced motion: keep site comfortable for users who prefer it */
     @media (prefers-reduced-motion: reduce){
       *{ scroll-behavior: auto !important; }
-      .featured-track,
-      .featured-img img,
+      .featured-card,
       .btn{
         transition: none !important;
       }
@@ -1070,18 +1024,8 @@
 
     <h2 class="home-featured-title">Featured Vehicles</h2>
 
-    <div class="featured-wrap" aria-label="Featured Vehicles Carousel">
-      <button class="carousel-nav prev" id="featuredPrev" type="button" aria-label="Previous featured vehicles">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-      </button>
-
-      <div class="featured-viewport">
-        <div class="featured-track" id="featuredTrack"></div>
-      </div>
-
-      <button class="carousel-nav next" id="featuredNext" type="button" aria-label="Next featured vehicles">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>
-      </button>
+    <div class="featured-grid" id="featuredGrid">
+      <!-- Cards injected by inventory-loader.js -->
     </div>
 
     <div class="home-viewall">
