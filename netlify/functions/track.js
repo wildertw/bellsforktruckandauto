@@ -2,7 +2,8 @@
  * Bells Fork Auto & Truck — Analytics Tracking Function
  * POST /.netlify/functions/track
  *
- * Body: { type: "page_view"|"phone_click"|"form_submit", visitorId, page, ts, extra }
+ * Body: { type, visitorId, sessionId, page, ts, extra }
+ * Event types: page_view, phone_click, form_submit, session_start, session_end
  * Stores daily aggregates in Netlify Blobs (site-analytics store).
  */
 
@@ -26,7 +27,7 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const VALID_TYPES = ['page_view', 'phone_click', 'form_submit'];
+const VALID_TYPES = ['page_view', 'phone_click', 'form_submit', 'session_start', 'session_end'];
 const MAX_UNIQUE_VISITORS = 10000;
 
 function todayKey() {
@@ -44,7 +45,29 @@ function emptyDay() {
     phoneClicks: 0,
     formSubmits: 0,
     pages: {},
+    // Enhanced tracking fields
+    devices: { mobile: 0, desktop: 0, tablet: 0 },
+    referrers: { direct: 0, google: 0, facebook: 0, social: 0, other: 0 },
+    newVisitors: [],
+    returningVisitors: [],
+    bounces: 0,
+    totalSessions: 0,
+    totalSessionDuration: 0,
+    vehicleViews: {},
   };
+}
+
+// Ensure all enhanced fields exist on a daily blob (backward compat with old data)
+function ensureFields(daily) {
+  if (!daily.devices) daily.devices = { mobile: 0, desktop: 0, tablet: 0 };
+  if (!daily.referrers) daily.referrers = { direct: 0, google: 0, facebook: 0, social: 0, other: 0 };
+  if (!daily.newVisitors) daily.newVisitors = [];
+  if (!daily.returningVisitors) daily.returningVisitors = [];
+  if (daily.bounces == null) daily.bounces = 0;
+  if (daily.totalSessions == null) daily.totalSessions = 0;
+  if (daily.totalSessionDuration == null) daily.totalSessionDuration = 0;
+  if (!daily.vehicleViews) daily.vehicleViews = {};
+  return daily;
 }
 
 exports.handler = async (event) => {
@@ -65,6 +88,7 @@ exports.handler = async (event) => {
   }
 
   const { type, visitorId, page } = body;
+  const extra = body.extra || {};
 
   // Validate
   if (!type || !VALID_TYPES.includes(type)) {
@@ -82,6 +106,8 @@ exports.handler = async (event) => {
     let daily = await store.get(key, { type: 'json' });
     if (!daily) {
       daily = emptyDay();
+    } else {
+      ensureFields(daily);
     }
 
     // Update based on event type
@@ -94,15 +120,55 @@ exports.handler = async (event) => {
         }
         // Track page breakdown
         if (page && typeof page === 'string') {
-          const cleanPage = page.slice(0, 200); // Limit page path length
+          const cleanPage = page.slice(0, 200);
           daily.pages[cleanPage] = (daily.pages[cleanPage] || 0) + 1;
         }
+        // Track vehicle detail page views
+        if (extra.stockNumber && typeof extra.stockNumber === 'string') {
+          const stockKey = extra.stockNumber.slice(0, 20);
+          daily.vehicleViews[stockKey] = (daily.vehicleViews[stockKey] || 0) + 1;
+        }
         break;
+
       case 'phone_click':
         daily.phoneClicks++;
         break;
+
       case 'form_submit':
         daily.formSubmits++;
+        break;
+
+      case 'session_start':
+        daily.totalSessions++;
+        // Track device type
+        if (extra.device && daily.devices.hasOwnProperty(extra.device)) {
+          daily.devices[extra.device]++;
+        }
+        // Track referrer source
+        if (extra.referrer && daily.referrers.hasOwnProperty(extra.referrer)) {
+          daily.referrers[extra.referrer]++;
+        }
+        // Track new vs returning
+        if (extra.isNew) {
+          if (!daily.newVisitors.includes(visitorId) && daily.newVisitors.length < MAX_UNIQUE_VISITORS) {
+            daily.newVisitors.push(visitorId);
+          }
+        } else {
+          if (!daily.returningVisitors.includes(visitorId) && daily.returningVisitors.length < MAX_UNIQUE_VISITORS) {
+            daily.returningVisitors.push(visitorId);
+          }
+        }
+        break;
+
+      case 'session_end':
+        // Bounce detection: session with only 1 page view
+        if (extra.pageCount != null && Number(extra.pageCount) <= 1) {
+          daily.bounces++;
+        }
+        // Session duration (in seconds)
+        if (extra.duration != null && Number(extra.duration) > 0) {
+          daily.totalSessionDuration += Math.min(Number(extra.duration), 3600); // cap at 1 hour
+        }
         break;
     }
 

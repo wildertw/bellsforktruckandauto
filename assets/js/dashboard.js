@@ -277,6 +277,10 @@
       toggleAuth(true, blogUser);
       loginFeedback.textContent = '';
       await Promise.all([loadBlogPosts(), loadBlogComments()]);
+      // Always sync inventory from the live site on login
+      loadInventoryFromSite();
+      // Load dashboard overview stats on login
+      renderOverview();
     } catch (err) {
       showFeedback(loginFeedback, 'Credentials do not match.');
     }
@@ -325,70 +329,184 @@
   const PERIOD_LABELS = { day: 'Today', week: 'Last 7 days', month: 'Last 30 days' };
   const PERIOD_TITLES = { day: 'Daily Overview', week: 'Weekly Overview', month: 'Monthly Overview' };
 
+  // Industry benchmarks for auto dealerships
+  var BENCHMARKS = {
+    conversionRate: 3.5,
+    bounceRate: 45,
+    avgDaysOnLot: 45,
+    mobileTrafficPct: 65,
+    avgSessionDuration: 180,
+  };
+
+  // Chart.js instances (destroyed before re-render)
+  var trafficChartInstance = null;
+  var leadSourceChartInstance = null;
+  var leadTrendChartInstance = null;
+  var categoryViewsChartInstance = null;
+
+  // Chart.js dark theme colors
+  var chartTextColor = 'rgba(230,237,247,0.7)';
+  var chartGridColor = 'rgba(230,237,247,0.08)';
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    chartTextColor = 'rgba(15,23,42,0.6)';
+    chartGridColor = 'rgba(15,23,42,0.08)';
+  }
+
   async function fetchDashboardStats(period) {
-    // Return cached data if fresh (5 min) and same period
-    const now = Date.now();
+    var now = Date.now();
     if (statsCache.data && statsCache.period === period && (now - statsCache.time) < 300000) {
       return statsCache.data;
     }
-
-    // Build Basic auth from stored session
-    const session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
-    const user = session.username || session.user || '';
-    const hash = session.passwordHash || authPasswordHash || '';
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    var user = session.username || session.user || '';
+    var hash = session.passwordHash || authPasswordHash || '';
     if (!user || !hash) throw new Error('Not authenticated');
 
-    const authStr = btoa(user + ':' + hash);
-    const res = await fetch(STATS_API + '?period=' + period, {
+    var authStr = btoa(user + ':' + hash);
+    var res = await fetch(STATS_API + '?period=' + period, {
       headers: { 'Authorization': 'Basic ' + authStr },
     });
     if (!res.ok) throw new Error('Stats fetch failed: ' + res.status);
-    const data = await res.json();
+    var data = await res.json();
     statsCache = { data: data, time: now, period: period };
     return data;
   }
 
-  function renderTrafficChart(dailyBreakdown) {
-    const chart = $('trafficChart');
-    if (!chart || !dailyBreakdown || !dailyBreakdown.length) return;
-
-    const maxViews = Math.max(1, ...dailyBreakdown.map((d) => d.views));
-    const barWidth = Math.max(12, Math.floor((chart.clientWidth - 40) / dailyBreakdown.length) - 4);
-
-    chart.innerHTML = '<div class="chart-bars">' + dailyBreakdown.map((day) => {
-      const viewH = Math.max(4, Math.round((day.views / maxViews) * 120));
-      const uniqH = Math.max(2, Math.round((day.uniques / maxViews) * 120));
-      const dateLabel = day.date.slice(5); // MM-DD
-      return '<div class="chart-bar-group" style="width:' + barWidth + 'px">' +
-        '<div class="chart-bar bar-views" style="height:' + viewH + 'px" title="' + day.views + ' views"></div>' +
-        '<div class="chart-bar bar-uniques" style="height:' + uniqH + 'px" title="' + day.uniques + ' unique"></div>' +
-        '<span class="chart-date">' + dateLabel + '</span>' +
-      '</div>';
-    }).join('') + '</div>';
+  function getAuthStr() {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    var user = session.username || session.user || '';
+    var hash = session.passwordHash || authPasswordHash || '';
+    if (!user || !hash) return '';
+    return btoa(user + ':' + hash);
   }
 
+  // ─── Trend Delta Helper ────────────────────────────────────────────────────
+  function renderDelta(elId, current, previous) {
+    var el = $(elId);
+    if (!el) return;
+    if (previous == null || previous === 0) { el.textContent = ''; el.className = 'delta'; return; }
+    var pct = Math.round(((current - previous) / previous) * 100);
+    if (pct === 0) { el.textContent = '-'; el.className = 'delta neutral'; return; }
+    el.textContent = (pct > 0 ? '+' : '') + pct + '%';
+    el.className = 'delta ' + (pct > 0 ? 'positive' : 'negative');
+  }
+
+  function renderBenchmarkDelta(elId, current, benchmark, lowerIsBetter) {
+    var el = $(elId);
+    if (!el) return;
+    var diff = current - benchmark;
+    var good = lowerIsBetter ? diff <= 0 : diff >= 0;
+    if (Math.abs(diff) < 0.5) { el.textContent = 'on target'; el.className = 'delta neutral'; return; }
+    el.textContent = (diff > 0 ? '+' : '') + diff.toFixed(0) + ' vs avg';
+    el.className = 'delta ' + (good ? 'positive' : 'negative');
+  }
+
+  // ─── Chart.js Traffic Chart ────────────────────────────────────────────────
+  function renderTrafficChart(dailyBreakdown) {
+    var canvas = $('trafficChartCanvas');
+    if (!canvas || !dailyBreakdown || !dailyBreakdown.length) return;
+    if (typeof Chart === 'undefined') return;
+
+    if (trafficChartInstance) { trafficChartInstance.destroy(); trafficChartInstance = null; }
+
+    var labels = dailyBreakdown.map(function (d) { return d.date.slice(5); });
+    var viewsData = dailyBreakdown.map(function (d) { return d.views; });
+    var uniquesData = dailyBreakdown.map(function (d) { return d.uniques; });
+    var leadsData = dailyBreakdown.map(function (d) { return (d.calls || 0) + (d.forms || 0); });
+
+    trafficChartInstance = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Page Views',
+            data: viewsData,
+            backgroundColor: 'rgba(103, 103, 247, 0.6)',
+            borderColor: '#6767f7',
+            borderWidth: 1,
+            borderRadius: 4,
+            order: 2,
+          },
+          {
+            label: 'Unique Visitors',
+            type: 'line',
+            data: uniquesData,
+            borderColor: '#37bc7b',
+            backgroundColor: 'rgba(55, 188, 123, 0.1)',
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3,
+            order: 1,
+          },
+          {
+            label: 'Leads',
+            type: 'line',
+            data: leadsData,
+            borderColor: '#f59e0b',
+            borderDash: [5, 5],
+            tension: 0.3,
+            pointRadius: 2,
+            order: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+          y: { ticks: { color: chartTextColor }, grid: { color: chartGridColor }, beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  // ─── Sub-tab Navigation ────────────────────────────────────────────────────
+  var currentSubtab = 'performance';
+  document.querySelectorAll('.subtab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.subtab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentSubtab = btn.dataset.subtab;
+      document.querySelectorAll('[data-subpanel]').forEach(function (panel) {
+        panel.classList.toggle('hide', panel.dataset.subpanel !== currentSubtab);
+      });
+      // Render sub-tab content on demand
+      if (statsCache.data) {
+        if (currentSubtab === 'leads') renderLeadsPanel(statsCache.data);
+        if (currentSubtab === 'inventory-analytics') renderInventoryAnalytics(statsCache.data);
+        if (currentSubtab === 'insights') renderInsightsPanel(statsCache.data);
+      }
+    });
+  });
+
+  // ─── Performance Sub-Tab (Main Overview) ───────────────────────────────────
   async function renderOverview() {
-    const visEl = $('kpiVisitors');
+    var visEl = $('kpiVisitors');
     if (!visEl) return;
 
-    // Update date range display
-    const now = new Date();
-    const daysMap = { day: 1, week: 7, month: 30 };
-    const daysBack = daysMap[currentPeriod] || 7;
-    const startDate = new Date(now.getTime() - daysBack * 86400000);
-    const fmt = (d) => d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-    const dateRange = $('overviewDateRange');
+    var now = new Date();
+    var daysMap = { day: 1, week: 7, month: 30 };
+    var daysBack = daysMap[currentPeriod] || 7;
+    var startDate = new Date(now.getTime() - daysBack * 86400000);
+    var fmt = function (d) { return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }); };
+    var dateRange = $('overviewDateRange');
     if (dateRange) dateRange.textContent = fmt(startDate) + ' - ' + fmt(now);
-    const titleEl = $('overviewTitle');
+    var titleEl = $('overviewTitle');
     if (titleEl) titleEl.textContent = PERIOD_TITLES[currentPeriod] || 'Weekly Overview';
-    const chartLabel = $('chartPeriodLabel');
+    var chartLabel = $('chartPeriodLabel');
     if (chartLabel) chartLabel.textContent = PERIOD_LABELS[currentPeriod] || 'Last 7 days';
 
-    // Show latest inventory from local data regardless of API status
     renderLatestInventory();
 
     try {
-      const stats = await fetchDashboardStats(currentPeriod);
+      var stats = await fetchDashboardStats(currentPeriod);
+      var prev = stats.previousPeriod || {};
 
       // Row 1: Traffic & Inventory
       visEl.textContent = String(stats.visitors.period);
@@ -397,23 +515,62 @@
       $('kpiUniquesToday').textContent = String(stats.uniqueVisitors.today);
       $('kpiInventory').textContent = String(stats.carsInInventory);
       $('kpiInventoryMeta').textContent = stats.totalVehicles + ' total vehicles';
-      $('kpiSold').textContent = String(stats.carsSold);
-      $('kpiSoldMeta').textContent = stats.carsPending > 0 ? stats.carsPending + ' pending' : 'all time';
+
+      // Conversion rate
+      var convEl = $('kpiConversion');
+      if (convEl) convEl.textContent = (stats.conversionRate || 0).toFixed(1) + '%';
+      renderDelta('kpiConversionDelta', stats.conversionRate || 0, prev.conversionRate);
+
+      // Trend deltas for visitors/uniques
+      renderDelta('kpiVisitorsDelta', stats.visitors.period, prev.visitors);
+      renderDelta('kpiUniquesDelta', stats.uniqueVisitors.period, prev.uniqueVisitors);
 
       // Row 2: Leads
       $('kpiLeads').textContent = String(stats.totalLeads);
-      $('kpiWebLeads').textContent = String(stats.leadsFromWebsite);
+      renderDelta('kpiLeadsDelta', stats.totalLeads, prev.totalLeads);
       $('kpiCalls').textContent = String(stats.callsFromWebsite);
       $('kpiForms').textContent = String(stats.formsSubmitted);
       $('kpiFormsMeta').textContent = 'this ' + currentPeriod;
+      $('kpiSold').textContent = String(stats.carsSold);
+      $('kpiSoldMeta').textContent = stats.carsPending > 0 ? stats.carsPending + ' pending' : 'all time';
 
-      // Traffic chart
+      // Row 3: Engagement
+      var ds = stats.deviceSplit || {};
+      var totalDevices = (ds.mobile || 0) + (ds.desktop || 0) + (ds.tablet || 0);
+      var deviceEl = $('kpiDeviceSplit');
+      if (deviceEl) {
+        deviceEl.textContent = totalDevices > 0
+          ? Math.round((ds.mobile || 0) / totalDevices * 100) + '% / ' + Math.round((ds.desktop || 0) / totalDevices * 100) + '%'
+          : '-';
+      }
+      var deviceMeta = $('kpiDeviceMeta');
+      if (deviceMeta) deviceMeta.textContent = totalDevices > 0 ? 'mobile / desktop' : 'no data yet';
+
+      var bounceEl = $('kpiBounce');
+      if (bounceEl) bounceEl.textContent = (stats.bounceRate || 0).toFixed(0) + '%';
+      renderBenchmarkDelta('kpiBounceVsBenchmark', stats.bounceRate || 0, BENCHMARKS.bounceRate, true);
+
+      var nv = stats.newVsReturning || {};
+      var newRetEl = $('kpiNewReturn');
+      if (newRetEl) newRetEl.textContent = (nv.new || 0) + ' / ' + (nv.returning || 0);
+      var nrMeta = $('kpiNewReturnMeta');
+      if (nrMeta) nrMeta.textContent = 'new / returning';
+
+      var sessEl = $('kpiSessionDuration');
+      var avgSess = stats.avgSessionDuration || 0;
+      if (sessEl) {
+        var mins = Math.floor(avgSess / 60);
+        var secs = avgSess % 60;
+        sessEl.textContent = mins + 'm ' + secs + 's';
+      }
+
+      // Traffic chart (Chart.js)
       renderTrafficChart(stats.dailyBreakdown);
 
-      // Recent activity summary
-      const actEl = $('recentActivity');
+      // Recent activity
+      var actEl = $('recentActivity');
       if (actEl && stats.dailyBreakdown.length) {
-        const today = stats.dailyBreakdown[stats.dailyBreakdown.length - 1] || {};
+        var today = stats.dailyBreakdown[stats.dailyBreakdown.length - 1] || {};
         actEl.innerHTML =
           '<div class="activity-item"><strong>' + (today.views || 0) + '</strong> page views today</div>' +
           '<div class="activity-item"><strong>' + (today.uniques || 0) + '</strong> unique visitors today</div>' +
@@ -422,54 +579,374 @@
           '<div class="activity-item muted" style="margin-top:8px">Data tracked via site analytics</div>';
       }
 
-      // Top pages (from today's data - aggregate from breakdown not available, show placeholder)
-      const topPagesBody = $('topPagesBody');
-      if (topPagesBody) {
-        // The daily breakdown doesn't include per-page data in the aggregation,
-        // so show a summary of activity per day instead
-        topPagesBody.innerHTML = stats.dailyBreakdown.slice(-7).reverse().map((d) => {
+      // Top pages (now using aggregated page data from API)
+      var topPagesBody = $('topPagesBody');
+      if (topPagesBody && stats.topPages && Object.keys(stats.topPages).length) {
+        var sortedPages = Object.entries(stats.topPages)
+          .sort(function (a, b) { return b[1] - a[1]; })
+          .slice(0, 10);
+        topPagesBody.innerHTML = sortedPages.map(function (entry) {
+          var label = entry[0] === '/' ? 'Home' : entry[0].replace(/^\//, '').replace(/\.html$/, '');
+          return '<tr><td>' + label + '</td><td>' + entry[1] + '</td></tr>';
+        }).join('') || '<tr><td colspan="2" class="muted">No data yet</td></tr>';
+      } else if (topPagesBody) {
+        topPagesBody.innerHTML = stats.dailyBreakdown.slice(-7).reverse().map(function (d) {
           return '<tr><td>' + d.date + '</td><td>' + d.views + ' views / ' + d.uniques + ' unique</td></tr>';
         }).join('') || '<tr><td colspan="2" class="muted">No data yet</td></tr>';
       }
+
+      // Render active sub-tab
+      if (currentSubtab === 'leads') renderLeadsPanel(stats);
+      if (currentSubtab === 'inventory-analytics') renderInventoryAnalytics(stats);
+      if (currentSubtab === 'insights') renderInsightsPanel(stats);
+
     } catch (err) {
       console.warn('Dashboard stats unavailable:', err.message);
-      // Show zero state
-      ['kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiWebLeads', 'kpiCalls', 'kpiForms'].forEach((id) => {
-        const el = $(id);
-        if (el) el.textContent = '-';
-      });
-      const chart = $('trafficChart');
-      if (chart) chart.innerHTML = '<div class="chart-loading">Analytics data unavailable. Stats will appear once the site is deployed with tracking enabled.</div>';
-      const topPagesBody = $('topPagesBody');
+      var zeroIds = ['kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiCalls', 'kpiForms',
+        'kpiConversion', 'kpiDeviceSplit', 'kpiBounce', 'kpiNewReturn', 'kpiSessionDuration'];
+      zeroIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '-'; });
+      var topPagesBody = $('topPagesBody');
       if (topPagesBody) topPagesBody.innerHTML = '<tr><td colspan="2" class="muted">No data available</td></tr>';
-      const actEl = $('recentActivity');
+      var actEl = $('recentActivity');
       if (actEl) actEl.innerHTML = '<p class="muted">Analytics will appear after deployment.</p>';
     }
   }
 
+  // ─── Leads & Conversion Sub-Tab ────────────────────────────────────────────
+  function renderLeadsPanel(stats) {
+    var ls = stats.leadsBySource || {};
+    var setVal = function (id, val) { var el = $(id); if (el) el.textContent = String(val); };
+
+    setVal('kpiLeadsTotal2', stats.totalLeads);
+    setVal('kpiHotLeads', ls.hot || 0);
+    setVal('kpiWarmLeads', ls.warm || 0);
+    setVal('kpiColdLeads', ls.cold || 0);
+    setVal('kpiPhoneLeads2', stats.callsFromWebsite);
+    setVal('kpiFormLeads2', stats.formsSubmitted);
+    setVal('kpiLeadConversion', (stats.conversionRate || 0).toFixed(1) + '%');
+
+    // Lead-to-sale estimate
+    var leadToSale = stats.totalLeads > 0 ? ((stats.carsSold / stats.totalLeads) * 100) : 0;
+    setVal('kpiLeadToSale', leadToSale.toFixed(1) + '%');
+
+    // Lead source doughnut chart
+    if (typeof Chart !== 'undefined') {
+      var srcCanvas = $('leadSourceChart');
+      if (srcCanvas) {
+        if (leadSourceChartInstance) { leadSourceChartInstance.destroy(); leadSourceChartInstance = null; }
+        leadSourceChartInstance = new Chart(srcCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: ['Phone Calls', 'Form Submissions'],
+            datasets: [{
+              data: [stats.callsFromWebsite || 0, stats.formsSubmitted || 0],
+              backgroundColor: ['#6767f7', '#37bc7b'],
+              borderWidth: 0,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+            },
+          },
+        });
+      }
+
+      // Lead trend line chart
+      var trendCanvas = $('leadTrendChart');
+      if (trendCanvas && stats.dailyBreakdown) {
+        if (leadTrendChartInstance) { leadTrendChartInstance.destroy(); leadTrendChartInstance = null; }
+        leadTrendChartInstance = new Chart(trendCanvas, {
+          type: 'line',
+          data: {
+            labels: stats.dailyBreakdown.map(function (d) { return d.date.slice(5); }),
+            datasets: [
+              {
+                label: 'Phone Calls',
+                data: stats.dailyBreakdown.map(function (d) { return d.calls || 0; }),
+                borderColor: '#6767f7',
+                tension: 0.3,
+                pointRadius: 3,
+              },
+              {
+                label: 'Form Submissions',
+                data: stats.dailyBreakdown.map(function (d) { return d.forms || 0; }),
+                borderColor: '#37bc7b',
+                tension: 0.3,
+                pointRadius: 3,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+              tooltip: { mode: 'index', intersect: false },
+            },
+            scales: {
+              x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+              y: { ticks: { color: chartTextColor }, grid: { color: chartGridColor }, beginAtZero: true },
+            },
+          },
+        });
+      }
+    }
+
+    // Referrer table
+    var refBody = $('referrerTableBody');
+    if (refBody && stats.referrerSplit) {
+      var rs = stats.referrerSplit;
+      var totalRef = Object.values(rs).reduce(function (s, v) { return s + v; }, 0) || 1;
+      var refLabels = { direct: 'Direct / Bookmarked', google: 'Google Search', facebook: 'Facebook', social: 'Other Social Media', other: 'Other / Referral' };
+      refBody.innerHTML = Object.entries(rs)
+        .sort(function (a, b) { return b[1] - a[1]; })
+        .map(function (entry) {
+          var pct = Math.round((entry[1] / totalRef) * 100);
+          return '<tr><td>' + (refLabels[entry[0]] || entry[0]) + '</td><td>' + entry[1] + '</td><td>' + pct + '%</td></tr>';
+        }).join('') || '<tr><td colspan="3" class="muted">No data</td></tr>';
+    }
+  }
+
+  // ─── Inventory Analytics Sub-Tab ───────────────────────────────────────────
+  function renderInventoryAnalytics(stats) {
+    var setVal = function (id, val) { var el = $(id); if (el) el.textContent = String(val); };
+
+    setVal('kpiDaysOnLot', (stats.avgDaysOnLot || 0) + ' days');
+    renderBenchmarkDelta('kpiDaysOnLotVsBenchmark', stats.avgDaysOnLot || 0, BENCHMARKS.avgDaysOnLot, true);
+    setVal('kpiInventoryValue', formatMoney(stats.totalInventoryValue || 0));
+    setVal('kpiTotalVehicles', stats.totalVehicles || 0);
+    var tvMeta = $('kpiTotalVehiclesMeta');
+    if (tvMeta) tvMeta.textContent = (stats.carsInInventory || 0) + ' available, ' + (stats.carsSold || 0) + ' sold';
+
+    // Most viewed category
+    var catBreakdown = stats.categoryBreakdown || {};
+    var catEntries = Object.entries(catBreakdown);
+    var mostViewed = catEntries.sort(function (a, b) { return (b[1].totalViews || 0) - (a[1].totalViews || 0); })[0];
+    setVal('kpiMostViewed', mostViewed ? mostViewed[0] : '-');
+    var mvMeta = $('kpiMostViewedMeta');
+    if (mvMeta) mvMeta.textContent = mostViewed ? (mostViewed[1].totalViews || 0) + ' views' : 'no data';
+
+    // Category breakdown table
+    var catBody = $('categoryTableBody');
+    if (catBody) {
+      catBody.innerHTML = catEntries.map(function (entry) {
+        var c = entry[1];
+        return '<tr><td>' + entry[0] + '</td><td>' + c.count + '</td><td>' + c.available + '</td><td>' + c.sold + '</td><td>' + (c.totalViews || 0) + '</td></tr>';
+      }).join('') || '<tr><td colspan="5" class="muted">No data</td></tr>';
+    }
+
+    // Category views horizontal bar chart
+    if (typeof Chart !== 'undefined') {
+      var catCanvas = $('categoryViewsChart');
+      if (catCanvas && catEntries.length) {
+        if (categoryViewsChartInstance) { categoryViewsChartInstance.destroy(); categoryViewsChartInstance = null; }
+        var cats = catEntries.sort(function (a, b) { return (b[1].totalViews || 0) - (a[1].totalViews || 0); });
+        categoryViewsChartInstance = new Chart(catCanvas, {
+          type: 'bar',
+          data: {
+            labels: cats.map(function (c) { return c[0]; }),
+            datasets: [{
+              label: 'Page Views',
+              data: cats.map(function (c) { return c[1].totalViews || 0; }),
+              backgroundColor: ['#6767f7', '#37bc7b', '#f59e0b', '#f2555e', '#1d7cf2', '#a5b4fc'],
+              borderWidth: 0,
+              borderRadius: 4,
+            }],
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+            },
+            scales: {
+              x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor }, beginAtZero: true },
+              y: { ticks: { color: chartTextColor }, grid: { display: false } },
+            },
+          },
+        });
+      }
+    }
+
+    // Top viewed vehicles table
+    var tvBody = $('topVehiclesBody');
+    if (tvBody && stats.topViewedVehicles && stats.topViewedVehicles.length) {
+      tvBody.innerHTML = stats.topViewedVehicles.map(function (v) {
+        return '<tr><td>' + (v.name || '-') + '</td><td>' + (v.stockNumber || '-') + '</td>' +
+          '<td>' + (v.price ? formatMoney(v.price) : '-') + '</td>' +
+          '<td>' + v.views + '</td>' +
+          '<td><span class="status-pill status-' + (v.status || 'available') + '">' + (v.status || '-') + '</span></td></tr>';
+      }).join('');
+    } else if (tvBody) {
+      tvBody.innerHTML = '<tr><td colspan="5" class="muted">No vehicle page view data yet</td></tr>';
+    }
+  }
+
+  // ─── Insights & Goals Sub-Tab ──────────────────────────────────────────────
+  async function loadGoals() {
+    var authStr = getAuthStr();
+    if (!authStr) return null;
+    try {
+      var res = await fetch(STATS_API + '?action=goals', {
+        headers: { 'Authorization': 'Basic ' + authStr },
+      });
+      if (res.ok) return await res.json();
+    } catch (e) { console.warn('Failed to load goals', e); }
+    return null;
+  }
+
+  async function saveGoals() {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    var goals = {
+      monthlyVisitors: Number($('goalVisitors').value) || 500,
+      monthlyLeads: Number($('goalLeads').value) || 50,
+      targetDaysOnLot: Number($('goalDaysOnLot').value) || 30,
+      targetConversionRate: Number($('goalConvRate').value) || 5,
+    };
+    try {
+      var res = await fetch(STATS_API + '?action=goals', {
+        method: 'POST',
+        headers: { 'Authorization': 'Basic ' + authStr, 'Content-Type': 'application/json' },
+        body: JSON.stringify(goals),
+      });
+      if (res.ok) {
+        showFeedback($('goalsFeedback'), 'Goals saved successfully!');
+        renderInsightsPanel(statsCache.data);
+        setTimeout(function () { hideFeedback($('goalsFeedback')); }, 3000);
+      }
+    } catch (e) { showFeedback($('goalsFeedback'), 'Error saving goals', true); }
+  }
+
+  var saveGoalsBtn = $('saveGoalsBtn');
+  if (saveGoalsBtn) saveGoalsBtn.addEventListener('click', saveGoals);
+
+  function renderGoalProgress(label, current, target) {
+    var pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
+    var color = pct >= 100 ? 'var(--success)' : pct >= 70 ? 'var(--warning)' : 'var(--danger)';
+    return '<div class="goal-row">' +
+      '<div class="goal-label">' + label + '</div>' +
+      '<div class="goal-bar"><div class="goal-fill" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+      '<div class="goal-value">' + current + ' / ' + target + ' (' + pct + '%)</div>' +
+    '</div>';
+  }
+
+  function generateRecommendations(stats) {
+    var tips = [];
+    if ((stats.bounceRate || 0) > 50)
+      tips.push({ icon: '&#128683;', text: 'Bounce rate is above 50%. Consider improving page load speed and adding more engaging content above the fold.', type: 'rec-warning' });
+    var ds = stats.deviceSplit || {};
+    var totalDevices = (ds.mobile || 0) + (ds.desktop || 0) + (ds.tablet || 0);
+    if (totalDevices > 0 && (ds.mobile || 0) > (ds.desktop || 0) * 1.5)
+      tips.push({ icon: '&#128241;', text: 'Mobile traffic dominates (' + Math.round(ds.mobile / totalDevices * 100) + '%). Ensure all vehicle photos, forms, and CTAs are fully mobile-optimized.', type: 'rec-warning' });
+    if ((stats.avgDaysOnLot || 0) > 45)
+      tips.push({ icon: '&#128197;', text: 'Average days on lot exceeds 45. Consider price adjustments or featuring slow-moving inventory on the homepage.', type: 'rec-danger' });
+    if ((stats.conversionRate || 0) < 2)
+      tips.push({ icon: '&#127919;', text: 'Conversion rate is below 2%. Add more prominent call-to-action buttons and simplify the contact form.', type: 'rec-danger' });
+    if ((stats.conversionRate || 0) >= 4)
+      tips.push({ icon: '&#9989;', text: 'Great conversion rate! Your website is effectively turning visitors into leads.', type: 'rec-success' });
+    if ((stats.avgSessionDuration || 0) < 60)
+      tips.push({ icon: '&#9201;', text: 'Average session duration is under 1 minute. Add detailed vehicle descriptions, more photos, and engaging content to keep visitors browsing.', type: 'rec-warning' });
+    var nv = stats.newVsReturning || {};
+    if ((nv.returning || 0) > (nv.new || 0))
+      tips.push({ icon: '&#128260;', text: 'More returning visitors than new. Invest in SEO and social media to attract fresh traffic.', type: 'rec-warning' });
+    if (tips.length === 0)
+      tips.push({ icon: '&#128161;', text: 'Dashboard needs more data to generate personalized recommendations. Keep tracking for better insights.', type: '' });
+    return tips;
+  }
+
+  async function renderInsightsPanel(stats) {
+    if (!stats) return;
+
+    // Load goals and populate inputs
+    var goals = await loadGoals();
+    if (goals) {
+      var gv = $('goalVisitors'); if (gv) gv.value = goals.monthlyVisitors || 500;
+      var gl = $('goalLeads'); if (gl) gl.value = goals.monthlyLeads || 50;
+      var gd = $('goalDaysOnLot'); if (gd) gd.value = goals.targetDaysOnLot || 30;
+      var gc = $('goalConvRate'); if (gc) gc.value = goals.targetConversionRate || 5;
+    }
+
+    // Goal progress bars (monthly projections)
+    var progressEl = $('goalProgressBars');
+    if (progressEl && goals) {
+      var daysInMonth = 30;
+      var daysBack = stats.daysBack || 7;
+      var projectedVisitors = daysBack > 0 ? Math.round((stats.visitors.period / daysBack) * daysInMonth) : 0;
+      var projectedLeads = daysBack > 0 ? Math.round((stats.totalLeads / daysBack) * daysInMonth) : 0;
+
+      progressEl.innerHTML =
+        renderGoalProgress('Monthly Visitors', projectedVisitors, goals.monthlyVisitors || 500) +
+        renderGoalProgress('Monthly Leads', projectedLeads, goals.monthlyLeads || 50) +
+        renderGoalProgress('Days on Lot', stats.avgDaysOnLot || 0, goals.targetDaysOnLot || 30) +
+        renderGoalProgress('Conversion Rate', (stats.conversionRate || 0).toFixed(1), goals.targetConversionRate || 5);
+    }
+
+    // Benchmarks
+    var benchEl = $('benchmarkRows');
+    if (benchEl) {
+      var rows = [
+        { label: 'Conversion Rate', current: (stats.conversionRate || 0).toFixed(1) + '%', industry: BENCHMARKS.conversionRate + '%', good: (stats.conversionRate || 0) >= BENCHMARKS.conversionRate },
+        { label: 'Bounce Rate', current: (stats.bounceRate || 0).toFixed(0) + '%', industry: BENCHMARKS.bounceRate + '%', good: (stats.bounceRate || 0) <= BENCHMARKS.bounceRate },
+        { label: 'Avg Days on Lot', current: (stats.avgDaysOnLot || 0) + ' days', industry: BENCHMARKS.avgDaysOnLot + ' days', good: (stats.avgDaysOnLot || 0) <= BENCHMARKS.avgDaysOnLot },
+        { label: 'Mobile Traffic', current: (totalDevicesGlobal(stats) > 0 ? Math.round(((stats.deviceSplit || {}).mobile || 0) / totalDevicesGlobal(stats) * 100) : 0) + '%', industry: BENCHMARKS.mobileTrafficPct + '%', good: true },
+        { label: 'Avg Session Duration', current: (stats.avgSessionDuration || 0) + 's', industry: BENCHMARKS.avgSessionDuration + 's', good: (stats.avgSessionDuration || 0) >= BENCHMARKS.avgSessionDuration },
+      ];
+      benchEl.innerHTML = rows.map(function (r) {
+        return '<div class="benchmark-row">' +
+          '<span class="benchmark-label">' + r.label + '</span>' +
+          '<span class="benchmark-current">' + r.current + '</span>' +
+          '<span class="benchmark-industry">' + r.industry + '</span>' +
+          '<span class="delta ' + (r.good ? 'positive' : 'negative') + '">' + (r.good ? 'Good' : 'Below avg') + '</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    // Recommendations
+    var recsEl = $('recommendationsList');
+    if (recsEl) {
+      var tips = generateRecommendations(stats);
+      recsEl.innerHTML = tips.map(function (t) {
+        return '<div class="recommendation-card ' + (t.type || '') + '">' +
+          '<span class="rec-icon">' + t.icon + '</span>' +
+          '<span>' + t.text + '</span>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
+  function totalDevicesGlobal(stats) {
+    var ds = stats.deviceSplit || {};
+    return (ds.mobile || 0) + (ds.desktop || 0) + (ds.tablet || 0);
+  }
+
   function renderLatestInventory() {
-    const latest = inventory[0];
-    const latestModel = $('latestModel');
-    const latestPrice = $('latestPrice');
-    const latestFeatures = $('latestFeatures');
+    var latest = inventory[0];
+    var latestModel = $('latestModel');
+    var latestPrice = $('latestPrice');
+    var latestFeatures = $('latestFeatures');
     if (latest && latestModel && latestPrice && latestFeatures) {
-      const modelLabel = [latest.year, latest.make, latest.model, latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
+      var modelLabel = [latest.year, latest.make, latest.model, latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
       latestModel.textContent = modelLabel;
       latestPrice.textContent = formatMoney(latest.price);
-      const featureList = Array.isArray(latest.features) && latest.features.length
+      var featureList = Array.isArray(latest.features) && latest.features.length
         ? latest.features.slice(0, 5)
         : [latest.category || 'Vehicle', latest.engine || 'Stock', latest.transmission || 'Auto', (latest.quantity || 0) + ' in stock'];
-      latestFeatures.innerHTML = featureList.map((f) => '<span class="chip">' + f + '</span>').join('');
+      latestFeatures.innerHTML = featureList.map(function (f) { return '<span class="chip">' + f + '</span>'; }).join('');
     }
   }
 
   // Period toggle
-  document.querySelectorAll('.period-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
+  document.querySelectorAll('.period-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.period-btn').forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
       currentPeriod = btn.dataset.period;
-      statsCache = { data: null, time: 0, period: '' }; // clear cache on period change
+      statsCache = { data: null, time: 0, period: '' };
       renderOverview();
     });
   });
@@ -1109,7 +1586,7 @@
   function handlePhotoSelect(event) {
     const files = event.target.files;
     if (!files || !files.length) return;
-    addPhotoFiles = Array.from(files).slice(0, 10);
+    addPhotoFiles = Array.from(files).slice(0, 25);
     addPreviewIndex = 0;
     renderAddPhotoPreview();
     // Show scan button hint
@@ -1520,7 +1997,7 @@
   function editHandlePhotoSelect(event) {
     var files = event.target.files;
     if (!files || !files.length) return;
-    editPhotoFiles = Array.from(files).slice(0, 10);
+    editPhotoFiles = Array.from(files).slice(0, 25);
     renderEditPhotoPreview();
   }
 

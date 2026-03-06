@@ -1080,3 +1080,218 @@ button:hover {
   text-align: center;
   width: 70px;
 }
+
+/* ═══ ENHANCED KPI DASHBOARD STYLES ═══════════════════════════════════════ */
+
+/* ─── Overview Sub-Tabs ──────────────────────────────────────────────────── */
+.overview-subtabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface2);
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-md);
+  width: fit-content;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.subtab {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.subtab:hover { color: var(--text-primary); }
+.subtab.active {
+  background: var(--secondary-500);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(103, 103, 247, 0.35);
+}
+
+/* ─── Chart.js Canvas Container ──────────────────────────────────────────── */
+.traffic-chart-wrap {
+  position: relative;
+  height: 220px;
+  padding: var(--space-sm) 0;
+}
+.traffic-chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+.chart-container-sm {
+  position: relative;
+  height: 200px;
+  padding: var(--space-sm);
+}
+.chart-container-sm canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─── Trend Delta Badges ─────────────────────────────────────────────────── */
+.delta {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  display: inline-block;
+  line-height: 1.2;
+}
+.delta:empty { display: none; }
+.delta.positive {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+}
+.delta.negative {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+.delta.neutral {
+  color: var(--text-muted);
+  background: rgba(148, 163, 184, 0.12);
+}
+.kpi-meta .delta {
+  margin-right: 4px;
+}
+
+/* ─── Smaller KPI Value Text ─────────────────────────────────────────────── */
+.kpi-value-sm {
+  font-size: 1.2rem !important;
+}
+
+/* ─── Goal Tracking ──────────────────────────────────────────────────────── */
+.goals-grid {
+  margin-bottom: var(--space-md);
+}
+.goal-input-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+}
+.goal-input-row label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.goal-input-row input {
+  width: 100%;
+  margin-top: 4px;
+}
+.goal-progress-section {
+  display: grid;
+  gap: var(--space-sm);
+}
+.goal-row {
+  display: grid;
+  grid-template-columns: 150px 1fr 130px;
+  gap: var(--space-sm);
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13px;
+}
+.goal-row:last-child { border-bottom: none; }
+.goal-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.goal-bar {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(148, 163, 184, 0.15);
+  overflow: hidden;
+}
+.goal-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.4s ease;
+}
+.goal-value {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ─── Benchmarks ─────────────────────────────────────────────────────────── */
+.benchmark-section {
+  display: grid;
+  gap: 0;
+}
+.benchmark-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13px;
+  gap: var(--space-sm);
+}
+.benchmark-row:last-child { border-bottom: none; }
+.benchmark-label { color: var(--text-secondary); flex: 1; }
+.benchmark-current {
+  font-weight: 600;
+  min-width: 80px;
+  text-align: center;
+}
+.benchmark-industry {
+  min-width: 80px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ─── Recommendations ────────────────────────────────────────────────────── */
+.recommendations-section {
+  display: grid;
+  gap: var(--space-sm);
+}
+.recommendation-card {
+  padding: var(--space-md);
+  border-radius: 12px;
+  background: rgba(103, 103, 247, 0.06);
+  border: 1px solid rgba(103, 103, 247, 0.15);
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.recommendation-card .rec-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.recommendation-card.rec-warning {
+  background: rgba(245, 158, 11, 0.06);
+  border-color: rgba(245, 158, 11, 0.15);
+}
+.recommendation-card.rec-success {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+.recommendation-card.rec-danger {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+/* ─── Responsive: Enhanced KPI Tablet ────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .goal-input-row { grid-template-columns: repeat(2, 1fr); }
+  .goal-row { grid-template-columns: 120px 1fr 100px; }
+  .overview-subtabs { width: 100%; }
+}
+
+/* ─── Responsive: Enhanced KPI Mobile ────────────────────────────────────── */
+@media (max-width: 767px) {
+  .overview-subtabs { width: 100%; padding: 2px; }
+  .subtab { padding: 5px 10px; font-size: 11px; }
+  .goal-input-row { grid-template-columns: 1fr; }
+  .goal-row { grid-template-columns: 1fr; gap: 4px; }
+  .goal-value { text-align: left; }
+  .benchmark-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .chart-container-sm { height: 180px; }
+}

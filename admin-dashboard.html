@@ -91,125 +91,336 @@
             </div>
           </div>
 
-          <!-- Row 1: Traffic & Inventory KPIs -->
-          <section class="card kpi-strip" aria-label="Traffic and inventory metrics">
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128065;</div>
-              <div class="kpi-label">Visitors</div>
-              <div class="kpi-value" id="kpiVisitors"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted">Today: <strong id="kpiVisitorsToday">-</strong></span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128100;</div>
-              <div class="kpi-label">Unique Visitors</div>
-              <div class="kpi-value" id="kpiUniques"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted">Today: <strong id="kpiUniquesToday">-</strong></span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128663;</div>
-              <div class="kpi-label">Cars in Inventory</div>
-              <div class="kpi-value" id="kpiInventory"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted" id="kpiInventoryMeta">available</span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#9989;</div>
-              <div class="kpi-label">Total Cars Sold</div>
-              <div class="kpi-value" id="kpiSold"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted" id="kpiSoldMeta">all time</span></div>
-            </article>
-          </section>
+          <!-- Overview Sub-Tab Navigation -->
+          <nav class="overview-subtabs" role="tablist" aria-label="Analytics sections">
+            <button class="subtab active" type="button" data-subtab="performance">Performance</button>
+            <button class="subtab" type="button" data-subtab="leads">Leads &amp; Conversion</button>
+            <button class="subtab" type="button" data-subtab="inventory-analytics">Inventory</button>
+            <button class="subtab" type="button" data-subtab="insights">Insights</button>
+          </nav>
 
-          <!-- Row 2: Lead KPIs -->
-          <section class="card kpi-strip" aria-label="Lead metrics">
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#127919;</div>
-              <div class="kpi-label">Total Leads</div>
-              <div class="kpi-value" id="kpiLeads"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted">calls + forms</span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128233;</div>
-              <div class="kpi-label">Leads from Website</div>
-              <div class="kpi-value" id="kpiWebLeads"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted">form submissions</span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128222;</div>
-              <div class="kpi-label">Calls from Website</div>
-              <div class="kpi-value" id="kpiCalls"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted">click-to-call</span></div>
-            </article>
-            <article class="kpi-cell">
-              <div class="kpi-icon">&#128203;</div>
-              <div class="kpi-label">Forms Submitted</div>
-              <div class="kpi-value" id="kpiForms"><span class="kpi-loading"></span></div>
-              <div class="kpi-meta"><span class="muted" id="kpiFormsMeta">this period</span></div>
-            </article>
-          </section>
+          <!-- ──── PERFORMANCE SUB-TAB ──── -->
+          <div data-subpanel="performance">
+            <!-- Row 1: Traffic & Inventory KPIs -->
+            <section class="card kpi-strip" aria-label="Traffic and inventory metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128065;</div>
+                <div class="kpi-label">Visitors</div>
+                <div class="kpi-value" id="kpiVisitors"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiVisitorsDelta"></span> <span class="muted">Today: <strong id="kpiVisitorsToday">-</strong></span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128100;</div>
+                <div class="kpi-label">Unique Visitors</div>
+                <div class="kpi-value" id="kpiUniques"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiUniquesDelta"></span> <span class="muted">Today: <strong id="kpiUniquesToday">-</strong></span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128663;</div>
+                <div class="kpi-label">Cars in Inventory</div>
+                <div class="kpi-value" id="kpiInventory"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiInventoryMeta">available</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128200;</div>
+                <div class="kpi-label">Conversion Rate</div>
+                <div class="kpi-value" id="kpiConversion"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiConversionDelta"></span> <span class="muted">visitor &rarr; lead</span></div>
+              </article>
+            </section>
 
-          <!-- Traffic Chart -->
-          <section class="mid-grid">
-            <article class="card traffic-chart-card">
-              <div class="card-head">
-                <h2>Daily Visitors</h2>
-                <span class="muted" id="chartPeriodLabel">Last 7 days</span>
-              </div>
-              <div class="traffic-chart" id="trafficChart" aria-label="Daily visitor chart">
-                <div class="chart-loading">Loading analytics data...</div>
-              </div>
-              <div class="chart-legend">
-                <span class="legend-dot legend-views"></span> Page Views
-                <span class="legend-dot legend-uniques"></span> Unique Visitors
-              </div>
-            </article>
+            <!-- Row 2: Lead KPIs -->
+            <section class="card kpi-strip" aria-label="Lead metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#127919;</div>
+                <div class="kpi-label">Total Leads</div>
+                <div class="kpi-value" id="kpiLeads"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiLeadsDelta"></span> <span class="muted">calls + forms</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128222;</div>
+                <div class="kpi-label">Calls from Website</div>
+                <div class="kpi-value" id="kpiCalls"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">click-to-call</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128203;</div>
+                <div class="kpi-label">Forms Submitted</div>
+                <div class="kpi-value" id="kpiForms"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiFormsMeta">this period</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#9989;</div>
+                <div class="kpi-label">Total Cars Sold</div>
+                <div class="kpi-value" id="kpiSold"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiSoldMeta">all time</span></div>
+              </article>
+            </section>
 
-            <article class="card inventory-hero">
-              <div class="card-head">
-                <h2>Latest Inventory</h2>
-                <button class="ghost-btn" type="button" data-goto="inventory">View All</button>
-              </div>
-              <div class="vehicle-platform"></div>
-              <div class="hero-details">
-                <div><span class="muted">Model</span><strong id="latestModel">-</strong></div>
-                <div><span class="muted">Price</span><strong id="latestPrice">-</strong></div>
-              </div>
-              <div class="chip-row" id="latestFeatures"></div>
-            </article>
-          </section>
+            <!-- Row 3: Engagement KPIs -->
+            <section class="card kpi-strip" aria-label="Engagement metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128241;</div>
+                <div class="kpi-label">Mobile / Desktop</div>
+                <div class="kpi-value" id="kpiDeviceSplit"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiDeviceMeta">traffic split</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128683;</div>
+                <div class="kpi-label">Bounce Rate</div>
+                <div class="kpi-value" id="kpiBounce"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiBounceVsBenchmark"></span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128260;</div>
+                <div class="kpi-label">New vs Returning</div>
+                <div class="kpi-value" id="kpiNewReturn"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiNewReturnMeta">visitors</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#9201;</div>
+                <div class="kpi-label">Avg. Session</div>
+                <div class="kpi-value" id="kpiSessionDuration"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">time on site</span></div>
+              </article>
+            </section>
 
-          <!-- Page Breakdown -->
-          <section class="bottom-grid">
-            <article class="card recent-card">
-              <div class="card-head">
-                <div>
-                  <h2>Top Pages</h2>
-                  <p class="muted">Most visited pages this period.</p>
+            <!-- Traffic Chart (Chart.js) -->
+            <section class="mid-grid">
+              <article class="card traffic-chart-card">
+                <div class="card-head">
+                  <h2>Daily Visitors</h2>
+                  <span class="muted" id="chartPeriodLabel">Last 7 days</span>
                 </div>
-              </div>
+                <div class="traffic-chart-wrap">
+                  <canvas id="trafficChartCanvas" aria-label="Daily visitor chart"></canvas>
+                </div>
+              </article>
+
+              <article class="card inventory-hero">
+                <div class="card-head">
+                  <h2>Latest Inventory</h2>
+                  <button class="ghost-btn" type="button" data-goto="inventory">View All</button>
+                </div>
+                <div class="vehicle-platform"></div>
+                <div class="hero-details">
+                  <div><span class="muted">Model</span><strong id="latestModel">-</strong></div>
+                  <div><span class="muted">Price</span><strong id="latestPrice">-</strong></div>
+                </div>
+                <div class="chip-row" id="latestFeatures"></div>
+              </article>
+            </section>
+
+            <!-- Page Breakdown -->
+            <section class="bottom-grid">
+              <article class="card recent-card">
+                <div class="card-head">
+                  <div>
+                    <h2>Top Pages</h2>
+                    <p class="muted">Most visited pages this period.</p>
+                  </div>
+                </div>
+                <div class="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Page</th>
+                        <th>Views</th>
+                      </tr>
+                    </thead>
+                    <tbody id="topPagesBody">
+                      <tr><td colspan="2" class="muted">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="card agents-card">
+                <div class="card-head">
+                  <h2>Recent Activity</h2>
+                </div>
+                <div id="recentActivity" class="recent-activity">
+                  <p class="muted">Loading...</p>
+                </div>
+              </article>
+            </section>
+          </div>
+
+          <!-- ──── LEADS & CONVERSION SUB-TAB ──── -->
+          <div data-subpanel="leads" class="hide">
+            <section class="card kpi-strip" aria-label="Lead quality metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#127919;</div>
+                <div class="kpi-label">Total Leads</div>
+                <div class="kpi-value" id="kpiLeadsTotal2"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">this period</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128293;</div>
+                <div class="kpi-label">Hot Leads</div>
+                <div class="kpi-value" id="kpiHotLeads"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">from vehicle pages</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#9728;</div>
+                <div class="kpi-label">Warm Leads</div>
+                <div class="kpi-value" id="kpiWarmLeads"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">from inventory browse</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#10052;</div>
+                <div class="kpi-label">Cold Leads</div>
+                <div class="kpi-value" id="kpiColdLeads"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">general inquiries</span></div>
+              </article>
+            </section>
+
+            <section class="card kpi-strip" aria-label="Lead source metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128222;</div>
+                <div class="kpi-label">Phone Leads</div>
+                <div class="kpi-value" id="kpiPhoneLeads2"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">click-to-call</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128233;</div>
+                <div class="kpi-label">Form Leads</div>
+                <div class="kpi-value" id="kpiFormLeads2"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">submissions</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128200;</div>
+                <div class="kpi-label">Lead Conversion</div>
+                <div class="kpi-value" id="kpiLeadConversion"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">visitor &rarr; lead</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128176;</div>
+                <div class="kpi-label">Lead &rarr; Sale</div>
+                <div class="kpi-value" id="kpiLeadToSale"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">est. conversion</span></div>
+              </article>
+            </section>
+
+            <section class="mid-grid">
+              <article class="card">
+                <div class="card-head"><h2>Lead Sources</h2></div>
+                <div class="chart-container-sm"><canvas id="leadSourceChart"></canvas></div>
+              </article>
+              <article class="card">
+                <div class="card-head"><h2>Leads Over Time</h2></div>
+                <div class="chart-container-sm"><canvas id="leadTrendChart"></canvas></div>
+              </article>
+            </section>
+
+            <article class="card">
+              <div class="card-head"><h2>Traffic Sources</h2><span class="muted">Where your visitors come from</span></div>
               <div class="table-container">
                 <table>
-                  <thead>
-                    <tr>
-                      <th>Page</th>
-                      <th>Views</th>
-                    </tr>
-                  </thead>
-                  <tbody id="topPagesBody">
-                    <tr><td colspan="2" class="muted">Loading...</td></tr>
-                  </tbody>
+                  <thead><tr><th>Source</th><th>Visitors</th><th>Share</th></tr></thead>
+                  <tbody id="referrerTableBody"><tr><td colspan="3" class="muted">Loading...</td></tr></tbody>
                 </table>
               </div>
             </article>
+          </div>
 
-            <article class="card agents-card">
-              <div class="card-head">
-                <h2>Recent Activity</h2>
-              </div>
-              <div id="recentActivity" class="recent-activity">
-                <p class="muted">Loading...</p>
+          <!-- ──── INVENTORY ANALYTICS SUB-TAB ──── -->
+          <div data-subpanel="inventory-analytics" class="hide">
+            <section class="card kpi-strip" aria-label="Inventory performance metrics">
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128197;</div>
+                <div class="kpi-label">Avg Days on Lot</div>
+                <div class="kpi-value" id="kpiDaysOnLot"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiDaysOnLotVsBenchmark"></span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128176;</div>
+                <div class="kpi-label">Inventory Value</div>
+                <div class="kpi-value" id="kpiInventoryValue"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">available vehicles</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128640;</div>
+                <div class="kpi-label">Most Viewed</div>
+                <div class="kpi-value kpi-value-sm" id="kpiMostViewed"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiMostViewedMeta">category</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128663;</div>
+                <div class="kpi-label">Total Vehicles</div>
+                <div class="kpi-value" id="kpiTotalVehicles"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiTotalVehiclesMeta">on lot</span></div>
+              </article>
+            </section>
+
+            <section class="mid-grid">
+              <article class="card">
+                <div class="card-head"><h2>Views by Category</h2></div>
+                <div class="chart-container-sm"><canvas id="categoryViewsChart"></canvas></div>
+              </article>
+              <article class="card">
+                <div class="card-head"><h2>Category Breakdown</h2></div>
+                <div class="table-container">
+                  <table>
+                    <thead><tr><th>Category</th><th>Count</th><th>Available</th><th>Sold</th><th>Views</th></tr></thead>
+                    <tbody id="categoryTableBody"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody>
+                  </table>
+                </div>
+              </article>
+            </section>
+
+            <article class="card">
+              <div class="card-head"><h2>Top Viewed Vehicles</h2><span class="muted">Most popular on the site</span></div>
+              <div class="table-container">
+                <table>
+                  <thead><tr><th>Vehicle</th><th>Stock #</th><th>Price</th><th>Views</th><th>Status</th></tr></thead>
+                  <tbody id="topVehiclesBody"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody>
+                </table>
               </div>
             </article>
-          </section>
+          </div>
+
+          <!-- ──── INSIGHTS & GOALS SUB-TAB ──── -->
+          <div data-subpanel="insights" class="hide">
+            <!-- Goal Tracking -->
+            <article class="card panel-card">
+              <div class="card-head">
+                <h2>Goal Tracking</h2>
+                <button id="saveGoalsBtn" class="ghost-btn small-btn" type="button">Save Goals</button>
+              </div>
+              <p class="muted">Set monthly targets and track progress. Goals are shared across all admin users.</p>
+              <div class="goals-grid">
+                <div class="goal-input-row">
+                  <label>Monthly Visitors <input id="goalVisitors" type="number" min="0" value="500"></label>
+                  <label>Monthly Leads <input id="goalLeads" type="number" min="0" value="50"></label>
+                  <label>Target Days on Lot <input id="goalDaysOnLot" type="number" min="0" value="30"></label>
+                  <label>Target Conv. Rate % <input id="goalConvRate" type="number" min="0" step="0.1" value="5"></label>
+                </div>
+              </div>
+              <div id="goalProgressBars" class="goal-progress-section">
+                <p class="muted">Save goals to see progress tracking.</p>
+              </div>
+              <p id="goalsFeedback" class="feedback hide" role="status"></p>
+            </article>
+
+            <!-- Benchmarks -->
+            <article class="card panel-card">
+              <div class="card-head"><h2>Performance vs Industry</h2></div>
+              <p class="muted">How your dealership compares to industry averages.</p>
+              <div id="benchmarkRows" class="benchmark-section">
+                <p class="muted">Loading benchmarks...</p>
+              </div>
+            </article>
+
+            <!-- Automated Recommendations -->
+            <article class="card panel-card">
+              <div class="card-head"><h2>Recommendations</h2></div>
+              <p class="muted">Data-driven suggestions to improve performance.</p>
+              <div id="recommendationsList" class="recommendations-section">
+                <p class="muted">Loading recommendations...</p>
+              </div>
+            </article>
+          </div>
         </section>
 
         <!-- ═══ INVENTORY TABLE ═══ -->
@@ -764,6 +975,7 @@
   <div id="autoSaveToast" class="auto-save-toast" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
