@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T06:00:14.352Z",
+  "lastUpdated": "2026-03-06T06:04:08.852Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -70,10 +70,10 @@
       "vin": "1G1YK2D73G5118890",
       "stockNumber": "02914BF",
       "year": 2016,
-      "make": "Chevrolet",
-      "model": "CORVETTE",
+      "make": "CHEVROLET",
+      "model": "Corvette",
       "trim": "Preferred 2LT w/Z51",
-      "engine": "LT1 - DI, AFM, VVT, HO, ALUM, GMNA",
+      "engine": "6.2L V8",
       "transmission": "Automatic",
       "drivetrain": "",
       "fuelType": "Gasoline",
@@ -81,20 +81,25 @@
       "mpgHighway": null,
       "mileage": 97000,
       "price": 35000,
-      "type": "car",
+      "type": "Sedan",
       "exteriorColor": "Red",
       "interiorColor": "Tan",
-      "description": "Experience the thrill of the open road with this striking 2016 Chevrolet Corvette Preferred 2LT w/Z51. Equipped with the robust LT1 engine and an automatic transmission, this red beauty combines power and sophistication, offering a perfect balance of performance and luxury. With 97,000 miles, it promises many more exhilarating drives ahead. Don't miss the chance to own this iconic sports car, featuring a stylish tan interior that elevates your driving experience.",
+      "description": "This sleek 2016 CHEVROLET Corvette Preferred 2LT with Z51 package features a powerful 6.2L V8 engine and has been meticulously maintained with 97,000 miles. A true performance machine with luxury amenities, this Corvette is ready to impress on the road.",
       "features": [],
       "status": "available",
       "badge": "Great Value",
       "featured": false,
       "images": [
-        "VEHICLE-1G1YK2D73G5118890-01.jpg",
-        "VEHICLE-1G1YK2D73G5118890-02.jpg",
-        "VEHICLE-1G1YK2D73G5118890-03.jpg",
-        "VEHICLE-1G1YK2D73G5118890-04.jpg",
-        "VEHICLE-1G1YK2D73G5118890-05.jpg"
+        "blob:02914BF-08.jpg",
+        "blob:02914BF-01.jpg",
+        "blob:02914BF-02.jpg",
+        "blob:02914BF-03.jpg",
+        "blob:02914BF-04.jpg",
+        "blob:02914BF-05.jpg",
+        "blob:02914BF-06.jpg",
+        "blob:02914BF-07.jpg",
+        "blob:02914BF-09.jpg",
+        "blob:02914BF-10.jpg"
       ],
       "dateAdded": "2026-03-06"
     },
