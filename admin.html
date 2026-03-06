@@ -116,22 +116,10 @@
             <div class="form-text">Stored in this browser only — never visible publicly. Get a key at <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></div>
           </div>
 
-          <!-- Cloudinary -->
+          <!-- Photo Storage -->
           <div>
-            <label class="form-label fw-bold small mb-1">Cloudinary <span class="text-muted fw-normal">(for photo uploads)</span></label>
-            <div class="row g-2">
-              <div class="col-sm-6">
-                <input type="text" class="form-control form-control-sm" id="cloudinaryCloud" placeholder="Cloud Name (e.g. mydealer123)">
-              </div>
-              <div class="col-sm-6">
-                <input type="text" class="form-control form-control-sm" id="cloudinaryPreset" placeholder="Upload Preset (unsigned)">
-              </div>
-            </div>
-            <div class="mt-2">
-              <button type="button" class="btn btn-outline-primary btn-sm" id="saveCloudinaryBtn">Save Cloudinary Settings</button>
-              <span class="small text-muted ms-2" id="cloudinaryStatus"></span>
-            </div>
-            <div class="form-text">Create a free account at <a href="https://cloudinary.com" target="_blank">cloudinary.com</a>. In your dashboard: Settings → Upload → Add upload preset → set to "Unsigned". Photos upload directly and are stored as cloud URLs.</div>
+            <label class="form-label fw-bold small mb-1">Photo Storage</label>
+            <p class="small text-success mb-0">Netlify Blobs + Image CDN — active, no configuration needed.</p>
           </div>
 
         </div>

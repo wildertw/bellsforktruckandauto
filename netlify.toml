@@ -4,6 +4,12 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "/photos/*"
+  to = "/.netlify/functions/photo-serve/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/blog/:slug"
   to = "/blog-post.html?slug=:slug"
   status = 200

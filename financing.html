@@ -52,6 +52,152 @@
     .tabs-wrap .nav-link.active { background: rgba(220,53,69,.15); border-color: rgba(220,53,69,.35); }
     .shadow-soft { box-shadow: 0 12px 30px rgba(0,0,0,.08); }
     .letter-spacing-1 { letter-spacing: .08em; }
+
+    /* ── Financing Application (PDF-replica) ──────────────── */
+    .finance-app { max-width: 960px; margin: 0 auto; }
+    .app-section {
+      border: 2px solid #333;
+      margin-bottom: 0;
+      position: relative;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+    }
+    .app-section + .app-section { border-top: none; }
+    .app-section-label {
+      background: #e9ecef;
+      border-right: 2px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 0;
+      min-height: 60px;
+    }
+    .app-section-label span {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      font-weight: 800;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #333;
+      white-space: nowrap;
+    }
+    .app-section-body { padding: 10px 12px; }
+    .app-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border-bottom: 1px solid #ccc;
+    }
+    .app-row:last-child { border-bottom: none; }
+    .app-field {
+      flex: 1 1 160px;
+      padding: 4px 6px;
+      border-right: 1px solid #ddd;
+      min-width: 0;
+    }
+    .app-field:last-child { border-right: none; }
+    .app-field label {
+      display: block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #666;
+      letter-spacing: 0.04em;
+      margin-bottom: 1px;
+      line-height: 1.2;
+    }
+    .app-field input,
+    .app-field select {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid transparent;
+      background: transparent;
+      font-size: 0.85rem;
+      padding: 2px 0;
+      outline: none;
+      color: #212529;
+    }
+    .app-field input:focus,
+    .app-field select:focus {
+      border-bottom-color: #dc3545;
+    }
+    .app-field input::placeholder { color: #bbb; font-size: 0.8rem; }
+    .app-field.narrow { flex: 0 0 100px; max-width: 120px; }
+    .app-field.wide { flex: 2 1 280px; }
+    .app-field.xs { flex: 0 0 70px; max-width: 90px; }
+
+    .finance-app-header {
+      text-align: center;
+      padding: 12px 16px;
+      border: 2px solid #333;
+      border-bottom: none;
+      background: #fff;
+    }
+    .finance-app-header h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 2px;
+    }
+    .finance-app-header .dealer-info {
+      font-size: 0.75rem;
+      color: #555;
+      line-height: 1.4;
+    }
+    .finance-app-footer {
+      border: 2px solid #333;
+      border-top: none;
+      padding: 16px 12px;
+      background: #fff;
+    }
+    .sig-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .sig-field {
+      flex: 1 1 180px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 2px;
+    }
+    .sig-field label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #666;
+      font-weight: 700;
+    }
+    .co-applicant-toggle {
+      background: none;
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .co-applicant-toggle:hover { background: #dc3545; color: #fff; }
+    .co-section-hidden { display: none; }
+
+    @media (max-width: 768px) {
+      .app-section { grid-template-columns: 1fr; }
+      .app-section-label {
+        border-right: none;
+        border-bottom: 2px solid #333;
+        min-height: auto;
+        padding: 6px 12px;
+      }
+      .app-section-label span {
+        writing-mode: horizontal-tb;
+        transform: none;
+      }
+      .app-field { flex: 1 1 100%; border-right: none; }
+      .app-field.narrow, .app-field.xs { flex: 1 1 48%; max-width: none; }
+    }
   </style>
 
   <script type="application/ld+json">
@@ -315,263 +461,289 @@
 
         <div class="tab-pane fade show active" id="pane-financing" role="tabpanel" aria-labelledby="tab-financing" tabindex="0">
           <div class="card shadow-soft border-0 p-4 p-md-5">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
-              <div>
-                <h2 class="h4 fw-bold mb-1">Financing Application</h2>
-                <p class="text-muted mb-0">Submit the form below and we’ll follow up with next steps.</p>
-              </div>
-              <div class="small text-muted">
-                Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a>
-              </div>
-            </div>
-            <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation" novalidate>
-  <input type="hidden" name="request_type" value="Financing">
+            <form name="financing-application" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="finance-app needs-validation" novalidate>
+  <p class="d-none"><label>Don’t fill this out: <input name="bot-field"></label></p>
+  <input type="hidden" name="request_type" value="Financing Application">
 
-  <fieldset class="mb-4">
-    <legend class="h6 fw-bold mb-3">1) Contact Information</legend>
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label for="app-financing-first_name" class="form-label fw-bold small text-uppercase">First Name</label>
-        <input type="text" class="form-control" id="app-financing-first_name" name="first_name" required autocomplete="given-name" placeholder="John">
-        <div class="invalid-feedback">Please enter your first name.</div>
+  <!-- ── HEADER ──────────────────────────────────────── -->
+  <div class="finance-app-header">
+    <h2>Application for Financing</h2>
+    <div class="dealer-info">
+      Bells Fork Truck &amp; Auto<br>
+      3840 Charles Blvd, Greenville, NC 27858<br>
+      (252) 496-0005 &middot; bellsforktruckandauto.com
+    </div>
+  </div>
+
+  <!-- ── VEHICLE ─────────────────────────────────────── -->
+  <div class="app-section">
+    <div class="app-section-label"><span>Vehicle</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field narrow"><label for="fin-veh-year">Year</label><input type="text" id="fin-veh-year" name="vehicle_year" placeholder="2017"></div>
+        <div class="app-field"><label for="fin-veh-make">Make</label><input type="text" id="fin-veh-make" name="vehicle_make" placeholder="Chevrolet"></div>
+        <div class="app-field wide"><label for="fin-veh-model">Model</label><input type="text" id="fin-veh-model" name="vehicle_model" placeholder="Silverado 1500 LT"></div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-last_name" class="form-label fw-bold small text-uppercase">Last Name</label>
-        <input type="text" class="form-control" id="app-financing-last_name" name="last_name" required autocomplete="family-name" placeholder="Doe">
-        <div class="invalid-feedback">Please enter your last name.</div>
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-veh-vin">VIN</label><input type="text" id="fin-veh-vin" name="vehicle_vin" maxlength="17" placeholder="3GCUKREC2HG250205"></div>
+        <div class="app-field"><label for="fin-veh-mileage">Mileage</label><input type="text" id="fin-veh-mileage" name="vehicle_mileage" placeholder="136,514"></div>
+        <div class="app-field"><label for="fin-veh-color">Color</label><input type="text" id="fin-veh-color" name="vehicle_color"></div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-email" class="form-label fw-bold small text-uppercase">Email</label>
-        <input type="email" class="form-control" id="app-financing-email" name="email" required autocomplete="email" placeholder="you@email.com">
-        <div class="invalid-feedback">Please enter a valid email.</div>
-      </div>
-      <div class="col-md-6">
-        <label for="app-financing-phone" class="form-label fw-bold small text-uppercase">Phone</label>
-        <input type="tel" class="form-control" id="app-financing-phone" name="phone" required autocomplete="tel" placeholder="(252) 555-0123">
-        <div class="invalid-feedback">Please enter your phone number.</div>
-      </div>
-      <div class="col-md-6">
-        <label for="app-financing-preferred_contact" class="form-label fw-bold small text-uppercase">Preferred Contact Method</label>
-        <select class="form-select" id="app-financing-preferred_contact" name="preferred_contact" required>
-          <option value="" selected disabled>Select one…</option>
-          <option>Phone Call</option>
-          <option>Text Message</option>
-          <option>Email</option>
-        </select>
-        <div class="invalid-feedback">Please choose a contact method.</div>
-      </div>
-      <div class="col-md-6">
-        <label for="app-financing-best_time" class="form-label fw-bold small text-uppercase">Best Time To Reach You</label>
-        <select class="form-select" id="app-financing-best_time" name="best_time">
-          <option value="" selected>Anytime</option>
-          <option>Morning</option>
-          <option>Midday</option>
-          <option>Afternoon</option>
-          <option>Evening</option>
-        </select>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-veh-price">Price</label><input type="text" id="fin-veh-price" name="vehicle_price" placeholder="$21,995"></div>
+        <div class="app-field"><label for="fin-veh-down">Downpayment</label><input type="text" id="fin-veh-down" name="vehicle_downpayment" placeholder="$"></div>
+        <div class="app-field"><label for="fin-veh-term">Term</label>
+          <select id="fin-veh-term" name="vehicle_term">
+            <option value="">Select…</option>
+            <option>24 Months</option>
+            <option>36 Months</option>
+            <option>48 Months</option>
+            <option>60 Months</option>
+            <option>72 Months</option>
+            <option>84 Months</option>
+          </select>
+        </div>
       </div>
     </div>
-  </fieldset>
+  </div>
 
-  <fieldset class="mb-4">
-    <legend class="h6 fw-bold mb-3">2) Address</legend>
-    <div class="row g-3">
-      <div class="col-12">
-        <label for="app-financing-street" class="form-label fw-bold small text-uppercase">Street Address</label>
-        <input type="text" class="form-control" id="app-financing-street" name="street" autocomplete="street-address" placeholder="3840 Charles Blvd">
+  <!-- ── APPLICANT ───────────────────────────────────── -->
+  <div class="app-section">
+    <div class="app-section-label"><span>Applicant</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-app-first">First Name</label><input type="text" id="fin-app-first" name="applicant_first_name" required autocomplete="given-name"></div>
+        <div class="app-field"><label for="fin-app-middle">Middle Name</label><input type="text" id="fin-app-middle" name="applicant_middle_name" autocomplete="additional-name"></div>
+        <div class="app-field"><label for="fin-app-last">Last Name</label><input type="text" id="fin-app-last" name="applicant_last_name" required autocomplete="family-name"></div>
+        <div class="app-field xs"><label for="fin-app-suffix">Suffix</label>
+          <select id="fin-app-suffix" name="applicant_suffix">
+            <option value=""></option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option><option>IV</option>
+          </select>
+        </div>
       </div>
-      <div class="col-md-5">
-        <label for="app-financing-city" class="form-label fw-bold small text-uppercase">City</label>
-        <input type="text" class="form-control" id="app-financing-city" name="city" autocomplete="address-level2" placeholder="Greenville">
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-app-address">Residence Address</label><input type="text" id="fin-app-address" name="applicant_address" required autocomplete="street-address"></div>
+        <div class="app-field xs"><label for="fin-app-apt">Apt #</label><input type="text" id="fin-app-apt" name="applicant_apt"></div>
+        <div class="app-field narrow"><label for="fin-app-time-addr">Time at Address</label><input type="text" id="fin-app-time-addr" name="applicant_time_at_address" placeholder="Yrs. Mos."></div>
       </div>
-      <div class="col-md-3">
-        <label for="app-financing-state" class="form-label fw-bold small text-uppercase">State</label>
-        <select class="form-select" id="app-financing-state" name="state" autocomplete="address-level1">
-          <option value="" selected>Select…</option>
-          <option value="AL">AL</option>
-<option value="AK">AK</option>
-<option value="AZ">AZ</option>
-<option value="AR">AR</option>
-<option value="CA">CA</option>
-<option value="CO">CO</option>
-<option value="CT">CT</option>
-<option value="DE">DE</option>
-<option value="DC">DC</option>
-<option value="FL">FL</option>
-<option value="GA">GA</option>
-<option value="HI">HI</option>
-<option value="ID">ID</option>
-<option value="IL">IL</option>
-<option value="IN">IN</option>
-<option value="IA">IA</option>
-<option value="KS">KS</option>
-<option value="KY">KY</option>
-<option value="LA">LA</option>
-<option value="ME">ME</option>
-<option value="MD">MD</option>
-<option value="MA">MA</option>
-<option value="MI">MI</option>
-<option value="MN">MN</option>
-<option value="MS">MS</option>
-<option value="MO">MO</option>
-<option value="MT">MT</option>
-<option value="NE">NE</option>
-<option value="NV">NV</option>
-<option value="NH">NH</option>
-<option value="NJ">NJ</option>
-<option value="NM">NM</option>
-<option value="NY">NY</option>
-<option value="NC">NC</option>
-<option value="ND">ND</option>
-<option value="OH">OH</option>
-<option value="OK">OK</option>
-<option value="OR">OR</option>
-<option value="PA">PA</option>
-<option value="RI">RI</option>
-<option value="SC">SC</option>
-<option value="SD">SD</option>
-<option value="TN">TN</option>
-<option value="TX">TX</option>
-<option value="UT">UT</option>
-<option value="VT">VT</option>
-<option value="VA">VA</option>
-<option value="WA">WA</option>
-<option value="WV">WV</option>
-<option value="WI">WI</option>
-<option value="WY">WY</option>
-        </select>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-app-city">City</label><input type="text" id="fin-app-city" name="applicant_city" required autocomplete="address-level2"></div>
+        <div class="app-field narrow"><label for="fin-app-state">State</label>
+          <select id="fin-app-state" name="applicant_state" autocomplete="address-level1">
+            <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+        <div class="app-field narrow"><label for="fin-app-zip">ZIP</label><input type="text" id="fin-app-zip" name="applicant_zip" required autocomplete="postal-code" maxlength="10"></div>
       </div>
-      <div class="col-md-4">
-        <label for="app-financing-zip" class="form-label fw-bold small text-uppercase">ZIP</label>
-        <input type="text" class="form-control" id="app-financing-zip" name="zip" autocomplete="postal-code" placeholder="27858">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-app-dob">DOB</label><input type="date" id="fin-app-dob" name="applicant_dob" required></div>
+        <div class="app-field"><label for="fin-app-ssn">Social Security #</label><input type="password" id="fin-app-ssn" name="applicant_ssn" maxlength="11" placeholder="XXX-XX-XXXX" autocomplete="off"></div>
+        <div class="app-field"><label for="fin-app-phone">Cell Phone #</label><input type="tel" id="fin-app-phone" name="applicant_phone" required autocomplete="tel"></div>
+        <div class="app-field"><label for="fin-app-dl">Driver License #</label><input type="text" id="fin-app-dl" name="applicant_drivers_license" autocomplete="off"></div>
+        <div class="app-field xs"><label for="fin-app-dl-state">DL State</label>
+          <select id="fin-app-dl-state" name="applicant_dl_state">
+            <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-app-payment">Monthly Payment</label><input type="text" id="fin-app-payment" name="applicant_monthly_payment" placeholder="$"></div>
+        <div class="app-field"><label for="fin-app-mortgage">Mortgage / Leasing Company</label><input type="text" id="fin-app-mortgage" name="applicant_mortgage_company"></div>
+        <div class="app-field narrow"><label for="fin-app-res-type">Residence Type</label>
+          <select id="fin-app-res-type" name="applicant_residence_type">
+            <option value="">Select…</option><option>Own</option><option>Rent</option><option>Other</option>
+          </select>
+        </div>
+        <div class="app-field"><label for="fin-app-email">Email</label><input type="email" id="fin-app-email" name="applicant_email" required autocomplete="email"></div>
       </div>
     </div>
-  </fieldset>
+  </div>
 
-  <fieldset class="mb-4">
-    <legend class="h6 fw-bold mb-3">3) Vehicle You're Interested In</legend>
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label for="app-financing-interest_vehicle" class="form-label fw-bold small text-uppercase">Year / Make / Model</label>
-        <input type="text" class="form-control" id="app-financing-interest_vehicle" name="interest_vehicle" placeholder="2019 Ford F-150 XLT">
+  <!-- ── APPLICANT OCCUPATION ────────────────────────── -->
+  <div class="app-section">
+    <div class="app-section-label"><span>Occupation</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-occ-employer">Employer</label><input type="text" id="fin-occ-employer" name="applicant_employer"></div>
+        <div class="app-field"><label for="fin-occ-title">Title</label><input type="text" id="fin-occ-title" name="applicant_title"></div>
+        <div class="app-field narrow"><label for="fin-occ-emp-type">Employment Type</label>
+          <select id="fin-occ-emp-type" name="applicant_employment_type">
+            <option value="">Select…</option><option>Salaried</option><option>Hourly</option><option>Self-Employed</option><option>Retired</option><option>Student</option><option>Unemployed</option>
+          </select>
+        </div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-stock_vin" class="form-label fw-bold small text-uppercase">Stock # or VIN (Optional)</label>
-        <input type="text" class="form-control" id="app-financing-stock_vin" name="stock_vin" placeholder="Stock 1234 or 1FT...">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-occ-income">Gross Monthly Income</label><input type="text" id="fin-occ-income" name="applicant_gross_monthly_income" placeholder="$"></div>
+        <div class="app-field narrow"><label for="fin-occ-time">Time at Company</label><input type="text" id="fin-occ-time" name="applicant_time_at_company" placeholder="Yrs. Mos."></div>
+        <div class="app-field"><label for="fin-occ-phone">Phone</label><input type="tel" id="fin-occ-phone" name="applicant_work_phone"></div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-preferred_date" class="form-label fw-bold small text-uppercase">Preferred Date</label>
-        <input type="date" class="form-control" id="app-financing-preferred_date" name="preferred_date">
-      </div>
-      <div class="col-md-6">
-        <label for="app-financing-preferred_time" class="form-label fw-bold small text-uppercase">Preferred Time</label>
-        <input type="time" class="form-control" id="app-financing-preferred_time" name="preferred_time">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-occ-add-income">Additional Income</label><input type="text" id="fin-occ-add-income" name="applicant_additional_income" placeholder="$"></div>
+        <div class="app-field wide"><label for="fin-occ-add-source">Source of Additional Income</label><input type="text" id="fin-occ-add-source" name="applicant_additional_income_source"></div>
       </div>
     </div>
-  </fieldset>
+  </div>
 
-  <fieldset class="mb-4">
-    <legend class="h6 fw-bold mb-3">4) Budget & Qualification (Optional)</legend>
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label for="app-financing-monthly_budget" class="form-label fw-bold small text-uppercase">Target Monthly Payment</label>
-        <input type="number" class="form-control" id="app-financing-monthly_budget" name="monthly_budget" min="0" step="1" placeholder="350">
+  <!-- ── CO-APPLICANT TOGGLE ─────────────────────────── -->
+  <div class="text-center my-3">
+    <button type="button" class="co-applicant-toggle" id="toggleCoApplicant">+ Add Co-Applicant</button>
+  </div>
+
+  <!-- ── CO-APPLICANT ────────────────────────────────── -->
+  <div id="coApplicantSection" class="co-section-hidden">
+
+  <div class="app-section">
+    <div class="app-section-label"><span>Co-Applicant</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-first">First Name</label><input type="text" id="fin-co-first" name="co_applicant_first_name"></div>
+        <div class="app-field"><label for="fin-co-middle">Middle Name</label><input type="text" id="fin-co-middle" name="co_applicant_middle_name"></div>
+        <div class="app-field"><label for="fin-co-last">Last Name</label><input type="text" id="fin-co-last" name="co_applicant_last_name"></div>
+        <div class="app-field xs"><label for="fin-co-suffix">Suffix</label>
+          <select id="fin-co-suffix" name="co_applicant_suffix">
+            <option value=""></option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option><option>IV</option>
+          </select>
+        </div>
       </div>
-      <div class="col-md-4">
-        <label for="app-financing-down_payment" class="form-label fw-bold small text-uppercase">Down Payment</label>
-        <input type="number" class="form-control" id="app-financing-down_payment" name="down_payment" min="0" step="1" placeholder="2000">
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-co-address">Residence Address</label><input type="text" id="fin-co-address" name="co_applicant_address"></div>
+        <div class="app-field xs"><label for="fin-co-apt">Apt #</label><input type="text" id="fin-co-apt" name="co_applicant_apt"></div>
+        <div class="app-field narrow"><label for="fin-co-time-addr">Time at Address</label><input type="text" id="fin-co-time-addr" name="co_applicant_time_at_address" placeholder="Yrs. Mos."></div>
       </div>
-      <div class="col-md-4">
-        <label for="app-financing-credit_range" class="form-label fw-bold small text-uppercase">Estimated Credit Range</label>
-        <select class="form-select" id="app-financing-credit_range" name="credit_range">
-          <option value="" selected>Prefer not to say</option>
-          <option>Excellent (720+)</option>
-          <option>Good (660–719)</option>
-          <option>Fair (600–659)</option>
-          <option>Challenged (&lt;600)</option>
-        </select>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-city">City</label><input type="text" id="fin-co-city" name="co_applicant_city"></div>
+        <div class="app-field narrow"><label for="fin-co-state">State</label>
+          <select id="fin-co-state" name="co_applicant_state">
+            <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+        <div class="app-field narrow"><label for="fin-co-zip">ZIP</label><input type="text" id="fin-co-zip" name="co_applicant_zip" maxlength="10"></div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-employment_status" class="form-label fw-bold small text-uppercase">Employment Status</label>
-        <select class="form-select" id="app-financing-employment_status" name="employment_status">
-          <option value="" selected>Prefer not to say</option>
-          <option>Employed</option>
-          <option>Self-Employed</option>
-          <option>Retired</option>
-          <option>Student</option>
-          <option>Unemployed</option>
-        </select>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-dob">DOB</label><input type="date" id="fin-co-dob" name="co_applicant_dob"></div>
+        <div class="app-field"><label for="fin-co-ssn">Social Security #</label><input type="password" id="fin-co-ssn" name="co_applicant_ssn" maxlength="11" placeholder="XXX-XX-XXXX" autocomplete="off"></div>
+        <div class="app-field"><label for="fin-co-phone">Cell Phone #</label><input type="tel" id="fin-co-phone" name="co_applicant_phone"></div>
+        <div class="app-field"><label for="fin-co-dl">Driver License #</label><input type="text" id="fin-co-dl" name="co_applicant_drivers_license" autocomplete="off"></div>
+        <div class="app-field xs"><label for="fin-co-dl-state">DL State</label>
+          <select id="fin-co-dl-state" name="co_applicant_dl_state">
+            <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
       </div>
-      <div class="col-md-6">
-        <label for="app-financing-monthly_income" class="form-label fw-bold small text-uppercase">Approx. Monthly Income</label>
-        <input type="number" class="form-control" id="app-financing-monthly_income" name="monthly_income" min="0" step="1" placeholder="4500">
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-payment">Monthly Payment</label><input type="text" id="fin-co-payment" name="co_applicant_monthly_payment" placeholder="$"></div>
+        <div class="app-field"><label for="fin-co-mortgage">Mortgage / Leasing Company</label><input type="text" id="fin-co-mortgage" name="co_applicant_mortgage_company"></div>
+        <div class="app-field narrow"><label for="fin-co-res-type">Residence Type</label>
+          <select id="fin-co-res-type" name="co_applicant_residence_type">
+            <option value="">Select…</option><option>Own</option><option>Rent</option><option>Other</option>
+          </select>
+        </div>
+        <div class="app-field"><label for="fin-co-email">Email</label><input type="email" id="fin-co-email" name="co_applicant_email"></div>
       </div>
     </div>
-    <p class="small text-muted mt-3 mb-0">
-      For your security, please <strong>do not</strong> submit Social Security numbers or credit card information online.
-      We’ll confirm any sensitive details by phone if needed.
+  </div>
+
+  <!-- ── CO-APPLICANT OCCUPATION ─────────────────────── -->
+  <div class="app-section">
+    <div class="app-section-label"><span>Co-Occupation</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-co-occ-employer">Employer</label><input type="text" id="fin-co-occ-employer" name="co_applicant_employer"></div>
+        <div class="app-field"><label for="fin-co-occ-title">Title</label><input type="text" id="fin-co-occ-title" name="co_applicant_title"></div>
+        <div class="app-field narrow"><label for="fin-co-occ-emp-type">Employment Type</label>
+          <select id="fin-co-occ-emp-type" name="co_applicant_employment_type">
+            <option value="">Select…</option><option>Salaried</option><option>Hourly</option><option>Self-Employed</option><option>Retired</option><option>Student</option><option>Unemployed</option>
+          </select>
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-occ-income">Gross Monthly Income</label><input type="text" id="fin-co-occ-income" name="co_applicant_gross_monthly_income" placeholder="$"></div>
+        <div class="app-field narrow"><label for="fin-co-occ-time">Time at Company</label><input type="text" id="fin-co-occ-time" name="co_applicant_time_at_company" placeholder="Yrs. Mos."></div>
+        <div class="app-field"><label for="fin-co-occ-phone">Phone</label><input type="tel" id="fin-co-occ-phone" name="co_applicant_work_phone"></div>
+      </div>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-co-occ-add-income">Additional Income</label><input type="text" id="fin-co-occ-add-income" name="co_applicant_additional_income" placeholder="$"></div>
+        <div class="app-field wide"><label for="fin-co-occ-add-source">Source of Additional Income</label><input type="text" id="fin-co-occ-add-source" name="co_applicant_additional_income_source"></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /coApplicantSection -->
+
+  <!-- ── TRADE-IN ────────────────────────────────────── -->
+  <div class="app-section">
+    <div class="app-section-label"><span>Trade In</span></div>
+    <div class="app-section-body">
+      <div class="app-row">
+        <div class="app-field narrow"><label for="fin-trade-year">Year</label><input type="text" id="fin-trade-year" name="tradein_year"></div>
+        <div class="app-field"><label for="fin-trade-make">Make</label><input type="text" id="fin-trade-make" name="tradein_make"></div>
+        <div class="app-field wide"><label for="fin-trade-model">Model</label><input type="text" id="fin-trade-model" name="tradein_model"></div>
+      </div>
+      <div class="app-row">
+        <div class="app-field wide"><label for="fin-trade-vin">VIN</label><input type="text" id="fin-trade-vin" name="tradein_vin" maxlength="17"></div>
+        <div class="app-field"><label for="fin-trade-mileage">Mileage</label><input type="text" id="fin-trade-mileage" name="tradein_mileage"></div>
+        <div class="app-field"><label for="fin-trade-color">Color</label><input type="text" id="fin-trade-color" name="tradein_color"></div>
+      </div>
+      <div class="app-row">
+        <div class="app-field"><label for="fin-trade-lien">Lien on Vehicle</label>
+          <select id="fin-trade-lien" name="tradein_lien">
+            <option value="">Select…</option><option>Yes</option><option>No</option>
+          </select>
+        </div>
+        <div class="app-field"><label for="fin-trade-payoff">Payoff Amount</label><input type="text" id="fin-trade-payoff" name="tradein_payoff_amount" placeholder="$"></div>
+        <div class="app-field"><label for="fin-trade-title">Title Status</label>
+          <select id="fin-trade-title" name="tradein_title_status">
+            <option value="">Select…</option><option>Clean</option><option>Salvage</option><option>Rebuilt</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIGNATURES / SUBMIT ─────────────────────────── -->
+  <div class="finance-app-footer">
+    <p class="small text-muted mb-2">
+      <strong>Disclosure:</strong> By submitting this application, I authorize Bells Fork Truck &amp; Auto to obtain my credit report for the purpose of evaluating this financing application. I certify that all information provided is true and complete.
     </p>
-  </fieldset>
-
-  <fieldset class="mb-4">
-    <legend class="h6 fw-bold mb-3">5) Your Current Vehicle (Trade / Sell / Consign)</legend>
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label for="app-financing-current_vehicle" class="form-label fw-bold small text-uppercase">Year / Make / Model</label>
-        <input type="text" class="form-control" id="app-financing-current_vehicle" name="current_vehicle" placeholder="2016 Toyota Camry SE">
-      </div>
-      <div class="col-md-6">
-        <label for="app-financing-current_vin" class="form-label fw-bold small text-uppercase">VIN (Optional)</label>
-        <input type="text" class="form-control" id="app-financing-current_vin" name="current_vin" placeholder="4T1...">
-      </div>
-      <div class="col-md-4">
-        <label for="app-financing-mileage" class="form-label fw-bold small text-uppercase">Mileage</label>
-        <input type="number" class="form-control" id="app-financing-mileage" name="mileage" min="0" step="1" placeholder="98000">
-      </div>
-      <div class="col-md-4">
-        <label for="app-financing-condition" class="form-label fw-bold small text-uppercase">Condition</label>
-        <select class="form-select" id="app-financing-condition" name="condition">
-          <option value="" selected>Prefer not to say</option>
-          <option>Excellent</option>
-          <option>Good</option>
-          <option>Fair</option>
-          <option>Poor</option>
-        </select>
-      </div>
-      <div class="col-md-4">
-        <label for="app-financing-payoff_amount" class="form-label fw-bold small text-uppercase">Loan Payoff Amount (If Any)</label>
-        <input type="number" class="form-control" id="app-financing-payoff_amount" name="payoff_amount" min="0" step="1" placeholder="0">
-      </div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="fin-confirm" name="confirm_accuracy" value="Yes" required>
+      <label class="form-check-label" for="fin-confirm">
+        I confirm the information above is accurate and authorize a credit inquiry.
+      </label>
+      <div class="invalid-feedback">You must confirm before submitting.</div>
     </div>
-  </fieldset>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="fin-consent" name="contact_consent" value="Yes">
+      <label class="form-check-label" for="fin-consent">
+        You may contact me by phone, text, or email about this application.
+      </label>
+    </div>
 
-  <div class="mb-4">
-    <label for="app-financing-notes" class="form-label fw-bold small text-uppercase">Additional Notes</label>
-    <textarea class="form-control" id="app-financing-notes" name="notes" rows="4" placeholder="Tell us anything helpful: preferred vehicles, timeline, questions, etc."></textarea>
-  </div>
-
-  <div class="row g-3 align-items-start">
-    <div class="col-12">
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="app-financing-confirm" name="confirm_accuracy" value="Yes" required>
-        <label class="form-check-label" for="app-financing-confirm">
-          I confirm the information above is accurate to the best of my knowledge.
-        </label>
-        <div class="invalid-feedback">You must confirm before submitting.</div>
+    <div class="sig-row">
+      <div class="sig-field">
+        <label for="fin-sig-applicant">Applicant Signature (Type Full Name)</label>
+        <input type="text" id="fin-sig-applicant" name="applicant_signature" required style="border:none;border-bottom:1px solid #333;width:100%;font-style:italic;">
       </div>
-      <div class="form-check mt-2">
-        <input class="form-check-input" type="checkbox" id="app-financing-consent" name="contact_consent" value="Yes">
-        <label class="form-check-label" for="app-financing-consent">
-          You may contact me by phone/text/email about this request.
-        </label>
+      <div class="sig-field" style="flex:0 0 130px;">
+        <label for="fin-sig-date">Date</label>
+        <input type="date" id="fin-sig-date" name="applicant_signature_date" required style="border:none;border-bottom:1px solid #333;width:100%;">
+      </div>
+      <div class="sig-field">
+        <label for="fin-sig-co">Co-Applicant Signature (Type Full Name)</label>
+        <input type="text" id="fin-sig-co" name="co_applicant_signature" style="border:none;border-bottom:1px solid #333;width:100%;font-style:italic;">
+      </div>
+      <div class="sig-field" style="flex:0 0 130px;">
+        <label for="fin-sig-co-date">Date</label>
+        <input type="date" id="fin-sig-co-date" name="co_applicant_signature_date" style="border:none;border-bottom:1px solid #333;width:100%;">
       </div>
     </div>
 
-    <div class="col-12 mt-3">
-      <button type="submit" class="btn btn-accent w-100 py-3 text-uppercase letter-spacing-1">Submit Application</button>
-      <p class="small text-muted text-center mt-2 mb-0">We’ll respond within one business day.</p>
+    <div class="mt-4">
+      <button type="submit" class="btn btn-accent w-100 py-3 text-uppercase letter-spacing-1">Submit Financing Application</button>
+      <p class="small text-muted text-center mt-2 mb-0">We’ll respond within one business day. Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a></p>
     </div>
   </div>
+
 </form>
           </div>
         </div>
@@ -587,7 +759,8 @@
                 Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a>
               </div>
             </div>
-            <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation" novalidate>
+            <form name="test-drive-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="needs-validation" novalidate>
+  <p class="d-none"><label>Don't fill this out: <input name="bot-field"></label></p>
   <input type="hidden" name="request_type" value="Test-Drive">
 
   <fieldset class="mb-4">
@@ -850,7 +1023,8 @@
                 Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a>
               </div>
             </div>
-            <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation" novalidate>
+            <form name="offer-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="needs-validation" novalidate>
+  <p class="d-none"><label>Don't fill this out: <input name="bot-field"></label></p>
   <input type="hidden" name="request_type" value="Offer">
 
   <fieldset class="mb-4">
@@ -1113,7 +1287,8 @@
                 Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a>
               </div>
             </div>
-            <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation" novalidate>
+            <form name="trade-in-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="needs-validation" novalidate>
+  <p class="d-none"><label>Don't fill this out: <input name="bot-field"></label></p>
   <input type="hidden" name="request_type" value="Trade-In">
 
   <fieldset class="mb-4">
@@ -1376,7 +1551,8 @@
                 Prefer to call? <a href="tel:+12524960005">(252) 496-0005</a>
               </div>
             </div>
-            <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation" novalidate>
+            <form name="consignment-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="needs-validation" novalidate>
+  <p class="d-none"><label>Don't fill this out: <input name="bot-field"></label></p>
   <input type="hidden" name="request_type" value="Consignment">
 
   <fieldset class="mb-4">
@@ -1813,38 +1989,58 @@
   <script>
     // Pre-fill forms from URL parameters (e.g. from "Apply for This Vehicle" buttons)
     document.addEventListener('DOMContentLoaded', function () {
-      const params  = new URLSearchParams(window.location.search);
-      const vehicle = params.get('vehicle') || '';
-      const vin     = params.get('vin')     || '';
-      const tab     = params.get('tab')     || '';
+      var params  = new URLSearchParams(window.location.search);
+      var vehicle = params.get('vehicle') || '';
+      var vin     = params.get('vin')     || '';
+      var price   = params.get('price')   || '';
+      var tab     = params.get('tab')     || '';
 
-      // Fill all vehicle-interest fields across all 5 tab forms
-      const vehicleFields = [
-        'app-financing-interest_vehicle',
+      // ── Financing form: split "2017 Chevrolet Silverado 1500 LT" into year/make/model
+      if (vehicle) {
+        var parts = vehicle.trim().split(/\s+/);
+        var yearEl = document.getElementById('fin-veh-year');
+        var makeEl = document.getElementById('fin-veh-make');
+        var modelEl = document.getElementById('fin-veh-model');
+        if (yearEl && parts[0] && /^\d{4}$/.test(parts[0])) yearEl.value = parts[0];
+        if (makeEl && parts[1]) makeEl.value = parts[1];
+        if (modelEl && parts.length > 2) modelEl.value = parts.slice(2).join(' ');
+      }
+      if (vin) {
+        var vinEl = document.getElementById('fin-veh-vin');
+        if (vinEl) vinEl.value = vin;
+      }
+      if (price) {
+        var priceEl = document.getElementById('fin-veh-price');
+        if (priceEl) {
+          var num = parseInt(price.replace(/[^0-9]/g, ''), 10);
+          priceEl.value = num ? '$' + num.toLocaleString() : price;
+        }
+      }
+
+      // ── Other tab forms: still fill combined vehicle/vin fields
+      var otherVehicleFields = [
         'app-testdrive-interest_vehicle',
         'app-offer-interest_vehicle',
         'app-tradein-interest_vehicle',
         'app-consignment-interest_vehicle'
       ];
-      const vinFields = [
-        'app-financing-stock_vin',
+      var otherVinFields = [
         'app-testdrive-stock_vin',
         'app-offer-stock_vin',
         'app-tradein-stock_vin',
         'app-consignment-stock_vin'
       ];
-
-      vehicleFields.forEach(function (id) {
+      otherVehicleFields.forEach(function (id) {
         var el = document.getElementById(id);
         if (el && vehicle) el.value = vehicle;
       });
-      vinFields.forEach(function (id) {
+      otherVinFields.forEach(function (id) {
         var el = document.getElementById(id);
         if (el && vin) el.value = vin;
       });
 
-      // Activate the correct tab if ?tab= param is present
-      const tabMap = {
+      // ── Activate the correct tab if ?tab= param is present
+      var tabMap = {
         'financing':    'tab-financing',
         'testdrive':    'tab-testdrive',
         'offer':        'tab-offer',
@@ -1859,10 +2055,20 @@
         }
       }
 
-      // Auto-scroll to #applications if hash is present
+      // ── Auto-scroll to #applications if hash is present
       if (window.location.hash === '#applications') {
         var anchor = document.getElementById('applications');
         if (anchor) setTimeout(function () { anchor.scrollIntoView({ behavior: 'smooth' }); }, 400);
+      }
+
+      // ── Co-Applicant toggle
+      var toggleBtn = document.getElementById('toggleCoApplicant');
+      var coSection = document.getElementById('coApplicantSection');
+      if (toggleBtn && coSection) {
+        toggleBtn.addEventListener('click', function () {
+          var hidden = coSection.classList.toggle('co-section-hidden');
+          toggleBtn.textContent = hidden ? '+ Add Co-Applicant' : '− Remove Co-Applicant';
+        });
       }
     });
   </script>

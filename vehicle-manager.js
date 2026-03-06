@@ -23,9 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setupFormHandlers();
   setupInventorySearch();
   setupAISettings();
-  setupCloudinarySettings();
   setupAIDescription();
-  updatePhotoUploadHint();
   loadInventoryTable();
   renderImagePreview();
   updateInventoryStatus();
@@ -529,10 +527,6 @@ function setupImageHandlers() {
       }
       NEW_IMAGE_FILES = files;
       regenerateNewPhotoNames();
-      // Auto-upload to Cloudinary if configured
-      if (getCloudinaryConfig()) {
-        uploadPhotosToCloud();
-      }
     });
   }
 
@@ -1095,7 +1089,7 @@ function deleteVehicle(idx) {
   updateInventoryStatus();
 }
 
-// ─── Settings (OpenAI + Cloudinary) ──────────────────────────────────────────
+// ─── Settings (OpenAI) ───────────────────────────────────────────────────────
 function setupAISettings() {
   const saveBtn = $('saveOpenaiKeyBtn');
   const input   = $('openaiApiKey');
@@ -1120,129 +1114,6 @@ function setupAISettings() {
       setTimeout(() => { saveBtn.textContent = 'Save'; }, 2000);
     }
   });
-}
-
-function setupCloudinarySettings() {
-  const saveBtn   = $('saveCloudinaryBtn');
-  const cloudEl   = $('cloudinaryCloud');
-  const presetEl  = $('cloudinaryPreset');
-  const statusEl  = $('cloudinaryStatus');
-  if (!saveBtn || !cloudEl || !presetEl) return;
-
-  // Load saved values
-  cloudEl.value  = localStorage.getItem('bf_cloudinary_cloud')  || '';
-  presetEl.value = localStorage.getItem('bf_cloudinary_preset') || '';
-  if (cloudEl.value && presetEl.value && statusEl) {
-    statusEl.textContent = '✓ Configured — photos will upload to cloud automatically';
-    statusEl.className = 'small text-success ms-2';
-  }
-
-  saveBtn.addEventListener('click', () => {
-    const cloud  = cloudEl.value.trim();
-    const preset = presetEl.value.trim();
-    if (cloud && preset) {
-      localStorage.setItem('bf_cloudinary_cloud',  cloud);
-      localStorage.setItem('bf_cloudinary_preset', preset);
-      if (statusEl) {
-        statusEl.textContent = '✓ Saved — photos will upload to cloud automatically';
-        statusEl.className = 'small text-success ms-2';
-      }
-      updatePhotoUploadHint();
-    } else {
-      localStorage.removeItem('bf_cloudinary_cloud');
-      localStorage.removeItem('bf_cloudinary_preset');
-      if (statusEl) {
-        statusEl.textContent = 'Cleared — photos will download locally';
-        statusEl.className = 'small text-muted ms-2';
-      }
-      updatePhotoUploadHint();
-    }
-  });
-}
-
-function getCloudinaryConfig() {
-  const cloud  = localStorage.getItem('bf_cloudinary_cloud')  || '';
-  const preset = localStorage.getItem('bf_cloudinary_preset') || '';
-  return (cloud && preset) ? { cloud, preset } : null;
-}
-
-function updatePhotoUploadHint() {
-  const hint    = $('photoUploadHint');
-  const dlBtn   = $('downloadPhotosBtn');
-  const config  = getCloudinaryConfig();
-  if (!hint) return;
-  if (config) {
-    hint.innerHTML = 'Select up to 10 photos. Names use <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span> when color is blank, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs stand in for stock numbers.';
-    if (dlBtn) dlBtn.style.display = 'none';
-  } else {
-    hint.innerHTML = 'Select up to 10 photos. Click any thumbnail to set it as the preview image. Photos should follow <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span>, <span class="mono">YEAR-MAKE-MODEL-STOCKNUMBER-01.png</span>, or <span class="mono">VEHICLE-VIN-01.png</span> when VINs replace stock numbers.';
-    if (dlBtn) dlBtn.style.display = '';
-  }
-}
-
-// ─── Cloudinary Upload ────────────────────────────────────────────────────────
-// Uploads a single File to Cloudinary; returns the secure URL.
-async function uploadToCloudinary(file, publicId, config) {
-  const fd = new FormData();
-  const pngBlob = await convertFileToPngBlob(file);
-  fd.append('file', pngBlob, `${publicId}.${PHOTO_OUTPUT_EXT}`);
-  fd.append('upload_preset', config.preset);
-  fd.append('public_id', publicId);
-  fd.append('format', PHOTO_OUTPUT_EXT);
-
-  const res = await fetch(
-    `https://api.cloudinary.com/v1_1/${config.cloud}/image/upload`,
-    { method: 'POST', body: fd }
-  );
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Cloudinary error ${res.status}`);
-  }
-  const data = await res.json();
-  return data.secure_url;
-}
-
-// Upload all selected photos to Cloudinary; updates NEW_IMAGE_NAMES with URLs.
-async function uploadPhotosToCloud() {
-  const config = getCloudinaryConfig();
-  if (!config || !NEW_IMAGE_FILES.length) return;
-
-  const statusEl = $('cloudUploadStatus');
-  if (statusEl) {
-    statusEl.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span><small class="text-muted">Uploading photos to cloud…</small>';
-  }
-
-  const urls = [];
-  for (let i = 0; i < NEW_IMAGE_FILES.length; i++) {
-    const file = NEW_IMAGE_FILES[i];
-    const base = getPhotoBaseId();
-    const num  = String(i + 1).padStart(2, '0');
-    const publicId = `vehicles/${base}-${num}`;
-    try {
-      const url = await uploadToCloudinary(file, publicId, config);
-      urls.push(url);
-      if (statusEl) {
-        statusEl.innerHTML = `<small class="text-success">✓ Uploaded ${i + 1} of ${NEW_IMAGE_FILES.length}</small>`;
-      }
-    } catch (err) {
-      console.error('Upload failed for photo', i + 1, err);
-      if (statusEl) {
-        statusEl.innerHTML = `<small class="text-danger">✗ Upload failed for photo ${i + 1}: ${err.message}</small>`;
-      }
-      return; // Stop on error
-    }
-  }
-
-  // Replace generated names with cloud URLs
-  if (PREVIEW_IMAGE_NAME && !urls.includes(PREVIEW_IMAGE_NAME) && !EXISTING_IMAGE_NAMES.includes(PREVIEW_IMAGE_NAME)) {
-    PREVIEW_IMAGE_NAME = null;
-  }
-  NEW_IMAGE_NAMES = urls;
-  renderImagePreview();
-
-  if (statusEl) {
-    statusEl.innerHTML = `<small class="text-success fw-bold">✓ All ${urls.length} photo${urls.length !== 1 ? 's' : ''} uploaded to cloud</small>`;
-  }
 }
 
 // ─── AI Description Generator ────────────────────────────────────────────────

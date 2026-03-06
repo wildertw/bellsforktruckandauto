@@ -2,12 +2,12 @@
  * Bells Fork Auto & Truck — Admin Settings Function
  * GET/POST /.netlify/functions/admin-settings
  *
- * Persists admin settings (Cloudinary config, OpenAI key) in Netlify Blobs
+ * Persists admin settings (OpenAI key, Google Reviews) in Netlify Blobs
  * so they survive across browsers, devices, and cache clears.
  *
  * GET  — returns saved settings (OpenAI key is masked)
  * POST — saves settings
- * Body: { auth: { user, passwordHash }, settings: { openaiKey?, cloudName?, cloudPreset? } }
+ * Body: { auth: { user, passwordHash }, settings: { openaiKey?, googleKey?, placeId? } }
  */
 
 const crypto = require('crypto');
@@ -105,8 +105,6 @@ exports.handler = async (event) => {
       if (settings.openaiKey && !settings.openaiKey.startsWith('*')) {
         existing.openaiKey = settings.openaiKey;
       }
-      if (settings.cloudName) existing.cloudName = settings.cloudName;
-      if (settings.cloudPreset) existing.cloudPreset = settings.cloudPreset;
       if (settings.googleKey && !settings.googleKey.startsWith('*')) {
         existing.googleKey = settings.googleKey;
       }
@@ -148,8 +146,6 @@ exports.handler = async (event) => {
         settings: {
           openaiKey: saved.openaiKey ? '********' : '',
           openaiKeySet: !!saved.openaiKey,
-          cloudName: saved.cloudName || '',
-          cloudPreset: saved.cloudPreset || '',
           googleKey: saved.googleKey ? '********' : '',
           googleKeySet: !!saved.googleKey,
           placeId: saved.placeId || '',

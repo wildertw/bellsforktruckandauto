@@ -75,6 +75,13 @@ class InventoryLoader {
     return `$${num.toLocaleString()}`;
   }
 
+  resolveImageUrl(img) {
+    if (!img) return '';
+    if (img.startsWith('http')) return img;
+    if (img.startsWith('blob:')) return 'photos/' + img.slice(5);
+    return 'assets/vehicles/' + img;
+  }
+
   getMostRecent(vehicles) {
     const sorted = [...vehicles].sort((a, b) => {
       const dateA = a.dateAdded ? new Date(a.dateAdded) : new Date(0);
@@ -117,7 +124,8 @@ class InventoryLoader {
       ? `<span class="badge bg-secondary mb-2">Stock #${v.stockNumber}</span> `
       : '';
 
-    const localImageAttr = mainImage && !mainImage.startsWith('http')
+    const isLocal = mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('blob:');
+    const localImageAttr = isLocal
       ? ` data-local-image="${this.escapeAttr(mainImage)}"`
       : '';
 
@@ -128,7 +136,7 @@ class InventoryLoader {
             ${v.badge ? `<span class="inventory-badge ${badgeClass}">${v.badge}</span>` : ''}
             ${mainImage ? `
               <a href="${this.buildVDPUrl(v)}" aria-label="View ${v.year} ${v.make} ${v.model} details">
-                <img src="${mainImage.startsWith('http') ? mainImage : 'assets/vehicles/' + mainImage}"
+                <img src="${this.resolveImageUrl(mainImage)}"
                      alt="${v.year} ${v.make} ${v.model}"
                      class="card-img-top"
                      style="height:220px; object-fit:cover;"
@@ -198,7 +206,7 @@ class InventoryLoader {
 
   buildImageFallbackCandidates(name) {
     const raw = String(name || '').trim();
-    if (!raw) return [];
+    if (!raw || raw.startsWith('http') || raw.startsWith('blob:')) return [];
     const out = [];
     const seen = new Set();
     const add = (candidate) => {
@@ -368,8 +376,9 @@ class InventoryLoader {
 
     const mainImage = (v.images && v.images.length) ? v.images[0] : '';
 
+    const isLocal = mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('blob:');
     const imgHtml = mainImage
-      ? `<img src="${mainImage.startsWith('http') ? this.escapeAttr(mainImage) : 'assets/vehicles/' + this.escapeAttr(mainImage)}" alt="${this.escapeAttr(yearMake + ' ' + model)}" loading="lazy"${mainImage.startsWith('http') ? '' : ` data-local-image="${this.escapeAttr(mainImage)}"`}>`
+      ? `<img src="${this.escapeAttr(this.resolveImageUrl(mainImage))}" alt="${this.escapeAttr(yearMake + ' ' + model)}" loading="lazy"${isLocal ? ` data-local-image="${this.escapeAttr(mainImage)}"` : ''}>`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;background:#e9e9e9;">
            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
              <rect x="3" y="7" width="18" height="10" rx="2"></rect>

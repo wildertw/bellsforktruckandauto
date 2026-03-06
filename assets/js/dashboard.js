@@ -65,7 +65,7 @@
   let editVinDecodeData = null;
   let editPhotoFiles = [];
   let addPhotoFiles = [];
-  let editKeptImages = []; // existing Cloudinary URLs to keep when editing
+  let editKeptImages = []; // existing image keys to keep when editing
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
 
@@ -135,36 +135,45 @@
     if (toast) toast.className = 'auto-save-toast';
   }
 
-  // ─── Cloudinary Upload ────────────────────────────────────────────────────
-  async function uploadToCloudinary(file) {
-    var cloudName = localStorage.getItem('bf_cloud_name');
-    var preset = localStorage.getItem('bf_cloud_preset');
-    if (!cloudName || !preset) {
-      throw new Error('Cloudinary not configured. Go to Settings to add Cloud Name and Upload Preset.');
+  // ─── Photo Upload (Netlify Blobs) ────────────────────────────────────────
+  async function uploadPhotoToBlobs(file, stockNumber, photoIndex) {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      throw new Error('Not authenticated. Please log in again.');
     }
-    var formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', preset);
-    var res = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/image/upload', {
+    var base64 = await new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result.split(',')[1]); };
+      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.readAsDataURL(file);
+    });
+    var res = await fetch('/.netlify/functions/photo-upload', {
       method: 'POST',
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth: { user: session.username, passwordHash: session.passwordHash },
+        stockNumber: stockNumber,
+        photoIndex: photoIndex,
+        imageData: base64,
+        contentType: file.type || 'image/png',
+      }),
     });
     if (!res.ok) {
       var err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error && err.error.message ? err.error.message : 'Cloudinary upload failed');
+      throw new Error(err.error || 'Photo upload failed');
     }
     var data = await res.json();
-    return data.secure_url;
+    return data.key; // e.g. "blob:D2601-01.png"
   }
 
-  async function uploadPhotos(files, progressCb) {
-    var urls = [];
+  async function uploadPhotos(files, stockNumber, progressCb) {
+    var keys = [];
     for (var i = 0; i < files.length; i++) {
       if (progressCb) progressCb(i + 1, files.length);
-      var url = await uploadToCloudinary(files[i]);
-      urls.push(url);
+      var key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
+      keys.push(key);
     }
-    return urls;
+    return keys;
   }
 
   // ─── Auto Publish (Stage + Publish in one step) ───────────────────────────
@@ -641,11 +650,12 @@
       var featVal = $('editFeatures').value.trim();
       editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
 
-      // Upload new photos to Cloudinary if any were selected
+      // Upload new photos to Netlify Blobs if any were selected
       var newImageUrls = [];
       if (editPhotoFiles.length > 0) {
+        var editStock = editingItem.stockNumber || editingItem.vin || 'UNKNOWN';
         showToast('Uploading photos...');
-        newImageUrls = await uploadPhotos(editPhotoFiles, function (current, total) {
+        newImageUrls = await uploadPhotos(editPhotoFiles, editStock, function (current, total) {
           showToast('Uploading photo ' + current + ' of ' + total + '...');
         });
       }
@@ -793,8 +803,9 @@
           addPhotoFiles.unshift(previewFile);
           addPreviewIndex = 0;
         }
+        var addStock = $('addStock').value.trim() || $('addVin').value.trim() || sku;
         showToast('Uploading photos...');
-        imageUrls = await uploadPhotos(addPhotoFiles, function (current, total) {
+        imageUrls = await uploadPhotos(addPhotoFiles, addStock, function (current, total) {
           showToast('Uploading photo ' + current + ' of ' + total + '...');
         });
       }
@@ -1128,10 +1139,15 @@
       return null;
     }
 
-    // Filter to only valid HTTPS URLs (skip relative paths)
-    var validUrls = imageUrls.filter(function (u) { return typeof u === 'string' && u.startsWith('https://'); });
+    // Filter to scannable URLs (HTTPS or blob-served photos)
+    var validUrls = imageUrls.map(function (u) {
+      if (typeof u !== 'string') return null;
+      if (u.startsWith('https://')) return u;
+      if (u.startsWith('blob:')) return window.location.origin + '/photos/' + u.slice(5);
+      return null;
+    }).filter(Boolean);
     if (!validUrls.length) {
-      showFeedback(feedbackEl, 'No scannable photos. Upload photos to Cloudinary first.', true);
+      showFeedback(feedbackEl, 'No scannable photos. Upload photos first, then try again.', true);
       return null;
     }
 
@@ -2069,13 +2085,9 @@
   async function loadSettings() {
     // Load from localStorage first (instant)
     var openaiKey = localStorage.getItem('bf_openai_key') || '';
-    var cloudName = localStorage.getItem('bf_cloud_name') || '';
-    var cloudPreset = localStorage.getItem('bf_cloud_preset') || '';
     var googleKey = localStorage.getItem('bf_google_key') || '';
     var placeId = localStorage.getItem('bf_place_id') || '';
     if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = openaiKey ? '********' : '';
-    if ($('settingsCloudName')) $('settingsCloudName').value = cloudName;
-    if ($('settingsCloudPreset')) $('settingsCloudPreset').value = cloudPreset;
     if ($('settingsGoogleKey')) $('settingsGoogleKey').value = googleKey ? '********' : '';
     if ($('settingsPlaceId')) $('settingsPlaceId').value = placeId;
 
@@ -2089,14 +2101,6 @@
       if (!data.ok || !data.settings) return;
       var s = data.settings;
       // Sync server settings into localStorage
-      if (s.cloudName) {
-        localStorage.setItem('bf_cloud_name', s.cloudName);
-        if ($('settingsCloudName')) $('settingsCloudName').value = s.cloudName;
-      }
-      if (s.cloudPreset) {
-        localStorage.setItem('bf_cloud_preset', s.cloudPreset);
-        if ($('settingsCloudPreset')) $('settingsCloudPreset').value = s.cloudPreset;
-      }
       if (s.openaiKeySet) {
         if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '********';
         if (!localStorage.getItem('bf_openai_key')) {
@@ -2139,28 +2143,6 @@
       }
     } catch (e) { /* server save failed, localStorage still has it */ }
     alert('OpenAI key saved.');
-  }
-
-  async function saveCloudinarySettings() {
-    const name = $('settingsCloudName').value.trim();
-    const preset = $('settingsCloudPreset').value.trim();
-    if (name) localStorage.setItem('bf_cloud_name', name);
-    if (preset) localStorage.setItem('bf_cloud_preset', preset);
-    // Save to server
-    try {
-      var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
-      if (session.username && session.passwordHash) {
-        await fetch(SETTINGS_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            auth: { user: session.username, passwordHash: session.passwordHash },
-            settings: { cloudName: name, cloudPreset: preset },
-          }),
-        });
-      }
-    } catch (e) { /* server save failed, localStorage still has it */ }
-    showFeedback($('settingsCloudStatus'), 'Cloudinary settings saved.');
   }
 
   async function saveGoogleReviewsSettings() {
@@ -2243,10 +2225,10 @@
       });
     }
 
-    // Add form — AI photo scan (works only after save since photos need Cloudinary URLs)
+    // Add form — AI photo scan (works only after save since photos need uploaded URLs)
     if ($('addScanPhotosBtn')) {
       $('addScanPhotosBtn').addEventListener('click', function () {
-        showFeedback(addFeedback, 'Photos must be uploaded to Cloudinary first. Save the vehicle, then edit it to scan photos with AI.', true);
+        showFeedback(addFeedback, 'Photos must be uploaded first. Save the vehicle, then edit it to scan photos with AI.', true);
       });
     }
 
@@ -2299,7 +2281,6 @@
 
     // Settings
     $('saveOpenaiKey').addEventListener('click', saveOpenaiKey);
-    $('saveCloudinary').addEventListener('click', saveCloudinarySettings);
     $('saveGoogleReviews').addEventListener('click', saveGoogleReviewsSettings);
     loadSettings();
 

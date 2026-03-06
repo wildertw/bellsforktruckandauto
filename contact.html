@@ -590,7 +590,8 @@
           </div>
           <div class="col-lg-8">
             <div class="card bg-white text-dark shadow-lg border-0 p-4 p-md-5">
-              <form action="https://formspree.io/f/mwvnlgkv" method="post" class="needs-validation row g-3" novalidate>
+              <form name="contact-request" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="needs-validation row g-3" novalidate>
+                <p class="d-none"><label>Don't fill this out: <input name="bot-field"></label></p>
                 <div class="col-md-6">
                   <label for="name" class="form-label fw-bold small text-uppercase">Name</label>
                   <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">

@@ -27,7 +27,7 @@ const VEHICLE_ASSET_DIR = path.join(__dirname, 'assets', 'vehicles');
 // Resolve an image value — full cloud URL or local assets/vehicles/ path
 function buildLocalImageCandidates(name) {
   const raw = String(name || '').trim();
-  if (!raw || raw.startsWith('http')) return [];
+  if (!raw || raw.startsWith('http') || raw.startsWith('blob:')) return [];
 
   const out = [];
   const seen = new Set();
@@ -94,7 +94,7 @@ function buildLocalImageCandidates(name) {
 
 function resolveInventoryImageName(name) {
   const raw = String(name || '').trim();
-  if (!raw || raw.startsWith('http')) return raw;
+  if (!raw || raw.startsWith('http') || raw.startsWith('blob:')) return raw;
 
   const candidates = buildLocalImageCandidates(raw);
   for (const c of candidates) {
@@ -105,11 +105,15 @@ function resolveInventoryImageName(name) {
 
 function resolveImg(img, prefix = '') {
   if (!img) return '';
-  return img.startsWith('http') ? img : `${prefix}assets/vehicles/${img}`;
+  if (img.startsWith('http')) return img;
+  if (img.startsWith('blob:')) return `${prefix}photos/${img.slice(5)}`;
+  return `${prefix}assets/vehicles/${img}`;
 }
 function resolveImgAbs(img) {
   if (!img) return `${SITE_URL}/assets/shop-front.jpg`;
-  return img.startsWith('http') ? img : `${SITE_URL}/assets/vehicles/${img}`;
+  if (img.startsWith('http')) return img;
+  if (img.startsWith('blob:')) return `${SITE_URL}/photos/${img.slice(5)}`;
+  return `${SITE_URL}/assets/vehicles/${img}`;
 }
 
 function escapeHtml(str) {
