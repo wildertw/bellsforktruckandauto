@@ -94,7 +94,7 @@
       <ul class="mb-0 small">
         <li>Edits are saved to <b>this browser</b> (localStorage) and a fresh <span class="mono">inventory.json</span> is downloaded.</li>
         <li>Upload the downloaded <span class="mono">inventory.json</span> to your website root.</li>
-        <li>Photos are renamed + downloaded (they do not auto-upload). Put photos into <span class="mono">/assets/vehicles/</span>.</li>
+        <li>Photos are uploaded automatically when you save a vehicle.</li>
       </ul>
     </div>
 
@@ -336,19 +336,9 @@
             <label class="form-label fw-bold">Vehicle Photos</label>
             <input type="file" class="form-control" id="photos" multiple accept="image/*">
             <div class="form-text" id="photoUploadHint">
-              Select up to 10 photos. Click any thumbnail to set it as the preview image.
-              Photos are named <span class="mono">YEAR-EXTERIORCOLOR-MAKE-MODEL-STOCKNUMBER-01.png</span> etc.
+              Select up to 10 photos. They are uploaded automatically when you save.
             </div>
-            <div id="cloudUploadStatus" class="mt-1"></div>
-
-            <div class="d-flex flex-wrap gap-2 mt-2">
-              <button type="button" class="btn btn-outline-primary btn-sm" id="downloadPhotosBtn">Save Photos to /assets/vehicles</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm" id="copyPhotoNamesBtn">Copy Photo Filenames</button>
-              <span class="small text-muted" id="photoNamesHint"></span>
-            </div>
-
             <div id="imagePreview" class="image-preview"></div>
-            <div class="small text-muted mt-2" id="photoNamesList"></div>
           </div>
 
           <div class="d-grid gap-2">

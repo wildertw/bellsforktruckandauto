@@ -5,11 +5,9 @@
 // ─── State ─────────────────────────────────────────────────────────────────────
 let EDIT_INDEX = null;
 let EDIT_ORIGINAL_DATE = null;
-let EXISTING_IMAGE_NAMES = [];   // filenames already in inventory
+let EXISTING_IMAGE_NAMES = [];   // filenames/keys already in inventory
 let NEW_IMAGE_FILES = [];        // File objects selected in this session
-let NEW_IMAGE_NAMES = [];        // generated filenames for NEW_IMAGE_FILES
 let PREVIEW_IMAGE_NAME = null;  // user-chosen preview image (null = first image)
-const PHOTO_OUTPUT_EXT = 'png';
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
@@ -68,22 +66,6 @@ function safeSlug(str) {
     .toLowerCase();
 }
 
-function sanitizeBase(str) {
-  const base = (str || '').toString().trim();
-  const out = base
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9\-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .toLowerCase();
-  return out.slice(0, 40);
-}
-
-function normalizePhotoToken(str, fallback = '') {
-  const out = sanitizeBase(str || '');
-  return out || fallback;
-}
-
 // Conservative Title Case: only normalize ALL-CAPS strings.
 function toTitleCase(str) {
   const s = (str || '').toString().trim();
@@ -94,35 +76,6 @@ function toTitleCase(str) {
     return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
   }
   return s;
-}
-
-function getPhotoBaseId() {
-  const year = normalizePhotoToken(($('year')?.value || '').trim(), 'year');
-  const exteriorColor = normalizePhotoToken(($('exteriorColor')?.value || '').trim(), '');
-  const make = normalizePhotoToken(($('make')?.value || '').trim(), 'make');
-  const model = normalizePhotoToken(($('model')?.value || '').trim(), 'model');
-  const stock = normalizePhotoToken(($('stockNumber')?.value || '').trim(), '');
-  const vin = normalizePhotoToken(($('vin')?.value || '').trim().toUpperCase(), '');
-  if (!stock && vin) {
-    return `VEHICLE-${vin}`;
-  }
-  const trailingId = stock || vin || String(Date.now());
-
-  const parts = exteriorColor
-    ? [year, exteriorColor, make, model, trailingId]
-    : [year, make, model, trailingId];
-
-  return parts.filter(Boolean).join('-');
-}
-
-function regenerateNewPhotoNames() {
-  if (!NEW_IMAGE_FILES.length) return;
-  const base = getPhotoBaseId();
-  NEW_IMAGE_NAMES = NEW_IMAGE_FILES.map((f, i) => {
-    const num = String(i + 1).padStart(2, '0');
-    return `${base}-${num}.${PHOTO_OUTPUT_EXT}`;
-  });
-  renderImagePreview();
 }
 
 function uniqueKeepOrder(arr) {
@@ -139,55 +92,51 @@ function uniqueKeepOrder(arr) {
 
 function getEffectivePreviewName() {
   if (PREVIEW_IMAGE_NAME) return PREVIEW_IMAGE_NAME;
-  if (NEW_IMAGE_NAMES.length) return NEW_IMAGE_NAMES[0];
   if (EXISTING_IMAGE_NAMES.length) return EXISTING_IMAGE_NAMES[0];
   return null;
 }
 
-async function convertFileToPngBlob(file) {
-  if (file && file.type === 'image/png') return file;
-  if (typeof createImageBitmap === 'function') {
-    const bitmap = await createImageBitmap(file);
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas context unavailable');
-    ctx.drawImage(bitmap, 0, 0);
-    if (typeof bitmap.close === 'function') bitmap.close();
-    return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Could not convert image to PNG'));
-          return;
-        }
-        resolve(blob);
-      }, 'image/png');
-    });
+// ─── Blob upload ────────────────────────────────────────────────────────────
+// Uploads a photo to Netlify Blobs. Original filename is ignored; the server
+// creates a standardized key like STOCKNUMBER-01.jpg and returns blob:key.
+async function uploadPhotoToBlobs(file, stockNumber, photoIndex) {
+  const session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+  if (!session.username || !session.passwordHash) {
+    throw new Error('Not authenticated. Please log in again.');
   }
+  const base64 = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+  const res = await fetch('/.netlify/functions/photo-upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      auth: { user: session.username, passwordHash: session.passwordHash },
+      stockNumber: stockNumber,
+      photoIndex: photoIndex,
+      imageData: base64,
+      contentType: file.type || 'image/png',
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || 'Photo upload failed');
+  }
+  const data = await res.json();
+  return data.key; // e.g. "blob:STOCK-01.jpg"
+}
 
-  const dataUrl = await fileToDataUrl(file);
-  const img = await new Promise((resolve, reject) => {
-    const el = new Image();
-    el.onload = () => resolve(el);
-    el.onerror = () => reject(new Error('Could not decode image'));
-    el.src = dataUrl;
-  });
-  const canvas = document.createElement('canvas');
-  canvas.width = img.naturalWidth || img.width;
-  canvas.height = img.naturalHeight || img.height;
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas context unavailable');
-  ctx.drawImage(img, 0, 0);
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        reject(new Error('Could not convert image to PNG'));
-        return;
-      }
-      resolve(blob);
-    }, 'image/png');
-  });
+async function uploadPhotos(files, stockNumber, progressCb) {
+  const keys = [];
+  for (let i = 0; i < files.length; i++) {
+    if (progressCb) progressCb(i + 1, files.length);
+    const key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
+    keys.push(key);
+  }
+  return keys;
 }
 
 // ─── Dynamic year max ──────────────────────────────────────────────────────────
@@ -481,7 +430,6 @@ function setupVinDecoder() {
       }
 
       updateLivePreview();
-      regenerateNewPhotoNames();
 
     } catch (error) {
       console.error('VIN Decode Error:', error);
@@ -526,99 +474,17 @@ function setupImageHandlers() {
         return;
       }
       NEW_IMAGE_FILES = files;
-      regenerateNewPhotoNames();
+      renderImagePreview();
     });
   }
+}
 
-  // Recompute photo names if base fields change
-  ['stockNumber','year','make','model','vin','exteriorColor'].forEach(id => {
-    const el = $(id);
-    if (!el) return;
-    el.addEventListener('input', () => regenerateNewPhotoNames());
-    el.addEventListener('change', () => regenerateNewPhotoNames());
-  });
-
-  const dlBtn = $('downloadPhotosBtn');
-  if (dlBtn) {
-    dlBtn.addEventListener('click', async () => {
-      if (!NEW_IMAGE_FILES.length) {
-        alert('Select photos first.');
-        return;
-      }
-
-      const namedFiles = [];
-      for (let i = 0; i < NEW_IMAGE_FILES.length; i++) {
-        const file = NEW_IMAGE_FILES[i];
-        const name = NEW_IMAGE_NAMES[i] || `photo-${i+1}.${PHOTO_OUTPUT_EXT}`;
-        let blobToSave = file;
-        try {
-          blobToSave = await convertFileToPngBlob(file);
-        } catch (err) {
-          console.warn('PNG conversion failed; saving original file for index', i, err);
-        }
-        namedFiles.push({ name, blob: blobToSave });
-      }
-
-      // If supported, let user save directly into /assets/vehicles
-      if (typeof window.showDirectoryPicker === 'function') {
-        try {
-          const dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
-          for (const f of namedFiles) {
-            const fileHandle = await dirHandle.getFileHandle(f.name, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(f.blob);
-            await writable.close();
-          }
-          alert(`Saved ${namedFiles.length} photo file(s). Select your /assets/vehicles folder when prompted so VDP and inventory image paths match.`);
-          return;
-        } catch (err) {
-          if (err && err.name !== 'AbortError') {
-            console.warn('Direct folder save failed, falling back to browser downloads:', err);
-          } else {
-            return;
-          }
-        }
-      }
-
-      // Fallback: browser downloads
-      for (const f of namedFiles) {
-        const url = URL.createObjectURL(f.blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = f.name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      }
-
-      alert('Downloaded photo files. Upload them into /assets/vehicles/ on your site.');
-    });
-  }
-
-  const copyBtn = $('copyPhotoNamesBtn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', async () => {
-      const names = uniqueKeepOrder([...(EXISTING_IMAGE_NAMES || []), ...(NEW_IMAGE_NAMES || [])]);
-      if (!names.length) {
-        alert('No photo filenames yet.');
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(names.join('\n'));
-        alert('Copied photo filenames to clipboard.');
-      } catch (e) {
-        // Fallback
-        const ta = document.createElement('textarea');
-        ta.value = names.join('\n');
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        alert('Copied photo filenames to clipboard.');
-      }
-    });
-  }
+// Resolve an image key to a displayable URL for thumbnails
+function resolveImageSrc(name) {
+  if (!name) return '';
+  if (String(name).startsWith('http')) return name;
+  if (String(name).startsWith('blob:')) return 'photos/' + name.slice(5);
+  return 'assets/vehicles/' + name;
 }
 
 function renderImagePreview() {
@@ -638,9 +504,9 @@ function renderImagePreview() {
     const img = document.createElement('img');
     const isPreview = (name === effectivePreview);
     img.className = 'img-thumb' + (isPreview ? ' is-preview' : '');
-    img.alt = `Existing photo ${idx + 1}`;
+    img.alt = `Photo ${idx + 1}`;
     img.title = 'Click to set as preview image';
-    img.src = String(name || '').startsWith('http') ? name : `assets/vehicles/${name}`;
+    img.src = resolveImageSrc(name);
     img.onerror = () => {
       img.style.objectFit = 'contain';
       img.style.padding = '18px';
@@ -650,10 +516,6 @@ function renderImagePreview() {
       PREVIEW_IMAGE_NAME = name;
       renderImagePreview();
     });
-
-    const label = document.createElement('div');
-    label.className = 'img-label';
-    label.textContent = name;
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -675,29 +537,19 @@ function renderImagePreview() {
       badge.textContent = 'Preview';
       wrap.appendChild(badge);
     }
-    wrap.appendChild(label);
     preview.appendChild(wrap);
   });
 
-  // New images (preview from file)
+  // New images (preview from file, will be uploaded on save)
   allNew.forEach((file, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'img-wrap';
-    const imgName = NEW_IMAGE_NAMES[idx] || file.name;
-    const isPreview = (imgName === effectivePreview);
+    const isPreview = (idx === 0 && !effectivePreview && !allExisting.length);
 
     const img = document.createElement('img');
     img.className = 'img-thumb' + (isPreview ? ' is-preview' : '');
-    img.alt = `Selected photo ${idx + 1}`;
+    img.alt = `New photo ${idx + 1}`;
     img.title = 'Click to set as preview image';
-    img.addEventListener('click', () => {
-      PREVIEW_IMAGE_NAME = NEW_IMAGE_NAMES[idx] || file.name;
-      renderImagePreview();
-    });
-
-    const label = document.createElement('div');
-    label.className = 'img-label';
-    label.textContent = imgName;
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -705,11 +557,7 @@ function renderImagePreview() {
     btn.setAttribute('aria-label', 'Remove photo');
     btn.innerHTML = '&times;';
     btn.addEventListener('click', () => {
-      const removedName = NEW_IMAGE_NAMES[idx] || NEW_IMAGE_FILES[idx]?.name;
       NEW_IMAGE_FILES.splice(idx, 1);
-      NEW_IMAGE_NAMES.splice(idx, 1);
-      if (PREVIEW_IMAGE_NAME === removedName) PREVIEW_IMAGE_NAME = null;
-      // Clear input if empty
       if (!NEW_IMAGE_FILES.length) {
         const photos = $('photos');
         if (photos) photos.value = '';
@@ -725,19 +573,12 @@ function renderImagePreview() {
       badge.textContent = 'Preview';
       wrap.appendChild(badge);
     }
-    wrap.appendChild(label);
     preview.appendChild(wrap);
 
     const reader = new FileReader();
     reader.onload = (ev) => { img.src = ev.target.result; };
     reader.readAsDataURL(file);
   });
-
-  const list = $('photoNamesList');
-  const hint = $('photoNamesHint');
-  const allNames = uniqueKeepOrder([...(EXISTING_IMAGE_NAMES || []), ...(NEW_IMAGE_NAMES || [])]);
-  if (hint) hint.textContent = allNames.length ? `${allNames.length} photo filename${allNames.length === 1 ? '' : 's'}` : '';
-  if (list) list.textContent = allNames.length ? allNames.join('  •  ') : '';
 }
 
 // ─── Live preview ──────────────────────────────────────────────────────────────
@@ -808,7 +649,7 @@ function setupFormHandlers() {
   const form = $('vehicleForm');
   if (!form) return;
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const g = (id) => { const el = $(id); return el ? el.value.trim() : ''; };
@@ -819,9 +660,11 @@ function setupFormHandlers() {
       return;
     }
 
+    const stockNumber = g('stockNumber');
+
     const vehicle = {
       vin:           vin,
-      stockNumber:   g('stockNumber'),
+      stockNumber:   stockNumber,
       year:          g('year') ? parseInt(g('year'), 10) : null,
       make:          toTitleCase(g('make')),
       model:         g('model'),
@@ -854,9 +697,28 @@ function setupFormHandlers() {
       vehicle.description = parts.join(', ');
     }
 
-    // Images: build combined list, then move selected preview to front
-    let combined = NEW_IMAGE_NAMES.length
-      ? [...NEW_IMAGE_NAMES, ...EXISTING_IMAGE_NAMES]
+    // Upload new photos to Netlify Blobs
+    let newImageKeys = [];
+    if (NEW_IMAGE_FILES.length) {
+      const uploadId = stockNumber || vin || String(Date.now());
+      try {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading photos…'; }
+        newImageKeys = await uploadPhotos(NEW_IMAGE_FILES, uploadId, (current, total) => {
+          if (submitBtn) submitBtn.textContent = `Uploading photo ${current}/${total}…`;
+        });
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = EDIT_INDEX !== null ? 'Update Vehicle' : 'Add Vehicle'; }
+      } catch (err) {
+        alert('Photo upload failed: ' + err.message);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = EDIT_INDEX !== null ? 'Update Vehicle' : 'Add Vehicle'; }
+        return;
+      }
+    }
+
+    // Images: combine new blob keys with existing, move preview to front
+    let combined = newImageKeys.length
+      ? [...newImageKeys, ...EXISTING_IMAGE_NAMES]
       : [...EXISTING_IMAGE_NAMES];
     combined = uniqueKeepOrder(combined);
     if (PREVIEW_IMAGE_NAME && combined.includes(PREVIEW_IMAGE_NAME)) {
@@ -886,8 +748,9 @@ function setupFormHandlers() {
     downloadInventoryJSON(inv);
 
     const action = isEdit ? 'updated' : 'added';
-    alert(`✓ Vehicle ${action}!\n\n${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
-      `\n\ninventory.json has been downloaded.\n\nNEXT STEPS:\n1. Upload inventory.json to your server\n2. Upload any new photos into /assets/vehicles/\n3. Run: python3 generate_vdp_pages.py (if you need new/updated VDP pages)`);
+    const photoMsg = newImageKeys.length ? `\n${newImageKeys.length} photo(s) uploaded to server.` : '';
+    alert(`Vehicle ${action}!\n\n${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
+      photoMsg + `\n\ninventory.json has been downloaded.\nUpload it to your website root to publish changes.`);
 
     cancelEdit();
     loadInventoryTable();
@@ -907,7 +770,6 @@ function startEdit(idx) {
   EDIT_ORIGINAL_DATE = v.dateAdded || null;
   EXISTING_IMAGE_NAMES = Array.isArray(v.images) ? [...v.images] : [];
   NEW_IMAGE_FILES = [];
-  NEW_IMAGE_NAMES = [];
   PREVIEW_IMAGE_NAME = (Array.isArray(v.images) && v.images.length) ? v.images[0] : null;
 
   // Fill form
@@ -963,7 +825,6 @@ function cancelEdit() {
   EDIT_ORIGINAL_DATE = null;
   EXISTING_IMAGE_NAMES = [];
   NEW_IMAGE_FILES = [];
-  NEW_IMAGE_NAMES = [];
   PREVIEW_IMAGE_NAME = null;
 
   const form = $('vehicleForm');
