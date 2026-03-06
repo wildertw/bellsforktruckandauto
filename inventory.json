@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T04:45:24.750Z",
+  "lastUpdated": "2026-03-06T05:47:32.151Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -254,21 +254,21 @@
       "vin": "1GCHK23D041175472",
       "stockNumber": "02929BF",
       "year": 2004,
-      "make": "Chevrolet",
+      "make": "CHEVROLET",
       "model": "Silverado",
       "trim": "",
-      "engine": "2.2L 4-Cyl",
-      "transmission": "",
+      "engine": "2.2L V4",
+      "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Gasoline",
       "mpgCity": 18,
       "mpgHighway": 24,
       "mileage": 173000,
       "price": 15000,
-      "type": "truck",
+      "type": "Truck",
       "exteriorColor": "White",
       "interiorColor": "Gray",
-      "description": "This 2004 Chevrolet Silverado is a reliable and versatile truck, perfect for both work and play. With its robust 2.2L 4-cylinder engine and 4WD capability, it can tackle a variety of terrains while offering practical performance. The striking white exterior and comfortable gray interior ensure you’re driving in style and comfort.",
+      "description": "This 2004 CHEVROLET Silverado offers reliable 4WD performance and a fuel-efficient 2.2L V4 engine, making it an ideal choice for both work and everyday driving. With only 173,000 miles, this Silverado is ready to tackle any road ahead with power and efficiency.",
       "features": [
         "4WD",
         "V4",
@@ -277,7 +277,18 @@
       "status": "available",
       "badge": "",
       "featured": false,
-      "images": [],
+      "images": [
+        "blob:02929BF-01.jpg",
+        "blob:02929BF-02.jpg",
+        "blob:02929BF-03.jpg",
+        "blob:02929BF-04.jpg",
+        "blob:02929BF-05.jpg",
+        "blob:02929BF-06.jpg",
+        "blob:02929BF-07.jpg",
+        "blob:02929BF-08.jpg",
+        "blob:02929BF-09.jpg",
+        "blob:02929BF-10.jpg"
+      ],
       "dateAdded": "2026-03-06"
     },
     {
