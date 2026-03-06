@@ -33,9 +33,13 @@ const MIME_TYPES = {
 };
 
 exports.handler = async (event) => {
-  // Extract key from path: /.netlify/functions/photo-serve/02881BF-01.png → 02881BF-01.png
-  const pathParts = event.path.replace(/^\/\.netlify\/functions\/photo-serve\/?/, '');
-  const key = decodeURIComponent(pathParts).replace(/^\/+/, '');
+  // Extract key from path — handles both direct and redirect-proxied calls:
+  //   /.netlify/functions/photo-serve/02881BF-01.png → 02881BF-01.png
+  //   /photos/02881BF-01.png → 02881BF-01.png  (via netlify.toml rewrite)
+  const raw = event.path
+    .replace(/^\/\.netlify\/functions\/photo-serve\/?/, '')
+    .replace(/^\/photos\/?/, '');
+  const key = decodeURIComponent(raw).replace(/^\/+/, '');
 
   if (!key) {
     return { statusCode: 400, body: 'Missing photo key' };
