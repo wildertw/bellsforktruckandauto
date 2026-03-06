@@ -848,12 +848,13 @@
   <!-- Mobile Quick Actions (Call/Text/Directions) -->
   <nav class="mobile-action-bar d-md-none" aria-label="Quick actions">
     <a class="mobile-action" href="tel:+12524960005">Call</a>
-    <a class="mobile-action" href="sms:+12524960005">Text</a>
+    <a class="mobile-action sms-limited" href="sms:+12529170551">Text</a>
     <a class="mobile-action"
        href="https://www.google.com/maps?q=3840+Charles+Blvd+Greenville+NC+27858"
        target="_blank" rel="noopener">Directions</a>
   </nav>
-  <script src="assets/js/tracker.js" defer></script>
+  <script src="assets/js/sms-limiter.js" defer></script>
+<script src="assets/js/tracker.js" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
