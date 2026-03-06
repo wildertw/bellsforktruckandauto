@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-06T04:14:42.218Z",
+  "lastUpdated": "2026-03-06T04:45:24.750Z",
   "vehicles": [
     {
       "vin": "3GTU2NEC3HG114142",
@@ -25,11 +25,11 @@
       "badge": "",
       "featured": false,
       "images": [
-        "VEHICLE-3GTU2NEC3HG114142-01.jpg",
-        "VEHICLE-3GTU2NEC3HG114142-02.jpg",
-        "VEHICLE-3GTU2NEC3HG114142-03.jpg",
-        "VEHICLE-3GTU2NEC3HG114142-04.jpg",
-        "VEHICLE-3GTU2NEC3HG114142-05.jpg"
+        "02881bf-01.jpg",
+        "02881bf-02.jpg",
+        "02881bf-03.jpg",
+        "02881bf-04.jpg",
+        "02881bf-05.jpg"
       ],
       "dateAdded": "2026-03-06"
     },
@@ -57,7 +57,7 @@
       "badge": "",
       "featured": false,
       "images": [
-        "VEHICLE-1GNSKBKC2LR309210_1.jpg",
+        "VEHICLE-1GNSKBKC2LR309210-01.jpg",
         "VEHICLE-1GNSKBKC2LR309210-02.jpg",
         "VEHICLE-1GNSKBKC2LR309210-03.jpg",
         "VEHICLE-1GNSKBKC2LR309210-04.jpg",
@@ -90,7 +90,11 @@
       "badge": "Great Value",
       "featured": false,
       "images": [
-        "burgundychevroletcorvet201697k.jpg"
+        "VEHICLE-1G1YK2D73G5118890-01.jpg",
+        "VEHICLE-1G1YK2D73G5118890-02.jpg",
+        "VEHICLE-1G1YK2D73G5118890-03.jpg",
+        "VEHICLE-1G1YK2D73G5118890-04.jpg",
+        "VEHICLE-1G1YK2D73G5118890-05.jpg"
       ],
       "dateAdded": "2026-03-06"
     },
@@ -179,6 +183,11 @@
       "badge": "",
       "featured": false,
       "images": [
+        "VEHICLE-1GCWK1EK7HF203958-01.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-02.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-03.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-04.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-05.jpg"
       ],
       "dateAdded": "2026-03-06"
     },
@@ -187,23 +196,34 @@
       "stockNumber": "02927BF",
       "year": 2019,
       "make": "RAM",
-      "model": "1500 CLASSIC",
+      "model": "1500",
       "trim": "SLT",
-      "engine": "",
-      "transmission": "",
-      "drivetrain": "4x2",
-      "fuelType": "",
-      "mileage": 0,
-      "price": 0,
+      "engine": "5.7L",
+      "transmission": "Automatic",
+      "drivetrain": "RWD",
+      "fuelType": "Gasoline",
+      "mileage": 135000,
+      "price": 19995,
       "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
+      "exteriorColor": "Bright White Clearcoat",
+      "interiorColor": "Grey",
+      "description": "This 2019 RAM 1500 SLT boasts a powerful 5.7L engine and has been meticulously maintained, with 135,000 highway miles. With its rugged yet refined design, this truck is ready to tackle any job you throw its way.",
       "features": [],
       "status": "available",
       "badge": "",
       "featured": false,
-      "images": [],
+      "images": [
+        "blob:02927BF-01.jpg",
+        "blob:02927BF-02.jpg",
+        "blob:02927BF-03.jpg",
+        "blob:02927BF-04.jpg",
+        "blob:02927BF-05.jpg",
+        "blob:02927BF-06.jpg",
+        "blob:02927BF-07.jpg",
+        "blob:02927BF-08.jpg",
+        "blob:02927BF-09.jpg",
+        "blob:02927BF-10.jpg"
+      ],
       "dateAdded": "2026-03-06"
     },
     {
@@ -313,11 +333,11 @@
       "badge": "",
       "featured": false,
       "images": [
-        "VEHICLE-1C4BJWDG2GL268370_1.jpg",
-        "VEHICLE-1C4BJWDG2GL268370_2.jpg",
-        "VEHICLE-1C4BJWDG2GL268370_3.jpg",
-        "VEHICLE-1C4BJWDG2GL268370_4.jpg",
-        "VEHICLE-1C4BJWDG2GL268370_5.jpg"
+        "VEHICLE-1C4BJWDG2GL268370-01.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-02.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-03.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-04.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-05.jpg"
       ],
       "dateAdded": "2026-03-06"
     },
@@ -358,13 +378,13 @@
       "badge": "",
       "featured": false,
       "images": [
-        "VEHICLE-3TM4Z5CN1MM156792_1.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_2.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_3.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_4.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_5.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_6.jpg",
-        "VEHICLE-3TM4Z5CN1MM156792_7.jpg"
+        "2021-super-white-toyota-tacoma-02932bf-01.png",
+        "2021-super-white-toyota-tacoma-02932bf-02.png",
+        "2021-super-white-toyota-tacoma-02932bf-03.png",
+        "2021-super-white-toyota-tacoma-02932bf-04.png",
+        "2021-super-white-toyota-tacoma-02932bf-05.png",
+        "2021-super-white-toyota-tacoma-02932bf-06.png",
+        "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
       "dateAdded": "2026-03-06"
     },
@@ -488,6 +508,16 @@
       "badge": "",
       "featured": false,
       "images": [
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-02.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-03.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-04.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-05.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-06.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-07.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-08.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-09.png",
+        "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-10.png"
       ],
       "dateAdded": "2026-03-06"
     },
