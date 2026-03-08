@@ -127,19 +127,17 @@
     }
 
 
-    /* ===== Hero background carousel (3 rotating images) ===== */
+    /* ===== Hero background (static image) ===== */
     .hero { position: relative; overflow: hidden; padding-bottom: 60px; }
-    .hero-carousel { position: absolute; inset: 0; z-index: 0; }
-    .hero-carousel .carousel-inner,
-    .hero-carousel .carousel-item { height: 100%; }
-    .hero-carousel img { width: 100%; height: 100%; object-fit: cover; display:block; }
+    .hero-bg { position: absolute; inset: 0; z-index: 0; }
+    .hero-bg img { width: 100%; height: 100%; object-fit: cover; display:block; }
     .hero-shade {
       position:absolute; inset:0; z-index:1;
-      background: linear-gradient(90deg, rgba(10,10,20,.95) 0%, rgba(10,10,20,.85) 50%, rgba(10,10,20,.70) 100%);
+      background: linear-gradient(90deg, rgba(10,10,20,.92) 0%, rgba(10,10,20,.78) 50%, rgba(10,10,20,.55) 100%);
     }
     .hero > .container { position: relative; z-index: 2; }
     @media (max-width: 768px) {
-      .hero-shade { background: rgba(10,10,20,.90); }
+      .hero-shade { background: rgba(10,10,20,.88); }
     }
 
 /* ===== Home "Find a Vehicle" + Featured Vehicles ===== */
@@ -948,26 +946,19 @@
     <!-- HERO -->
     <section id="top" class="hero">
 
-      <!-- HERO BACKGROUND CAROUSEL (3 rotating images from assets/hero) -->
-      <div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="4500" aria-label="Homepage hero photos">
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img data-hero="1" src="assets/hero/2016whitesuperdutyf250175k.jpg" alt="Bells Fork featured vehicle - 2016 Ford Super Duty F-250">
-          </div>
-          <div class="carousel-item">
-            <img data-hero="2" src="assets/hero/2020BlackChevyTahoe26955.jpg" alt="Bells Fork featured vehicle - 2020 Chevrolet Tahoe">
-          </div>
-          <div class="carousel-item">
-            <img data-hero="3" src="assets/hero/burgundychevroletcorvet201697k.jpg" alt="Bells Fork featured vehicle - Chevrolet Corvette">
-          </div>
-        </div>
+      <!-- HERO BACKGROUND (static storefront image) -->
+      <div class="hero-bg" aria-hidden="true">
+        <picture>
+          <source srcset="assets/hero/storefront-hero-opt.webp" type="image/webp">
+          <img src="assets/hero/storefront-hero-opt.jpg" alt="Bells Fork Auto & Truck storefront with trucks on the lot in Greenville, NC" width="1920" height="1206" fetchpriority="high">
+        </picture>
       </div>
       <div class="hero-shade" aria-hidden="true"></div>
 
       <div class="container h-100 d-flex align-items-center">
         <div class="row w-100 g-5 align-items-center">
           <div class="col-lg-7">
-            <div class="badge bg-danger mb-3 px-3 py-2 fw-normal">Used Cars, Trucks & Diesel Vehicles</div>
+            <div class="badge bg-danger mb-3 px-3 py-2 fw-normal">Greenville, NC's Trusted Dealer</div>
             <h1 class="display-3 hero-title mb-4">
               Used Cars, Trucks &amp; Diesel Vehicles <br>
               <span class="hero-highlight">in Greenville, NC</span>
@@ -1392,55 +1383,6 @@
     })()
   </script>
 
-  <script>
-    // Hero carousel: load images from assets/hero/manifest.json
-    (async () => {
-      const heroRoot = 'assets/hero/';
-      const imgs = Array.from(document.querySelectorAll('#heroCarousel img[data-hero]'));
-      if (!imgs.length) return;
-
-      let list = null;
-      try {
-        const res = await fetch(heroRoot + 'manifest.json', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          // Support both plain array and { images: [...] } format
-          if (Array.isArray(data) && data.length) list = data;
-          else if (data && Array.isArray(data.images) && data.images.length) list = data.images;
-        }
-      } catch (_) {}
-
-      if (!list || !list.length) return; // use HTML src attributes as-is
-
-      const ok = [];
-      const tryLoad = (url) => new Promise((resolve) => {
-        const im = new Image();
-        im.onload = () => resolve(true);
-        im.onerror = () => resolve(false);
-        im.src = url;
-      });
-
-      for (const f of list) {
-        if (ok.length >= 3) break;
-        const url = f.startsWith('http') ? f : heroRoot + f;
-        if (await tryLoad(url)) ok.push(url);
-      }
-
-      // Apply found images, remove extra slides if needed
-      imgs.forEach((img, i) => {
-        const item = img.closest('.carousel-item');
-        if (ok[i]) img.src = ok[i];
-        else if (item) item.remove();
-      });
-
-      // Ensure first item is active after removals
-      const first = document.querySelector('#heroCarousel .carousel-item');
-      if (first) {
-        document.querySelectorAll('#heroCarousel .carousel-item').forEach(el => el.classList.remove('active'));
-        first.classList.add('active');
-      }
-    })();
-  </script>
   <script src="assets/js/home-blog.js" defer></script>
   <script src="assets/js/tracker.js" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
