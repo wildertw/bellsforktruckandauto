@@ -2662,6 +2662,206 @@
     }
   }
 
+  // ─── Dark / Light Theme Toggle ─────────────────────────────────────────────
+  var currentThemeMode = localStorage.getItem('bf_theme') || 'dark';
+  function applyTheme(mode) {
+    currentThemeMode = mode;
+    if (mode === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      chartTextColor = 'rgba(15,23,42,0.6)';
+      chartGridColor = 'rgba(15,23,42,0.08)';
+    } else {
+      document.body.removeAttribute('data-theme');
+      chartTextColor = 'rgba(230,237,247,0.7)';
+      chartGridColor = 'rgba(230,237,247,0.08)';
+    }
+    var toggleBtn = $('themeToggleBtn');
+    if (toggleBtn) toggleBtn.innerHTML = mode === 'light' ? '&#9788;' : '&#9790;';
+    localStorage.setItem('bf_theme', mode);
+  }
+  applyTheme(currentThemeMode);
+
+  function toggleTheme() {
+    applyTheme(currentThemeMode === 'dark' ? 'light' : 'dark');
+    // Re-render sales charts with updated colors
+    if (salesOverTimeInstance) renderSalesOverTimeChart(salesData);
+    if (salesByTypeInstance) renderSalesByTypeChart(salesPieData);
+  }
+
+  // ─── Sales Tab ────────────────────────────────────────────────────────────
+  // Sample data (mirrors JSX file — replace with real data when available)
+  var salesData = [
+    { name: 'Jan', sales: 4000 },
+    { name: 'Feb', sales: 3000 },
+    { name: 'Mar', sales: 2000 },
+    { name: 'Apr', sales: 2780 },
+    { name: 'May', sales: 1890 },
+    { name: 'Jun', sales: 2390 },
+  ];
+
+  var salesPieData = [
+    { name: 'SUV', value: 400 },
+    { name: 'Sedan', value: 300 },
+    { name: 'Truck', value: 200 },
+  ];
+
+  var salesTableData = [
+    { model: 'Model S', type: 'Sedan', price: 80000, buyer: 'John Smith', date: '6/15/23' },
+    { model: 'Model X', type: 'SUV', price: 100000, buyer: 'Jane Doe', date: '6/10/23' },
+    { model: 'F-150', type: 'Truck', price: 45000, buyer: 'Bob Jones', date: '6/12/23' },
+  ];
+
+  var salesOverTimeInstance = null;
+  var salesByTypeInstance = null;
+
+  function renderSalesOverTimeChart(data) {
+    var canvas = $('salesOverTimeChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (salesOverTimeInstance) { salesOverTimeInstance.destroy(); salesOverTimeInstance = null; }
+
+    var labels = data.map(function (d) { return d.name; });
+    var values = data.map(function (d) { return d.sales; });
+
+    salesOverTimeInstance = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Sales (Area)',
+            type: 'line',
+            data: values,
+            backgroundColor: 'rgba(103, 103, 247, 0.15)',
+            borderColor: '#055C9D',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 0,
+            order: 2,
+          },
+          {
+            label: 'Sales (Bar)',
+            data: values,
+            backgroundColor: 'rgba(103, 103, 247, 0.35)',
+            borderRadius: 4,
+            barPercentage: 0.5,
+            order: 1,
+          },
+          {
+            label: 'Sales (Trend)',
+            type: 'line',
+            data: values,
+            borderColor: '#FF8600',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#FF8600',
+            fill: false,
+            tension: 0.3,
+            order: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+          tooltip: { mode: 'index', intersect: false },
+        },
+        scales: {
+          x: { ticks: { color: chartTextColor }, grid: { color: chartGridColor } },
+          y: { ticks: { color: chartTextColor }, grid: { color: chartGridColor }, beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  function renderSalesByTypeChart(data) {
+    var canvas = $('salesByTypeChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (salesByTypeInstance) { salesByTypeInstance.destroy(); salesByTypeInstance = null; }
+
+    var pieColors = ['#6767f7', '#37bc7b', '#f59e0b', '#f2555e', '#1d7cf2'];
+
+    salesByTypeInstance = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: data.map(function (d) { return d.name; }),
+        datasets: [{
+          data: data.map(function (d) { return d.value; }),
+          backgroundColor: pieColors.slice(0, data.length),
+          borderWidth: 2,
+          borderColor: 'transparent',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: chartTextColor, font: { family: "'Space Grotesk'" }, padding: 16 },
+          },
+        },
+      },
+    });
+  }
+
+  function renderSalesTable(data) {
+    var tbody = $('salesTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    data.forEach(function (sale) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + sale.model + '</td>' +
+        '<td>' + sale.type + '</td>' +
+        '<td>$' + sale.price.toLocaleString() + '</td>' +
+        '<td>' + sale.buyer + '</td>' +
+        '<td>' + sale.date + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  function updateSalesKpis(tableData) {
+    var total = tableData.reduce(function (sum, s) { return sum + s.price; }, 0);
+    var avg = tableData.length ? Math.round(total / tableData.length) : 0;
+    var el;
+    el = $('salesKpiTotal');
+    if (el) el.textContent = '$' + total.toLocaleString();
+    el = $('salesKpiAvg');
+    if (el) el.textContent = '$' + avg.toLocaleString();
+    el = $('salesKpiUnits');
+    if (el) el.textContent = tableData.length;
+  }
+
+  function filterSalesData() {
+    var typeFilter = ($('salesFilterType') || {}).value || 'All';
+    var priceFilter = ($('salesFilterPrice') || {}).value || 'All';
+
+    var filtered = salesTableData.filter(function (sale) {
+      if (typeFilter !== 'All' && sale.type !== typeFilter) return false;
+      if (priceFilter !== 'All') {
+        if (priceFilter === '0-25000' && sale.price > 25000) return false;
+        if (priceFilter === '25000-50000' && (sale.price < 25000 || sale.price > 50000)) return false;
+        if (priceFilter === '50000+' && sale.price < 50000) return false;
+      }
+      return true;
+    });
+
+    renderSalesTable(filtered);
+    updateSalesKpis(filtered);
+  }
+
+  var salesTabInitialized = false;
+  function initSalesTab() {
+    if (salesTabInitialized) return;
+    salesTabInitialized = true;
+    renderSalesOverTimeChart(salesData);
+    renderSalesByTypeChart(salesPieData);
+    renderSalesTable(salesTableData);
+    updateSalesKpis(salesTableData);
+  }
+
   // ─── Init ───────────────────────────────────────────────────────────────────
   function init() {
     // Auth
@@ -2773,6 +2973,23 @@
     // Modals
     previewModal.addEventListener('click', closeModals);
     editModal.addEventListener('click', closeModals);
+
+    // Theme toggle
+    var themeBtn = $('themeToggleBtn');
+    if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
+    // Sales tab filters
+    var salesTypeFilter = $('salesFilterType');
+    var salesPriceFilter = $('salesFilterPrice');
+    if (salesTypeFilter) salesTypeFilter.addEventListener('change', filterSalesData);
+    if (salesPriceFilter) salesPriceFilter.addEventListener('change', filterSalesData);
+
+    // Lazy-init sales charts when Sales tab is clicked
+    document.querySelectorAll('.tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        if (tab.dataset.tab === 'sales') initSalesTab();
+      });
+    });
 
     // Initial render
     renderInventoryTable();
