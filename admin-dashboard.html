@@ -45,6 +45,7 @@
           <span aria-hidden="true">Search</span>
           <input type="search" placeholder="Search models, SKUs, notes">
         </label>
+        <button id="themeToggleBtn" class="icon-btn" type="button" aria-label="Toggle dark/light mode" title="Toggle theme">&#9790;</button>
         <button class="icon-btn" type="button" aria-label="Notifications">N <span class="dot"></span></button>
         <div class="avatar">BF</div>
       </div>
@@ -58,6 +59,7 @@
           <button class="tab" type="button" data-tab="add">Add Vehicle</button>
           <button class="tab" type="button" data-tab="publish">Publish</button>
           <button class="tab" type="button" data-tab="blog">Blog CMS</button>
+          <button class="tab" type="button" data-tab="sales">Sales</button>
         </nav>
 
         <div class="sidebar-group">
@@ -776,6 +778,96 @@
                 <tbody id="commentTableBody">
                   <tr><td colspan="6" class="muted">Sign in to load comments.</td></tr>
                 </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══ SALES ═══ -->
+        <section class="tab-panel" data-panel="sales">
+          <div class="page-header">
+            <div>
+              <p class="eyebrow">Sales</p>
+              <h1>Sales Dashboard</h1>
+              <p class="muted">Track sales performance, revenue, and vehicle type breakdown.</p>
+            </div>
+          </div>
+
+          <!-- Sales Filters -->
+          <div class="sales-filters card">
+            <div class="sales-filter-group">
+              <label class="sales-filter-label">Type
+                <select id="salesFilterType" class="sales-filter-select">
+                  <option value="All">All</option>
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Truck">Truck</option>
+                </select>
+              </label>
+              <label class="sales-filter-label">Price
+                <select id="salesFilterPrice" class="sales-filter-select">
+                  <option value="All">All</option>
+                  <option value="0-25000">$0 - $25k</option>
+                  <option value="25000-50000">$25k - $50k</option>
+                  <option value="50000+">$50k+</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Sales KPI Strip -->
+          <section class="card kpi-strip" aria-label="Sales metrics">
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128176;</div>
+              <div class="kpi-label">Total Sales</div>
+              <div class="kpi-value" id="salesKpiTotal">$850,000</div>
+              <div class="kpi-meta"><span class="delta positive">+10% from last month</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128181;</div>
+              <div class="kpi-label">Avg Price</div>
+              <div class="kpi-value" id="salesKpiAvg">$42,000</div>
+              <div class="kpi-meta"><span class="delta negative">-5% from last month</span></div>
+            </article>
+            <article class="kpi-cell">
+              <div class="kpi-icon">&#128663;</div>
+              <div class="kpi-label"># Units Sold</div>
+              <div class="kpi-value" id="salesKpiUnits">200</div>
+              <div class="kpi-meta"><span class="delta positive">+20% from last month</span></div>
+            </article>
+          </section>
+
+          <!-- Sales Charts -->
+          <div class="sales-charts-grid">
+            <div class="card">
+              <h2 class="chart-title">Sales Over Time</h2>
+              <div class="chart-wrap">
+                <canvas id="salesOverTimeChart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="chart-title">Sales by Type</h2>
+              <div class="chart-wrap">
+                <canvas id="salesByTypeChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Sales Table -->
+          <div class="card">
+            <h2 class="chart-title">Recent Sales</h2>
+            <div class="table-wrap">
+              <table class="data-table" id="salesTable">
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Buyer</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="salesTableBody"></tbody>
               </table>
             </div>
           </div>

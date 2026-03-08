@@ -1295,3 +1295,131 @@ button:hover {
   .benchmark-row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .chart-container-sm { height: 180px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME (Dark/Light Toggle)
+   ═══════════════════════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+  --app-bg: #e8ecf1;
+  --surface0: #ffffff;
+  --surface1: #f3f5f8;
+  --surface2: #e2e6ec;
+  --text-primary: #1a1d23;
+  --text-secondary: rgba(26, 29, 35, 0.7);
+  --text-muted: rgba(26, 29, 35, 0.48);
+  --divider: rgba(26, 29, 35, 0.12);
+  --control-bg: rgba(226, 230, 236, 0.75);
+  --control-hover: rgba(226, 230, 236, 0.95);
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 10px 28px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 14px 34px rgba(0, 0, 0, 0.1);
+  --inner-stroke: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .dashboard-bg {
+  background-image:
+    linear-gradient(to right, rgba(100, 116, 139, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, #dbe4ef 0%, #c8d6e5 30%, #e8ecf1 70%, #f0f3f7 100%);
+}
+[data-theme="light"] .top-nav {
+  background: rgba(255, 255, 255, 0.95);
+}
+[data-theme="light"] .sidebar {
+  border-right-color: var(--divider);
+}
+[data-theme="light"] .tab:hover {
+  background: rgba(103, 103, 247, 0.08);
+}
+[data-theme="light"] .data-table th {
+  background: var(--surface1);
+  color: var(--text-primary);
+}
+[data-theme="light"] .data-table td {
+  border-color: var(--divider);
+}
+
+#themeToggleBtn {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SALES TAB
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Sales Filters */
+.sales-filters {
+  margin-bottom: var(--space-md);
+}
+.sales-filter-group {
+  display: flex;
+  gap: var(--space-lg);
+  flex-wrap: wrap;
+}
+.sales-filter-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.sales-filter-select {
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--divider);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  min-width: 160px;
+  cursor: pointer;
+}
+.sales-filter-select:hover {
+  background: var(--control-hover);
+}
+
+/* Sales Charts Grid */
+.sales-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.chart-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 var(--space-md) 0;
+  color: var(--text-primary);
+}
+.chart-wrap {
+  position: relative;
+  height: 300px;
+}
+
+/* Sales Table */
+#salesTable {
+  width: 100%;
+}
+#salesTable th,
+#salesTable td {
+  text-align: left;
+}
+
+/* Responsive: Sales */
+@media (max-width: 1023px) {
+  .sales-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 767px) {
+  .sales-filter-group {
+    flex-direction: column;
+  }
+  .sales-filter-select {
+    min-width: 100%;
+  }
+  .chart-wrap {
+    height: 220px;
+  }
+}
