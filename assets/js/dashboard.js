@@ -11,6 +11,7 @@
   const STATS_API = '/.netlify/functions/dashboard-stats';
   const VISION_API = '/.netlify/functions/vehicle-vision';
   const SETTINGS_API = '/.netlify/functions/admin-settings';
+  const SALES_API = '/.netlify/functions/sales-data';
 
   let blogToken = '';
   let blogUser = '';
@@ -192,8 +193,8 @@
       throw new Error('Not authenticated. Please log in again.');
     }
 
-    // Build publish-ready inventory (same format as exportInventoryJSON)
-    var vehicles = inventory.map(function (item) {
+    // Build publish-ready inventory — exclude sold vehicles from live site
+    var vehicles = inventory.filter(function (v) { return v.status !== 'sold'; }).map(function (item) {
       return {
         vin: item.vin, stockNumber: item.stockNumber || item.sku,
         year: item.year, make: item.make, model: item.model, trim: item.trim,
@@ -1001,6 +1002,10 @@
       '<td>' + formatMoney(item.price) + '</td>' +
       '<td class="table-actions">' +
         '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
+        '<button class="ghost-btn sold-btn" data-action="mark-sold" data-sku="' + item.sku + '"' +
+          (item.status === 'sold' ? ' title="Edit sale details"' : '') + '>' +
+          (item.status === 'sold' ? 'Edit Sale' : 'Mark Sold') +
+        '</button>' +
         '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>' +
       '</td></tr>';
     }).join('');
@@ -1034,6 +1039,10 @@
         showToast('Error publishing: ' + err.message, 'error');
         setTimeout(hideToast, 8000);
       });
+      return;
+    }
+    if (action === 'mark-sold') {
+      openSoldModal(item);
       return;
     }
     if (action === 'edit') {
@@ -2655,6 +2664,247 @@
     showFeedback($('settingsGoogleStatus'), 'Google Reviews settings saved. Set GOOGLE_PLACES_API_KEY and GOOGLE_PLACE_ID as Netlify environment variables for the reviews to load.');
   }
 
+  // ─── Lead Types ────────────────────────────────────────────────────────────
+  var LEAD_TYPES = [
+    'Website', 'Call from Website', 'Email from Website', 'Text from Website',
+    'Form from Website', 'Phone Inquiry', 'Personal', 'Walk-In', 'Referral',
+    'Repeat Customer', 'Facebook', 'Instagram', 'Google Business Profile',
+    'Marketplace / Classifieds', 'Third-Party Listing Site', 'Dealer Referral',
+    'Employee Referral', 'Other'
+  ];
+
+  // ─── Sold Workflow ────────────────────────────────────────────────────────
+  var soldModalVehicle = null;
+
+  function openSoldModal(item) {
+    soldModalVehicle = item;
+    var modal = $('soldModal');
+    var summary = $('soldVehicleSummary');
+    var title = $('soldModalTitle');
+
+    // Summary line
+    var ymm = [item.year, item.make, item.model, item.trim].filter(Boolean).join(' ');
+    summary.textContent = ymm + (item.stockNumber ? ' | Stock #' + item.stockNumber : '') + ' | Asking: ' + formatMoney(item.price);
+
+    // Title
+    title.textContent = item.status === 'sold' ? 'Edit Sale Details' : 'Mark Vehicle as Sold';
+    $('soldSubmitBtn').textContent = item.status === 'sold' ? 'Update Sale' : 'Complete Sale';
+
+    // Populate lead type dropdown
+    var leadSelect = $('soldLeadType');
+    leadSelect.innerHTML = '<option value="">Select lead source...</option>';
+    LEAD_TYPES.forEach(function (lt) {
+      var opt = document.createElement('option');
+      opt.value = lt;
+      opt.textContent = lt;
+      leadSelect.appendChild(opt);
+    });
+
+    // Pre-fill values
+    $('soldDate').value = item.soldDate || new Date().toISOString().split('T')[0];
+    $('soldSalePrice').value = item.salePrice || item.price || '';
+    leadSelect.value = item.leadType || '';
+    $('soldLeadSourceDetail').value = item.leadSourceDetail || '';
+    $('soldSalesperson').value = item.salesperson || '';
+    $('soldBuyerName').value = item.buyerName || '';
+    $('soldNotes').value = item.soldNotes || '';
+
+    // Toggle "Other" detail
+    toggleLeadDetail();
+
+    hideFeedback($('soldFeedback'));
+    $('soldSubmitBtn').disabled = false;
+    $('soldSubmitBtn').textContent = item.status === 'sold' ? 'Update Sale' : 'Complete Sale';
+    modal.classList.add('active');
+  }
+
+  function toggleLeadDetail() {
+    var wrap = $('soldLeadDetailWrap');
+    var input = $('soldLeadSourceDetail');
+    if ($('soldLeadType').value === 'Other') {
+      wrap.classList.remove('hide');
+      input.required = true;
+    } else {
+      wrap.classList.add('hide');
+      input.required = false;
+      input.value = '';
+    }
+  }
+
+  function validateSoldForm() {
+    var errors = [];
+    if (!$('soldDate').value) errors.push('Sold date is required.');
+    var price = Number($('soldSalePrice').value);
+    if (!$('soldSalePrice').value || isNaN(price) || price < 0) errors.push('Valid sale price is required.');
+    if (!$('soldLeadType').value) errors.push('Lead source is required.');
+    if ($('soldLeadType').value === 'Other' && !$('soldLeadSourceDetail').value.trim()) errors.push('Lead source detail is required when "Other" is selected.');
+    if (!$('soldSalesperson').value.trim()) errors.push('Salesperson is required.');
+    return errors;
+  }
+
+  function prepareSoldPayload(vehicle, formData) {
+    return {
+      vehicleId: vehicle.sku,
+      vin: vehicle.vin || '',
+      stockNumber: vehicle.stockNumber || vehicle.sku,
+      year: vehicle.year || '',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      trim: vehicle.trim || '',
+      mileage: vehicle.mileage || 0,
+      exteriorColor: vehicle.exteriorColor || '',
+      interiorColor: vehicle.interiorColor || '',
+      transmission: vehicle.transmission || '',
+      engine: vehicle.engine || '',
+      fuelType: vehicle.fuelType || '',
+      category: vehicle.category || '',
+      originalAskingPrice: vehicle.price || 0,
+      salePrice: Number(formData.salePrice),
+      soldDate: formData.soldDate,
+      status: 'sold',
+      leadType: formData.leadType,
+      leadSourceDetail: formData.leadSourceDetail || '',
+      salesperson: formData.salesperson,
+      buyerName: formData.buyerName || '',
+      soldNotes: formData.soldNotes || '',
+      inventoryCreatedAt: vehicle.dateAdded || '',
+      soldAt: new Date().toISOString(),
+      sourceRecordId: vehicle.sku,
+    };
+  }
+
+  async function writeSalesBlob(payload) {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) throw new Error('Not authenticated.');
+    var authStr = btoa(session.username + ':' + (session.passwordHash || authPasswordHash));
+    var res = await fetch(SALES_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + authStr },
+      body: JSON.stringify({ record: payload }),
+    });
+    if (!res.ok) {
+      var err = await res.json().catch(function () { return {}; });
+      throw new Error(err.error || 'Failed to write sales record');
+    }
+    return res.json();
+  }
+
+  async function readSalesBlob() {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) return [];
+    var authStr = btoa(session.username + ':' + (session.passwordHash || authPasswordHash));
+    try {
+      var res = await fetch(SALES_API, {
+        method: 'GET',
+        headers: { 'Authorization': 'Basic ' + authStr },
+      });
+      if (!res.ok) return [];
+      return await res.json();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function applySoldToInventory(vehicleIndex, soldFields) {
+    Object.keys(soldFields).forEach(function (key) {
+      inventory[vehicleIndex][key] = soldFields[key];
+    });
+  }
+
+  function rollbackInventory(snapshot) {
+    inventory = JSON.parse(JSON.stringify(snapshot));
+    persistInventory();
+  }
+
+  async function handleSoldSubmit(event) {
+    event.preventDefault();
+    if (!soldModalVehicle) return;
+
+    var errors = validateSoldForm();
+    if (errors.length) {
+      showFeedback($('soldFeedback'), errors.join(' '), true);
+      return;
+    }
+
+    var btn = $('soldSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    hideFeedback($('soldFeedback'));
+
+    var formData = {
+      soldDate: $('soldDate').value,
+      salePrice: $('soldSalePrice').value,
+      leadType: $('soldLeadType').value,
+      leadSourceDetail: $('soldLeadSourceDetail').value.trim(),
+      salesperson: $('soldSalesperson').value.trim(),
+      buyerName: $('soldBuyerName').value.trim(),
+      soldNotes: $('soldNotes').value.trim(),
+    };
+
+    var payload = prepareSoldPayload(soldModalVehicle, formData);
+    var inventorySnapshot = JSON.parse(JSON.stringify(inventory));
+
+    // Step 1: Write to blob first (defensive ordering)
+    try {
+      await writeSalesBlob(payload);
+    } catch (err) {
+      showFeedback($('soldFeedback'), 'Failed to save sale record: ' + err.message, true);
+      btn.disabled = false;
+      btn.textContent = soldModalVehicle.status === 'sold' ? 'Update Sale' : 'Complete Sale';
+      return;
+    }
+
+    // Step 2: Update local inventory
+    var idx = inventory.findIndex(function (v) { return v.sku === soldModalVehicle.sku; });
+    if (idx < 0) {
+      showFeedback($('soldFeedback'), 'Vehicle not found in inventory.', true);
+      btn.disabled = false;
+      btn.textContent = 'Complete Sale';
+      return;
+    }
+
+    try {
+      var soldFields = {
+        status: 'sold',
+        soldDate: formData.soldDate,
+        salePrice: Number(formData.salePrice),
+        leadType: formData.leadType,
+        leadSourceDetail: formData.leadSourceDetail,
+        salesperson: formData.salesperson,
+        buyerName: formData.buyerName,
+        soldNotes: formData.soldNotes,
+        soldAt: payload.soldAt,
+        updatedAt: new Date().toISOString(),
+      };
+      applySoldToInventory(idx, soldFields);
+      persistInventory();
+
+      // Step 3: Publish (excludes sold vehicles)
+      showToast('Publishing updated inventory...');
+      await autoPublish();
+      showToast('\u2713 Vehicle sold & published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+
+      // Step 4: Refresh views
+      renderInventoryTable();
+      salesTabInitialized = false; // force re-init with real data
+      refreshSalesViews();
+
+      // Close modal
+      $('soldModal').classList.remove('active');
+      soldModalVehicle = null;
+    } catch (err) {
+      // Rollback on failure
+      rollbackInventory(inventorySnapshot);
+      renderInventoryTable();
+      showFeedback($('soldFeedback'), 'Sale recorded in blob but local update failed: ' + err.message + '. Please try again.', true);
+      showToast('Error: ' + err.message, 'error');
+      setTimeout(hideToast, 8000);
+      btn.disabled = false;
+      btn.textContent = 'Complete Sale';
+    }
+  }
+
   // ─── Modal Close ────────────────────────────────────────────────────────────
   function closeModals(event) {
     if (event.target.matches('.modal') || event.target.dataset.close !== undefined) {
@@ -2684,35 +2934,145 @@
   function toggleTheme() {
     applyTheme(currentThemeMode === 'dark' ? 'light' : 'dark');
     // Re-render sales charts with updated colors
-    if (salesOverTimeInstance) renderSalesOverTimeChart(salesData);
-    if (salesByTypeInstance) renderSalesByTypeChart(salesPieData);
+    if (salesTabInitialized) filterSalesData();
   }
 
   // ─── Sales Tab ────────────────────────────────────────────────────────────
-  // Sample data (mirrors JSX file — replace with real data when available)
-  var salesData = [
-    { name: 'Jan', sales: 4000 },
-    { name: 'Feb', sales: 3000 },
-    { name: 'Mar', sales: 2000 },
-    { name: 'Apr', sales: 2780 },
-    { name: 'May', sales: 1890 },
-    { name: 'Jun', sales: 2390 },
-  ];
-
-  var salesPieData = [
-    { name: 'SUV', value: 400 },
-    { name: 'Sedan', value: 300 },
-    { name: 'Truck', value: 200 },
-  ];
-
-  var salesTableData = [
-    { model: 'Model S', type: 'Sedan', price: 80000, buyer: 'John Smith', date: '6/15/23' },
-    { model: 'Model X', type: 'SUV', price: 100000, buyer: 'Jane Doe', date: '6/10/23' },
-    { model: 'F-150', type: 'Truck', price: 45000, buyer: 'Bob Jones', date: '6/12/23' },
-  ];
-
+  var allSalesRecords = []; // merged local sold + blob records
   var salesOverTimeInstance = null;
   var salesByTypeInstance = null;
+  var salesByLeadInstance = null;
+
+  function getSoldFromInventory() {
+    return inventory.filter(function (v) { return v.status === 'sold'; }).map(function (v) {
+      return {
+        vehicleId: v.sku,
+        year: v.year || '', make: v.make || '', model: v.model || '', trim: v.trim || '',
+        stockNumber: v.stockNumber || v.sku,
+        category: v.category || '',
+        salePrice: v.salePrice || v.price || 0,
+        soldDate: v.soldDate || '',
+        salesperson: v.salesperson || '',
+        leadType: v.leadType || '',
+        buyerName: v.buyerName || '',
+      };
+    });
+  }
+
+  function mergeSalesRecords(localSold, blobRecords) {
+    var map = {};
+    // Blob records are authoritative
+    blobRecords.forEach(function (r) { map[r.vehicleId] = r; });
+    // Local sold fill gaps (if blob hasn't persisted yet)
+    localSold.forEach(function (r) { if (!map[r.vehicleId]) map[r.vehicleId] = r; });
+    var list = Object.values(map);
+    // Sort by soldDate descending
+    list.sort(function (a, b) {
+      return (b.soldDate || '').localeCompare(a.soldDate || '');
+    });
+    return list;
+  }
+
+  function populateSalesFilterDropdowns(records) {
+    // Lead type dropdown
+    var leadSelect = $('salesFilterLeadType');
+    if (leadSelect) {
+      var currentVal = leadSelect.value;
+      var leads = {};
+      records.forEach(function (r) { if (r.leadType) leads[r.leadType] = true; });
+      leadSelect.innerHTML = '<option value="All">All</option>';
+      Object.keys(leads).sort().forEach(function (lt) {
+        var opt = document.createElement('option');
+        opt.value = lt; opt.textContent = lt;
+        leadSelect.appendChild(opt);
+      });
+      leadSelect.value = currentVal || 'All';
+    }
+    // Salesperson dropdown
+    var spSelect = $('salesFilterSalesperson');
+    if (spSelect) {
+      var currentVal2 = spSelect.value;
+      var people = {};
+      records.forEach(function (r) { if (r.salesperson) people[r.salesperson] = true; });
+      spSelect.innerHTML = '<option value="All">All</option>';
+      Object.keys(people).sort().forEach(function (sp) {
+        var opt = document.createElement('option');
+        opt.value = sp; opt.textContent = sp;
+        spSelect.appendChild(opt);
+      });
+      spSelect.value = currentVal2 || 'All';
+    }
+  }
+
+  function filterSalesRecords(records) {
+    var dateRange = ($('salesFilterDateRange') || {}).value || 'All';
+    var leadFilter = ($('salesFilterLeadType') || {}).value || 'All';
+    var spFilter = ($('salesFilterSalesperson') || {}).value || 'All';
+    var typeFilter = ($('salesFilterType') || {}).value || 'All';
+
+    var now = new Date();
+    var todayStr = now.toISOString().split('T')[0];
+
+    return records.filter(function (r) {
+      // Date range filter
+      if (dateRange !== 'All' && r.soldDate) {
+        var sd = r.soldDate;
+        if (dateRange === 'today' && sd !== todayStr) return false;
+        if (dateRange === '7d') {
+          var d7 = new Date(now.getTime() - 7 * 86400000).toISOString().split('T')[0];
+          if (sd < d7) return false;
+        }
+        if (dateRange === '30d') {
+          var d30 = new Date(now.getTime() - 30 * 86400000).toISOString().split('T')[0];
+          if (sd < d30) return false;
+        }
+        if (dateRange === 'thisMonth') {
+          var monthStart = todayStr.slice(0, 7);
+          if (!sd.startsWith(monthStart)) return false;
+        }
+      }
+      if (leadFilter !== 'All' && r.leadType !== leadFilter) return false;
+      if (spFilter !== 'All' && r.salesperson !== spFilter) return false;
+      if (typeFilter !== 'All' && r.category !== typeFilter) return false;
+      return true;
+    });
+  }
+
+  function buildSalesOverTimeData(records) {
+    var months = {};
+    records.forEach(function (r) {
+      if (!r.soldDate) return;
+      var m = r.soldDate.slice(0, 7); // YYYY-MM
+      if (!months[m]) months[m] = 0;
+      months[m] += Number(r.salePrice) || 0;
+    });
+    var keys = Object.keys(months).sort();
+    return keys.map(function (k) {
+      var parts = k.split('-');
+      var label = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(parts[1], 10) - 1] + ' ' + parts[0].slice(2);
+      return { name: label, sales: months[k] };
+    });
+  }
+
+  function buildSalesByTypeData(records) {
+    var types = {};
+    records.forEach(function (r) {
+      var cat = r.category || 'Other';
+      if (!types[cat]) types[cat] = 0;
+      types[cat]++;
+    });
+    return Object.keys(types).map(function (k) { return { name: k, value: types[k] }; });
+  }
+
+  function buildSalesByLeadData(records) {
+    var leads = {};
+    records.forEach(function (r) {
+      var lt = r.leadType || 'Unknown';
+      if (!leads[lt]) leads[lt] = 0;
+      leads[lt]++;
+    });
+    return Object.keys(leads).map(function (k) { return { name: k, value: leads[k] }; });
+  }
 
   function renderSalesOverTimeChart(data) {
     var canvas = $('salesOverTimeChart');
@@ -2722,13 +3082,15 @@
     var labels = data.map(function (d) { return d.name; });
     var values = data.map(function (d) { return d.sales; });
 
+    if (!labels.length) { labels = ['No data']; values = [0]; }
+
     salesOverTimeInstance = new Chart(canvas, {
       type: 'bar',
       data: {
         labels: labels,
         datasets: [
           {
-            label: 'Sales (Area)',
+            label: 'Revenue (Area)',
             type: 'line',
             data: values,
             backgroundColor: 'rgba(103, 103, 247, 0.15)',
@@ -2739,7 +3101,7 @@
             order: 2,
           },
           {
-            label: 'Sales (Bar)',
+            label: 'Revenue (Bar)',
             data: values,
             backgroundColor: 'rgba(103, 103, 247, 0.35)',
             borderRadius: 4,
@@ -2747,7 +3109,7 @@
             order: 1,
           },
           {
-            label: 'Sales (Trend)',
+            label: 'Trend',
             type: 'line',
             data: values,
             borderColor: '#FF8600',
@@ -2780,7 +3142,7 @@
     if (!canvas || typeof Chart === 'undefined') return;
     if (salesByTypeInstance) { salesByTypeInstance.destroy(); salesByTypeInstance = null; }
 
-    var pieColors = ['#6767f7', '#37bc7b', '#f59e0b', '#f2555e', '#1d7cf2'];
+    var pieColors = ['#6767f7', '#37bc7b', '#f59e0b', '#f2555e', '#1d7cf2', '#e879f9', '#38bdf8', '#fb923c'];
 
     salesByTypeInstance = new Chart(canvas, {
       type: 'doughnut',
@@ -2806,60 +3168,101 @@
     });
   }
 
+  function renderSalesByLeadChart(data) {
+    var canvas = $('salesByLeadChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (salesByLeadInstance) { salesByLeadInstance.destroy(); salesByLeadInstance = null; }
+
+    var pieColors = ['#37bc7b', '#6767f7', '#f59e0b', '#f2555e', '#1d7cf2', '#e879f9', '#38bdf8', '#fb923c', '#a78bfa', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#c084fc', '#22d3ee', '#fb7185', '#a3e635', '#facc15'];
+
+    renderDoughnut(canvas, data, pieColors, function (instance) { salesByLeadInstance = instance; });
+  }
+
+  function renderDoughnut(canvas, data, colors, setInstance) {
+    var instance = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: data.map(function (d) { return d.name; }),
+        datasets: [{
+          data: data.map(function (d) { return d.value; }),
+          backgroundColor: colors.slice(0, data.length),
+          borderWidth: 2,
+          borderColor: 'transparent',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: chartTextColor, font: { family: "'Space Grotesk'" }, padding: 12, boxWidth: 12 },
+          },
+        },
+      },
+    });
+    if (setInstance) setInstance(instance);
+  }
+
   function renderSalesTable(data) {
     var tbody = $('salesTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No sales records yet. Mark a vehicle as sold from the Inventory tab.</td></tr>';
+      return;
+    }
     data.forEach(function (sale) {
+      var ymm = [sale.year, sale.make, sale.model].filter(Boolean).join(' ') || sale.vehicleId || '-';
       var tr = document.createElement('tr');
       tr.innerHTML =
-        '<td>' + sale.model + '</td>' +
-        '<td>' + sale.type + '</td>' +
-        '<td>$' + sale.price.toLocaleString() + '</td>' +
-        '<td>' + sale.buyer + '</td>' +
-        '<td>' + sale.date + '</td>';
+        '<td>' + ymm + '</td>' +
+        '<td>' + (sale.stockNumber || '-') + '</td>' +
+        '<td>' + formatMoney(sale.salePrice || 0) + '</td>' +
+        '<td>' + (sale.soldDate || '-') + '</td>' +
+        '<td>' + (sale.salesperson || '-') + '</td>' +
+        '<td>' + (sale.leadType || '-') + '</td>' +
+        '<td>' + (sale.buyerName || '-') + '</td>';
       tbody.appendChild(tr);
     });
   }
 
-  function updateSalesKpis(tableData) {
-    var total = tableData.reduce(function (sum, s) { return sum + s.price; }, 0);
-    var avg = tableData.length ? Math.round(total / tableData.length) : 0;
+  function updateSalesKpis(records) {
+    var total = records.reduce(function (sum, s) { return sum + (Number(s.salePrice) || 0); }, 0);
+    var avg = records.length ? Math.round(total / records.length) : 0;
     var el;
     el = $('salesKpiTotal');
-    if (el) el.textContent = '$' + total.toLocaleString();
+    if (el) el.textContent = formatMoney(total);
     el = $('salesKpiAvg');
-    if (el) el.textContent = '$' + avg.toLocaleString();
+    if (el) el.textContent = formatMoney(avg);
     el = $('salesKpiUnits');
-    if (el) el.textContent = tableData.length;
+    if (el) el.textContent = records.length;
   }
 
   function filterSalesData() {
-    var typeFilter = ($('salesFilterType') || {}).value || 'All';
-    var priceFilter = ($('salesFilterPrice') || {}).value || 'All';
-
-    var filtered = salesTableData.filter(function (sale) {
-      if (typeFilter !== 'All' && sale.type !== typeFilter) return false;
-      if (priceFilter !== 'All') {
-        if (priceFilter === '0-25000' && sale.price > 25000) return false;
-        if (priceFilter === '25000-50000' && (sale.price < 25000 || sale.price > 50000)) return false;
-        if (priceFilter === '50000+' && sale.price < 50000) return false;
-      }
-      return true;
-    });
-
+    var filtered = filterSalesRecords(allSalesRecords);
     renderSalesTable(filtered);
     updateSalesKpis(filtered);
+    renderSalesOverTimeChart(buildSalesOverTimeData(filtered));
+    renderSalesByTypeChart(buildSalesByTypeData(filtered));
+    renderSalesByLeadChart(buildSalesByLeadData(filtered));
+  }
+
+  async function refreshSalesViews() {
+    // Merge local sold inventory with blob records
+    var localSold = getSoldFromInventory();
+    var blobRecords = [];
+    try { blobRecords = await readSalesBlob(); } catch (e) { /* local only */ }
+    allSalesRecords = mergeSalesRecords(localSold, blobRecords);
+    populateSalesFilterDropdowns(allSalesRecords);
+    filterSalesData();
   }
 
   var salesTabInitialized = false;
   function initSalesTab() {
     if (salesTabInitialized) return;
     salesTabInitialized = true;
-    renderSalesOverTimeChart(salesData);
-    renderSalesByTypeChart(salesPieData);
-    renderSalesTable(salesTableData);
-    updateSalesKpis(salesTableData);
+    refreshSalesViews();
   }
 
   // ─── Init ───────────────────────────────────────────────────────────────────
@@ -2974,15 +3377,25 @@
     previewModal.addEventListener('click', closeModals);
     editModal.addEventListener('click', closeModals);
 
+    // Sold modal
+    var soldModal = $('soldModal');
+    if (soldModal) soldModal.addEventListener('click', closeModals);
+    $('soldForm').addEventListener('submit', handleSoldSubmit);
+    $('soldLeadType').addEventListener('change', toggleLeadDetail);
+
     // Theme toggle
     var themeBtn = $('themeToggleBtn');
     if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
 
     // Sales tab filters
     var salesTypeFilter = $('salesFilterType');
-    var salesPriceFilter = $('salesFilterPrice');
     if (salesTypeFilter) salesTypeFilter.addEventListener('change', filterSalesData);
-    if (salesPriceFilter) salesPriceFilter.addEventListener('change', filterSalesData);
+    var salesDateFilter = $('salesFilterDateRange');
+    if (salesDateFilter) salesDateFilter.addEventListener('change', filterSalesData);
+    var salesLeadFilter = $('salesFilterLeadType');
+    if (salesLeadFilter) salesLeadFilter.addEventListener('change', filterSalesData);
+    var salesSpFilter = $('salesFilterSalesperson');
+    if (salesSpFilter) salesSpFilter.addEventListener('change', filterSalesData);
 
     // Lazy-init sales charts when Sales tab is clicked
     document.querySelectorAll('.tab').forEach(function (tab) {
