@@ -337,7 +337,7 @@ class InventoryLoader {
       if (maxPrice) params.set('maxPrice', maxPrice);
 
       // Go to inventory page with filters applied
-      const url = `inventory.html${params.toString() ? '?' + params.toString() : ''}`;
+      const url = `/inventory${params.toString() ? '?' + params.toString() : ''}`;
       window.location.href = url;
     });
   }
@@ -427,20 +427,20 @@ class InventoryLoader {
 
     const topTypes = this.topEntries(typeCounts, 9).map(([key, count]) => ({
       label: `${typeLabel(key)} (${count})`,
-      href: `inventory.html?type=${encodeURIComponent(key)}`,
+      href: `/inventory?type=${encodeURIComponent(key)}`,
       typeKey: key
     }));
 
     const topMakes = this.topEntries(makeCounts, 12).map(([key, count]) => ({
       label: `${key} (${count})`,
-      href: `inventory.html?make=${encodeURIComponent(key)}`
+      href: `/inventory?make=${encodeURIComponent(key)}`
     }));
 
     const topMakeModels = this.topEntries(makeModelCounts, 20).map(([key, count]) => {
       const parts = String(key).split('||');
       const mk = parts[0] || '';
       const model = parts[1] || '';
-      const href = `inventory.html?make=${encodeURIComponent(mk)}&model=${encodeURIComponent(model)}`;
+      const href = `/inventory?make=${encodeURIComponent(mk)}&model=${encodeURIComponent(model)}`;
       return { label: `${mk} ${model} (${count})`.trim(), href };
     });
 

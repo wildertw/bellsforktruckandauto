@@ -17,8 +17,8 @@ const DEALER_STREET = '3840 Charles Blvd';
 const DEALER_CITY = 'Greenville';
 const DEALER_STATE = 'NC';
 const DEALER_ZIP = '27858';
-const DEALER_LAT = '35.6123';
-const DEALER_LNG = '-77.3712';
+const DEALER_LAT = '35.5641462';
+const DEALER_LNG = '-77.349267';
 const DEALER_EMAIL = 'bellsforkautoandtruck@gmail.com';
 const DEALER_FB = 'https://www.facebook.com/profile.php?id=61585590120772';
 const VEHICLE_ASSET_DIR = path.join(__dirname, 'assets', 'vehicles');
@@ -321,7 +321,7 @@ function buildSchema(v) {
         '@id': `${vdpUrl}#breadcrumb`,
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-          { '@type': 'ListItem', position: 2, name: 'Inventory', item: `${SITE_URL}/inventory.html` },
+          { '@type': 'ListItem', position: 2, name: 'Inventory', item: `${SITE_URL}/inventory` },
           { '@type': 'ListItem', position: 3, name: title, item: vdpUrl }
         ]
       },
@@ -848,10 +848,6 @@ ${buildSchema(v)}
                style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;background:#1877f2;color:#fff;text-decoration:none;">
               <svg width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/></svg>
             </a>
-            <a href="${DEALER_FB}" target="_blank" aria-label="Instagram"
-               style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff;text-decoration:none;">
-              <svg width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.232-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/></svg>
-            </a>
             <a href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/@35.5641622,-77.367721,15z/data=!3m1!4b1!4m6!3m5!1s0x89aeddacc00176bf:0x2e8db9e8d1d56161!8m2!3d35.5641462!4d-77.349267!16s%2Fg%2F11yxj2p8q_?hl=en&entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" aria-label="Google Business"
                style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;text-decoration:none;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,0.1);">
               <img src="${ASSET_PREFIX}assets/google-icon-color.png" alt="Google Business" width="34" height="34" style="display:block;">
@@ -892,7 +888,7 @@ ${buildSchema(v)}
         <div class="collapse navbar-collapse justify-content-center" id="navMain">
           <ul class="navbar-nav align-items-lg-center">
             <li class="nav-item">
-              <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink active" href="${ASSET_PREFIX}inventory.html">Inventory</a>
+              <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink active" href="/inventory">Inventory</a>
             </li>
             <li class="nav-item">
               <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}about.html">About</a>
@@ -922,7 +918,7 @@ ${buildSchema(v)}
       <div class="container">
         <a href="${ASSET_PREFIX}index.html">Home</a>
         <span class="sep">&rsaquo;</span>
-        <a href="${ASSET_PREFIX}inventory.html">Inventory</a>
+        <a href="/inventory">Inventory</a>
         <span class="sep">&rsaquo;</span>
         <span>${escapeHtml(title)}</span>
       </div>
@@ -1165,7 +1161,7 @@ ${similar.map(sv => {
   const svPrice = sv.price ? formatMoney(sv.price) : 'Call';
   const svMiles = sv.mileage ? `${Number(sv.mileage).toLocaleString()} mi` : '';
   return `          <div class="col-6 col-md-4 col-lg-2">
-            <a href="${ASSET_PREFIX}${svHref.replace(/^\//, '')}" class="vdp-similar-card">
+            <a href="${svHref}" class="vdp-similar-card">
 ${svImg ? `              <img src="${escapeAttr(svImg)}" alt="${escapeAttr(svTitle)}" loading="lazy">` : `              <div style="height:160px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8rem;">No Photo</div>`}
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">${escapeHtml(svTitle)}</div>
@@ -1216,10 +1212,6 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
                  style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;background:#1877f2;color:#fff;text-decoration:none;">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/></svg>
               </a>
-              <a href="${DEALER_FB}" target="_blank" aria-label="Instagram"
-                 style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff;text-decoration:none;">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.232-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/></svg>
-              </a>
               <a href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/@35.5641622,-77.367721,15z/data=!3m1!4b1!4m6!3m5!1s0x89aeddacc00176bf:0x2e8db9e8d1d56161!8m2!3d35.5641462!4d-77.349267!16s%2Fg%2F11yxj2p8q_?hl=en&entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" aria-label="Google Business"
                  style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;text-decoration:none;overflow:hidden;transition:background .2s;">
               <img src="${ASSET_PREFIX}assets/google-icon-bw.png" alt="Google Business" width="38" height="38" style="display:block;">
@@ -1242,7 +1234,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
         <div class="col-lg-4 col-md-12">
           <h5 class="fw-bold text-white mb-3 pb-2" style="border-bottom:1px solid #444;">Quick Links</h5>
           <ul class="list-unstyled mb-0" style="font-size:.95rem;">
-            <li class="mb-2"><a href="${ASSET_PREFIX}inventory.html" class="text-white-50 text-decoration-none footer-link">Inventory</a></li>
+            <li class="mb-2"><a href="/inventory" class="text-white-50 text-decoration-none footer-link">Inventory</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}about.html" class="text-white-50 text-decoration-none footer-link">About Us</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}reviews.html" class="text-white-50 text-decoration-none footer-link">Reviews</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}financing.html" class="text-white-50 text-decoration-none footer-link">Financing</a></li>
@@ -1310,12 +1302,13 @@ function generateSitemap(vehicles) {
   const today = todayISO();
   const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
-    { loc: '/inventory.html', priority: '0.9', changefreq: 'daily' },
-    { loc: '/financing.html', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/contact.html', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/about.html', priority: '0.7', changefreq: 'monthly' },
-    { loc: '/reviews.html', priority: '0.7', changefreq: 'weekly' },
-    { loc: '/privacy.html', priority: '0.3', changefreq: 'yearly' },
+    { loc: '/inventory', priority: '0.9', changefreq: 'daily' },
+    { loc: '/financing', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/contact', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/about', priority: '0.7', changefreq: 'monthly' },
+    { loc: '/reviews', priority: '0.7', changefreq: 'weekly' },
+    { loc: '/blog', priority: '0.6', changefreq: 'monthly' },
+    { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
   ];
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
