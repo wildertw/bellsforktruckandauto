@@ -1386,6 +1386,9 @@ button:hover {
   gap: var(--space-md);
   margin-bottom: var(--space-md);
 }
+.sales-charts-3col {
+  grid-template-columns: 1fr 1fr 1fr;
+}
 .chart-title {
   font-size: 16px;
   font-weight: 600;
@@ -1406,9 +1409,67 @@ button:hover {
   text-align: left;
 }
 
+/* Sold Modal */
+.modal-sold {
+  max-width: 520px;
+  width: 90vw;
+}
+.modal-sold h3 {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  color: var(--text-primary);
+}
+.modal-sold .muted {
+  margin-bottom: var(--space-md);
+}
+.sold-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+}
+.sold-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.sold-fields label.full-field {
+  grid-column: 1 / -1;
+}
+.sold-fields input,
+.sold-fields select,
+.sold-fields textarea {
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--divider);
+  background: var(--control-bg);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+.sold-fields textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+.sold-fields .req {
+  color: #f2555e;
+}
+
+/* Mark Sold button in inventory table */
+.sold-btn {
+  color: #37bc7b !important;
+}
+.sold-btn:hover {
+  background: rgba(55, 188, 123, 0.12);
+}
+
 /* Responsive: Sales */
 @media (max-width: 1023px) {
-  .sales-charts-grid {
+  .sales-charts-grid,
+  .sales-charts-3col {
     grid-template-columns: 1fr;
   }
 }
@@ -1421,5 +1482,8 @@ button:hover {
   }
   .chart-wrap {
     height: 220px;
+  }
+  .sold-fields {
+    grid-template-columns: 1fr;
   }
 }

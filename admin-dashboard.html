@@ -796,20 +796,31 @@
           <!-- Sales Filters -->
           <div class="sales-filters card">
             <div class="sales-filter-group">
+              <label class="sales-filter-label">Date Range
+                <select id="salesFilterDateRange" class="sales-filter-select">
+                  <option value="All">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="thisMonth">This Month</option>
+                </select>
+              </label>
+              <label class="sales-filter-label">Lead Source
+                <select id="salesFilterLeadType" class="sales-filter-select">
+                  <option value="All">All</option>
+                </select>
+              </label>
+              <label class="sales-filter-label">Salesperson
+                <select id="salesFilterSalesperson" class="sales-filter-select">
+                  <option value="All">All</option>
+                </select>
+              </label>
               <label class="sales-filter-label">Type
                 <select id="salesFilterType" class="sales-filter-select">
                   <option value="All">All</option>
                   <option value="Sedan">Sedan</option>
                   <option value="SUV">SUV</option>
                   <option value="Truck">Truck</option>
-                </select>
-              </label>
-              <label class="sales-filter-label">Price
-                <select id="salesFilterPrice" class="sales-filter-select">
-                  <option value="All">All</option>
-                  <option value="0-25000">$0 - $25k</option>
-                  <option value="25000-50000">$25k - $50k</option>
-                  <option value="50000+">$50k+</option>
                 </select>
               </label>
             </div>
@@ -838,7 +849,7 @@
           </section>
 
           <!-- Sales Charts -->
-          <div class="sales-charts-grid">
+          <div class="sales-charts-grid sales-charts-3col">
             <div class="card">
               <h2 class="chart-title">Sales Over Time</h2>
               <div class="chart-wrap">
@@ -846,9 +857,15 @@
               </div>
             </div>
             <div class="card">
-              <h2 class="chart-title">Sales by Type</h2>
+              <h2 class="chart-title">Sales by Vehicle Type</h2>
               <div class="chart-wrap">
                 <canvas id="salesByTypeChart"></canvas>
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="chart-title">Sales by Lead Source</h2>
+              <div class="chart-wrap">
+                <canvas id="salesByLeadChart"></canvas>
               </div>
             </div>
           </div>
@@ -860,11 +877,13 @@
               <table class="data-table" id="salesTable">
                 <thead>
                   <tr>
-                    <th>Model</th>
-                    <th>Type</th>
-                    <th>Price</th>
+                    <th>Year/Make/Model</th>
+                    <th>Stock #</th>
+                    <th>Sale Price</th>
+                    <th>Sold Date</th>
+                    <th>Salesperson</th>
+                    <th>Lead Source</th>
                     <th>Buyer</th>
-                    <th>Date</th>
                   </tr>
                 </thead>
                 <tbody id="salesTableBody"></tbody>
@@ -1060,6 +1079,46 @@
       <div class="form-actions">
         <button class="ghost-btn" type="button" data-close>Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Sold Modal -->
+  <div id="soldModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="soldModalTitle">
+    <div class="modal-dialog modal-sold">
+      <h3 id="soldModalTitle">Mark Vehicle as Sold</h3>
+      <p id="soldVehicleSummary" class="muted"></p>
+      <form id="soldForm" autocomplete="off">
+        <p id="soldFeedback" class="feedback hide" role="status"></p>
+        <div class="sold-fields">
+          <label>Sold Date <span class="req">*</span>
+            <input id="soldDate" type="date" required>
+          </label>
+          <label>Sale Price <span class="req">*</span>
+            <input id="soldSalePrice" type="number" min="0" step="1" placeholder="e.g. 45000" required>
+          </label>
+          <label>Lead Source <span class="req">*</span>
+            <select id="soldLeadType" required>
+              <option value="">Select lead source...</option>
+            </select>
+          </label>
+          <label id="soldLeadDetailWrap" class="hide">Lead Source Detail <span class="req">*</span>
+            <input id="soldLeadSourceDetail" type="text" placeholder="Describe the lead source">
+          </label>
+          <label>Salesperson <span class="req">*</span>
+            <input id="soldSalesperson" type="text" placeholder="e.g. Frank">
+          </label>
+          <label>Buyer Name
+            <input id="soldBuyerName" type="text" placeholder="e.g. John Smith">
+          </label>
+          <label class="full-field">Notes
+            <textarea id="soldNotes" rows="3" placeholder="Optional notes about the sale..."></textarea>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="primary-btn" id="soldSubmitBtn">Complete Sale</button>
+          <button type="button" class="ghost-btn" data-close>Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 
