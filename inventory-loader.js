@@ -505,17 +505,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const type  = filterType ? filterType.value : 'all';
     const price = filterPrice ? filterPrice.value : 'all';
 
-    const normalizeType = (t) => {
+    const TRUCK_MODELS = /f-?150|f-?250|f-?350|silverado|sierra|tundra|tacoma|ram\s*1500|ram\s*2500|ram\s*3500|gladiator|ranger|colorado|canyon|titan|frontier|2500|3500/i;
+    const SUV_MODELS = /suburban|tahoe|bronco|explorer|expedition|4runner|highlander|pathfinder|pilot|traverse|blazer|equinox|qx80|qx60|santa\s*fe|wrangler|cherokee|durango|sequoia/i;
+    const CAR_MODELS = /camaro|corvette|mustang|challenger|charger|altima|civic|accord|corolla|camry|jetta|xjl|portfolio|impala|malibu|maxima|sentra/i;
+    const normalizeType = (t, v) => {
       const raw = String(t || '').toLowerCase().trim();
       if (raw === 'truck' || raw === 'pickup') return 'truck';
       if (raw === 'suv' || raw === 'crossover') return 'suv';
       if (raw === 'car' || raw === 'sedan' || raw === 'coupe') return 'car';
       if (raw === 'diesel') return 'diesel';
+      if (v) {
+        const model = (v.model || '') + ' ' + (v.trim || '');
+        if (TRUCK_MODELS.test(model)) return 'truck';
+        if (SUV_MODELS.test(model)) return 'suv';
+        if (CAR_MODELS.test(model)) return 'car';
+      }
       return raw;
     };
     const filtered = loader.vehicles.filter(v => {
       const matchesMake  = (make === 'all' || !make) ? true : (String(v.make || '').toLowerCase() === String(make).toLowerCase());
-      const vType = normalizeType(v.type);
+      const vType = normalizeType(v.type, v);
       const matchesType  = (type === 'all' || !type) ? true : (vType === String(type).toLowerCase() || (String(type).toLowerCase() === 'diesel' && (v.fuelType || '').toLowerCase() === 'diesel'));
       const matchesPrice = (price === 'all' || !price) ? true : (loader.getPriceRange(v.price) === price);
       return matchesMake && matchesType && matchesPrice;
