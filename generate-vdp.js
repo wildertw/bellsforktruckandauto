@@ -233,8 +233,8 @@ function buildSchema(v) {
           }
         }))
       },
-      // ImageObject entries for vehicle photos
-      ...(v.images || []).slice(0, 10).map((img, i) => ({
+      // ImageObject entries for vehicle photos (up to 25)
+      ...(v.images || []).slice(0, 25).map((img, i) => ({
         '@type': 'ImageObject',
         url: resolveImgAbs(img),
         name: `${title} - Photo ${i + 1}`,

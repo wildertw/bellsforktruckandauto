@@ -609,11 +609,30 @@
 
                 <!-- Photo Upload -->
                 <div class="photo-section full-field">
-                  <label>Vehicle Photos
-                    <input id="addPhotos" type="file" multiple accept="image/*">
-                  </label>
-                  <div id="photoPreview" class="photo-grid"></div>
-                  <button id="addScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                  <div class="photo-upload-header">
+                    <label>Vehicle Photos <span class="photo-count-badge" id="addPhotoCount">0 / 25</span>
+                      <input id="addPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                    </label>
+                    <span class="photo-hint">JPG, PNG, or WebP &mdash; up to 25 images. Drag to reorder. First = featured.</span>
+                  </div>
+                  <p id="addPhotoError" class="photo-upload-error hide" role="alert"></p>
+                  <div id="photoPreview" class="photo-grid sortable-grid"></div>
+                  <div class="photo-ai-actions">
+                    <button id="addScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                    <button id="addAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
+                  </div>
+                  <div id="addAiStatus" class="ai-status-panel hide" role="status">
+                    <div class="ai-status-icon" id="addAiIcon">&#9889;</div>
+                    <div class="ai-status-text" id="addAiStatusText">Running AI autofill&hellip;</div>
+                  </div>
+                  <div id="addAiReview" class="ai-review-panel hide">
+                    <div class="ai-review-header">AI Suggested Values <span class="ai-review-hint">Uncheck to reject. Manual edits always take priority.</span></div>
+                    <div id="addAiReviewGrid" class="ai-review-grid"></div>
+                    <div class="ai-review-actions">
+                      <button id="addAiApplyBtn" class="primary-btn small-btn" type="button">Apply Selected</button>
+                      <button id="addAiDismissBtn" class="ghost-btn small-btn" type="button">Dismiss</button>
+                    </div>
+                  </div>
                   <div id="addScanResults" class="scan-results hide"></div>
                 </div>
 
@@ -1081,14 +1100,33 @@
           <!-- Right Column: Photos -->
           <div class="edit-photos-col">
             <div class="edit-photos-section">
-              <h4>Vehicle Photos</h4>
+              <div class="photo-upload-header">
+                <h4>Vehicle Photos <span class="photo-count-badge" id="editPhotoCount">0 / 25</span></h4>
+                <span class="photo-hint">JPG, PNG, or WebP &mdash; up to 25. Drag to reorder.</span>
+              </div>
               <div class="edit-photo-drop" id="editPhotoDrop">
                 <span>&#128247;</span>
                 <p>Drop photos here or click to upload</p>
-                <input id="editPhotos" type="file" multiple accept="image/*">
+                <input id="editPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
               </div>
-              <div id="editPhotoPreview" class="photo-grid"></div>
-              <button id="editScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+              <p id="editPhotoError" class="photo-upload-error hide" role="alert"></p>
+              <div id="editPhotoPreview" class="photo-grid sortable-grid"></div>
+              <div class="photo-ai-actions">
+                <button id="editScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                <button id="editAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
+              </div>
+              <div id="editAiStatus" class="ai-status-panel hide" role="status">
+                <div class="ai-status-icon" id="editAiIcon">&#9889;</div>
+                <div class="ai-status-text" id="editAiStatusText">Running AI autofill&hellip;</div>
+              </div>
+              <div id="editAiReview" class="ai-review-panel hide">
+                <div class="ai-review-header">AI Suggested Values <span class="ai-review-hint">Uncheck to reject.</span></div>
+                <div id="editAiReviewGrid" class="ai-review-grid"></div>
+                <div class="ai-review-actions">
+                  <button id="editAiApplyBtn" class="primary-btn small-btn" type="button">Apply Selected</button>
+                  <button id="editAiDismissBtn" class="ghost-btn small-btn" type="button">Dismiss</button>
+                </div>
+              </div>
               <div id="editScanResults" class="scan-results hide"></div>
             </div>
             <p id="editFeedback" class="feedback hide" role="status"></p>

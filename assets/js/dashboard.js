@@ -1088,6 +1088,12 @@
       if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length);
       var scanResults = $('editScanResults');
       if (scanResults) { scanResults.classList.add('hide'); scanResults.innerHTML = ''; }
+      // Show AI autofill button if VIN or photos exist
+      var editAutofill = $('editAiAutofillBtn');
+      if (editAutofill) editAutofill.classList.toggle('hide', !editKeptImages.length && !($('editVin') && $('editVin').value.trim()));
+      // Reset AI review panels
+      if ($('editAiReview')) $('editAiReview').classList.add('hide');
+      if ($('editAiStatus')) $('editAiStatus').classList.add('hide');
       editModal.classList.add('active');
     } else if (action === 'delete') {
       if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
@@ -1591,16 +1597,62 @@
     }
   }
 
+  // ─── Photo Validation ──────────────────────────────────────────────────────
+  const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const ALLOWED_PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
+  const MAX_PHOTOS = 25;
+
+  function validatePhotoFiles(files) {
+    var valid = [];
+    var rejected = [];
+    Array.from(files).forEach(function (f) {
+      var ext = (f.name || '').toLowerCase().match(/\.[^.]+$/);
+      var extOk = ext && ALLOWED_PHOTO_EXTS.includes(ext[0]);
+      var typeOk = ALLOWED_PHOTO_TYPES.includes(f.type);
+      if (extOk || typeOk) {
+        valid.push(f);
+      } else {
+        rejected.push(f.name);
+      }
+    });
+    return { valid: valid.slice(0, MAX_PHOTOS), rejected: rejected };
+  }
+
+  function showPhotoError(elId, msg) {
+    var el = $(elId);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hide');
+    setTimeout(function () { el.classList.add('hide'); }, 6000);
+  }
+
+  function updatePhotoCount(elId, count) {
+    var el = $(elId);
+    if (el) el.textContent = count + ' / ' + MAX_PHOTOS;
+  }
+
   // ─── Photo Handling ─────────────────────────────────────────────────────────
   function handlePhotoSelect(event) {
     const files = event.target.files;
     if (!files || !files.length) return;
-    addPhotoFiles = Array.from(files).slice(0, 25);
-    addPreviewIndex = 0;
+    var result = validatePhotoFiles(files);
+    if (result.rejected.length) {
+      showPhotoError('addPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    if (result.valid.length + addPhotoFiles.length > MAX_PHOTOS) {
+      var space = MAX_PHOTOS - addPhotoFiles.length;
+      result.valid = result.valid.slice(0, Math.max(0, space));
+      showPhotoError('addPhotoError', 'Max ' + MAX_PHOTOS + ' photos. Only first ' + result.valid.length + ' added.');
+    }
+    addPhotoFiles = addPhotoFiles.concat(result.valid).slice(0, MAX_PHOTOS);
+    if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = 0;
     renderAddPhotoPreview();
-    // Show scan button hint
+    updatePhotoCount('addPhotoCount', addPhotoFiles.length);
+    // Show AI buttons when photos exist
     var scanBtn = $('addScanPhotosBtn');
-    if (scanBtn) scanBtn.classList.remove('hide');
+    if (scanBtn) scanBtn.classList.toggle('hide', !addPhotoFiles.length);
+    var autofillBtn = $('addAiAutofillBtn');
+    if (autofillBtn) autofillBtn.classList.toggle('hide', !addPhotoFiles.length && !$('addVin').value.trim());
   }
 
   function renderAddPhotoPreview() {
@@ -1610,21 +1662,239 @@
     addPhotoFiles.forEach(function (file, i) {
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (i === addPreviewIndex ? ' is-preview' : '');
+      div.draggable = true;
+      div.dataset.idx = i;
       var reader = new FileReader();
       reader.onload = function (e) {
         var img = div.querySelector('img');
         if (img) img.src = e.target.result;
       };
-      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
-        (i === addPreviewIndex ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (i === addPreviewIndex ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as featured">' +
+        '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
+        (i === addPreviewIndex ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (i === addPreviewIndex ? 'Featured' : (i + 1) + ' of ' + addPhotoFiles.length) + '</span>';
+      // Remove button
+      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        addPhotoFiles.splice(i, 1);
+        if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = Math.max(0, addPhotoFiles.length - 1);
+        if (addPreviewIndex > i) addPreviewIndex--;
+        renderAddPhotoPreview();
+        updatePhotoCount('addPhotoCount', addPhotoFiles.length);
+      });
+      // Click to set as featured
       div.addEventListener('click', function () {
         addPreviewIndex = i;
+        renderAddPhotoPreview();
+      });
+      // Drag-to-reorder
+      div.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', String(i));
+        div.classList.add('dragging');
+      });
+      div.addEventListener('dragend', function () { div.classList.remove('dragging'); });
+      div.addEventListener('dragover', function (e) { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', function () { div.classList.remove('drag-over'); });
+      div.addEventListener('drop', function (e) {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if (isNaN(fromIdx) || fromIdx === i) return;
+        var moved = addPhotoFiles.splice(fromIdx, 1)[0];
+        addPhotoFiles.splice(i, 0, moved);
+        // Adjust preview index
+        if (addPreviewIndex === fromIdx) addPreviewIndex = i;
+        else if (fromIdx < addPreviewIndex && i >= addPreviewIndex) addPreviewIndex--;
+        else if (fromIdx > addPreviewIndex && i <= addPreviewIndex) addPreviewIndex++;
         renderAddPhotoPreview();
       });
       preview.appendChild(div);
       reader.readAsDataURL(file);
     });
+  }
+
+  // ─── Unified AI Autofill ──────────────────────────────────────────────────
+  async function runAiAutofill(mode) {
+    // mode = 'add' or 'edit'
+    var prefix = mode === 'edit' ? 'edit' : 'add';
+    var statusPanel = $(prefix + 'AiStatus');
+    var statusText = $(prefix + 'AiStatusText');
+    var statusIcon = $(prefix + 'AiIcon');
+    var reviewPanel = $(prefix + 'AiReview');
+    var reviewGrid = $(prefix + 'AiReviewGrid');
+    var feedbackEl = mode === 'edit' ? $('editFeedback') : addFeedback;
+    var vinInput = mode === 'edit' ? $('editVin') : $('addVin');
+    var vin = vinInput ? vinInput.value.trim().toUpperCase() : '';
+    var merged = {};
+
+    // Show status panel
+    if (statusPanel) { statusPanel.classList.remove('hide'); }
+    if (statusText) statusText.textContent = 'Starting AI autofill\u2026';
+    if (statusIcon) statusIcon.innerHTML = '&#9889;';
+
+    try {
+      // Step 1: VIN decode
+      if (vin.length === 17) {
+        if (statusText) statusText.textContent = 'Decoding VIN\u2026';
+        try {
+          var vinRes = await fetch(NHTSA_API + '/' + vin + '?format=json');
+          var vinJson = await vinRes.json();
+          var r = (vinJson.Results && vinJson.Results[0]) || {};
+          var clean = function (v) { return (v && v !== 'Not Applicable' && v !== 'N/A') ? v.trim() : ''; };
+          if (clean(r.ModelYear)) merged.year = clean(r.ModelYear);
+          if (clean(r.Make)) merged.make = clean(r.Make);
+          if (clean(r.Model)) merged.model = clean(r.Model);
+          if (clean(r.Trim)) merged.trim = clean(r.Trim);
+          if (clean(r.DisplacementL)) merged.engine = clean(r.DisplacementL) + 'L' + (clean(r.EngineCylinders) ? ' ' + clean(r.EngineCylinders) + '-cyl' : '');
+          if (clean(r.TransmissionStyle)) merged.transmission = clean(r.TransmissionStyle);
+          if (clean(r.DriveType)) merged.drivetrain = clean(r.DriveType);
+          if (clean(r.FuelTypePrimary)) merged.fuelType = clean(r.FuelTypePrimary);
+          if (clean(r.BodyClass)) merged.bodyStyle = clean(r.BodyClass);
+        } catch (e) { /* VIN decode failed, continue */ }
+      }
+
+      // Step 2: Photo analysis (if photos uploaded or existing)
+      var imageUrls = [];
+      if (mode === 'edit') {
+        imageUrls = (editKeptImages || []).slice();
+      }
+      // For Add form, photos aren't uploaded yet — skip photo scan
+      // (photo scan requires server-accessible URLs)
+
+      if (imageUrls.length > 0) {
+        if (statusText) statusText.textContent = 'Analyzing vehicle photos\u2026';
+        try {
+          var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+          var headers = { 'Content-Type': 'application/json' };
+          var apiKey = localStorage.getItem('bf_openai_key');
+          if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
+          var validUrls = imageUrls.map(function (u) {
+            if (typeof u !== 'string') return null;
+            if (u.startsWith('https://')) return u;
+            if (u.startsWith('blob:')) return window.location.origin + '/photos/' + u.slice(5);
+            return null;
+          }).filter(Boolean);
+          if (validUrls.length) {
+            var res = await fetch(VISION_API, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify({
+                auth: { user: session.username, passwordHash: session.passwordHash },
+                imageUrls: validUrls.slice(0, 5),
+              }),
+            });
+            var data = await res.json();
+            if (res.ok && data.analysis) {
+              if (data.analysis.exteriorColor) merged.exteriorColor = data.analysis.exteriorColor;
+              if (data.analysis.interiorColor) {
+                merged.interiorColor = data.analysis.interiorColor;
+                if (data.analysis.interiorMaterial) merged.interiorColor += ' ' + data.analysis.interiorMaterial;
+              }
+              if (data.analysis.bodyStyle && !merged.bodyStyle) merged.bodyStyle = data.analysis.bodyStyle;
+            }
+          }
+        } catch (e) { /* Photo scan failed, continue with VIN data */ }
+      }
+
+      // Step 3: Show review panel
+      if (statusPanel) statusPanel.classList.add('hide');
+      var keys = Object.keys(merged);
+      if (keys.length === 0) {
+        showFeedback(feedbackEl, 'AI autofill found no new data. Check VIN or upload photos.', true);
+        return;
+      }
+
+      if (statusText) statusText.textContent = 'Review AI suggestions\u2026';
+
+      // Build review grid
+      var fieldLabels = {
+        year: 'Year', make: 'Make', model: 'Model', trim: 'Trim',
+        engine: 'Engine', transmission: 'Transmission', drivetrain: 'Drivetrain',
+        fuelType: 'Fuel Type', bodyStyle: 'Body Style',
+        exteriorColor: 'Exterior Color', interiorColor: 'Interior Color'
+      };
+
+      // Check which fields already have values (manual = don't overwrite)
+      var formFieldMap = mode === 'edit' ? {
+        year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
+        engine: 'editEngine', transmission: 'editTransmission', drivetrain: 'editDrivetrain',
+        fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
+      } : {
+        year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
+        engine: 'addEngine', transmission: 'addTransmission', drivetrain: 'addDrivetrain',
+        fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
+      };
+
+      var reviewHtml = '';
+      keys.forEach(function (key) {
+        var label = fieldLabels[key] || key;
+        var value = merged[key];
+        var fieldId = formFieldMap[key];
+        var currentVal = fieldId ? ($(fieldId) ? $(fieldId).value.trim() : '') : '';
+        var hasManual = !!currentVal;
+        var checked = !hasManual ? 'checked' : '';
+        var manualNote = hasManual ? '<span class="ai-manual-note">Manual: ' + currentVal + '</span>' : '';
+        reviewHtml += '<label class="ai-review-item' + (hasManual ? ' has-manual' : '') + '">' +
+          '<input type="checkbox" data-key="' + key + '" data-value="' + value.replace(/"/g, '&quot;') + '" ' + checked + '>' +
+          '<span class="ai-review-label">' + label + '</span>' +
+          '<span class="ai-review-value">' + value + '</span>' +
+          manualNote + '</label>';
+      });
+
+      if (reviewGrid) reviewGrid.innerHTML = reviewHtml;
+      if (reviewPanel) reviewPanel.classList.remove('hide');
+
+    } catch (err) {
+      if (statusPanel) statusPanel.classList.add('hide');
+      showFeedback(feedbackEl, 'AI autofill error: ' + err.message, true);
+    }
+  }
+
+  function applyAiReviewSelections(mode) {
+    var prefix = mode === 'edit' ? 'edit' : 'add';
+    var reviewPanel = $(prefix + 'AiReview');
+    var feedbackEl = mode === 'edit' ? $('editFeedback') : addFeedback;
+    if (!reviewPanel) return;
+
+    var formFieldMap = mode === 'edit' ? {
+      year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
+      engine: 'editEngine', transmission: 'editTransmission', drivetrain: 'editDrivetrain',
+      fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
+    } : {
+      year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
+      engine: 'addEngine', transmission: 'addTransmission', drivetrain: 'addDrivetrain',
+      fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
+    };
+
+    var driveMap = { '4WD': '4WD', 'AWD': 'AWD', 'FWD': 'FWD', 'RWD': 'RWD', 'Four': '4WD', 'All': 'AWD', 'Front': 'FWD', 'Rear': 'RWD' };
+    var fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Hybrid: 'Hybrid', Electric: 'Electric', Flex: 'Flex Fuel', Ethanol: 'Flex Fuel' };
+    var applied = 0;
+    var checkboxes = reviewPanel.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(function (cb) {
+      var key = cb.dataset.key;
+      var value = cb.dataset.value;
+      var fieldId = formFieldMap[key];
+      if (!fieldId || !value) return;
+      var el = $(fieldId);
+      if (!el) return;
+      // For select elements, try to match value
+      if (el.tagName === 'SELECT') {
+        if (key === 'drivetrain') {
+          var match = Object.keys(driveMap).find(function (k) { return value.includes(k); });
+          if (match) { el.value = driveMap[match]; applied++; }
+        } else if (key === 'fuelType') {
+          var match2 = Object.keys(fuelMap).find(function (k) { return value.includes(k); });
+          if (match2) { el.value = fuelMap[match2]; applied++; }
+        }
+      } else {
+        el.value = value;
+        applied++;
+      }
+    });
+
+    reviewPanel.classList.add('hide');
+    showFeedback(feedbackEl, 'Applied ' + applied + ' AI-suggested value' + (applied !== 1 ? 's' : '') + '. Manual edits always take priority.');
+    if (mode === 'add') updateLivePreview();
   }
 
   // ─── AI Photo Scan ─────────────────────────────────────────────────────────
@@ -2006,29 +2276,47 @@
   function editHandlePhotoSelect(event) {
     var files = event.target.files;
     if (!files || !files.length) return;
-    editPhotoFiles = Array.from(files).slice(0, 25);
+    var result = validatePhotoFiles(files);
+    if (result.rejected.length) {
+      showPhotoError('editPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    var totalExisting = editKeptImages.length + editPhotoFiles.length;
+    var space = MAX_PHOTOS - totalExisting;
+    if (result.valid.length > space) {
+      result.valid = result.valid.slice(0, Math.max(0, space));
+      showPhotoError('editPhotoError', 'Max ' + MAX_PHOTOS + ' photos total. Only ' + result.valid.length + ' added.');
+    }
+    editPhotoFiles = editPhotoFiles.concat(result.valid);
     renderEditPhotoPreview();
+    updatePhotoCount('editPhotoCount', editKeptImages.length + editPhotoFiles.length);
   }
 
   function renderEditPhotoPreview() {
     var preview = $('editPhotoPreview');
     if (!preview) return;
     preview.innerHTML = '';
+    var totalCount = editKeptImages.length + editPhotoFiles.length;
+    updatePhotoCount('editPhotoCount', totalCount);
+
     // Determine effective preview
     var effectivePreview = editPreviewName;
     if (!effectivePreview) {
       effectivePreview = editKeptImages.length ? editKeptImages[0] : (editPhotoFiles.length ? 'new-0' : null);
     }
-    // Render kept (existing) images
+    // Render kept (existing) images with drag-to-reorder
     editKeptImages.forEach(function (url, i) {
       var isPreview = (url === effectivePreview);
+      var globalIdx = i;
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
       div.dataset.url = url;
-      div.innerHTML = '<img src="' + resolveImageSrc(url) + '" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
+      div.dataset.type = 'kept';
+      div.dataset.idx = i;
+      div.draggable = true;
+      div.innerHTML = '<img src="' + resolveImageSrc(url) + '" alt="Photo ' + (i + 1) + '" title="Click to set as featured">' +
         '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
-        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (isPreview ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+        (isPreview ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Featured' : (globalIdx + 1) + ' of ' + totalCount) + '</span>';
       div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
         e.stopPropagation();
         editKeptImages = editKeptImages.filter(function (u) { return u !== url; });
@@ -2039,22 +2327,50 @@
         editPreviewName = url;
         renderEditPhotoPreview();
       });
+      // Drag-to-reorder within kept images
+      div.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', 'kept:' + i);
+        div.classList.add('dragging');
+      });
+      div.addEventListener('dragend', function () { div.classList.remove('dragging'); });
+      div.addEventListener('dragover', function (e) { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', function () { div.classList.remove('drag-over'); });
+      div.addEventListener('drop', function (e) {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        var payload = e.dataTransfer.getData('text/plain');
+        if (!payload.startsWith('kept:')) return;
+        var fromIdx = parseInt(payload.split(':')[1], 10);
+        if (isNaN(fromIdx) || fromIdx === i) return;
+        var moved = editKeptImages.splice(fromIdx, 1)[0];
+        editKeptImages.splice(i, 0, moved);
+        renderEditPhotoPreview();
+      });
       preview.appendChild(div);
     });
     // Render new (uploaded) files
     editPhotoFiles.forEach(function (file, i) {
       var newId = 'new-' + i;
       var isPreview = (newId === effectivePreview);
+      var globalIdx = editKeptImages.length + i;
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
+      div.draggable = true;
       var reader = new FileReader();
       reader.onload = function (e) {
         var img = div.querySelector('img');
         if (img) img.src = e.target.result;
       };
-      div.innerHTML = '<img src="" alt="New photo ' + (i + 1) + '" title="Click to set as preview">' +
-        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (isPreview ? 'Preview' : 'New ' + (i + 1)) + '</span>';
+      div.innerHTML = '<img src="" alt="New photo ' + (i + 1) + '" title="Click to set as featured">' +
+        '<button type="button" class="photo-remove-btn" title="Remove">&times;</button>' +
+        (isPreview ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Featured' : (globalIdx + 1) + ' of ' + totalCount) + '</span>';
+      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        editPhotoFiles.splice(i, 1);
+        if (editPreviewName === newId) editPreviewName = null;
+        renderEditPhotoPreview();
+      });
       div.addEventListener('click', function () {
         editPreviewName = newId;
         renderEditPhotoPreview();
@@ -2062,9 +2378,12 @@
       preview.appendChild(div);
       reader.readAsDataURL(file);
     });
-    // Show/hide scan button
+    // Show/hide AI buttons
+    var hasPhotos = editKeptImages.length > 0 || editPhotoFiles.length > 0;
     var scanBtn = $('editScanPhotosBtn');
-    if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length && !editPhotoFiles.length);
+    if (scanBtn) scanBtn.classList.toggle('hide', !hasPhotos);
+    var autofillBtn = $('editAiAutofillBtn');
+    if (autofillBtn) autofillBtn.classList.toggle('hide', !hasPhotos && !($('editVin') && $('editVin').value.trim()));
   }
 
   function setupEditPhotoDrop() {
@@ -3321,6 +3640,34 @@
       });
     }
 
+    // Unified AI Autofill — Add form
+    if ($('addAiAutofillBtn')) {
+      $('addAiAutofillBtn').addEventListener('click', function () { runAiAutofill('add'); });
+    }
+    if ($('addAiApplyBtn')) {
+      $('addAiApplyBtn').addEventListener('click', function () { applyAiReviewSelections('add'); });
+    }
+    if ($('addAiDismissBtn')) {
+      $('addAiDismissBtn').addEventListener('click', function () {
+        var panel = $('addAiReview');
+        if (panel) panel.classList.add('hide');
+      });
+    }
+
+    // Unified AI Autofill — Edit modal
+    if ($('editAiAutofillBtn')) {
+      $('editAiAutofillBtn').addEventListener('click', function () { runAiAutofill('edit'); });
+    }
+    if ($('editAiApplyBtn')) {
+      $('editAiApplyBtn').addEventListener('click', function () { applyAiReviewSelections('edit'); });
+    }
+    if ($('editAiDismissBtn')) {
+      $('editAiDismissBtn').addEventListener('click', function () {
+        var panel = $('editAiReview');
+        if (panel) panel.classList.add('hide');
+      });
+    }
+
     // Inventory import/export
     $('loadFromSiteBtn').addEventListener('click', loadInventoryFromSite);
     $('importInventoryFile').addEventListener('change', importInventoryFile);
@@ -3328,11 +3675,22 @@
 
     // Add Vehicle
     addForm.addEventListener('submit', handleAddSubmit);
-    $('clearAdd').addEventListener('click', () => { addForm.reset(); hideFeedback(addFeedback); updateLivePreview(); });
+    $('clearAdd').addEventListener('click', () => {
+      addForm.reset(); hideFeedback(addFeedback); updateLivePreview();
+      addPhotoFiles = []; addPreviewIndex = 0;
+      if ($('photoPreview')) $('photoPreview').innerHTML = '';
+      updatePhotoCount('addPhotoCount', 0);
+      if ($('addAiReview')) $('addAiReview').classList.add('hide');
+      if ($('addAiStatus')) $('addAiStatus').classList.add('hide');
+    });
     $('cancelEditVehicle').addEventListener('click', exitEditMode);
     $('decodeVinBtn').addEventListener('click', decodeVin);
     $('applyVinBtn').addEventListener('click', applyVinData);
-    $('addVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
+    $('addVin').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+      var autofillBtn = $('addAiAutofillBtn');
+      if (autofillBtn) autofillBtn.classList.toggle('hide', !this.value.trim() && !addPhotoFiles.length);
+    });
     $('generateDescBtn').addEventListener('click', generateAIDescription);
     $('addPhotos').addEventListener('change', handlePhotoSelect);
 
