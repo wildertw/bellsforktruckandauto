@@ -111,6 +111,32 @@ function metaDescription(v) {
   return `${title} for sale at ${DEALER_NAME} in ${DEALER_CITY}, ${DEALER_STATE}. ${price}${miles ? ` · ${miles}` : ''}. ${v.drivetrain || ''} ${v.transmission || ''}. Inspected, priced fairly, and ready to drive. Call ${DEALER_PHONE}.`.replace(/\s+/g, ' ').trim();
 }
 
+// ── FAQ generator ──
+function generateVDPFaq(v, title) {
+  return [
+    {
+      q: `What is the price of this ${title}?`,
+      a: v.price
+        ? `This ${title} is listed at $${Number(v.price).toLocaleString()}. Contact us at ${DEALER_PHONE} for the latest pricing and financing options.`
+        : `Contact ${DEALER_NAME} at ${DEALER_PHONE} for current pricing on this ${title}.`
+    },
+    {
+      q: `Is financing available for this ${title}?`,
+      a: `Yes. ${DEALER_NAME} offers financing for all credit situations. Apply online or visit us at ${DEALER_STREET}, ${DEALER_CITY}, ${DEALER_STATE} ${DEALER_ZIP}.`
+    },
+    {
+      q: `Can I schedule a test drive for this ${title}?`,
+      a: `Yes. Schedule a test drive online or call ${DEALER_PHONE}. Walk-ins are welcome during business hours.`
+    },
+    {
+      q: `What is the mileage on this ${title}?`,
+      a: v.mileage
+        ? `This ${title} has ${Number(v.mileage).toLocaleString()} miles. All vehicles are inspected before listing.`
+        : `Contact us for current mileage details on this ${title}.`
+    }
+  ];
+}
+
 // ── Schema.org structured data ──
 function buildSchema(v) {
   const title = vehicleTitle(v);
@@ -193,7 +219,27 @@ function buildSchema(v) {
           latitude: DEALER_LAT,
           longitude: DEALER_LNG
         }
-      }
+      },
+      // FAQPage schema
+      {
+        '@type': 'FAQPage',
+        '@id': `${vdpUrl}#faq`,
+        mainEntity: generateVDPFaq(v, title).map(faq => ({
+          '@type': 'Question',
+          name: faq.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.a
+          }
+        }))
+      },
+      // ImageObject entries for vehicle photos
+      ...(v.images || []).slice(0, 10).map((img, i) => ({
+        '@type': 'ImageObject',
+        url: resolveImgAbs(img),
+        name: `${title} - Photo ${i + 1}`,
+        description: `${title} for sale at ${DEALER_NAME} in ${DEALER_CITY}, ${DEALER_STATE}`
+      }))
     ]
   };
 
@@ -222,6 +268,8 @@ function generateVDPHtml(v, allVehicles) {
 
   const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
   const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}#appointment`;
+  const offerHref = `${ASSET_PREFIX}make-an-offer/?vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}`;
+  const tradeHref = `${ASSET_PREFIX}trade-in-value/`;
 
   // Similar vehicles (same make or same type, exclude current)
   const similar = allVehicles
@@ -977,6 +1025,14 @@ ${v.interior.map(i => `                <li class="py-1">${escapeHtml(i)}</li>`).
                 Call ${DEALER_PHONE}
               </a>
               <a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}#appointment" class="vdp-cta-btn dark">Schedule Test Drive</a>
+              <a href="${offerHref}" class="vdp-cta-btn outline" style="color:#0d6efd;border-color:#0d6efd;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H2V1.78a1.5 1.5 0 0 1 1.864-1.454l8.272 2zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13zM5 7a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm6.5 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM8 9.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
+                Make an Offer
+              </a>
+              <a href="${tradeHref}" class="vdp-cta-btn dark" style="background:#6f42c1;">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/></svg>
+                Trade-In Value
+              </a>
             </div>
           </div>
 
@@ -1000,6 +1056,17 @@ ${v.interior.map(i => `                <li class="py-1">${escapeHtml(i)}</li>`).
           </div>
         </div>
       </div>
+
+      <!-- FAQ Section -->
+      <section class="py-4">
+        <h2 class="h5 fw-bold mb-3">Frequently Asked Questions</h2>
+        <div class="accordion" id="vdpFAQ">
+${generateVDPFaq(v, title).map((faq, i) => `          <div class="accordion-item">
+            <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#vdpFaq${i}">${escapeHtml(faq.q)}</button></h3>
+            <div id="vdpFaq${i}" class="accordion-collapse collapse" data-bs-parent="#vdpFAQ"><div class="accordion-body">${escapeHtml(faq.a)}</div></div>
+          </div>`).join('\n')}
+        </div>
+      </section>
 
 ${similar.length > 0 ? `      <!-- Similar Vehicles -->
       <section class="vdp-similar">
@@ -1192,6 +1259,20 @@ function generateSitemap(vehicles) {
   return xml;
 }
 
+// ── Data quality validation ──
+const REQUIRED_FIELDS = ['price', 'mileage', 'type', 'transmission', 'fuelType'];
+const MIN_PHOTOS = 6;
+
+function validateVehicle(v) {
+  const warnings = [];
+  const missing = REQUIRED_FIELDS.filter(f => !v[f]);
+  if (missing.length > 0) warnings.push(`Missing: ${missing.join(', ')}`);
+  const photoCount = (v.images || []).length;
+  if (photoCount < MIN_PHOTOS) warnings.push(`Only ${photoCount} photos (min ${MIN_PHOTOS})`);
+  if (!v.description && !v.trim) warnings.push('No description or trim');
+  return warnings;
+}
+
 // ── Main ──
 function main() {
   const rootDir = __dirname;
@@ -1237,6 +1318,12 @@ function main() {
 
     const title = vehicleTitle(v);
     console.log(`  [${generated}/${vehicles.length}] ${title} → vdp/${id}/${slug}/`);
+
+    // Data quality warnings (non-blocking)
+    const warnings = validateVehicle(v);
+    if (warnings.length > 0) {
+      console.warn(`  ⚠ ${v.stockNumber || 'N/A'} ${title}: ${warnings.join('; ')}`);
+    }
   }
 
   // Generate updated sitemap
