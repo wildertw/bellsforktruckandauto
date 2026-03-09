@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T19:33:03.596Z",
+  "lastUpdated": "2026-03-09T19:33:40.782Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -462,30 +462,6 @@
         "blob:02934BF-10.jpg",
         "blob:02934BF-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
-    },
-    {
-      "vin": "1GCPTBE14J1171074",
-      "stockNumber": "02941BF",
-      "year": 2018,
-      "make": "CHEVROLET",
-      "model": "COLORADO",
-      "trim": "Work Truck",
-      "engine": "LWN - DI: Direct Injection, XLDE",
-      "transmission": "Automatic",
-      "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "Diesel",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-09"
     },
     {
