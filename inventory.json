@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T19:32:19.772Z",
+  "lastUpdated": "2026-03-09T19:33:03.596Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -444,12 +444,24 @@
       "type": "Sedan",
       "exteriorColor": "Ice Silver Metallic",
       "interiorColor": "Black",
-      "description": "",
+      "description": "This sleek 2021 Subaru WRX LT with a powerful DIB Turbo engine is in excellent condition with just 36,869 miles on the odometer. With its sporty design and impressive performance capabilities, this WRX is sure to turn heads on the road.",
       "features": [],
       "status": "available",
       "badge": "",
       "featured": false,
-      "images": [],
+      "images": [
+        "blob:02934BF-01.jpg",
+        "blob:02934BF-02.jpg",
+        "blob:02934BF-03.jpg",
+        "blob:02934BF-04.jpg",
+        "blob:02934BF-05.jpg",
+        "blob:02934BF-06.jpg",
+        "blob:02934BF-07.jpg",
+        "blob:02934BF-08.jpg",
+        "blob:02934BF-09.jpg",
+        "blob:02934BF-10.jpg",
+        "blob:02934BF-11.jpg"
+      ],
       "dateAdded": "2026-03-09"
     },
     {
