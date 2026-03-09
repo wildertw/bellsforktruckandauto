@@ -98,6 +98,107 @@ const CATEGORIES = [
       { q: 'Can I use my diesel truck for commercial work?', a: 'Many of our diesel trucks are well-suited for commercial and agricultural use. Ask us about specific towing capacities and work-ready options.' },
     ],
   },
+  // ── Model-specific pages ──
+  {
+    slug: 'used-ford-f150-greenville-nc',
+    filterFn: v => v.make && v.make.toLowerCase() === 'ford' && v.model && v.model.toLowerCase().includes('f-150'),
+    title: 'Used Ford F-150 for Sale in Greenville, NC',
+    metaTitle: 'Used Ford F-150 for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Shop used Ford F-150 trucks at Bells Fork Truck & Auto in Greenville, NC. XLT, Lariat, King Ranch and more. Inspected, fairly priced. Call (252) 496-0005.',
+    h1: 'Used Ford F-150 Trucks for Sale in Greenville, NC',
+    intro: 'The Ford F-150 is America\u2019s best-selling truck for good reason. At Bells Fork Truck & Auto in Greenville, NC, we regularly stock pre-owned F-150 pickups in a range of trims including XL, XLT, Lariat, and King Ranch. Every F-150 on our lot is inspected and priced competitively. Browse our current selection below.',
+    whyBuyH2: 'Why Buy a Used Ford F-150 from Bells Fork?',
+    whyBuyContent: `<p>The Ford F-150 combines towing capability, payload capacity, and everyday drivability in a package that works for both job sites and family hauling. Whether you need a work truck for Pitt County farms and construction, or a comfortable daily driver with 4x4 capability for Eastern North Carolina roads, the F-150 delivers.</p>
+<p>We carry F-150s with popular engine options including the 2.7L and 3.5L EcoBoost V6, the 5.0L Coyote V8, and the Power Stroke diesel. Many of our F-150s are equipped with 4WD, tow packages, and crew cab configurations.</p>
+<p>Every truck is inspected before it reaches our lot. We check the engine, transmission, frame, brakes, and drivetrain. Our pricing is based on current market data with no hidden fees.</p>
+<p>Financing is available for all credit situations. Visit us at 3840 Charles Blvd, Greenville, NC 27858 or call <a href="tel:+12524960005">(252) 496-0005</a> to schedule a test drive.</p>`,
+    faqs: [
+      { q: 'What Ford F-150 trims do you carry?', a: 'We regularly stock XL, XLT, Lariat, King Ranch, and Platinum trims depending on availability. Check our current inventory for the latest selection.' },
+      { q: 'Do your F-150s come with 4WD?', a: 'Many of our F-150s are 4x4 equipped. Use our inventory filters or call us to find a 4WD model that fits your needs.' },
+      { q: 'What engine options are available?', a: 'We carry F-150s with EcoBoost V6, 5.0L V8, and diesel engine options depending on current stock.' },
+      { q: 'Do you offer financing on F-150 trucks?', a: 'Yes. We work with multiple lenders to help buyers in all credit situations. Apply online or visit us at 3840 Charles Blvd, Greenville, NC 27858.' },
+    ],
+  },
+  {
+    slug: 'used-chevrolet-silverado-greenville-nc',
+    filterFn: v => v.make && v.make.toLowerCase() === 'chevrolet' && v.model && v.model.toLowerCase().includes('silverado'),
+    title: 'Used Chevrolet Silverado for Sale in Greenville, NC',
+    metaTitle: 'Used Chevrolet Silverado for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Browse used Chevrolet Silverado 1500 and 2500 trucks at Bells Fork Truck & Auto in Greenville, NC. Inspected, fair prices. Call (252) 496-0005.',
+    h1: 'Used Chevrolet Silverado Trucks for Sale in Greenville, NC',
+    intro: 'Looking for a used Chevy Silverado in the Greenville, NC area? Bells Fork Truck & Auto carries Silverado 1500 and 2500 models in a variety of trims. Each truck is inspected and priced based on current market values. Browse below or call us to schedule a test drive.',
+    whyBuyH2: 'Why Buy a Used Silverado from Bells Fork?',
+    whyBuyContent: `<p>The Chevrolet Silverado is a proven workhorse built for towing, hauling, and daily driving. Whether you need a half-ton 1500 for commuting and weekend projects or a heavy-duty 2500HD for serious work across Pitt County, our Silverado inventory has options to match.</p>
+<p>We stock Silverados with popular powertrains including the 5.3L V8, 6.2L V8, and Duramax diesel. Many are equipped with 4WD, Z71 off-road packages, and tow-ready configurations.</p>
+<p>Every Silverado is inspected before listing. We verify the engine, transmission, frame, brakes, and electrical systems. Our transparent pricing means no surprises.</p>
+<p>Financing is available for all credit profiles. Visit us at 3840 Charles Blvd, Greenville, NC 27858 or call <a href="tel:+12524960005">(252) 496-0005</a>.</p>`,
+    faqs: [
+      { q: 'Do you carry Silverado 1500 and 2500 models?', a: 'Yes. We stock both Silverado 1500 half-ton and 2500HD heavy-duty models as they become available.' },
+      { q: 'What Silverado trims do you have?', a: 'Our inventory includes WT, Custom, LT, LTZ, and High Country trims depending on current stock.' },
+      { q: 'Are your Silverados 4WD?', a: 'Many of our Silverados are 4x4 equipped. Contact us or browse our inventory to find the drivetrain you need.' },
+      { q: 'Do you offer financing?', a: 'Yes. We work with multiple lenders for all credit situations. Apply online or visit our dealership.' },
+    ],
+  },
+  {
+    slug: 'used-gmc-sierra-greenville-nc',
+    filterFn: v => v.make && v.make.toLowerCase() === 'gmc' && v.model && v.model.toLowerCase().includes('sierra'),
+    title: 'Used GMC Sierra for Sale in Greenville, NC',
+    metaTitle: 'Used GMC Sierra for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Shop used GMC Sierra 1500 and 2500 trucks at Bells Fork Truck & Auto in Greenville, NC. Quality trucks, fair prices. Call (252) 496-0005.',
+    h1: 'Used GMC Sierra Trucks for Sale in Greenville, NC',
+    intro: 'The GMC Sierra combines professional-grade capability with refined comfort. At Bells Fork Truck & Auto in Greenville, NC, we carry pre-owned Sierra 1500 and 2500 models ready for work or daily driving. Every truck is inspected and competitively priced.',
+    whyBuyH2: 'Why Buy a Used GMC Sierra from Bells Fork?',
+    whyBuyContent: `<p>The GMC Sierra delivers the towing and payload performance you expect from a full-size pickup with an upscale interior and feature set. Whether you need a Sierra 1500 for versatile daily use or a 2500HD for heavy-duty towing and hauling across Eastern North Carolina, we have options on our lot.</p>
+<p>We carry Sierras with V8 and Duramax diesel powertrains, 4WD and 2WD configurations, and trims ranging from SLE to Denali. Many come with tow packages, bed liners, and crew cab layouts.</p>
+<p>Each Sierra is inspected before sale. We check the engine, transmission, frame, suspension, and electronics. Our pricing is market-based with no hidden fees.</p>
+<p>Financing is available for all credit situations. Visit us at 3840 Charles Blvd, Greenville, NC 27858 or call <a href="tel:+12524960005">(252) 496-0005</a>.</p>`,
+    faqs: [
+      { q: 'What GMC Sierra models do you carry?', a: 'We stock Sierra 1500 and 2500HD models in various trims including SLE, SLT, AT4, and Denali as available.' },
+      { q: 'Do your Sierras have the Duramax diesel?', a: 'Some of our Sierra inventory includes Duramax diesel powertrains. Check our current listings or call us for availability.' },
+      { q: 'Are your Sierras inspected?', a: 'Every Sierra goes through a multi-point inspection covering the engine, transmission, frame, brakes, and drivetrain before listing.' },
+      { q: 'Do you offer financing on GMC trucks?', a: 'Yes. We offer financing for all credit situations. Apply online or visit us at 3840 Charles Blvd, Greenville, NC 27858.' },
+    ],
+  },
+  {
+    slug: 'used-toyota-tacoma-greenville-nc',
+    filterFn: v => v.make && v.make.toLowerCase() === 'toyota' && v.model && v.model.toLowerCase().includes('tacoma'),
+    title: 'Used Toyota Tacoma for Sale in Greenville, NC',
+    metaTitle: 'Used Toyota Tacoma for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Browse used Toyota Tacoma trucks at Bells Fork Truck & Auto in Greenville, NC. TRD Sport, TRD Off-Road, and more. Call (252) 496-0005.',
+    h1: 'Used Toyota Tacoma Trucks for Sale in Greenville, NC',
+    intro: 'The Toyota Tacoma is one of the most reliable midsize trucks on the road. At Bells Fork Truck & Auto in Greenville, NC, we stock pre-owned Tacomas in SR5, TRD Sport, TRD Off-Road, and other trims. Every Tacoma on our lot is inspected and fairly priced.',
+    whyBuyH2: 'Why Buy a Used Toyota Tacoma from Bells Fork?',
+    whyBuyContent: `<p>The Toyota Tacoma is known for its durability, resale value, and off-road capability. Whether you need a dependable work truck, a weekend trail runner, or a fuel-efficient pickup for daily commuting around Greenville and Pitt County, the Tacoma fits the bill.</p>
+<p>We carry Tacomas with both the 2.7L four-cylinder and 3.5L V6 engines, in 4x2 and 4x4 configurations. Popular trims in our inventory include SR5, TRD Sport, and TRD Off-Road with features like crawl control, locking rear differential, and multi-terrain select.</p>
+<p>Every Tacoma is inspected before listing. We check the frame, engine, transmission, and undercarriage. Our pricing reflects current market values with no hidden fees.</p>
+<p>Financing is available for all credit profiles. Visit us at 3840 Charles Blvd, Greenville, NC 27858 or call <a href="tel:+12524960005">(252) 496-0005</a> to schedule a test drive.</p>`,
+    faqs: [
+      { q: 'What Tacoma trims do you carry?', a: 'We regularly stock SR5, TRD Sport, TRD Off-Road, and Limited trims depending on current inventory.' },
+      { q: 'Do your Tacomas have 4WD?', a: 'Many of our Tacomas are 4x4. Use our inventory filters or call us to find the right drivetrain for you.' },
+      { q: 'Why do Tacomas hold their value so well?', a: 'Toyota Tacomas are known for reliability and durability, which keeps demand and resale values high. A used Tacoma is a smart investment.' },
+      { q: 'Do you offer financing?', a: 'Yes. We work with multiple lenders to get you approved regardless of credit history. Apply online or visit us.' },
+    ],
+  },
+  {
+    slug: 'used-chevrolet-camaro-greenville-nc',
+    filterFn: v => v.make && v.make.toLowerCase() === 'chevrolet' && v.model && v.model.toLowerCase().includes('camaro'),
+    title: 'Used Chevrolet Camaro for Sale in Greenville, NC',
+    metaTitle: 'Used Chevrolet Camaro for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Shop used Chevrolet Camaro coupes at Bells Fork Truck & Auto in Greenville, NC. LT, SS, ZL1 trims available. Fair prices. Call (252) 496-0005.',
+    h1: 'Used Chevrolet Camaro for Sale in Greenville, NC',
+    intro: 'Looking for a used Chevy Camaro in the Greenville, NC area? Bells Fork Truck & Auto carries pre-owned Camaros in LT, SS, and performance trims. Every Camaro is inspected and priced to move. Browse our current inventory below.',
+    whyBuyH2: 'Why Buy a Used Camaro from Bells Fork?',
+    whyBuyContent: `<p>The Chevrolet Camaro delivers sports car performance at a price point that makes sense. Whether you want a turbocharged four-cylinder for fuel-efficient fun, a 6.2L V8 SS for straight-line power, or a track-ready Z/28 or ZL1, the Camaro lineup has something for every enthusiast.</p>
+<p>We carry Camaros in coupe and convertible configurations with both automatic and manual transmissions. Popular trims in our inventory include the 1LT, 2LT, 1SS, and 2SS.</p>
+<p>Every Camaro is inspected before sale. We check the engine, brakes, suspension, tires, and electronics. Our transparent pricing is based on current market data.</p>
+<p>Financing is available for all credit situations. Visit us at 3840 Charles Blvd, Greenville, NC 27858 or call <a href="tel:+12524960005">(252) 496-0005</a>.</p>`,
+    faqs: [
+      { q: 'What Camaro trims do you carry?', a: 'We stock LT, SS, and other performance trims as they become available. Check our inventory for current selection.' },
+      { q: 'Do you have V8 Camaros?', a: 'Yes. We carry Camaros with both the turbocharged four-cylinder and the 6.2L V8 depending on current inventory.' },
+      { q: 'Are your Camaros inspected?', a: 'Every Camaro goes through a multi-point inspection before listing. We check the engine, brakes, suspension, and all major systems.' },
+      { q: 'Do you offer financing on sports cars?', a: 'Yes. We offer financing for all vehicle types and credit situations. Apply online or visit us at our Greenville location.' },
+    ],
+  },
 ];
 
 // ── Build a vehicle card (matches inventory page format) ──
@@ -183,7 +284,9 @@ function buildItemListSchema(vehicles, category) {
 // ── Generate full page HTML ──
 
 function generateCategoryPage(cat, vehicles, allCategories) {
-  const filtered = vehicles.filter(v => v._inferredType === cat.filterType);
+  const filtered = cat.filterFn
+    ? vehicles.filter(cat.filterFn)
+    : vehicles.filter(v => v._inferredType === cat.filterType);
   filtered.sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
 
   const cardsHTML = filtered.map(v => buildCard(v)).join('\n');
@@ -450,7 +553,9 @@ function main() {
     const filePath = path.join(dirPath, 'index.html');
     fs.writeFileSync(filePath, html, 'utf-8');
 
-    const count = vehicles.filter(v => v._inferredType === cat.filterType).length;
+    const count = cat.filterFn
+      ? vehicles.filter(cat.filterFn).length
+      : vehicles.filter(v => v._inferredType === cat.filterType).length;
     console.log(`  ${cat.slug}/index.html — ${count} vehicles`);
   }
 

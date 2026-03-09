@@ -287,56 +287,6 @@
       .featured-grid{ grid-template-columns: 1fr; max-width: 320px; margin-left: auto; margin-right: auto; }
     }
 
-    /* ===== Popular sections ===== */
-    .home-popular{
-      background:#000;
-      color:#fff;
-      padding: 3.25rem 0 3.75rem;
-    }
-    .home-popular .popular-heading{
-      text-align:center;
-      font-weight:500;
-      letter-spacing:.32em;
-      text-transform:uppercase;
-      color: rgba(255,255,255,.62);
-      margin: 0 0 1.25rem;
-    }
-    .popular-grid{
-      display:grid;
-      gap: .5rem 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .popular-grid a{
-      color: rgba(255,255,255,.72);
-      text-decoration:none;
-      font-size: 1.03rem;
-    }
-    .popular-grid a:hover{ color:#fff; text-decoration:underline; }
-
-    .popular-models-grid{
-      display:grid;
-      gap: .55rem 2rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .popular-models-grid a{
-      color: rgba(255,255,255,.72);
-      text-decoration:none;
-      font-size: 1.03rem;
-    }
-    .popular-models-grid a:hover{ color:#fff; text-decoration:underline; }
-
-    @media (max-width: 991.98px){
-      .popular-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .popular-models-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 575.98px){
-      .popular-grid{ grid-template-columns: 1fr; }
-      .popular-models-grid{ grid-template-columns: 1fr; }
-    }
   </style>
 
   <!--
@@ -1099,19 +1049,6 @@
       </div>
     </section>
 
-<section id="popular" class="home-popular">
-  <div class="container">
-    <h2 class="popular-heading">Popular Body Styles</h2>
-    <div class="popular-grid" id="popularBodyStyles"><a href="/inventory?type=truck"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 14l1-4h8l2 4"/><path d="M12 14h5l3-3h1a2 2 0 0 1 2 2v3H1v-2"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg> Pickup Trucks (23)</a><a href="/inventory?type=suv"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14l2-6h14l2 6"/><path d="M1 14h22v3H1z"/><circle cx="6" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg> SUVs (8)</a><a href="/inventory?type=car"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 14l2-5h10l2 5"/><path d="M3 14h18v4H3z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg> Cars (5)</a><a href="/inventory?type=diesel"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 14l1-4h8l2 4"/><path d="M12 14h5l3-3h1a2 2 0 0 1 2 2v3H1v-2"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M15 7v3" stroke-width="2"/></svg> Diesel Vehicles (3)</a><a href="/inventory?type=sedan"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 14l2-5h10l2 5"/><path d="M3 14h18v4H3z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg> Cars (1)</a></div>
-
-    <h2 class="popular-heading mt-5">Popular Makes</h2>
-    <div class="popular-grid" id="popularMakes"><a href="/inventory?make=Chevrolet">Chevrolet (14)</a><a href="/inventory?make=Ford">Ford (8)</a><a href="/inventory?make=Gmc">Gmc (5)</a><a href="/inventory?make=Toyota">Toyota (4)</a><a href="/inventory?make=Jeep">Jeep (2)</a><a href="/inventory?make=Ram">Ram (2)</a><a href="/inventory?make=Dodge">Dodge (1)</a><a href="/inventory?make=Hyundai">Hyundai (1)</a><a href="/inventory?make=Infiniti">Infiniti (1)</a><a href="/inventory?make=Jaguar">Jaguar (1)</a><a href="/inventory?make=Subaru">Subaru (1)</a></div>
-
-    <h2 class="popular-heading mt-5">Popular Make Models</h2>
-    <div class="popular-models-grid" id="popularMakeModels"><a href="/inventory?make=Ford&model=F-150">Ford F-150 (6)</a><a href="/inventory?make=Chevrolet&model=Silverado%201500">Chevrolet Silverado 1500 (3)</a><a href="/inventory?make=Gmc&model=Sierra%201500">Gmc Sierra 1500 (3)</a><a href="/inventory?make=Toyota&model=Tacoma">Toyota Tacoma (3)</a><a href="/inventory?make=Chevrolet&model=Camaro">Chevrolet Camaro (2)</a><a href="/inventory?make=Chevrolet&model=Silverado">Chevrolet Silverado (2)</a><a href="/inventory?make=Chevrolet&model=Suburban">Chevrolet Suburban (2)</a><a href="/inventory?make=Chevrolet&model=Tahoe">Chevrolet Tahoe (2)</a><a href="/inventory?make=Ram&model=1500">Ram 1500 (2)</a><a href="/inventory?make=Chevrolet&model=2500">Chevrolet 2500 (1)</a><a href="/inventory?make=Chevrolet&model=Colorado">Chevrolet Colorado (1)</a><a href="/inventory?make=Chevrolet&model=Corvette">Chevrolet Corvette (1)</a><a href="/inventory?make=Dodge&model=Challenger">Dodge Challenger (1)</a><a href="/inventory?make=Ford&model=Bronco%20Sport">Ford Bronco Sport (1)</a><a href="/inventory?make=Ford&model=F-250">Ford F-250 (1)</a><a href="/inventory?make=Gmc&model=2500">Gmc 2500 (1)</a><a href="/inventory?make=Gmc&model=Yukon%20Denali">Gmc Yukon Denali (1)</a><a href="/inventory?make=Hyundai&model=Santa%20Fe">Hyundai Santa Fe (1)</a><a href="/inventory?make=Infiniti&model=Qx80">Infiniti Qx80 (1)</a><a href="/inventory?make=Jaguar&model=Xjl%20Portfolio">Jaguar Xjl Portfolio (1)</a></div>
-  </div>
-</section>
-
     <!-- SHOP BY BODY STYLE -->
     <section class="py-5 bg-light">
       <div class="container">
@@ -1138,6 +1075,20 @@
           <div class="col-auto"><a href="inventory.html?make=jeep" class="btn btn-outline-dark btn-sm">Jeep</a></div>
           <div class="col-auto"><a href="inventory.html?make=dodge" class="btn btn-outline-dark btn-sm">Dodge</a></div>
           <div class="col-auto"><a href="inventory.html?make=subaru" class="btn btn-outline-dark btn-sm">Subaru</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POPULAR MODELS -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <h2 class="h4 fw-bold mb-4 text-center">Popular Models</h2>
+        <div class="row g-2 justify-content-center">
+          <div class="col-auto"><a href="used-ford-f150-greenville-nc/" class="btn btn-outline-dark btn-sm">Ford F-150</a></div>
+          <div class="col-auto"><a href="used-chevrolet-silverado-greenville-nc/" class="btn btn-outline-dark btn-sm">Chevy Silverado 1500</a></div>
+          <div class="col-auto"><a href="used-gmc-sierra-greenville-nc/" class="btn btn-outline-dark btn-sm">GMC Sierra 1500</a></div>
+          <div class="col-auto"><a href="used-toyota-tacoma-greenville-nc/" class="btn btn-outline-dark btn-sm">Toyota Tacoma</a></div>
+          <div class="col-auto"><a href="used-chevrolet-camaro-greenville-nc/" class="btn btn-outline-dark btn-sm">Chevy Camaro</a></div>
         </div>
       </div>
     </section>
