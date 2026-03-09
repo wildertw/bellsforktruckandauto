@@ -6,166 +6,14 @@
 
 const fs = require('fs');
 const path = require('path');
-
-const SITE_URL = 'https://bellsforkautoandtruck.com';
-const DEALER_NAME = 'Bells Fork Auto & Truck';
-const DEALER_PHONE = '(252) 496-0005';
-const DEALER_PHONE_TEL = '+12524960005';
-const DEALER_SMS_TEL = '+12529170551';
-const DEALER_ADDRESS = '3840 Charles Blvd, Greenville, NC 27858';
-const DEALER_STREET = '3840 Charles Blvd';
-const DEALER_CITY = 'Greenville';
-const DEALER_STATE = 'NC';
-const DEALER_ZIP = '27858';
-const DEALER_LAT = '35.5641462';
-const DEALER_LNG = '-77.349267';
-const DEALER_EMAIL = 'bellsforkautoandtruck@gmail.com';
-const DEALER_FB = 'https://www.facebook.com/profile.php?id=61585590120772';
-const VEHICLE_ASSET_DIR = path.join(__dirname, 'assets', 'vehicles');
-
-// ── Helpers ──
-
-// Resolve an image value — full cloud URL or local assets/vehicles/ path
-function buildLocalImageCandidates(name) {
-  const raw = String(name || '').trim();
-  if (!raw || raw.startsWith('http') || raw.startsWith('blob:')) return [];
-
-  const out = [];
-  const seen = new Set();
-  const add = (candidate) => {
-    const clean = String(candidate || '').trim();
-    if (!clean || seen.has(clean)) return;
-    seen.add(clean);
-    out.push(clean);
-  };
-
-  const extMatch = raw.match(/^(.+?)(?:\.([a-z0-9]+))?$/i);
-  const base = extMatch ? extMatch[1] : raw;
-  const originalExt = extMatch && extMatch[2] ? extMatch[2].toLowerCase() : '';
-
-  const baseVariants = [];
-  const baseSeen = new Set();
-  const addBase = (b) => {
-    const clean = String(b || '').trim();
-    if (!clean || baseSeen.has(clean)) return;
-    baseSeen.add(clean);
-    baseVariants.push(clean);
-  };
-  addBase(base);
-
-  const zeroPadMatch = base.match(/^(.*?)([-_])0([1-9]\d*)$/);
-  if (zeroPadMatch) {
-    const prefix = zeroPadMatch[1];
-    const sep = zeroPadMatch[2];
-    const num = zeroPadMatch[3];
-    const altSep = sep === '-' ? '_' : '-';
-    addBase(`${prefix}${sep}${num}`);
-    addBase(`${prefix}${altSep}${num}`);
-  }
-
-  const plainNumMatch = base.match(/^(.*?)([-_])([1-9]\d*)$/);
-  if (plainNumMatch) {
-    const prefix = plainNumMatch[1];
-    const sep = plainNumMatch[2];
-    const num = plainNumMatch[3];
-    const altSep = sep === '-' ? '_' : '-';
-    const padded = num.padStart(2, '0');
-    addBase(`${prefix}${sep}${padded}`);
-    addBase(`${prefix}${altSep}${num}`);
-    addBase(`${prefix}${altSep}${padded}`);
-  }
-
-  const extList = [];
-  const extSeen = new Set();
-  const addExt = (ext) => {
-    const clean = String(ext || '').toLowerCase();
-    if (!clean || extSeen.has(clean)) return;
-    extSeen.add(clean);
-    extList.push(clean);
-  };
-  addExt(originalExt);
-  ['png', 'jpg', 'jpeg', 'webp'].forEach(addExt);
-
-  baseVariants.forEach((b) => {
-    extList.forEach((ext) => add(`${b}.${ext}`));
-  });
-
-  return out;
-}
-
-function resolveInventoryImageName(name) {
-  const raw = String(name || '').trim();
-  if (!raw || raw.startsWith('http') || raw.startsWith('blob:')) return raw;
-
-  const candidates = buildLocalImageCandidates(raw);
-  for (const c of candidates) {
-    if (fs.existsSync(path.join(VEHICLE_ASSET_DIR, c))) return c;
-  }
-  return raw;
-}
-
-function resolveImg(img, prefix = '') {
-  if (!img) return '';
-  if (img.startsWith('http')) return img;
-  if (img.startsWith('blob:')) return `${prefix}photos/${img.slice(5)}`;
-  return `${prefix}assets/vehicles/${img}`;
-}
-function resolveImgAbs(img) {
-  if (!img) return `${SITE_URL}/assets/hero/shop-front-og.jpg`;
-  if (img.startsWith('http')) return img;
-  if (img.startsWith('blob:')) return `${SITE_URL}/photos/${img.slice(5)}`;
-  return `${SITE_URL}/assets/vehicles/${img}`;
-}
-
-function escapeHtml(str) {
-  return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function escapeAttr(str) {
-  return escapeHtml(str).replace(/`/g, '&#96;');
-}
-
-function titleCase(s) {
-  const str = String(s || '').trim();
-  if (!str) return '';
-  return str.toLowerCase().split(' ').filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-}
-
-function formatMoney(n) {
-  const num = Number(n);
-  if (!Number.isFinite(num)) return 'Call for Price';
-  return `$${num.toLocaleString()}`;
-}
-
-function slugify(str) {
-  return String(str || '').trim().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-function buildVDPSlug(v) {
-  const parts = ['Used', v.year, v.make, v.model, v.trim, 'for-sale-in-Greenville-NC-27858']
-    .filter(Boolean)
-    .map(p => slugify(String(p)))
-    .filter(Boolean);
-  return parts.join('-');
-}
-
-function buildVDPId(v) {
-  return (v.stockNumber || v.vin || v.id || 'NA').toString().replace(/[^a-z0-9]/gi, '');
-}
-
-function buildVDPPath(v) {
-  return `/vdp/${buildVDPId(v)}/${buildVDPSlug(v)}/`;
-}
-
-function todayISO() {
-  return new Date().toISOString().split('T')[0];
-}
+const {
+  SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
+  DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
+  DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
+  escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
+  buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
+  resolveInventoryImageName, resolveImg, resolveImgAbs,
+} = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
 function generateDescription(v) {
@@ -1311,7 +1159,15 @@ function generateSitemap(vehicles) {
   const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'weekly' },
     { loc: '/inventory', priority: '0.9', changefreq: 'daily' },
-    { loc: '/financing', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/used-trucks-greenville-nc/', priority: '0.9', changefreq: 'daily' },
+    { loc: '/used-suvs-greenville-nc/', priority: '0.9', changefreq: 'daily' },
+    { loc: '/used-cars-greenville-nc/', priority: '0.9', changefreq: 'daily' },
+    { loc: '/used-diesel-trucks-greenville-nc/', priority: '0.9', changefreq: 'daily' },
+    { loc: '/financing/', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/schedule-test-drive/', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/make-an-offer/', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/trade-in-value/', priority: '0.8', changefreq: 'monthly' },
+    { loc: '/consignment/', priority: '0.7', changefreq: 'monthly' },
     { loc: '/contact', priority: '0.8', changefreq: 'monthly' },
     { loc: '/about', priority: '0.7', changefreq: 'monthly' },
     { loc: '/reviews', priority: '0.7', changefreq: 'weekly' },
