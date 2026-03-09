@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T19:33:40.782Z",
+  "lastUpdated": "2026-03-09T19:34:39.549Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -565,14 +565,14 @@
       "badge": "",
       "featured": false,
       "images": [
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg",
-        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
-        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
+        "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg"
       ],
       "dateAdded": "2026-03-09"
     },
