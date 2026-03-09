@@ -82,3 +82,30 @@
   to = "/admin-dashboard.html"
   status = 200
   force = true
+
+# Legacy URL redirects (bellsforktruckandauto.com migration)
+[[redirects]]
+  from = "/vehicle/*"
+  to = "/inventory.html"
+  status = 301
+
+[[redirects]]
+  from = "/forms.php"
+  to = "/financing/"
+  status = 301
+
+[[redirects]]
+  from = "/service/"
+  to = "/contact.html"
+  status = 301
+
+[[redirects]]
+  from = "/service"
+  to = "/contact.html"
+  status = 301
+
+# 404 catch-all — MUST be last redirect rule
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404

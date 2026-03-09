@@ -1,6 +1,6 @@
 # Bells Fork Site Build Instructions
 
-This repository contains the static website for Bells Fork Auto & Truck.
+This repository contains the static website for Bells Fork Truck & Auto.
 
 ## Dynamic Blog CMS
 

@@ -22,10 +22,10 @@ const CATEGORIES = [
     slug: 'used-trucks-greenville-nc',
     filterType: 'truck',
     title: 'Used Trucks for Sale in Greenville, NC',
-    metaTitle: 'Used Trucks for Sale in Greenville, NC | Bells Fork Auto & Truck',
-    metaDesc: 'Browse our selection of used trucks for sale at Bells Fork Auto & Truck in Greenville, NC. F-150, Silverado, RAM, Tundra and more. Fair prices, no pressure.',
+    metaTitle: 'Used Trucks for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Browse our selection of used trucks for sale at Bells Fork Truck & Auto in Greenville, NC. F-150, Silverado, RAM, Tundra and more. Fair prices, no pressure.',
     h1: 'Used Trucks for Sale in Greenville, NC',
-    intro: 'Looking for a dependable used truck in the Greenville, NC area? Bells Fork Auto & Truck carries a wide selection of pre-owned pickup trucks from Ford, Chevrolet, RAM, Toyota, and more. Every truck on our lot is inspected, fairly priced, and ready to work. Browse our current inventory below or call us to schedule a test drive.',
+    intro: 'Looking for a dependable used truck in the Greenville, NC area? Bells Fork Truck & Auto carries a wide selection of pre-owned pickup trucks from Ford, Chevrolet, RAM, Toyota, and more. Every truck on our lot is inspected, fairly priced, and ready to work. Browse our current inventory below or call us to schedule a test drive.',
     faqs: [
       { q: 'What brands of used trucks do you carry?', a: 'We regularly stock Ford F-150, F-250, and F-350 trucks, Chevrolet Silverado 1500 and 2500, RAM 1500 and 2500, Toyota Tundra and Tacoma, and other popular models.' },
       { q: 'Do you offer financing on used trucks?', a: 'Yes. We work with multiple lenders to get you approved regardless of credit history. Apply online or visit us at 3840 Charles Blvd, Greenville, NC 27858.' },
@@ -37,10 +37,10 @@ const CATEGORIES = [
     slug: 'used-suvs-greenville-nc',
     filterType: 'suv',
     title: 'Used SUVs for Sale in Greenville, NC',
-    metaTitle: 'Used SUVs for Sale in Greenville, NC | Bells Fork Auto & Truck',
-    metaDesc: 'Shop used SUVs at Bells Fork Auto & Truck in Greenville, NC. Tahoe, Explorer, 4Runner, Wrangler and more. Family-friendly, inspected, and priced right.',
+    metaTitle: 'Used SUVs for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Shop used SUVs at Bells Fork Truck & Auto in Greenville, NC. Tahoe, Explorer, 4Runner, Wrangler and more. Family-friendly, inspected, and priced right.',
     h1: 'Used SUVs for Sale in Greenville, NC',
-    intro: 'Need a spacious, family-friendly SUV? Bells Fork Auto & Truck in Greenville, NC has a great selection of pre-owned SUVs including Chevrolet Tahoe, Ford Explorer, Toyota 4Runner, Jeep Wrangler, and more. All vehicles are inspected and priced competitively. Browse below or give us a call.',
+    intro: 'Need a spacious, family-friendly SUV? Bells Fork Truck & Auto in Greenville, NC has a great selection of pre-owned SUVs including Chevrolet Tahoe, Ford Explorer, Toyota 4Runner, Jeep Wrangler, and more. All vehicles are inspected and priced competitively. Browse below or give us a call.',
     faqs: [
       { q: 'What SUV models do you have available?', a: 'Our inventory frequently includes Chevrolet Tahoe, Suburban, Equinox, Ford Explorer, Expedition, Toyota 4Runner, Highlander, Jeep Wrangler, Cherokee, and more.' },
       { q: 'Are your SUVs inspected before sale?', a: 'Yes. Every vehicle goes through a thorough inspection before it hits our lot. We want you to drive away with confidence.' },
@@ -52,10 +52,10 @@ const CATEGORIES = [
     slug: 'used-cars-greenville-nc',
     filterType: 'car',
     title: 'Used Cars for Sale in Greenville, NC',
-    metaTitle: 'Used Cars for Sale in Greenville, NC | Bells Fork Auto & Truck',
-    metaDesc: 'Find quality used cars for sale at Bells Fork Auto & Truck in Greenville, NC. Sedans, coupes, and more. Honest pricing, no hidden fees. Call (252) 496-0005.',
+    metaTitle: 'Used Cars for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Find quality used cars for sale at Bells Fork Truck & Auto in Greenville, NC. Sedans, coupes, and more. Honest pricing, no hidden fees. Call (252) 496-0005.',
     h1: 'Used Cars for Sale in Greenville, NC',
-    intro: 'Searching for a reliable used car in Greenville, NC? Bells Fork Auto & Truck offers a hand-picked selection of pre-owned sedans, coupes, and other passenger cars. From fuel-efficient commuters to sporty performers, every car we sell is inspected and priced transparently. Take a look at our inventory below.',
+    intro: 'Searching for a reliable used car in Greenville, NC? Bells Fork Truck & Auto offers a hand-picked selection of pre-owned sedans, coupes, and other passenger cars. From fuel-efficient commuters to sporty performers, every car we sell is inspected and priced transparently. Take a look at our inventory below.',
     faqs: [
       { q: 'What types of used cars do you sell?', a: 'We carry a variety of sedans, coupes, and sports cars from brands like Chevrolet, Ford, Toyota, Honda, Nissan, Hyundai, and more.' },
       { q: 'Are your prices negotiable?', a: 'Our vehicles are priced competitively from the start based on market data. We believe in transparent, fair pricing with no hidden fees.' },
@@ -67,10 +67,10 @@ const CATEGORIES = [
     slug: 'used-diesel-trucks-greenville-nc',
     filterType: 'diesel',
     title: 'Used Diesel Trucks for Sale in Greenville, NC',
-    metaTitle: 'Used Diesel Trucks for Sale in Greenville, NC | Bells Fork Auto & Truck',
-    metaDesc: 'Shop used diesel trucks at Bells Fork Auto & Truck in Greenville, NC. Powerstroke, Duramax, Cummins diesels. Built for towing and work. Call (252) 496-0005.',
+    metaTitle: 'Used Diesel Trucks for Sale in Greenville, NC | Bells Fork Truck & Auto',
+    metaDesc: 'Shop used diesel trucks at Bells Fork Truck & Auto in Greenville, NC. Powerstroke, Duramax, Cummins diesels. Built for towing and work. Call (252) 496-0005.',
     h1: 'Used Diesel Trucks for Sale in Greenville, NC',
-    intro: 'Need a diesel truck that can handle heavy towing and hard work? Bells Fork Auto & Truck in Greenville, NC stocks pre-owned diesel pickups including Ford Powerstroke, Chevy Duramax, and RAM Cummins models. Our diesels are inspected, competitively priced, and ready for the job site or the farm.',
+    intro: 'Need a diesel truck that can handle heavy towing and hard work? Bells Fork Truck & Auto in Greenville, NC stocks pre-owned diesel pickups including Ford Powerstroke, Chevy Duramax, and RAM Cummins models. Our diesels are inspected, competitively priced, and ready for the job site or the farm.',
     faqs: [
       { q: 'What diesel truck brands do you carry?', a: 'We stock Ford Super Duty with Powerstroke, Chevrolet Silverado with Duramax, RAM with Cummins, and other diesel models as they become available.' },
       { q: 'Are your diesel trucks inspected?', a: 'Every diesel goes through a comprehensive inspection. We check the engine, turbo system, emissions equipment, and drivetrain before listing.' },
@@ -122,8 +122,8 @@ function buildCard(v) {
 <div class="inv-price-retail">Our Price</div>
 <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
 <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
-<a href="${ASSET_PREFIX}financing.html?vehicle=${encodeURIComponent(fullTitle)}&vin=${encodeURIComponent(v.vin||'')}&price=${encodeURIComponent(v.price||'')}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
-<a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(fullTitle)}&vin=${encodeURIComponent(v.vin||'')}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
+<a href="${ASSET_PREFIX}financing.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}&price=${encodeURIComponent(v.price||'')}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
+<a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
 </div>
 </div>
 </div>`;
@@ -307,6 +307,20 @@ ${buildFAQSchema(cat.faqs)}
       <div class="container">
         <h2 class="h4 fw-bold mb-4">Frequently Asked Questions</h2>
         ${faqHTML}
+      </div>
+    </section>
+
+    <!-- Financing CTA -->
+    <div class="text-center my-4">
+      <a href="${ASSET_PREFIX}financing.html" class="btn btn-primary btn-lg">Apply for Financing</a>
+      <p class="text-muted small mt-2 mb-0">All credit situations welcome. Quick online application.</p>
+    </div>
+
+    <!-- Areas Served -->
+    <section class="py-4 bg-light">
+      <div class="container">
+        <h2 class="h6 fw-bold mb-2">Serving Eastern North Carolina</h2>
+        <p class="small text-muted mb-0">${DEALER_NAME} proudly serves Greenville, Winterville, Ayden, Farmville, Washington, Kinston, New Bern, Jacksonville, and all of Pitt County. Visit us at ${DEALER_STREET}, ${DEALER_CITY}, ${DEALER_STATE} ${DEALER_ZIP} or call <a href="tel:${DEALER_PHONE_TEL}">${DEALER_PHONE}</a>.</p>
       </div>
     </section>
   </main>

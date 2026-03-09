@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Dashboard Statistics Function
+ * Bells Fork Truck & Auto — Dashboard Statistics Function
  * GET /.netlify/functions/dashboard-stats?period=day|week|month
  * GET /.netlify/functions/dashboard-stats?action=goals  (read goals)
  * POST /.netlify/functions/dashboard-stats?action=goals (save goals)

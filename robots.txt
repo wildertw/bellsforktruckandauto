@@ -1,4 +1,4 @@
-# Bells Fork Auto & Truck — robots.txt
+# Bells Fork Truck & Auto — robots.txt
 # https://bellsforkautoandtruck.com/
 
 # Allow all search engine crawlers

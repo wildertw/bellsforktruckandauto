@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Sales Data Function
+ * Bells Fork Truck & Auto — Sales Data Function
  * GET  /.netlify/functions/sales-data        → read all sales records
  * POST /.netlify/functions/sales-data        → upsert a sales record
  *

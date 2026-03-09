@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Inventory Publish Function
+ * Bells Fork Truck & Auto — Inventory Publish Function
  * POST /.netlify/functions/inventory-publish
  *
  * Body: { auth: { user, passwordHash } }

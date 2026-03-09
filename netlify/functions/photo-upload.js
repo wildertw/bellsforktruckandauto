@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Photo Upload Function
+ * Bells Fork Truck & Auto — Photo Upload Function
  * POST /.netlify/functions/photo-upload
  *
  * Body: { auth: { user, passwordHash }, stockNumber, photoIndex, imageData (base64), contentType }

@@ -1,5 +1,5 @@
 # Mobile Optimization Audit & Implementation Plan
-## Bells Fork Auto & Truck — bellsforkautoandtruck.com
+## Bells Fork Truck & Auto — bellsforkautoandtruck.com
 **Audit Date:** March 6, 2026
 **Site Type:** Static HTML + Bootstrap 5 + Netlify Functions
 **Current Stack:** HTML/CSS/JS, Bootstrap 5.3.3, esbuild, Netlify
@@ -173,7 +173,7 @@ cwebp -q 70 shop-front-mobile.jpg -o shop-front-mobile.webp
   <source media="(max-width: 768px)" srcset="assets/hero/shop-front-mobile.webp" type="image/webp">
   <source media="(max-width: 768px)" srcset="assets/hero/shop-front-mobile.jpg" type="image/jpeg">
   <source srcset="assets/hero/shop-front-desktop.webp" type="image/webp">
-  <img src="assets/hero/shop-front-desktop.jpg" alt="Bells Fork Auto & Truck Storefront"
+  <img src="assets/hero/shop-front-desktop.jpg" alt="Bells Fork Truck & Auto Storefront"
        loading="eager" fetchpriority="high" decoding="async"
        width="1920" height="1080">
 </picture>
@@ -490,7 +490,7 @@ self.addEventListener('fetch', (e) => {
 **Update `manifest.json`:**
 ```json
 {
-  "name": "Bells Fork Auto & Truck",
+  "name": "Bells Fork Truck & Auto",
   "short_name": "Bells Fork",
   "start_url": "/",
   "display": "standalone",
