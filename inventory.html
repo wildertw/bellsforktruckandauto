@@ -2378,9 +2378,9 @@
           <div class="inv-price-retail">Our Price</div>
           <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
           <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
-          <a href="financing.html?vehicle=${encodeURIComponent(title+(trim?' '+trim:''))}&vin=${encodeURIComponent(v.vin||'')}&price=${encodeURIComponent(v.price||'')}#applications"
+          <a href="financing.html?vehicle=${encodeURIComponent(title+(trim?' '+trim:''))}&stock=${encodeURIComponent(v.stockNumber||'')}&price=${encodeURIComponent(v.price||'')}#applications"
              class="inv-btn inv-btn-financing">Apply for Financing</a>
-          <a href="contact.html?vehicle=${encodeURIComponent(title+(trim?' '+trim:''))}&vin=${encodeURIComponent(v.vin||'')}#appointment"
+          <a href="contact.html?vehicle=${encodeURIComponent(title+(trim?' '+trim:''))}&stock=${encodeURIComponent(v.stockNumber||'')}#appointment"
              class="inv-btn inv-btn-inquiry">Inquiry</a>
         </div>
       </div>
