@@ -309,6 +309,20 @@ ${buildFAQSchema(cat.faqs)}
         ${faqHTML}
       </div>
     </section>
+
+    <!-- Financing CTA -->
+    <div class="text-center my-4">
+      <a href="${ASSET_PREFIX}financing.html" class="btn btn-primary btn-lg">Apply for Financing</a>
+      <p class="text-muted small mt-2 mb-0">All credit situations welcome. Quick online application.</p>
+    </div>
+
+    <!-- Areas Served -->
+    <section class="py-4 bg-light">
+      <div class="container">
+        <h2 class="h6 fw-bold mb-2">Serving Eastern North Carolina</h2>
+        <p class="small text-muted mb-0">${DEALER_NAME} proudly serves Greenville, Winterville, Ayden, Farmville, Washington, Kinston, New Bern, Jacksonville, and all of Pitt County. Visit us at ${DEALER_STREET}, ${DEALER_CITY}, ${DEALER_STATE} ${DEALER_ZIP} or call <a href="tel:${DEALER_PHONE_TEL}">${DEALER_PHONE}</a>.</p>
+      </div>
+    </section>
   </main>
 
   <!-- FOOTER -->
