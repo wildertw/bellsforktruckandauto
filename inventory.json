@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T04:40:36.300Z",
+  "lastUpdated": "2026-03-09T05:10:59.592Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -145,21 +145,21 @@
       "vin": "1GCWK1EK7HF203958",
       "stockNumber": "02926BF",
       "year": 2017,
-      "make": "Chevrolet",
+      "make": "CHEVROLET",
       "model": "2500",
       "trim": "High Country",
       "engine": "Vortec 6.0L Variable Valve Timing V8 SFI, E85-compatible, FlexFuel capable of running on unleaded or up to 85% ethanol",
-      "transmission": "",
+      "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Diesel",
       "mpgCity": null,
       "mpgHighway": null,
       "mileage": 151828,
       "price": 38995,
-      "type": "truck",
+      "type": "Truck",
       "exteriorColor": "Black",
       "interiorColor": "Black",
-      "description": "Introducing this robust 2017 Chevrolet 2500 High Country, designed for both power and luxury. Equipped with a Vortec 6.0L V8 engine and a dependable 4WD drivetrain, this truck is ready for any challenge. With a stylish black exterior and a comfortable matching interior, it combines performance and aesthetics seamlessly. Perfect for those who demand versatility and capability, this vehicle is an excellent choice for work or play.",
+      "description": "This 2017 CHEVROLET 2500 High Country is equipped with a powerful Vortec 6.0L V8 engine, giving you the flexibility to run on unleaded or E85 fuel. With 4WD capabilities and 151,828 miles, this truck is ready to tackle any terrain with style and reliability.",
       "features": [
         "4WD"
       ],
@@ -167,11 +167,16 @@
       "badge": "",
       "featured": true,
       "images": [
-        "VEHICLE-1GCWK1EK7HF203958-01.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-02.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-03.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-04.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-05.jpg"
+        "blob:02926BF-01.jpg",
+        "blob:02926BF-02.jpg",
+        "blob:02926BF-03.jpg",
+        "blob:02926BF-04.jpg",
+        "blob:02926BF-05.jpg",
+        "blob:02926BF-06.jpg",
+        "blob:02926BF-07.jpg",
+        "blob:02926BF-08.jpg",
+        "blob:02926BF-09.jpg",
+        "blob:02926BF-10.jpg"
       ],
       "dateAdded": "2026-03-09"
     },
