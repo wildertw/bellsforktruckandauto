@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T19:17:01.278Z",
+  "lastUpdated": "2026-03-09T19:19:08.831Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -467,7 +467,7 @@
       "mpgCity": 16,
       "mpgHighway": 24,
       "mileage": 43511,
-      "price": 0,
+      "price": 45000,
       "type": "Truck",
       "exteriorColor": "Riverside Metallic Blue",
       "interiorColor": "Black",
@@ -477,10 +477,10 @@
       "badge": "Low Miles",
       "featured": false,
       "images": [
+        "blob:02942BF-04.jpg",
         "blob:02942BF-01.jpg",
         "blob:02942BF-02.jpg",
         "blob:02942BF-03.jpg",
-        "blob:02942BF-04.jpg",
         "blob:02942BF-05.jpg",
         "blob:02942BF-06.jpg",
         "blob:02942BF-07.jpg",
