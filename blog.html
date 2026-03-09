@@ -10,7 +10,7 @@
   <meta name="keywords" content="car buying tips Greenville NC, truck maintenance Greenville, used car advice, auto dealer blog, Bells Fork Truck & Auto blog" />
   <link rel="canonical" href="https://bellsforkautoandtruck.com/blog.html" />
 
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="robots" content="noindex, follow" />
   <meta name="author" content="Bells Fork Truck & Auto" />
 
   <!-- Open Graph -->
@@ -363,6 +363,20 @@
     let allPosts = [];
     let activeCategory = '';
 
+    /** Show exactly one blog state; hide all others.
+     *  @param {'loading'|'posts'|'empty'|'error'} state */
+    function showBlogState(state) {
+      const skeletonEl = document.getElementById('skeletonGrid');
+      const postsEl    = document.getElementById('postsGrid');
+      const emptyEl    = document.getElementById('emptyState');
+      const errorEl    = document.getElementById('errorState');
+
+      if (skeletonEl) skeletonEl.style.display = state === 'loading' ? '' : 'none';
+      if (postsEl)    postsEl.style.display     = state === 'posts'   ? '' : 'none';
+      if (emptyEl)    emptyEl.style.display     = state === 'empty'   ? '' : 'none';
+      if (errorEl)    errorEl.style.display     = state === 'error'   ? '' : 'none';
+    }
+
     function fmtDate(iso) {
       if (!iso) return '';
       const d = new Date(iso);
@@ -405,13 +419,11 @@
     function renderPosts(posts) {
       const grid = document.getElementById('postsGrid');
       if (!posts.length) {
-        grid.style.display = 'none';
-        document.getElementById('emptyState').style.display = 'block';
+        showBlogState('empty');
         return;
       }
-      document.getElementById('emptyState').style.display = 'none';
       grid.innerHTML = posts.map(postCard).join('');
-      grid.style.display = 'flex';
+      showBlogState('posts');
     }
 
     function buildCategoryFilter(posts) {
@@ -439,16 +451,15 @@
     }
 
     async function loadPosts() {
+      showBlogState('loading');
       try {
         const res = await fetch(`${API}?action=list`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         allPosts = await res.json();
-        document.getElementById('skeletonGrid').style.display = 'none';
         buildCategoryFilter(allPosts);
         renderPosts(allPosts);
       } catch (err) {
-        document.getElementById('skeletonGrid').style.display = 'none';
-        document.getElementById('errorState').style.display = 'block';
+        showBlogState('error');
         console.error('Blog load error:', err);
       }
     }
