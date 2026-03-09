@@ -12,8 +12,9 @@
     "build:forms": "node generate-form-pages.js",
     "build:homepage": "node prerender-homepage.js",
     "build:inventory": "node prerender-inventory.js",
+    "build:sitemap": "node generate-sitemap.js",
     "watch:vdp": "node watch-vdp.js",
-    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory"
+    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory && npm run build:sitemap"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.0"

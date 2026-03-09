@@ -9,6 +9,13 @@ Disallow: /admin-login.html
 Disallow: /admin-bulk.html
 Disallow: /admin-bellsfork.html
 Disallow: /inventory.json
+# Block parameterized inventory URLs to prevent crawl bloat
+Disallow: /*?make=*
+Disallow: /*?model=*
+Disallow: /*?type=*
+Disallow: /*?body=*
+Disallow: /*?sort=*
+Disallow: /*?page=*
 
 # Google
 User-agent: Googlebot

@@ -48,6 +48,36 @@ function vehicleIconSVG(typeKey, size = 28, color = 'currentColor') {
   return icons[typeKey] || icons.car;
 }
 
+// ── Nesting-aware div content replacement ──
+
+function replaceContainerContent(html, elementId, newContent) {
+  const openTagRegex = new RegExp(`<div[^>]*id="${elementId}"[^>]*>`);
+  const match = openTagRegex.exec(html);
+  if (!match) return html;
+
+  const openTag = match[0];
+  const contentStart = match.index + openTag.length;
+
+  // Walk forward counting div depth to find the matching </div>
+  let depth = 1;
+  let i = contentStart;
+  while (i < html.length && depth > 0) {
+    if (html.startsWith('<div', i)) {
+      depth++;
+      i = html.indexOf('>', i) + 1;
+    } else if (html.startsWith('</div>', i)) {
+      depth--;
+      if (depth === 0) break;
+      i += 6;
+    } else {
+      i++;
+    }
+  }
+
+  if (depth !== 0) return html; // malformed, skip
+  return html.slice(0, contentStart) + newContent + html.slice(i);
+}
+
 // ── Build popular sections HTML ──
 
 function buildPopularHTML(vehicles) {
@@ -146,10 +176,7 @@ function main() {
 
   // Inject reviews fallback HTML (client-side JS will overwrite with live data)
   const reviewsHTML = buildReviewsHTML();
-  html = html.replace(
-    /(<div[^>]*class="row g-4"[^>]*id="homeReviews"[^>]*>)([\s\S]*?)(<\/div>)/,
-    (_m, open, _c, close) => `${open}${reviewsHTML}${close}`
-  );
+  html = replaceContainerContent(html, 'homeReviews', reviewsHTML);
 
   fs.writeFileSync(indexPath, html, 'utf-8');
   console.log('Homepage pre-rendered:');
