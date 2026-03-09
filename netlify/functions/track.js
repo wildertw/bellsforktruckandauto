@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Analytics Tracking Function
+ * Bells Fork Truck & Auto — Analytics Tracking Function
  * POST /.netlify/functions/track
  *
  * Body: { type, visitorId, sessionId, page, ts, extra }

@@ -1,7 +1,7 @@
 {
   "name": "bellsfork-site",
   "version": "1.0.0",
-  "description": "Bells Fork Auto & Truck - site tooling",
+  "description": "Bells Fork Truck & Auto - site tooling",
   "scripts": {
     "lint": "eslint . --ext .js --fix",
     "format": "prettier --write \"**/*.{js,css,html,md}\"",

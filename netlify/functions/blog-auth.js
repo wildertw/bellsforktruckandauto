@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Blog Auth Function
+ * Bells Fork Truck & Auto — Blog Auth Function
  * POST /.netlify/functions/blog-auth
  *
  * Body: { username: string, passwordHash: string }

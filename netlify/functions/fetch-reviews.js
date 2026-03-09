@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Fetch Reviews Function
+ * Bells Fork Truck & Auto — Fetch Reviews Function
  * GET /.netlify/functions/fetch-reviews
  *
  * Fetches 5-star reviews from Google Places API, masks full names for privacy,

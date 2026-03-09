@@ -62,7 +62,7 @@
 
   function bindShare(post) {
     const url = window.location.origin + `/blog/${post.slug}`;
-    const text = `${post.title} | Bells Fork Auto & Truck`;
+    const text = `${post.title} | Bells Fork Truck & Auto`;
 
     document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
     document.getElementById('shareX').href = `https://x.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
@@ -131,8 +131,8 @@
 
   function applyPostToPage(post) {
     const pageUrl = `${window.location.origin}/blog/${post.slug}`;
-    const desc = post.metaDescription || post.excerpt || 'Bells Fork Auto & Truck blog post';
-    const title = `${post.title} | Bells Fork Auto & Truck Blog`;
+    const desc = post.metaDescription || post.excerpt || 'Bells Fork Truck & Auto blog post';
+    const title = `${post.title} | Bells Fork Truck & Auto Blog`;
     const image = post.featuredImage || `${window.location.origin}/assets/hero/shop-front-og.jpg`;
 
     document.title = title;

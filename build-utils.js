@@ -4,7 +4,7 @@ const path = require('path');
 
 // ── Dealer constants ──
 const SITE_URL = 'https://bellsforkautoandtruck.com';
-const DEALER_NAME = 'Bells Fork Auto & Truck';
+const DEALER_NAME = 'Bells Fork Truck & Auto';
 const DEALER_PHONE = '(252) 496-0005';
 const DEALER_PHONE_TEL = '+12524960005';
 const DEALER_SMS_TEL = '+12529170551';

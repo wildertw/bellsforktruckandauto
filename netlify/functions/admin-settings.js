@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Admin Settings Function
+ * Bells Fork Truck & Auto — Admin Settings Function
  * GET/POST /.netlify/functions/admin-settings
  *
  * Persists admin settings (OpenAI key, Google Reviews) in Netlify Blobs

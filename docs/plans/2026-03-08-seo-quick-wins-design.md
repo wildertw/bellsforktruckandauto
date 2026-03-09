@@ -27,7 +27,7 @@ Code-level fixes that can be done in a single pass. No content rewrites (About p
 
 ### 5. Standardize Brand Name
 - **Files:** `financing.html`, all pages with logo alt text
-- **Change:** "Bells Fork Truck & Auto" → "Bells Fork Auto & Truck"; "Auto and Truck" → "Auto & Truck"
+- **Change:** "Bells Fork Truck & Auto" → "Bells Fork Truck & Auto"; "Auto and Truck" → "Auto & Truck"
 
 ### 6. Improve Homepage H1
 - **Files:** `index.html`

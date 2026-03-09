@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Inventory Stage Function
+ * Bells Fork Truck & Auto — Inventory Stage Function
  * POST /.netlify/functions/inventory-stage
  *
  * Body: { auth: { user, passwordHash }, inventory: { lastUpdated, vehicles: [...] } }

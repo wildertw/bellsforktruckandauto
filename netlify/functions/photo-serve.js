@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Photo Serve Function
+ * Bells Fork Truck & Auto — Photo Serve Function
  * GET /.netlify/functions/photo-serve/{key}
  *
  * Reads a vehicle photo from Netlify Blobs and returns it with

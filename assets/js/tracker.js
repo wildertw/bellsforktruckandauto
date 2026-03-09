@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Site Analytics Tracker
+ * Bells Fork Truck & Auto — Site Analytics Tracker
  * Tracks page views, phone link clicks, form submissions,
  * session lifecycle (start/end), device type, referrer, and new/returning visitors.
  * Sends events to /.netlify/functions/track via navigator.sendBeacon.

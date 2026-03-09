@@ -1,5 +1,5 @@
 /**
- * Bells Fork Auto & Truck — Vehicle Vision Analysis Function
+ * Bells Fork Truck & Auto — Vehicle Vision Analysis Function
  * POST /.netlify/functions/vehicle-vision
  *
  * Body: { auth: { user, passwordHash }, imageUrls: string[] }

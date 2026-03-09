@@ -1,4 +1,4 @@
-// Service Worker — Bells Fork Auto & Truck
+// Service Worker — Bells Fork Truck & Auto
 // Stale-while-revalidate for static assets, network-first for API calls
 
 const CACHE_NAME = 'bfat-v1';
