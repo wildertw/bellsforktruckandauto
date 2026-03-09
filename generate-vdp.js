@@ -1068,6 +1068,14 @@ ${generateVDPFaq(v, title).map((faq, i) => `          <div class="accordion-item
         </div>
       </section>
 
+      <!-- About the Dealer -->
+      <section class="py-4 bg-light mt-4">
+        <div class="container">
+          <h2 class="h6 fw-bold mb-2">About ${DEALER_NAME}</h2>
+          <p class="small mb-0">Locally owned used vehicle dealership at ${DEALER_STREET}, ${DEALER_CITY}, ${DEALER_STATE} ${DEALER_ZIP}. Every vehicle inspected. Financing available for all credit situations. Serving Greenville, Winterville, Ayden, Farmville, and Pitt County. <a href="${ASSET_PREFIX}contact.html">Contact us</a> or call <a href="tel:${DEALER_PHONE_TEL}">${DEALER_PHONE}</a>.</p>
+        </div>
+      </section>
+
 ${similar.length > 0 ? `      <!-- Similar Vehicles -->
       <section class="vdp-similar">
         <h2>Similar Vehicles</h2>
@@ -1284,12 +1292,14 @@ function main() {
   }
 
   const data = JSON.parse(fs.readFileSync(inventoryPath, 'utf-8'));
-  const vehicles = (data.vehicles || [])
+  const allInventory = data.vehicles || [];
+  const vehicles = allInventory
     .filter(v => v && (v.status === 'available' || !v.status))
     .map(v => ({
       ...v,
       images: Array.isArray(v.images) ? v.images.map(resolveInventoryImageName) : []
     }));
+  const soldVehicles = allInventory.filter(v => v && v.status === 'sold');
 
   if (vehicles.length === 0) {
     console.log('No available vehicles found in inventory.json');
@@ -1331,6 +1341,35 @@ function main() {
   const sitemap = generateSitemap(vehicles);
   fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
   console.log(`\nSitemap updated: ${sitemapPath} (${vehicles.length} VDP entries added)`);
+
+  // ── Redirect rules for sold vehicles ──
+  // Netlify _redirects file: sold VDP URLs → inventory page (301 permanent)
+  const soldRedirects = [];
+  for (const v of soldVehicles) {
+    const id = buildVDPId(v);
+    const slug = buildVDPSlug(v);
+    // Redirect the exact VDP path and any sub-paths
+    soldRedirects.push(`/vdp/${id}/${slug}/*  /inventory.html  301`);
+    // Also redirect stock-number-only paths (without the full slug)
+    soldRedirects.push(`/vdp/${id}/*  /inventory.html  301`);
+  }
+
+  const redirectsPath = path.join(rootDir, '_redirects');
+  if (soldRedirects.length > 0) {
+    const header = '# Auto-generated redirects for sold vehicle VDP pages\n';
+    const redirectContent = header + soldRedirects.join('\n') + '\n';
+    fs.writeFileSync(redirectsPath, redirectContent, 'utf-8');
+    console.log(`\nGenerated ${soldRedirects.length} redirect rules for ${soldVehicles.length} sold vehicles → _redirects`);
+  } else {
+    // No sold vehicles — remove stale _redirects if it exists and only contains our auto-generated content
+    if (fs.existsSync(redirectsPath)) {
+      const existing = fs.readFileSync(redirectsPath, 'utf-8');
+      if (existing.startsWith('# Auto-generated redirects for sold vehicle VDP pages')) {
+        fs.unlinkSync(redirectsPath);
+        console.log('\nNo sold vehicles — removed stale _redirects file');
+      }
+    }
+  }
 
   console.log(`\nDone! Generated ${generated} VDP pages.`);
 }
