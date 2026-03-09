@@ -113,8 +113,8 @@ class InventoryLoader {
     const features = v.features || [];
 
     const vehicleLabel = `${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}`.trim();
-    const applyHref = `financing.html?tab=financing&vehicle=${encodeURIComponent(vehicleLabel)}&vin=${encodeURIComponent(v.vin || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
-    const inquireHref = `contact.html?vehicle=${encodeURIComponent(vehicleLabel)}&vin=${encodeURIComponent(v.vin || '')}#appointment`;
+    const applyHref = `financing.html?tab=financing&vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
+    const inquireHref = `contact.html?vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}#appointment`;
 
     const mpgDisplay = v.mpgCity && v.mpgHighway
       ? `<p class="text-muted small mb-2">⛽ ${v.mpgCity}/${v.mpgHighway} MPG${v.fuelType ? ' · ' + v.fuelType : ''}</p>`
@@ -524,16 +524,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ===== Auto-fill financing form fields from URL params (used by "Apply for This Vehicle" links) =====
   const params = new URLSearchParams(window.location.search);
   const vehicleParam = params.get('vehicle');
-  const vinParam     = params.get('vin');
+  const stockParam   = params.get('stock');
   const priceParam   = params.get('price');
 
   if (vehicleParam) {
     const vehicleField = document.getElementById('vehicleInterest') || document.getElementById('vehicle');
     if (vehicleField) vehicleField.value = vehicleParam;
   }
-  if (vinParam) {
-    const vinField = document.getElementById('vinInterest') || document.getElementById('vin_interest');
-    if (vinField) vinField.value = vinParam;
+  if (stockParam) {
+    const stockField = document.getElementById('vinInterest') || document.getElementById('vin_interest');
+    if (stockField) stockField.value = stockParam;
   }
   if (priceParam) {
     const priceField = document.getElementById('vehiclePrice');

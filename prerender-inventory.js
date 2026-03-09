@@ -33,7 +33,7 @@ function buildRow(v) {
     : `<div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div>`;
 
   const fullTitle = title + (trim ? ' ' + trim : '');
-  const vinParam = encodeURIComponent(v.vin || '');
+  const stockParam = encodeURIComponent(v.stockNumber || '');
   const vehicleParam = encodeURIComponent(fullTitle);
   const priceParam = encodeURIComponent(v.price || '');
 
@@ -57,8 +57,8 @@ function buildRow(v) {
 <div class="inv-price-retail">Our Price</div>
 <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
 <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
-<a href="financing.html?vehicle=${vehicleParam}&vin=${vinParam}&price=${priceParam}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
-<a href="contact.html?vehicle=${vehicleParam}&vin=${vinParam}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
+<a href="financing.html?vehicle=${vehicleParam}&stock=${stockParam}&price=${priceParam}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
+<a href="contact.html?vehicle=${vehicleParam}&stock=${stockParam}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
 </div>
 </div>
 </div>`;

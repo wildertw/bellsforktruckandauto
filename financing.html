@@ -1993,7 +1993,7 @@
     document.addEventListener('DOMContentLoaded', function () {
       var params  = new URLSearchParams(window.location.search);
       var vehicle = params.get('vehicle') || '';
-      var vin     = params.get('vin')     || '';
+      var stock   = params.get('stock')   || '';
       var price   = params.get('price')   || '';
       var tab     = params.get('tab')     || '';
 
@@ -2007,10 +2007,8 @@
         if (makeEl && parts[1]) makeEl.value = parts[1];
         if (modelEl && parts.length > 2) modelEl.value = parts.slice(2).join(' ');
       }
-      if (vin) {
-        var vinEl = document.getElementById('fin-veh-vin');
-        if (vinEl) vinEl.value = vin;
-      }
+      // Stock number is not pre-filled into the VIN field;
+      // it is used for the stock_vin fields on the other tabs below.
       if (price) {
         var priceEl = document.getElementById('fin-veh-price');
         if (priceEl) {
@@ -2019,14 +2017,14 @@
         }
       }
 
-      // ── Other tab forms: still fill combined vehicle/vin fields
+      // ── Other tab forms: fill combined vehicle/stock fields
       var otherVehicleFields = [
         'app-testdrive-interest_vehicle',
         'app-offer-interest_vehicle',
         'app-tradein-interest_vehicle',
         'app-consignment-interest_vehicle'
       ];
-      var otherVinFields = [
+      var otherStockFields = [
         'app-testdrive-stock_vin',
         'app-offer-stock_vin',
         'app-tradein-stock_vin',
@@ -2036,9 +2034,9 @@
         var el = document.getElementById(id);
         if (el && vehicle) el.value = vehicle;
       });
-      otherVinFields.forEach(function (id) {
+      otherStockFields.forEach(function (id) {
         var el = document.getElementById(id);
-        if (el && vin) el.value = vin;
+        if (el && stock) el.value = stock;
       });
 
       // ── Activate the correct tab if ?tab= param is present

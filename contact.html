@@ -815,7 +815,7 @@
     document.addEventListener('DOMContentLoaded', function () {
       var params  = new URLSearchParams(window.location.search);
       var vehicle = params.get('vehicle') || '';
-      var vin     = params.get('vin')     || '';
+      var stock   = params.get('stock')   || '';
 
       if (vehicle) {
         // Select "Vehicle Inquiry" in the dropdown
@@ -832,7 +832,7 @@
         var detailsEl = document.getElementById('details');
         if (detailsEl && !detailsEl.value) {
           var msg = 'I am interested in the ' + vehicle;
-          if (vin) msg += ' (VIN: ' + vin + ')';
+          if (stock) msg += ' (Stock #' + stock + ')';
           msg += '. Please contact me with more information.';
           detailsEl.value = msg;
         }

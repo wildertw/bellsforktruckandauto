@@ -122,8 +122,8 @@ function buildCard(v) {
 <div class="inv-price-retail">Our Price</div>
 <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
 <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
-<a href="${ASSET_PREFIX}financing.html?vehicle=${encodeURIComponent(fullTitle)}&vin=${encodeURIComponent(v.vin||'')}&price=${encodeURIComponent(v.price||'')}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
-<a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(fullTitle)}&vin=${encodeURIComponent(v.vin||'')}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
+<a href="${ASSET_PREFIX}financing.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}&price=${encodeURIComponent(v.price||'')}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
+<a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
 </div>
 </div>
 </div>`;

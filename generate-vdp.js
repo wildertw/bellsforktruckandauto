@@ -220,8 +220,8 @@ function generateVDPHtml(v, allVehicles) {
     ? resolveImgAbs(v.images[0])
     : `${SITE_URL}/assets/hero/shop-front-og.jpg`;
 
-  const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
-  const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}&vin=${encodeURIComponent(vin)}#appointment`;
+  const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
+  const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}#appointment`;
 
   // Similar vehicles (same make or same type, exclude current)
   const similar = allVehicles
