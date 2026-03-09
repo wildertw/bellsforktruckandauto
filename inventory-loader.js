@@ -505,9 +505,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const type  = filterType ? filterType.value : 'all';
     const price = filterPrice ? filterPrice.value : 'all';
 
+    const normalizeType = (t) => {
+      const raw = String(t || '').toLowerCase().trim();
+      if (raw === 'truck' || raw === 'pickup') return 'truck';
+      if (raw === 'suv' || raw === 'crossover') return 'suv';
+      if (raw === 'car' || raw === 'sedan' || raw === 'coupe') return 'car';
+      if (raw === 'diesel') return 'diesel';
+      return raw;
+    };
     const filtered = loader.vehicles.filter(v => {
       const matchesMake  = (make === 'all' || !make) ? true : (String(v.make || '').toLowerCase() === String(make).toLowerCase());
-      const matchesType  = (type === 'all' || !type) ? true : (String(v.type || '').toLowerCase() === String(type).toLowerCase());
+      const vType = normalizeType(v.type);
+      const matchesType  = (type === 'all' || !type) ? true : (vType === String(type).toLowerCase() || (String(type).toLowerCase() === 'diesel' && (v.fuelType || '').toLowerCase() === 'diesel'));
       const matchesPrice = (price === 'all' || !price) ? true : (loader.getPriceRange(v.price) === price);
       return matchesMake && matchesType && matchesPrice;
     });
