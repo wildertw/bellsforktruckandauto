@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-09T04:37:32.794Z",
+  "lastUpdated": "2026-03-09T04:40:36.300Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -119,7 +119,7 @@
       "fuelType": "Gasoline",
       "mileage": 59655,
       "price": 26500,
-      "type": "used",
+      "type": "Truck",
       "exteriorColor": "Stone Gray Metallic",
       "interiorColor": "Gray",
       "description": "This 2019 Ford F-150 XLT features a powerful 5L V8 engine and has only 59,655 miles on the odometer. Don't miss out on the opportunity to own this reliable and rugged truck that is ready for any job you throw its way.",
