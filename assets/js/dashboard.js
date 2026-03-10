@@ -81,9 +81,9 @@
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
   let editFormSnapshot = null; // snapshot of initial form values for dirty-check
-  // Track deleted SKUs/VINs to prevent accidental re-addition
-  const DELETED_KEY = 'dashboardDeletedVehicles';
-  let deletedVehicles = JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
+  // Deleted vehicles are permanently removed — no tracking needed.
+  // Sold vehicles stay in inventory with status 'sold' (filtered from live site).
+  localStorage.removeItem('dashboardDeletedVehicles'); // clean up old tracking data
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -138,26 +138,6 @@
     localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
   }
 
-  function trackDeletedVehicle(item) {
-    deletedVehicles.push({
-      sku: item.sku,
-      vin: item.vin || '',
-      stockNumber: item.stockNumber || '',
-      deletedAt: new Date().toISOString(),
-    });
-    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
-  }
-
-  function wasDeleted(sku, vin) {
-    return deletedVehicles.some(function(d) {
-      return d.sku === sku || (vin && d.vin && d.vin === vin);
-    });
-  }
-
-  function clearDeletedRecord(sku) {
-    deletedVehicles = deletedVehicles.filter(function(d) { return d.sku !== sku; });
-    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
-  }
 
   // ─── Toast Notifications ──────────────────────────────────────────────────
   function showToast(message, type) {
@@ -1165,7 +1145,6 @@
       editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
       if (confirm('Delete ' + item.name + ' (' + item.sku + ')? This cannot be undone.')) {
-        trackDeletedVehicle(item);
         inventory = inventory.filter((entry) => entry.sku !== sku);
         persistInventory();
         renderInventoryTable();
@@ -1346,13 +1325,10 @@
           doors: v.doors || '',
           images: v.images,
         }));
-        // Filter out previously deleted vehicles
-        var skipped = mapped.filter(function(v) { return wasDeleted(v.sku, v.vin); });
-        inventory = mapped.filter(function(v) { return !wasDeleted(v.sku, v.vin); });
+        inventory = mapped;
         persistInventory();
         renderInventoryTable();
         var msg = 'Imported ' + inventory.length + ' vehicles.';
-        if (skipped.length) msg += ' (' + skipped.length + ' previously deleted vehicles excluded.)';
         showFeedback(editFeedback, msg);
       } catch (err) {
         showFeedback(editFeedback, 'Import failed: ' + err.message, true);
@@ -1423,15 +1399,6 @@
           showFeedback(addFeedback, 'SKU already exists.', true);
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
           return;
-        }
-        // Prevent re-adding a previously deleted vehicle
-        var addVin = $('addVin') ? $('addVin').value.trim() : '';
-        if (wasDeleted(sku, addVin)) {
-          if (!confirm('This vehicle was previously deleted. Are you sure you want to re-add it?')) {
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
-            return;
-          }
-          clearDeletedRecord(sku);
         }
         inventory.unshift(vehicle);
         persistInventory();
