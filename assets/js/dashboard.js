@@ -1024,6 +1024,8 @@
       if (!search) return true;
       return [item.sku, item.name, item.category, item.supplier, item.make, item.model, item.vin].some((field) => String(field || '').toLowerCase().includes(search));
     });
+    // Default sort: highest price first
+    filteredInventory.sort(function(a, b) { return (Number(b.price) || 0) - (Number(a.price) || 0); });
     const totalPages = Math.max(1, Math.ceil(filteredInventory.length / pageSize));
     currentPage = Math.min(currentPage, totalPages);
     const start = (currentPage - 1) * pageSize;
