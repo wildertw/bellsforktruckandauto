@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:59:14.430Z",
+  "lastUpdated": "2026-03-10T04:00:44.367Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -336,53 +336,6 @@
         "VEHICLE-1C4BJWDG2GL268370-03.jpg",
         "VEHICLE-1C4BJWDG2GL268370-04.jpg",
         "VEHICLE-1C4BJWDG2GL268370-05.jpg"
-      ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "3TM4Z5CN1MM156792",
-      "stockNumber": "02932BF",
-      "year": 2021,
-      "make": "Toyota",
-      "model": "Tacoma",
-      "trim": "",
-      "engine": "3.5L 6-Cyl",
-      "transmission": "",
-      "drivetrain": "",
-      "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 107000,
-      "price": 25995,
-      "type": "truck",
-      "exteriorColor": "Super White",
-      "interiorColor": "Gray",
-      "description": "Introducing this 2021 Toyota Tacoma, a robust and reliable truck that combines performance with safety. Powered by a 3.5L V6 engine, it delivers a smooth drive and impressive capabilities with 107,000 miles. Enjoy peace of mind with advanced features including a backup camera, forward collision warning, and adaptive cruise control. The striking Super White exterior and comfortable gray interior make this Tacoma as stylish as it is functional, perfect for both work and play.",
-      "features": [
-        "V6",
-        "3.5L",
-        "Backup Camera",
-        "ABS",
-        "Traction Control",
-        "Stability Control",
-        "Daytime Running Lights",
-        "Forward Collision Warning",
-        "Lane Departure Warning",
-        "Adaptive Cruise Control",
-        "Automatic Emergency Braking",
-        "Auto-Reverse Windows"
-      ],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "2021-super-white-toyota-tacoma-02932bf-01.png",
-        "2021-super-white-toyota-tacoma-02932bf-02.png",
-        "2021-super-white-toyota-tacoma-02932bf-03.png",
-        "2021-super-white-toyota-tacoma-02932bf-04.png",
-        "2021-super-white-toyota-tacoma-02932bf-05.png",
-        "2021-super-white-toyota-tacoma-02932bf-06.png",
-        "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
       "dateAdded": "2026-03-10"
     },
