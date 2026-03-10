@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:57:21.827Z",
+  "lastUpdated": "2026-03-10T03:57:36.038Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -184,40 +184,6 @@
         "VEHICLE-1FTEW1C59KFA20135-08.jpg",
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
-      ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GCWK1EK7HF203958",
-      "stockNumber": "02926BF",
-      "year": 2017,
-      "make": "Chevrolet",
-      "model": "2500",
-      "trim": "High Country",
-      "engine": "Vortec 6.0L Variable Valve Timing V8 SFI, E85-compatible, FlexFuel capable of running on unleaded or up to 85% ethanol",
-      "transmission": "",
-      "drivetrain": "4WD",
-      "fuelType": "Diesel",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 151828,
-      "price": 38995,
-      "type": "truck",
-      "exteriorColor": "Black",
-      "interiorColor": "Black",
-      "description": "Introducing this robust 2017 Chevrolet 2500 High Country, designed for both power and luxury. Equipped with a Vortec 6.0L V8 engine and a dependable 4WD drivetrain, this truck is ready for any challenge. With a stylish black exterior and a comfortable matching interior, it combines performance and aesthetics seamlessly. Perfect for those who demand versatility and capability, this vehicle is an excellent choice for work or play.",
-      "features": [
-        "4WD"
-      ],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "VEHICLE-1GCWK1EK7HF203958-01.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-02.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-03.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-04.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-05.jpg"
       ],
       "dateAdded": "2026-03-10"
     },
