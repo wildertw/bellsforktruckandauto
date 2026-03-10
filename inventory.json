@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:01:25.153Z",
+  "lastUpdated": "2026-03-10T04:01:26.769Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -444,30 +444,6 @@
       "model": "SIERRA 1500",
       "trim": "SLE",
       "engine": "L83 - SIDI, VVT, AFM, E85 MAX, Aluminum.",
-      "transmission": "",
-      "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GNSK2KC7BR280590",
-      "stockNumber": "02988BF",
-      "year": 2011,
-      "make": "CHEVROLET",
-      "model": "SUBURBAN",
-      "trim": "Police Vehicle",
-      "engine": "LAF",
       "transmission": "",
       "drivetrain": "4WD/4-Wheel Drive/4x4",
       "fuelType": "Gasoline",
