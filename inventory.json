@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:55:10.492Z",
+  "lastUpdated": "2026-03-10T03:55:13.871Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -1072,30 +1072,6 @@
       "transmission": "",
       "drivetrain": "",
       "fuelType": "",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "5NMS33AA1KH048032",
-      "stockNumber": "3013",
-      "year": 2019,
-      "make": "HYUNDAI",
-      "model": "SANTA FE",
-      "trim": "SEL, SEL Plus",
-      "engine": "T-GDI THETA II",
-      "transmission": "",
-      "drivetrain": "4x2",
-      "fuelType": "Gasoline",
       "mileage": 0,
       "price": 0,
       "type": "used",
