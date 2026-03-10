@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:04:33.511Z",
+  "lastUpdated": "2026-03-10T03:07:38.823Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -889,32 +889,6 @@
         "blob:03002BF-18.jpg",
         "blob:03002BF-19.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1C6RREHT4KN770971",
-      "stockNumber": "03003BF",
-      "year": 2019,
-      "make": "RAM",
-      "model": "1500",
-      "trim": "Limited",
-      "engine": "5.7L V8",
-      "transmission": "Automatic",
-      "drivetrain": "RWD",
-      "fuelType": "Gasoline",
-      "mpgCity": 15,
-      "mpgHighway": 22,
-      "mileage": 135465,
-      "price": 19995,
-      "type": "used",
-      "exteriorColor": "Bright White Clearcoat",
-      "interiorColor": "Gray",
-      "description": "This 2019 RAM 1500 Limited is equipped with a powerful 5.7L V8 engine and has 135,465 miles on the odometer. With its luxurious features and excellent performance, this truck is a great option for anyone in the market for a reliable and capable vehicle.",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
