@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:43:57.425Z",
+  "lastUpdated": "2026-03-10T04:44:06.383Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -507,32 +507,6 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1FTEX1CF2HKD83738",
-      "stockNumber": "02968BF",
-      "year": 2017,
-      "make": "Ford",
-      "model": "F-150",
-      "trim": "SuperCab",
-      "engine": "5.0L-4V",
-      "transmission": "",
-      "drivetrain": "",
-      "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 100000,
-      "price": 18900,
-      "type": "truck",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "Presenting a dependable 2017 Ford F-150 SuperCab, equipped with a powerful 5.0L engine and boasting 100,000 miles of reliable performance. This versatile truck combines rugged capability with comfort, making it ideal for both work and leisure. With its generous cargo space and fuel-efficient gasoline engine, the F-150 is ready to tackle any challenge. Don't miss the opportunity to own a vehicle that balances strength and practicality seamlessly.",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
