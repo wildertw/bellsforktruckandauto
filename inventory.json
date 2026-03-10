@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:28:55.075Z",
+  "lastUpdated": "2026-03-10T04:30:48.826Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -555,30 +555,6 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "5TFEY5F14EX339447",
-      "stockNumber": "02960BF",
-      "year": 2014,
-      "make": "TOYOTA",
-      "model": "TUNDRA",
-      "trim": "SR5",
-      "engine": "3UR-FE",
-      "transmission": "",
-      "drivetrain": "4x2",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
