@@ -392,14 +392,14 @@ function generateVDPHtml(v, allVehicles) {
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
 
   <!-- Preconnect -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.15/swiper-bundle.min.css">
 
   <!-- Custom Styles -->
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
@@ -1213,7 +1213,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   </div>
 
   <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
   <script>
   // Year in footer
@@ -1228,7 +1228,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   }
 
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.15/swiper-bundle.min.js"></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}
