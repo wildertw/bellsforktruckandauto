@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:10:46.856Z",
+  "lastUpdated": "2026-03-10T04:19:38.143Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -51,7 +51,7 @@
         "VEHICLE-1GNSKBKC2LR309210-05.jpg",
         "VEHICLE-1GNSKBKC2LR309210-06.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1G1YK2D73G5118890",
@@ -105,7 +105,7 @@
         "blob:02914BF-09.jpg",
         "blob:02914BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FT7W2B50GEE02234",
@@ -140,7 +140,7 @@
         "blob:02923BF-09.jpg",
         "blob:02923BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTEW1C59KFA20135",
@@ -185,7 +185,7 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCWK1EK7HF203958",
@@ -195,14 +195,14 @@
       "model": "2500",
       "trim": "High Country",
       "engine": "Vortec 6.0L Variable Valve Timing V8 SFI, E85-compatible, FlexFuel capable of running on unleaded or up to 85% ethanol",
-      "transmission": "",
+      "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Diesel",
       "mpgCity": null,
       "mpgHighway": null,
       "mileage": 151828,
       "price": 38995,
-      "type": "truck",
+      "type": "Truck",
       "exteriorColor": "Black",
       "interiorColor": "Black",
       "description": "Introducing this robust 2017 Chevrolet 2500 High Country, designed for both power and luxury. Equipped with a Vortec 6.0L V8 engine and a dependable 4WD drivetrain, this truck is ready for any challenge. With a stylish black exterior and a comfortable matching interior, it combines performance and aesthetics seamlessly. Perfect for those who demand versatility and capability, this vehicle is an excellent choice for work or play.",
@@ -213,13 +213,18 @@
       "badge": "",
       "featured": true,
       "images": [
-        "VEHICLE-1GCWK1EK7HF203958-01.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-02.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-03.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-04.jpg",
-        "VEHICLE-1GCWK1EK7HF203958-05.jpg"
+        "blob:02926BF-01.jpg",
+        "blob:02926BF-02.jpg",
+        "blob:02926BF-03.jpg",
+        "blob:02926BF-04.jpg",
+        "blob:02926BF-05.jpg",
+        "blob:02926BF-06.jpg",
+        "blob:02926BF-07.jpg",
+        "blob:02926BF-08.jpg",
+        "blob:02926BF-09.jpg",
+        "blob:02926BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C6RR6T45K7506702",
@@ -254,7 +259,7 @@
         "blob:02927BF-09.jpg",
         "blob:02927BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GNSKC7C7FR280449",
@@ -278,7 +283,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCHK23D041175472",
@@ -319,7 +324,7 @@
         "blob:02929BF-09.jpg",
         "blob:02929BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCRCREA2BZ393745",
@@ -358,7 +363,7 @@
         "blob:02930BF-09.jpg",
         "blob:02930BF-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C4BJWDG2GL268370",
@@ -395,7 +400,7 @@
         "VEHICLE-1C4BJWDG2GL268370-04.jpg",
         "VEHICLE-1C4BJWDG2GL268370-05.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3TM4Z5CN1MM156792",
@@ -442,7 +447,7 @@
         "2021-super-white-toyota-tacoma-02932bf-06.png",
         "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "JF1VA1L6XM9505926",
@@ -466,7 +471,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCPTBE14J1171074",
@@ -490,7 +495,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GKFS2HK7HR209139",
@@ -514,7 +519,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1G1FB1R78M0138570",
@@ -538,7 +543,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCRWKED0JR347965",
@@ -575,7 +580,7 @@
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-09.png",
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-10.png"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3FMCR9C60MRA25571",
@@ -622,7 +627,7 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "5TFEY5F14EX339447",
@@ -646,7 +651,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFW1E59JKD87537",
@@ -670,7 +675,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFW1E77MFA76974",
@@ -694,7 +699,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTEX1CF2HKD83738",
@@ -720,7 +725,7 @@
       "badge": "",
       "featured": true,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCRWKED8HZ254252",
@@ -744,7 +749,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "JN8AZ2NF6F9808993",
@@ -768,7 +773,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3GTU2MEC5G2322869",
@@ -792,7 +797,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GNSK2KC7BR280590",
@@ -816,7 +821,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFX1EF6DKB33738",
@@ -840,7 +845,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GNSKCKC3JR178472",
@@ -864,7 +869,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "SAJWA2G79KBW20017",
@@ -888,7 +893,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C6RREHT4KN770971",
@@ -912,7 +917,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C6JJT6N9NL104313",
@@ -936,7 +941,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "5TEVL52N8YZ708255",
@@ -960,7 +965,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1G1FB1R7XJ0156632",
@@ -984,7 +989,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTEW1E53KFB96224",
@@ -1048,7 +1053,7 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3TMCP5AN2PM650535",
@@ -1072,7 +1077,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3GTU2WEC1EG333280",
@@ -1131,7 +1136,7 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GTPEEDM12M234288",
@@ -1155,7 +1160,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GTPEEDM12M234288",
@@ -1179,7 +1184,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCRWKED1JZ34288",
@@ -1203,7 +1208,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "5NMS33AA1KH048032",
@@ -1227,7 +1232,7 @@
       "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "2C3CDZBT8LH123188",
@@ -1273,7 +1278,7 @@
         "blob:2907-09.jpg",
         "blob:2907-10.jpg"
       ],
-      "dateAdded": "2026-03-06"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GCHK23U04F175472",
@@ -1323,7 +1328,7 @@
         "VEHICLE-1GCHK23U04F175472-13.jpg",
         "VEHICLE-1GCHK23U04F175472-14.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFX1EF6DKE83738",
@@ -1364,7 +1369,7 @@
         "VEHICLE-1FTFX1EF6DKE83738-10.jpg",
         "VEHICLE-1FTFX1EF6DKE83738-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "5TFHY5F14EX339447",
@@ -1423,7 +1428,7 @@
         "VEHICLE-5TFHY5F14EX339447-14.jpg",
         "VEHICLE-5TFHY5F14EX339447-15.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GNSCJKC7FR289449",
@@ -1487,7 +1492,7 @@
         "VEHICLE-1GNSCJKC7FR289449-17.jpg",
         "VEHICLE-1GNSCJKC7FR289449-18.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "WDDUG8FB5FA200319",
@@ -1547,7 +1552,7 @@
         "VEHICLE-WDDUG8FB5FA200319-14.jpg",
         "VEHICLE-WDDUG8FB5FA200319-15.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FT7W2BT0GEB02234",
@@ -1603,7 +1608,7 @@
         "VEHICLE-1FT7W2BT0GEB02234-12.jpg",
         "VEHICLE-1FT7W2BT0GEB02234-13.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3GTU2MEC5GG322869",
@@ -1653,7 +1658,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C4BJWDGXGL268370",
@@ -1697,7 +1702,7 @@
         "VEHICLE-1C4BJWDGXGL268370-10.jpg",
         "VEHICLE-1C4BJWDGXGL268370-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3GCUKREC2HG250205",
@@ -1749,7 +1754,7 @@
         "VEHICLE-3GCUKREC2HG250205-11.jpg",
         "VEHICLE-3GCUKREC2HG250205-12.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GC1KWEY7HF203959",
@@ -1806,7 +1811,7 @@
         "VEHICLE-1GC1KWEY7HF203959-11.jpg",
         "VEHICLE-1GC1KWEY7HF203959-12.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFW1EF7HFA76996",
@@ -1858,7 +1863,7 @@
         "VEHICLE-1FTFW1EF7HFA76996-15.jpg",
         "VEHICLE-1FTFW1EF7HFA76996-16.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1G1FH1R7XJ0156632",
@@ -1914,7 +1919,7 @@
         "VEHICLE-1G1FH1R7XJ0156632-12.jpg",
         "VEHICLE-1G1FH1R7XJ0156632-13.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3GCUKSEC0JG347965",
@@ -1968,7 +1973,7 @@
         "VEHICLE-3GCUKSEC0JG347965-09.jpg",
         "VEHICLE-3GCUKSEC0JG347965-10.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GNSCBKC2JR250590",
@@ -2028,7 +2033,7 @@
         "VEHICLE-1GNSCBKC2JR250590-13.jpg",
         "VEHICLE-1GNSCBKC2JR250590-14.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTEW1EP1JKE38404",
@@ -2071,7 +2076,7 @@
         "VEHICLE-1FTEW1EP1JKE38404-10.jpg",
         "VEHICLE-1FTEW1EP1JKE38404-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1FTFX1E59JKD87637",
@@ -2124,7 +2129,7 @@
         "VEHICLE-1FTFX1E59JKD87637-16.jpg",
         "VEHICLE-1FTFX1E59JKD87637-17.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GKS1AKC0KR400775",
@@ -2180,7 +2185,7 @@
         "VEHICLE-1GKS1AKC0KR400775-12.jpg",
         "VEHICLE-1GKS1AKC0KR400775-13.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "SAJWA2G79K8W20017",
@@ -2245,7 +2250,7 @@
         "VEHICLE-SAJWA2G79K8W20017-18.jpg",
         "VEHICLE-SAJWA2G79K8W20017-19.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C6RREFT4KN770971",
@@ -2296,7 +2301,7 @@
         "VEHICLE-1C6RREFT4KN770971-12.jpg",
         "VEHICLE-1C6RREFT4KN770971-13.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1G1FF1R79M0138570",
@@ -2350,7 +2355,7 @@
         "VEHICLE-1G1FF1R79M0138570-14.jpg",
         "VEHICLE-1G1FF1R79M0138570-15.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1GTP9EED1MZ234288",
@@ -2408,7 +2413,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "JF1VA1A68M9805926",
@@ -2458,7 +2463,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "3TMAZ5CN1MM156792",
@@ -2508,7 +2513,7 @@
         "VEHICLE-3TMAZ5CN1MM156792-11.jpg",
         "VEHICLE-3TMAZ5CN1MM156792-12.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     },
     {
       "vin": "1C6HJTFG9NL104313",
@@ -2565,7 +2570,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-03-09"
+      "dateAdded": "2026-03-10"
     }
   ]
 }
