@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:58:20.801Z",
+  "lastUpdated": "2026-03-10T03:58:22.993Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -384,30 +384,6 @@
         "2021-super-white-toyota-tacoma-02932bf-06.png",
         "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GKFS2HK7HR209139",
-      "stockNumber": "02940BF",
-      "year": 2017,
-      "make": "GMC",
-      "model": "YUKON DENALI",
-      "trim": "",
-      "engine": "",
-      "transmission": "",
-      "drivetrain": "",
-      "fuelType": "",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
