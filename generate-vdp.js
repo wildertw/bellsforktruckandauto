@@ -392,14 +392,12 @@ function generateVDPHtml(v, allVehicles) {
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
 
   <!-- Preconnect -->
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet"
-        crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.15/swiper-bundle.min.css">
+  <!-- Bootstrap 5 CSS + Swiper (self-hosted) -->
+  <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css">
 
   <!-- Custom Styles -->
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
@@ -1212,8 +1210,8 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
     </a>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <!-- Bootstrap JS (self-hosted) -->
+  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js"></script>
 
   <script>
   // Year in footer
@@ -1228,7 +1226,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   }
 
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.15/swiper-bundle.min.js"></script>
+  <script src="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.js"></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}
