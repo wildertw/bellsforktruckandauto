@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:58:56.772Z",
+  "lastUpdated": "2026-03-10T03:59:14.430Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -602,30 +602,6 @@
       "engine": "L83 - Spark Ignited Direct Injection, Variable Valve Timing, AFM, E85 MAX, ALUM",
       "transmission": "Automatic",
       "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "SAJWA2G79KBW20017",
-      "stockNumber": "03002BF",
-      "year": 2019,
-      "make": "JAGUAR",
-      "model": "XJL PORTFOLIO",
-      "trim": "XJL Portfolio/XJ 50",
-      "engine": "S/C LEV3 SULEV30",
-      "transmission": "Automatic",
-      "drivetrain": "RWD/Rear-Wheel Drive",
       "fuelType": "Gasoline",
       "mileage": 0,
       "price": 0,
