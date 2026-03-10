@@ -57,6 +57,17 @@
     },
   ];
 
+  // ─── Data Migration: normalize legacy values & set defaults for new fields ──
+  inventory.forEach(function(item) {
+    if (item.category === 'Sedan') item.category = 'Car';
+    if (item.category === 'used') item.category = '';
+    if (!item.condition) item.condition = 'Used';
+    if (!item.titleState) item.titleState = 'Clean';
+    if (!item.warranty) item.warranty = 'Extended Warranty Available';
+    if (!item.doors) item.doors = '4D';
+    if (!item.cylinders) item.cylinders = '';
+  });
+
   let currentPage = 1;
   const pageSize = 6;
   let currentFilter = '';
@@ -207,6 +218,11 @@
         interiorColor: item.interiorColor, description: item.description,
         features: item.features, status: item.status,
         badge: item.badge, featured: item.featured || false,
+        condition: item.condition || 'Used',
+        titleState: item.titleState || 'Clean',
+        warranty: item.warranty || 'Extended Warranty Available',
+        cylinders: item.cylinders || '',
+        doors: item.doors || '',
         images: item.images || [],
         dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
       };
@@ -1073,6 +1089,11 @@
       $('editInteriorColor').value = item.interiorColor || '';
       $('editBadge').value = item.badge || '';
       $('editSupplier').value = item.supplier || '';
+      $('editCondition').value = item.condition || 'Used';
+      $('editTitleState').value = item.titleState || 'Clean';
+      $('editWarranty').value = item.warranty || 'Extended Warranty Available';
+      $('editCylinders').value = item.cylinders || '';
+      $('editDoors').value = item.doors || '4D';
       $('editDescription').value = item.description || '';
       $('editFeatures').value = Array.isArray(item.features) ? item.features.join(', ') : (item.features || '');
       // Reset photo state
@@ -1149,6 +1170,11 @@
       editingItem.interiorColor = $('editInteriorColor').value.trim() || editingItem.interiorColor;
       editingItem.badge = $('editBadge').value;
       editingItem.supplier = $('editSupplier').value.trim() || editingItem.supplier;
+      editingItem.condition = $('editCondition').value || 'Used';
+      editingItem.titleState = $('editTitleState').value || 'Clean';
+      editingItem.warranty = $('editWarranty').value || 'Extended Warranty Available';
+      editingItem.cylinders = $('editCylinders').value || '';
+      editingItem.doors = $('editDoors').value || '';
       editingItem.description = $('editDescription').value.trim();
       var featVal = $('editFeatures').value.trim();
       editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
@@ -1228,6 +1254,11 @@
           features: v.features || [], status: v.status || 'available',
           badge: v.badge, featured: v.featured || false,
           drivetrain: v.drivetrain, fuelType: v.fuelType,
+          condition: v.condition || 'Used',
+          titleState: v.titleState || 'Clean',
+          warranty: v.warranty || 'Extended Warranty Available',
+          cylinders: v.cylinders || '',
+          doors: v.doors || '',
           images: v.images,
         }));
         persistInventory();
@@ -1262,6 +1293,11 @@
           features: v.features || [], status: v.status || 'available',
           badge: v.badge, featured: v.featured || false,
           drivetrain: v.drivetrain, fuelType: v.fuelType,
+          condition: v.condition || 'Used',
+          titleState: v.titleState || 'Clean',
+          warranty: v.warranty || 'Extended Warranty Available',
+          cylinders: v.cylinders || '',
+          doors: v.doors || '',
           images: v.images,
         }));
         persistInventory();
@@ -1388,6 +1424,11 @@
       badge: $('addBadge').value,
       features: $('addFeatures').value.split(',').map((t) => t.trim()).filter(Boolean),
       status: $('addStatus').value,
+      condition: $('addCondition').value || 'Used',
+      titleState: $('addTitleState').value || 'Clean',
+      warranty: $('addWarranty').value || 'Extended Warranty Available',
+      cylinders: $('addCylinders').value,
+      doors: $('addDoors').value || '4D',
       featured: false,
       images: [],
     };
@@ -1417,6 +1458,11 @@
     $('addStatus').value = item.status || 'available';
     $('addBadge').value = item.badge || '';
     $('addSupplier').value = item.supplier || '';
+    $('addCondition').value = item.condition || 'Used';
+    $('addTitleState').value = item.titleState || 'Clean';
+    $('addWarranty').value = item.warranty || 'Extended Warranty Available';
+    $('addCylinders').value = item.cylinders || '';
+    $('addDoors').value = item.doors || '4D';
     $('addDescription').value = item.description || '';
     $('addFeatures').value = (item.features || []).join(', ');
     $('editModeBadge').classList.remove('hide');
@@ -1488,8 +1534,19 @@
     if (vinDecodeData.make) $('addMake').value = vinDecodeData.make;
     if (vinDecodeData.model) $('addModel').value = vinDecodeData.model;
     if (vinDecodeData.trim) $('addTrim').value = vinDecodeData.trim;
-    if (vinDecodeData.engine) $('addEngine').value = vinDecodeData.engine;
-    if (vinDecodeData.transmission) $('addTransmission').value = vinDecodeData.transmission;
+    if (vinDecodeData.engine) {
+      $('addEngine').value = vinDecodeData.engine;
+      var cylMatch = vinDecodeData.engine.match(/V(\d+)/i) || vinDecodeData.engine.match(/(\d+)-cyl/i);
+      if (cylMatch) $('addCylinders').value = cylMatch[1];
+    }
+    if (vinDecodeData.transmission) {
+      var transLower = vinDecodeData.transmission.toLowerCase();
+      $('addTransmission').value = transLower.includes('manual') ? 'Manual' : 'Automatic';
+    }
+    if (vinDecodeData.doors) {
+      var doorVal = String(vinDecodeData.doors).trim();
+      $('addDoors').value = (doorVal === '2' || doorVal.includes('2')) ? '2D' : '4D';
+    }
     if (vinDecodeData.fuel) {
       const fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
       const match = Object.keys(fuelMap).find((k) => (vinDecodeData.fuel || '').includes(k));
@@ -1753,6 +1810,11 @@
           if (clean(r.DriveType)) merged.drivetrain = clean(r.DriveType);
           if (clean(r.FuelTypePrimary)) merged.fuelType = clean(r.FuelTypePrimary);
           if (clean(r.BodyClass)) merged.bodyStyle = clean(r.BodyClass);
+          if (clean(r.EngineCylinders)) merged.cylinders = clean(r.EngineCylinders);
+          if (clean(r.Doors)) {
+            var d = clean(r.Doors);
+            merged.doors = (d === '2' || d.includes('2')) ? '2D' : '4D';
+          }
         } catch (e) { /* VIN decode failed, continue */ }
       }
 
@@ -1789,10 +1851,7 @@
             var data = await res.json();
             if (res.ok && data.analysis) {
               if (data.analysis.exteriorColor) merged.exteriorColor = data.analysis.exteriorColor;
-              if (data.analysis.interiorColor) {
-                merged.interiorColor = data.analysis.interiorColor;
-                if (data.analysis.interiorMaterial) merged.interiorColor += ' ' + data.analysis.interiorMaterial;
-              }
+              if (data.analysis.interiorColor) merged.interiorColor = data.analysis.interiorColor;
               if (data.analysis.bodyStyle && !merged.bodyStyle) merged.bodyStyle = data.analysis.bodyStyle;
             }
           }
@@ -1812,7 +1871,8 @@
       // Build review grid
       var fieldLabels = {
         year: 'Year', make: 'Make', model: 'Model', trim: 'Trim',
-        engine: 'Engine', transmission: 'Transmission', drivetrain: 'Drivetrain',
+        engine: 'Engine', cylinders: 'Cylinders', transmission: 'Transmission',
+        drivetrain: 'Drivetrain', doors: 'Doors',
         fuelType: 'Fuel Type', bodyStyle: 'Body Style',
         exteriorColor: 'Exterior Color', interiorColor: 'Interior Color'
       };
@@ -1820,11 +1880,13 @@
       // Check which fields already have values (manual = don't overwrite)
       var formFieldMap = mode === 'edit' ? {
         year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
-        engine: 'editEngine', transmission: 'editTransmission', drivetrain: 'editDrivetrain',
+        engine: 'editEngine', cylinders: 'editCylinders', transmission: 'editTransmission',
+        drivetrain: 'editDrivetrain', doors: 'editDoors',
         fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
       } : {
         year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
-        engine: 'addEngine', transmission: 'addTransmission', drivetrain: 'addDrivetrain',
+        engine: 'addEngine', cylinders: 'addCylinders', transmission: 'addTransmission',
+        drivetrain: 'addDrivetrain', doors: 'addDoors',
         fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
       };
 
@@ -1861,11 +1923,13 @@
 
     var formFieldMap = mode === 'edit' ? {
       year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
-      engine: 'editEngine', transmission: 'editTransmission', drivetrain: 'editDrivetrain',
+      engine: 'editEngine', cylinders: 'editCylinders', transmission: 'editTransmission',
+      drivetrain: 'editDrivetrain', doors: 'editDoors',
       fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
     } : {
       year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
-      engine: 'addEngine', transmission: 'addTransmission', drivetrain: 'addDrivetrain',
+      engine: 'addEngine', cylinders: 'addCylinders', transmission: 'addTransmission',
+      drivetrain: 'addDrivetrain', doors: 'addDoors',
       fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
     };
 
@@ -1888,6 +1952,15 @@
         } else if (key === 'fuelType') {
           var match2 = Object.keys(fuelMap).find(function (k) { return value.includes(k); });
           if (match2) { el.value = fuelMap[match2]; applied++; }
+        } else if (key === 'transmission') {
+          el.value = value.toLowerCase().includes('manual') ? 'Manual' : 'Automatic';
+          applied++;
+        } else if (key === 'cylinders') {
+          var cylNum = String(value).match(/(\d+)/);
+          if (cylNum) { el.value = cylNum[1]; applied++; }
+        } else if (key === 'doors') {
+          el.value = value;
+          applied++;
         }
       } else {
         el.value = value;
@@ -1969,7 +2042,6 @@
     var fields = [
       { key: 'exteriorColor', label: 'Exterior Color' },
       { key: 'interiorColor', label: 'Interior Color' },
-      { key: 'interiorMaterial', label: 'Interior Material' },
       { key: 'bodyStyle', label: 'Body Style' },
       { key: 'make', label: 'Make' },
       { key: 'model', label: 'Model' },
@@ -2008,15 +2080,11 @@
     if (!analysis) return;
     // Colors always come from photos (VIN cannot provide)
     if (analysis.exteriorColor) $('editExteriorColor').value = analysis.exteriorColor;
-    if (analysis.interiorColor) {
-      var interior = analysis.interiorColor;
-      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
-      $('editInteriorColor').value = interior;
-    }
+    if (analysis.interiorColor) $('editInteriorColor').value = analysis.interiorColor;
 
     // Body style -> category mapping (only if empty)
     if (analysis.bodyStyle) {
-      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var catMap = { Truck: 'Truck', Pickup: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Car', Car: 'Car', Coupe: 'Car', Convertible: 'Car', Wagon: 'Car', Hatchback: 'Car', Van: 'Van', Minivan: 'Van' };
       var cat = catMap[analysis.bodyStyle];
       if (cat && !$('editCategory').value) $('editCategory').value = cat;
     }
@@ -2059,15 +2127,11 @@
     if (!analysis) return;
     // Colors always from photos
     if (analysis.exteriorColor) $('addExteriorColor').value = analysis.exteriorColor;
-    if (analysis.interiorColor) {
-      var interior = analysis.interiorColor;
-      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
-      $('addInteriorColor').value = interior;
-    }
+    if (analysis.interiorColor) $('addInteriorColor').value = analysis.interiorColor;
 
     // Body style -> category (only if empty)
     if (analysis.bodyStyle) {
-      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var catMap = { Truck: 'Truck', Pickup: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Car', Car: 'Car', Coupe: 'Car', Convertible: 'Car', Wagon: 'Car', Hatchback: 'Car', Van: 'Van', Minivan: 'Van' };
       var cat = catMap[analysis.bodyStyle];
       if (cat && !$('addCategory').value) $('addCategory').value = cat;
     }
@@ -2153,8 +2217,19 @@
     if (editVinDecodeData.make) $('editMake').value = editVinDecodeData.make;
     if (editVinDecodeData.model) $('editModel').value = editVinDecodeData.model;
     if (editVinDecodeData.trim) $('editTrim').value = editVinDecodeData.trim;
-    if (editVinDecodeData.engine) $('editEngine').value = editVinDecodeData.engine;
-    if (editVinDecodeData.transmission) $('editTransmission').value = editVinDecodeData.transmission;
+    if (editVinDecodeData.engine) {
+      $('editEngine').value = editVinDecodeData.engine;
+      var cylMatch = editVinDecodeData.engine.match(/V(\d+)/i) || editVinDecodeData.engine.match(/(\d+)-cyl/i);
+      if (cylMatch) $('editCylinders').value = cylMatch[1];
+    }
+    if (editVinDecodeData.transmission) {
+      var transLower = editVinDecodeData.transmission.toLowerCase();
+      $('editTransmission').value = transLower.includes('manual') ? 'Manual' : 'Automatic';
+    }
+    if (editVinDecodeData.doors) {
+      var doorVal = String(editVinDecodeData.doors).trim();
+      $('editDoors').value = (doorVal === '2' || doorVal.includes('2')) ? '2D' : '4D';
+    }
     if (editVinDecodeData.fuel) {
       var fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
       var match = Object.keys(fuelMap).find(function (k) { return (editVinDecodeData.fuel || '').includes(k); });
@@ -3230,9 +3305,10 @@
   // ─── Edit Modal Unsaved Changes Guard ──────────────────────────────────────
   function snapshotEditForm() {
     var editFields = ['editName','editSku','editCategory','editYear','editMake','editModel',
-      'editTrim','editVin','editQuantity','editPrice','editEngine','editTransmission',
-      'editStatus','editStock','editMileage','editDrivetrain','editFuelType','editMpgCity',
+      'editTrim','editVin','editQuantity','editPrice','editEngine','editCylinders','editTransmission',
+      'editStatus','editStock','editMileage','editDrivetrain','editDoors','editFuelType','editMpgCity',
       'editMpgHighway','editExteriorColor','editInteriorColor','editBadge','editSupplier',
+      'editCondition','editTitleState','editWarranty',
       'editDescription','editFeatures'];
     var snap = {};
     editFields.forEach(function(id) { var el = $(id); snap[id] = el ? el.value : ''; });
