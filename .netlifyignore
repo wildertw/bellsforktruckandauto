@@ -3,3 +3,26 @@ node_modules
 .claude
 .env
 *.log
+*.map
+
+# Build scripts — run at build time, not needed on CDN
+optimize-images.js
+generate-vdp.js
+generate-category-pages.js
+generate-form-pages.js
+generate-sitemap.js
+prerender-homepage.js
+prerender-inventory.js
+build-utils.js
+import-scraped-inventory.js
+watch-vdp.js
+serve.js
+
+# Dev tooling & config
+package.json
+package-lock.json
+.eslintrc*
+.prettierrc*
+.gitignore
+docs
+.playwright-mcp
