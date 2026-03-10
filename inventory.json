@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:01:16.018Z",
+  "lastUpdated": "2026-03-10T04:01:25.153Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -518,30 +518,6 @@
       "engine": "L83 - Spark Ignited Direct Injection, Variable Valve Timing, AFM, E85 MAX, ALUM",
       "transmission": "Automatic",
       "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1C6RREHT4KN770971",
-      "stockNumber": "03003BF",
-      "year": 2019,
-      "make": "RAM",
-      "model": "1500",
-      "trim": "Limited",
-      "engine": "V-Shaped",
-      "transmission": "",
-      "drivetrain": "4x2",
       "fuelType": "Gasoline",
       "mileage": 0,
       "price": 0,
