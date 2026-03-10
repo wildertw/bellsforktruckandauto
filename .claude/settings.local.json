@@ -239,7 +239,9 @@
       "Bash(grep -r \"beforeunload\\\\|unload\\\\|beforeLeave\\\\|isDirty\\\\|hasChanged\\\\|unsaved\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.js\" --include=\"*.html\" ! -path \"*/node_modules/*\")",
       "Bash(grep -r \"function.*handleTableActions\\\\|function handleTable\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.js\" ! -path \"*/node_modules/*\")",
       "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''inventory.json'',''utf8''\\)\\); console.log\\(''JSON valid''\\)\")",
-      "Bash(GIT_EDITOR=true git rebase --continue)"
+      "Bash(GIT_EDITOR=true git rebase --continue)",
+      "Bash(npx -y @netlify/mcp@latest --site-id undefined --proxy-path \"https://netlify-mcp.netlify.app/proxy/eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..0-4kPmN-mz0O5eP-.jswkll6FkbxOL3PvPAYLwvpCt5VUx4YCdXOyibRbU83M6cJjq-A_mQkrZGeXXPykdMXmaLlE3JpYuz5--QUs56XIc7jVvWLC0QLJJiFeQ-omKch3UWm3IFFT_3b5_VwJkGs6Ac_3XvAT_tNWyWjlKw9QCooJaoN0K5rV4zxcmsYHsU0zUSV_UzUloM0vFAE393kYRSzysVOkJdkRL9JQoEe5WokDI5OqjJWaUjVfZDD6UNlzAjAtoufQBi1Nzxezk3OlzzTbcqkhVg.MSZAJgLCjkChKmax07IXqQ\")",
+      "Bash(npx netlify-cli deploy --prod --dir=. --message \"Update category pages to match inventory card layout\")"
     ]
   }
 }

@@ -178,12 +178,12 @@
             <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
           </select>
         </div>
-        <div class="app-field narrow"><label for="fin-app-zip">ZIP</label><input type="text" id="fin-app-zip" name="applicant_zip" required autocomplete="postal-code" maxlength="10" pattern="\d{5}(-\d{4})?" inputmode="numeric" title="Enter a 5-digit ZIP code"></div>
+        <div class="app-field narrow"><label for="fin-app-zip">ZIP</label><input type="text" id="fin-app-zip" name="applicant_zip" required autocomplete="postal-code" maxlength="10"></div>
       </div>
       <div class="app-row">
         <div class="app-field"><label for="fin-app-dob">DOB</label><input type="date" id="fin-app-dob" name="applicant_dob" required></div>
         <div class="app-field"><label for="fin-app-ssn">Social Security #</label><input type="password" id="fin-app-ssn" name="applicant_ssn" maxlength="11" placeholder="XXX-XX-XXXX" autocomplete="off"></div>
-        <div class="app-field"><label for="fin-app-phone">Cell Phone #</label><input type="tel" id="fin-app-phone" name="applicant_phone" required autocomplete="tel" pattern="[\d\s\-\(\)\.\+]{7,20}" title="Enter a valid phone number"></div>
+        <div class="app-field"><label for="fin-app-phone">Cell Phone #</label><input type="tel" id="fin-app-phone" name="applicant_phone" required autocomplete="tel"></div>
         <div class="app-field"><label for="fin-app-dl">Driver License #</label><input type="text" id="fin-app-dl" name="applicant_drivers_license" autocomplete="off"></div>
         <div class="app-field xs"><label for="fin-app-dl-state">DL State</label>
           <select id="fin-app-dl-state" name="applicant_dl_state">
@@ -220,7 +220,7 @@
       <div class="app-row">
         <div class="app-field"><label for="fin-occ-income">Gross Monthly Income</label><input type="text" id="fin-occ-income" name="applicant_gross_monthly_income" placeholder="$"></div>
         <div class="app-field narrow"><label for="fin-occ-time">Time at Company</label><input type="text" id="fin-occ-time" name="applicant_time_at_company" placeholder="Yrs. Mos."></div>
-        <div class="app-field"><label for="fin-occ-phone">Phone</label><input type="tel" id="fin-occ-phone" name="applicant_work_phone" pattern="[\d\s\-\(\)\.\+]{7,20}" title="Enter a valid phone number"></div>
+        <div class="app-field"><label for="fin-occ-phone">Phone</label><input type="tel" id="fin-occ-phone" name="applicant_work_phone"></div>
       </div>
       <div class="app-row">
         <div class="app-field"><label for="fin-occ-add-income">Additional Income</label><input type="text" id="fin-occ-add-income" name="applicant_additional_income" placeholder="$"></div>
@@ -262,12 +262,12 @@
             <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
           </select>
         </div>
-        <div class="app-field narrow"><label for="fin-co-zip">ZIP</label><input type="text" id="fin-co-zip" name="co_applicant_zip" maxlength="10" pattern="\d{5}(-\d{4})?" inputmode="numeric" title="Enter a 5-digit ZIP code"></div>
+        <div class="app-field narrow"><label for="fin-co-zip">ZIP</label><input type="text" id="fin-co-zip" name="co_applicant_zip" maxlength="10"></div>
       </div>
       <div class="app-row">
         <div class="app-field"><label for="fin-co-dob">DOB</label><input type="date" id="fin-co-dob" name="co_applicant_dob"></div>
         <div class="app-field"><label for="fin-co-ssn">Social Security #</label><input type="password" id="fin-co-ssn" name="co_applicant_ssn" maxlength="11" placeholder="XXX-XX-XXXX" autocomplete="off"></div>
-        <div class="app-field"><label for="fin-co-phone">Cell Phone #</label><input type="tel" id="fin-co-phone" name="co_applicant_phone" pattern="[\d\s\-\(\)\.\+]{7,20}" title="Enter a valid phone number"></div>
+        <div class="app-field"><label for="fin-co-phone">Cell Phone #</label><input type="tel" id="fin-co-phone" name="co_applicant_phone"></div>
         <div class="app-field"><label for="fin-co-dl">Driver License #</label><input type="text" id="fin-co-dl" name="co_applicant_drivers_license" autocomplete="off"></div>
         <div class="app-field xs"><label for="fin-co-dl-state">DL State</label>
           <select id="fin-co-dl-state" name="co_applicant_dl_state">
@@ -304,7 +304,7 @@
       <div class="app-row">
         <div class="app-field"><label for="fin-co-occ-income">Gross Monthly Income</label><input type="text" id="fin-co-occ-income" name="co_applicant_gross_monthly_income" placeholder="$"></div>
         <div class="app-field narrow"><label for="fin-co-occ-time">Time at Company</label><input type="text" id="fin-co-occ-time" name="co_applicant_time_at_company" placeholder="Yrs. Mos."></div>
-        <div class="app-field"><label for="fin-co-occ-phone">Phone</label><input type="tel" id="fin-co-occ-phone" name="co_applicant_work_phone" pattern="[\d\s\-\(\)\.\+]{7,20}" title="Enter a valid phone number"></div>
+        <div class="app-field"><label for="fin-co-occ-phone">Phone</label><input type="tel" id="fin-co-occ-phone" name="co_applicant_work_phone"></div>
       </div>
       <div class="app-row">
         <div class="app-field"><label for="fin-co-occ-add-income">Additional Income</label><input type="text" id="fin-co-occ-add-income" name="co_applicant_additional_income" placeholder="$"></div>

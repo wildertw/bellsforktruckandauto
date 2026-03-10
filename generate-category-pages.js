@@ -201,52 +201,70 @@ const CATEGORIES = [
   },
 ];
 
-// ── Build a vehicle card (matches inventory page format) ──
+// ── Build a vehicle card (matches inventory page card format) ──
 
 function buildCard(v) {
   const title = `${v.year} ${v.make} ${v.model}`;
   const trim = v.trim || '';
+  const vehicleLabel = `${title}${trim ? ' ' + trim : ''}`.trim();
   const price = v.price ? `$${Number(v.price).toLocaleString('en-US')}` : 'Call for Price';
-  const miles = v.mileage ? `${Number(v.mileage).toLocaleString('en-US')} mi` : '\u2014';
-  const stock = v.stockNumber ? `Stock #: ${escapeHtml(v.stockNumber)}` : '';
-  const engine = escapeHtml(v.engine || '\u2014');
-  const trans = escapeHtml(v.transmission || '\u2014');
-  const drive = escapeHtml(v.drivetrain || '\u2014');
-  const extColor = escapeHtml(v.exteriorColor || '\u2014');
-  const fuel = escapeHtml(v.fuelType || '\u2014');
   const vdpUrl = buildVDPPath(v);
   const mainImage = v.images && v.images.length > 0 ? String(v.images[0]).trim() : '';
   const resolvedSrc = resolveImg(mainImage, ASSET_PREFIX);
+
+  const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
+  const inquireHref = `${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}#appointment`;
+
+  const mpgDisplay = v.mpgCity && v.mpgHighway
+    ? `<p class="text-muted small mb-2">\u26fd ${v.mpgCity}/${v.mpgHighway} MPG${v.fuelType ? ' &middot; ' + escapeHtml(v.fuelType) : ''}</p>`
+    : (v.fuelType ? `<p class="text-muted small mb-2">${escapeHtml(v.fuelType)}</p>` : '');
+
+  const stockDisplay = v.stockNumber
+    ? `<span class="badge bg-secondary mb-2">Stock #${escapeHtml(v.stockNumber)}</span> `
+    : '';
+
+  const badgeClass = (v.badge || '').toLowerCase().includes('new') ? 'bg-success' :
+    (v.badge || '').toLowerCase().includes('sale') ? 'bg-danger' :
+    (v.badge || '').toLowerCase().includes('sold') ? 'bg-dark' : 'bg-warning text-dark';
+
   const imgHtml = mainImage
-    ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy" decoding="async">`
-    : `<div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div>`;
+    ? `<a href="${vdpUrl}" aria-label="View ${escapeAttr(vehicleLabel)} details">
+        <img src="${escapeAttr(resolvedSrc)}"
+             alt="${escapeAttr(vehicleLabel)}"
+             class="card-img-top"
+             style="height:220px; object-fit:cover;"
+             loading="lazy" decoding="async">
+      </a>`
+    : `<div class="inventory-placeholder d-flex align-items-center justify-content-center bg-light" style="height:220px;">
+        <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
+          <circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/>
+          <circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>`;
 
-  const fullTitle = title + (trim ? ' ' + trim : '');
-
-  return `<div class="inv-row mb-2">
-<div class="inv-row-header"></div>
-<div class="inv-row-body">
-<a href="${vdpUrl}" class="inv-img-col" style="text-decoration:none;">${imgHtml}</a>
-<div class="inv-info-col">
-<a href="${vdpUrl}" class="inv-vehicle-title">${escapeHtml(title)}${trim ? ` <span class="inv-trim-label">${escapeHtml(trim)}</span>` : ''}</a>
-<div class="inv-stock-vin">${stock}</div>
-<div class="inv-spec-grid">
-<div class="inv-spec-row"><span class="inv-spec-label">Mileage:</span><span class="inv-spec-value">${miles}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">${engine}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">${trans}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">${drive}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${extColor}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">${fuel}</span></div>
-</div>
-</div>
-<div class="inv-action-col">
-<div class="inv-price-retail">Our Price</div>
-<div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
-<a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
-<a href="${ASSET_PREFIX}financing.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}&price=${encodeURIComponent(v.price||'')}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
-<a href="${ASSET_PREFIX}contact.html?vehicle=${encodeURIComponent(fullTitle)}&stock=${encodeURIComponent(v.stockNumber||'')}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
-</div>
-</div>
+  return `<div class="col-md-6 col-lg-4">
+  <article class="card shadow-soft h-100 inventory-card">
+    <div class="inventory-img-wrap">
+      ${v.badge ? `<span class="inventory-badge ${badgeClass}">${escapeHtml(v.badge)}</span>` : ''}
+      ${imgHtml}
+    </div>
+    <div class="card-body d-flex flex-column">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <h3 class="h6 fw-bold mb-0"><a href="${vdpUrl}" class="text-dark text-decoration-none">${escapeHtml(vehicleLabel)}</a></h3>
+        <span class="badge bg-danger ms-2 flex-shrink-0">${price}</span>
+      </div>
+      <p class="text-muted small mb-2">${escapeHtml(v.description || '')}</p>
+      ${v.mileage ? `<p class="text-muted small mb-2"><strong>${Number(v.mileage).toLocaleString()} miles</strong></p>` : ''}
+      ${mpgDisplay}
+      ${stockDisplay}
+      <div class="d-grid gap-2 mt-auto">
+        <a href="${vdpUrl}" class="btn btn-sm btn-outline-danger w-100">View Details</a>
+        <a href="${applyHref}" class="btn btn-sm btn-danger w-100">Apply for This Vehicle</a>
+        <a href="${inquireHref}" class="btn btn-sm btn-outline-dark w-100">Inquire About This Vehicle</a>
+      </div>
+    </div>
+  </article>
 </div>`;
 }
 
@@ -412,7 +430,9 @@ ${buildFAQSchema(cat.faqs)}
     <!-- Vehicle Listings -->
     <section class="py-4" style="background:#f1f1f1;">
       <div class="container">
-        ${cardsHTML || '<p class="text-center text-muted py-5">No vehicles currently available in this category. Check back soon or <a href="/inventory">browse all inventory</a>.</p>'}
+        <div class="row g-4">
+        ${cardsHTML || '<div class="col-12"><p class="text-center text-muted py-5">No vehicles currently available in this category. Check back soon or <a href="/inventory">browse all inventory</a>.</p></div>'}
+        </div>
       </div>
     </section>
 
