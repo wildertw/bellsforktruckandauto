@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:47:16.175Z",
+  "lastUpdated": "2026-03-10T04:47:40.337Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -104,41 +104,6 @@
         "blob:02914BF-07.jpg",
         "blob:02914BF-09.jpg",
         "blob:02914BF-10.jpg"
-      ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1FT7W2B50GEE02234",
-      "stockNumber": "02923BF",
-      "year": 2016,
-      "make": "FORD",
-      "model": "F-250",
-      "trim": "Super Duty - Single Rear Wheel",
-      "engine": "6.7L",
-      "transmission": "Automatic",
-      "drivetrain": "4WD",
-      "fuelType": "Diesel",
-      "mileage": 175000,
-      "price": 32000,
-      "type": "used",
-      "exteriorColor": "White Platinum Metallic Tri-Coat",
-      "interiorColor": "Brown",
-      "description": "This 2016 Ford F-250 Super Duty boasts a powerful engine and spacious interior, making it the perfect workhorse for any job. With a single rear wheel configuration and 175,000 miles on the odometer, this dependable truck is ready to tackle any task with ease.",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "blob:02923BF-03.jpg",
-        "blob:02923BF-01.jpg",
-        "blob:02923BF-02.jpg",
-        "blob:02923BF-04.jpg",
-        "blob:02923BF-05.jpg",
-        "blob:02923BF-06.jpg",
-        "blob:02923BF-07.jpg",
-        "blob:02923BF-08.jpg",
-        "blob:02923BF-09.jpg",
-        "blob:02923BF-10.jpg"
       ],
       "dateAdded": "2026-03-10"
     },
