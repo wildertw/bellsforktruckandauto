@@ -57,6 +57,17 @@
     },
   ];
 
+  // ─── Data Migration: normalize legacy values & set defaults for new fields ──
+  inventory.forEach(function(item) {
+    if (item.category === 'Sedan') item.category = 'Car';
+    if (item.category === 'used') item.category = '';
+    if (!item.condition) item.condition = 'Used';
+    if (!item.titleState) item.titleState = 'Clean';
+    if (!item.warranty) item.warranty = 'Extended Warranty Available';
+    if (!item.doors) item.doors = '4D';
+    if (!item.cylinders) item.cylinders = '';
+  });
+
   let currentPage = 1;
   const pageSize = 6;
   let currentFilter = '';
@@ -69,6 +80,10 @@
   let editKeptImages = []; // existing image keys to keep when editing
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
+  let editFormSnapshot = null; // snapshot of initial form values for dirty-check
+  // Track deleted SKUs/VINs to prevent accidental re-addition
+  const DELETED_KEY = 'dashboardDeletedVehicles';
+  let deletedVehicles = JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -121,6 +136,27 @@
 
   function persistInventory() {
     localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+  }
+
+  function trackDeletedVehicle(item) {
+    deletedVehicles.push({
+      sku: item.sku,
+      vin: item.vin || '',
+      stockNumber: item.stockNumber || '',
+      deletedAt: new Date().toISOString(),
+    });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
+  }
+
+  function wasDeleted(sku, vin) {
+    return deletedVehicles.some(function(d) {
+      return d.sku === sku || (vin && d.vin && d.vin === vin);
+    });
+  }
+
+  function clearDeletedRecord(sku) {
+    deletedVehicles = deletedVehicles.filter(function(d) { return d.sku !== sku; });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
   }
 
   // ─── Toast Notifications ──────────────────────────────────────────────────
@@ -206,6 +242,11 @@
         interiorColor: item.interiorColor, description: item.description,
         features: item.features, status: item.status,
         badge: item.badge, featured: item.featured || false,
+        condition: item.condition || 'Used',
+        titleState: item.titleState || 'Clean',
+        warranty: item.warranty || 'Extended Warranty Available',
+        cylinders: item.cylinders || '',
+        doors: item.doors || '',
         images: item.images || [],
         dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
       };
@@ -307,8 +348,29 @@
     return res.json();
   }
 
+  // ─── Add Form Dirty Check ───────────────────────────────────────────────────
+  function isAddFormDirty() {
+    if (!addForm) return false;
+    var fields = ['addName','addSku','addCategory','addYear','addMake','addModel',
+      'addTrim','addVin','addPrice','addEngine','addTransmission','addStock',
+      'addMileage','addDescription'];
+    for (var i = 0; i < fields.length; i++) {
+      var el = $(fields[i]);
+      if (el && el.value && el.value.trim()) return true;
+    }
+    if (addPhotoFiles.length > 0) return true;
+    return false;
+  }
+
   // ─── Tab Navigation ─────────────────────────────────────────────────────────
   function switchTab(tab) {
+    // Guard: warn if leaving the Add Vehicle tab with unsaved data
+    var activeTab = document.querySelector('.tab.active');
+    if (activeTab && activeTab.dataset.tab === 'add' && tab.dataset.tab !== 'add') {
+      if (isAddFormDirty()) {
+        if (!confirm('You may lose unsaved data. Are you sure you want to continue?')) return;
+      }
+    }
     tabs.forEach((t) => t.classList.toggle('active', t === tab));
     panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === tab.dataset.tab));
   }
@@ -1072,6 +1134,11 @@
       $('editInteriorColor').value = item.interiorColor || '';
       $('editBadge').value = item.badge || '';
       $('editSupplier').value = item.supplier || '';
+      $('editCondition').value = item.condition || 'Used';
+      $('editTitleState').value = item.titleState || 'Clean';
+      $('editWarranty').value = item.warranty || 'Extended Warranty Available';
+      $('editCylinders').value = item.cylinders || '';
+      $('editDoors').value = item.doors || '4D';
       $('editDescription').value = item.description || '';
       $('editFeatures').value = Array.isArray(item.features) ? item.features.join(', ') : (item.features || '');
       // Reset photo state
@@ -1088,13 +1155,21 @@
       if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length);
       var scanResults = $('editScanResults');
       if (scanResults) { scanResults.classList.add('hide'); scanResults.innerHTML = ''; }
+      // Show AI autofill button if VIN or photos exist
+      var editAutofill = $('editAiAutofillBtn');
+      if (editAutofill) editAutofill.classList.toggle('hide', !editKeptImages.length && !($('editVin') && $('editVin').value.trim()));
+      // Reset AI review panels
+      if ($('editAiReview')) $('editAiReview').classList.add('hide');
+      if ($('editAiStatus')) $('editAiStatus').classList.add('hide');
       editModal.classList.add('active');
+      editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
-      if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
+      if (confirm('Delete ' + item.name + ' (' + item.sku + ')? This cannot be undone.')) {
+        trackDeletedVehicle(item);
         inventory = inventory.filter((entry) => entry.sku !== sku);
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Item removed.');
+        showFeedback(editFeedback, 'Item permanently removed.');
         // Auto-publish deletion to live site
         showToast('Publishing deletion to live site...');
         autoPublish().then(function () {
@@ -1141,6 +1216,11 @@
       editingItem.interiorColor = $('editInteriorColor').value.trim() || editingItem.interiorColor;
       editingItem.badge = $('editBadge').value;
       editingItem.supplier = $('editSupplier').value.trim() || editingItem.supplier;
+      editingItem.condition = $('editCondition').value || 'Used';
+      editingItem.titleState = $('editTitleState').value || 'Clean';
+      editingItem.warranty = $('editWarranty').value || 'Extended Warranty Available';
+      editingItem.cylinders = $('editCylinders').value || '';
+      editingItem.doors = $('editDoors').value || '';
       editingItem.description = $('editDescription').value.trim();
       var featVal = $('editFeatures').value.trim();
       editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
@@ -1173,7 +1253,8 @@
       persistInventory();
       renderInventoryTable();
 
-      // Close modal
+      // Close modal (saved, no dirty-check needed)
+      editFormSnapshot = null;
       editModal.classList.remove('active');
 
       // Auto-publish to live site
@@ -1219,6 +1300,11 @@
           features: v.features || [], status: v.status || 'available',
           badge: v.badge, featured: v.featured || false,
           drivetrain: v.drivetrain, fuelType: v.fuelType,
+          condition: v.condition || 'Used',
+          titleState: v.titleState || 'Clean',
+          warranty: v.warranty || 'Extended Warranty Available',
+          cylinders: v.cylinders || '',
+          doors: v.doors || '',
           images: v.images,
         }));
         persistInventory();
@@ -1237,7 +1323,7 @@
         const data = JSON.parse(reader.result);
         const vehicles = data.vehicles || data;
         if (!Array.isArray(vehicles)) throw new Error('Invalid format');
-        inventory = vehicles.map((v, i) => ({
+        var mapped = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.sku || v.vin || ('IMP-' + String(i + 1).padStart(3, '0')),
           name: v.name || [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
@@ -1253,11 +1339,21 @@
           features: v.features || [], status: v.status || 'available',
           badge: v.badge, featured: v.featured || false,
           drivetrain: v.drivetrain, fuelType: v.fuelType,
+          condition: v.condition || 'Used',
+          titleState: v.titleState || 'Clean',
+          warranty: v.warranty || 'Extended Warranty Available',
+          cylinders: v.cylinders || '',
+          doors: v.doors || '',
           images: v.images,
         }));
+        // Filter out previously deleted vehicles
+        var skipped = mapped.filter(function(v) { return wasDeleted(v.sku, v.vin); });
+        inventory = mapped.filter(function(v) { return !wasDeleted(v.sku, v.vin); });
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Imported ' + inventory.length + ' vehicles.');
+        var msg = 'Imported ' + inventory.length + ' vehicles.';
+        if (skipped.length) msg += ' (' + skipped.length + ' previously deleted vehicles excluded.)';
+        showFeedback(editFeedback, msg);
       } catch (err) {
         showFeedback(editFeedback, 'Import failed: ' + err.message, true);
       }
@@ -1328,6 +1424,15 @@
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
           return;
         }
+        // Prevent re-adding a previously deleted vehicle
+        var addVin = $('addVin') ? $('addVin').value.trim() : '';
+        if (wasDeleted(sku, addVin)) {
+          if (!confirm('This vehicle was previously deleted. Are you sure you want to re-add it?')) {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
+            return;
+          }
+          clearDeletedRecord(sku);
+        }
         inventory.unshift(vehicle);
         persistInventory();
         renderInventoryTable();
@@ -1379,6 +1484,11 @@
       badge: $('addBadge').value,
       features: $('addFeatures').value.split(',').map((t) => t.trim()).filter(Boolean),
       status: $('addStatus').value,
+      condition: $('addCondition').value || 'Used',
+      titleState: $('addTitleState').value || 'Clean',
+      warranty: $('addWarranty').value || 'Extended Warranty Available',
+      cylinders: $('addCylinders').value,
+      doors: $('addDoors').value || '4D',
       featured: false,
       images: [],
     };
@@ -1408,6 +1518,11 @@
     $('addStatus').value = item.status || 'available';
     $('addBadge').value = item.badge || '';
     $('addSupplier').value = item.supplier || '';
+    $('addCondition').value = item.condition || 'Used';
+    $('addTitleState').value = item.titleState || 'Clean';
+    $('addWarranty').value = item.warranty || 'Extended Warranty Available';
+    $('addCylinders').value = item.cylinders || '';
+    $('addDoors').value = item.doors || '4D';
     $('addDescription').value = item.description || '';
     $('addFeatures').value = (item.features || []).join(', ');
     $('editModeBadge').classList.remove('hide');
@@ -1479,8 +1594,19 @@
     if (vinDecodeData.make) $('addMake').value = vinDecodeData.make;
     if (vinDecodeData.model) $('addModel').value = vinDecodeData.model;
     if (vinDecodeData.trim) $('addTrim').value = vinDecodeData.trim;
-    if (vinDecodeData.engine) $('addEngine').value = vinDecodeData.engine;
-    if (vinDecodeData.transmission) $('addTransmission').value = vinDecodeData.transmission;
+    if (vinDecodeData.engine) {
+      $('addEngine').value = vinDecodeData.engine;
+      var cylMatch = vinDecodeData.engine.match(/V(\d+)/i) || vinDecodeData.engine.match(/(\d+)-cyl/i);
+      if (cylMatch) $('addCylinders').value = cylMatch[1];
+    }
+    if (vinDecodeData.transmission) {
+      var transLower = vinDecodeData.transmission.toLowerCase();
+      $('addTransmission').value = transLower.includes('manual') ? 'Manual' : 'Automatic';
+    }
+    if (vinDecodeData.doors) {
+      var doorVal = String(vinDecodeData.doors).trim();
+      $('addDoors').value = (doorVal === '2' || doorVal.includes('2')) ? '2D' : '4D';
+    }
     if (vinDecodeData.fuel) {
       const fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
       const match = Object.keys(fuelMap).find((k) => (vinDecodeData.fuel || '').includes(k));
@@ -1591,16 +1717,62 @@
     }
   }
 
+  // ─── Photo Validation ──────────────────────────────────────────────────────
+  const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const ALLOWED_PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
+  const MAX_PHOTOS = 25;
+
+  function validatePhotoFiles(files) {
+    var valid = [];
+    var rejected = [];
+    Array.from(files).forEach(function (f) {
+      var ext = (f.name || '').toLowerCase().match(/\.[^.]+$/);
+      var extOk = ext && ALLOWED_PHOTO_EXTS.includes(ext[0]);
+      var typeOk = ALLOWED_PHOTO_TYPES.includes(f.type);
+      if (extOk || typeOk) {
+        valid.push(f);
+      } else {
+        rejected.push(f.name);
+      }
+    });
+    return { valid: valid.slice(0, MAX_PHOTOS), rejected: rejected };
+  }
+
+  function showPhotoError(elId, msg) {
+    var el = $(elId);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hide');
+    setTimeout(function () { el.classList.add('hide'); }, 6000);
+  }
+
+  function updatePhotoCount(elId, count) {
+    var el = $(elId);
+    if (el) el.textContent = count + ' / ' + MAX_PHOTOS;
+  }
+
   // ─── Photo Handling ─────────────────────────────────────────────────────────
   function handlePhotoSelect(event) {
     const files = event.target.files;
     if (!files || !files.length) return;
-    addPhotoFiles = Array.from(files).slice(0, 25);
-    addPreviewIndex = 0;
+    var result = validatePhotoFiles(files);
+    if (result.rejected.length) {
+      showPhotoError('addPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    if (result.valid.length + addPhotoFiles.length > MAX_PHOTOS) {
+      var space = MAX_PHOTOS - addPhotoFiles.length;
+      result.valid = result.valid.slice(0, Math.max(0, space));
+      showPhotoError('addPhotoError', 'Max ' + MAX_PHOTOS + ' photos. Only first ' + result.valid.length + ' added.');
+    }
+    addPhotoFiles = addPhotoFiles.concat(result.valid).slice(0, MAX_PHOTOS);
+    if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = 0;
     renderAddPhotoPreview();
-    // Show scan button hint
+    updatePhotoCount('addPhotoCount', addPhotoFiles.length);
+    // Show AI buttons when photos exist
     var scanBtn = $('addScanPhotosBtn');
-    if (scanBtn) scanBtn.classList.remove('hide');
+    if (scanBtn) scanBtn.classList.toggle('hide', !addPhotoFiles.length);
+    var autofillBtn = $('addAiAutofillBtn');
+    if (autofillBtn) autofillBtn.classList.toggle('hide', !addPhotoFiles.length && !$('addVin').value.trim());
   }
 
   function renderAddPhotoPreview() {
@@ -1610,21 +1782,255 @@
     addPhotoFiles.forEach(function (file, i) {
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (i === addPreviewIndex ? ' is-preview' : '');
+      div.draggable = true;
+      div.dataset.idx = i;
       var reader = new FileReader();
       reader.onload = function (e) {
         var img = div.querySelector('img');
         if (img) img.src = e.target.result;
       };
-      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
-        (i === addPreviewIndex ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (i === addPreviewIndex ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as featured">' +
+        '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
+        (i === addPreviewIndex ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (i === addPreviewIndex ? 'Featured' : (i + 1) + ' of ' + addPhotoFiles.length) + '</span>';
+      // Remove button
+      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        addPhotoFiles.splice(i, 1);
+        if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = Math.max(0, addPhotoFiles.length - 1);
+        if (addPreviewIndex > i) addPreviewIndex--;
+        renderAddPhotoPreview();
+        updatePhotoCount('addPhotoCount', addPhotoFiles.length);
+      });
+      // Click to set as featured
       div.addEventListener('click', function () {
         addPreviewIndex = i;
+        renderAddPhotoPreview();
+      });
+      // Drag-to-reorder
+      div.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', String(i));
+        div.classList.add('dragging');
+      });
+      div.addEventListener('dragend', function () { div.classList.remove('dragging'); });
+      div.addEventListener('dragover', function (e) { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', function () { div.classList.remove('drag-over'); });
+      div.addEventListener('drop', function (e) {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if (isNaN(fromIdx) || fromIdx === i) return;
+        var moved = addPhotoFiles.splice(fromIdx, 1)[0];
+        addPhotoFiles.splice(i, 0, moved);
+        // Adjust preview index
+        if (addPreviewIndex === fromIdx) addPreviewIndex = i;
+        else if (fromIdx < addPreviewIndex && i >= addPreviewIndex) addPreviewIndex--;
+        else if (fromIdx > addPreviewIndex && i <= addPreviewIndex) addPreviewIndex++;
         renderAddPhotoPreview();
       });
       preview.appendChild(div);
       reader.readAsDataURL(file);
     });
+  }
+
+  // ─── Unified AI Autofill ──────────────────────────────────────────────────
+  async function runAiAutofill(mode) {
+    // mode = 'add' or 'edit'
+    var prefix = mode === 'edit' ? 'edit' : 'add';
+    var statusPanel = $(prefix + 'AiStatus');
+    var statusText = $(prefix + 'AiStatusText');
+    var statusIcon = $(prefix + 'AiIcon');
+    var reviewPanel = $(prefix + 'AiReview');
+    var reviewGrid = $(prefix + 'AiReviewGrid');
+    var feedbackEl = mode === 'edit' ? $('editFeedback') : addFeedback;
+    var vinInput = mode === 'edit' ? $('editVin') : $('addVin');
+    var vin = vinInput ? vinInput.value.trim().toUpperCase() : '';
+    var merged = {};
+
+    // Show status panel
+    if (statusPanel) { statusPanel.classList.remove('hide'); }
+    if (statusText) statusText.textContent = 'Starting AI autofill\u2026';
+    if (statusIcon) statusIcon.innerHTML = '&#9889;';
+
+    try {
+      // Step 1: VIN decode
+      if (vin.length === 17) {
+        if (statusText) statusText.textContent = 'Decoding VIN\u2026';
+        try {
+          var vinRes = await fetch(NHTSA_API + '/' + vin + '?format=json');
+          var vinJson = await vinRes.json();
+          var r = (vinJson.Results && vinJson.Results[0]) || {};
+          var clean = function (v) { return (v && v !== 'Not Applicable' && v !== 'N/A') ? v.trim() : ''; };
+          if (clean(r.ModelYear)) merged.year = clean(r.ModelYear);
+          if (clean(r.Make)) merged.make = clean(r.Make);
+          if (clean(r.Model)) merged.model = clean(r.Model);
+          if (clean(r.Trim)) merged.trim = clean(r.Trim);
+          if (clean(r.DisplacementL)) merged.engine = clean(r.DisplacementL) + 'L' + (clean(r.EngineCylinders) ? ' ' + clean(r.EngineCylinders) + '-cyl' : '');
+          if (clean(r.TransmissionStyle)) merged.transmission = clean(r.TransmissionStyle);
+          if (clean(r.DriveType)) merged.drivetrain = clean(r.DriveType);
+          if (clean(r.FuelTypePrimary)) merged.fuelType = clean(r.FuelTypePrimary);
+          if (clean(r.BodyClass)) merged.bodyStyle = clean(r.BodyClass);
+          if (clean(r.EngineCylinders)) merged.cylinders = clean(r.EngineCylinders);
+          if (clean(r.Doors)) {
+            var d = clean(r.Doors);
+            merged.doors = (d === '2' || d.includes('2')) ? '2D' : '4D';
+          }
+        } catch (e) { /* VIN decode failed, continue */ }
+      }
+
+      // Step 2: Photo analysis (if photos uploaded or existing)
+      var imageUrls = [];
+      if (mode === 'edit') {
+        imageUrls = (editKeptImages || []).slice();
+      }
+      // For Add form, photos aren't uploaded yet — skip photo scan
+      // (photo scan requires server-accessible URLs)
+
+      if (imageUrls.length > 0) {
+        if (statusText) statusText.textContent = 'Analyzing vehicle photos\u2026';
+        try {
+          var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+          var headers = { 'Content-Type': 'application/json' };
+          var apiKey = localStorage.getItem('bf_openai_key');
+          if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
+          var validUrls = imageUrls.map(function (u) {
+            if (typeof u !== 'string') return null;
+            if (u.startsWith('https://')) return u;
+            if (u.startsWith('blob:')) return window.location.origin + '/photos/' + u.slice(5);
+            return null;
+          }).filter(Boolean);
+          if (validUrls.length) {
+            var res = await fetch(VISION_API, {
+              method: 'POST',
+              headers: headers,
+              body: JSON.stringify({
+                auth: { user: session.username, passwordHash: session.passwordHash },
+                imageUrls: validUrls.slice(0, 5),
+              }),
+            });
+            var data = await res.json();
+            if (res.ok && data.analysis) {
+              if (data.analysis.exteriorColor) merged.exteriorColor = data.analysis.exteriorColor;
+              if (data.analysis.interiorColor) merged.interiorColor = data.analysis.interiorColor;
+              if (data.analysis.bodyStyle && !merged.bodyStyle) merged.bodyStyle = data.analysis.bodyStyle;
+            }
+          }
+        } catch (e) { /* Photo scan failed, continue with VIN data */ }
+      }
+
+      // Step 3: Show review panel
+      if (statusPanel) statusPanel.classList.add('hide');
+      var keys = Object.keys(merged);
+      if (keys.length === 0) {
+        showFeedback(feedbackEl, 'AI autofill found no new data. Check VIN or upload photos.', true);
+        return;
+      }
+
+      if (statusText) statusText.textContent = 'Review AI suggestions\u2026';
+
+      // Build review grid
+      var fieldLabels = {
+        year: 'Year', make: 'Make', model: 'Model', trim: 'Trim',
+        engine: 'Engine', cylinders: 'Cylinders', transmission: 'Transmission',
+        drivetrain: 'Drivetrain', doors: 'Doors',
+        fuelType: 'Fuel Type', bodyStyle: 'Body Style',
+        exteriorColor: 'Exterior Color', interiorColor: 'Interior Color'
+      };
+
+      // Check which fields already have values (manual = don't overwrite)
+      var formFieldMap = mode === 'edit' ? {
+        year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
+        engine: 'editEngine', cylinders: 'editCylinders', transmission: 'editTransmission',
+        drivetrain: 'editDrivetrain', doors: 'editDoors',
+        fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
+      } : {
+        year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
+        engine: 'addEngine', cylinders: 'addCylinders', transmission: 'addTransmission',
+        drivetrain: 'addDrivetrain', doors: 'addDoors',
+        fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
+      };
+
+      var reviewHtml = '';
+      keys.forEach(function (key) {
+        var label = fieldLabels[key] || key;
+        var value = merged[key];
+        var fieldId = formFieldMap[key];
+        var currentVal = fieldId ? ($(fieldId) ? $(fieldId).value.trim() : '') : '';
+        var hasManual = !!currentVal;
+        var checked = !hasManual ? 'checked' : '';
+        var manualNote = hasManual ? '<span class="ai-manual-note">Manual: ' + currentVal + '</span>' : '';
+        reviewHtml += '<label class="ai-review-item' + (hasManual ? ' has-manual' : '') + '">' +
+          '<input type="checkbox" data-key="' + key + '" data-value="' + value.replace(/"/g, '&quot;') + '" ' + checked + '>' +
+          '<span class="ai-review-label">' + label + '</span>' +
+          '<span class="ai-review-value">' + value + '</span>' +
+          manualNote + '</label>';
+      });
+
+      if (reviewGrid) reviewGrid.innerHTML = reviewHtml;
+      if (reviewPanel) reviewPanel.classList.remove('hide');
+
+    } catch (err) {
+      if (statusPanel) statusPanel.classList.add('hide');
+      showFeedback(feedbackEl, 'AI autofill error: ' + err.message, true);
+    }
+  }
+
+  function applyAiReviewSelections(mode) {
+    var prefix = mode === 'edit' ? 'edit' : 'add';
+    var reviewPanel = $(prefix + 'AiReview');
+    var feedbackEl = mode === 'edit' ? $('editFeedback') : addFeedback;
+    if (!reviewPanel) return;
+
+    var formFieldMap = mode === 'edit' ? {
+      year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
+      engine: 'editEngine', cylinders: 'editCylinders', transmission: 'editTransmission',
+      drivetrain: 'editDrivetrain', doors: 'editDoors',
+      fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
+    } : {
+      year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
+      engine: 'addEngine', cylinders: 'addCylinders', transmission: 'addTransmission',
+      drivetrain: 'addDrivetrain', doors: 'addDoors',
+      fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
+    };
+
+    var driveMap = { '4WD': '4WD', 'AWD': 'AWD', 'FWD': 'FWD', 'RWD': 'RWD', 'Four': '4WD', 'All': 'AWD', 'Front': 'FWD', 'Rear': 'RWD' };
+    var fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Hybrid: 'Hybrid', Electric: 'Electric', Flex: 'Flex Fuel', Ethanol: 'Flex Fuel' };
+    var applied = 0;
+    var checkboxes = reviewPanel.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(function (cb) {
+      var key = cb.dataset.key;
+      var value = cb.dataset.value;
+      var fieldId = formFieldMap[key];
+      if (!fieldId || !value) return;
+      var el = $(fieldId);
+      if (!el) return;
+      // For select elements, try to match value
+      if (el.tagName === 'SELECT') {
+        if (key === 'drivetrain') {
+          var match = Object.keys(driveMap).find(function (k) { return value.includes(k); });
+          if (match) { el.value = driveMap[match]; applied++; }
+        } else if (key === 'fuelType') {
+          var match2 = Object.keys(fuelMap).find(function (k) { return value.includes(k); });
+          if (match2) { el.value = fuelMap[match2]; applied++; }
+        } else if (key === 'transmission') {
+          el.value = value.toLowerCase().includes('manual') ? 'Manual' : 'Automatic';
+          applied++;
+        } else if (key === 'cylinders') {
+          var cylNum = String(value).match(/(\d+)/);
+          if (cylNum) { el.value = cylNum[1]; applied++; }
+        } else if (key === 'doors') {
+          el.value = value;
+          applied++;
+        }
+      } else {
+        el.value = value;
+        applied++;
+      }
+    });
+
+    reviewPanel.classList.add('hide');
+    showFeedback(feedbackEl, 'Applied ' + applied + ' AI-suggested value' + (applied !== 1 ? 's' : '') + '. Manual edits always take priority.');
+    if (mode === 'add') updateLivePreview();
   }
 
   // ─── AI Photo Scan ─────────────────────────────────────────────────────────
@@ -1696,7 +2102,6 @@
     var fields = [
       { key: 'exteriorColor', label: 'Exterior Color' },
       { key: 'interiorColor', label: 'Interior Color' },
-      { key: 'interiorMaterial', label: 'Interior Material' },
       { key: 'bodyStyle', label: 'Body Style' },
       { key: 'make', label: 'Make' },
       { key: 'model', label: 'Model' },
@@ -1735,15 +2140,11 @@
     if (!analysis) return;
     // Colors always come from photos (VIN cannot provide)
     if (analysis.exteriorColor) $('editExteriorColor').value = analysis.exteriorColor;
-    if (analysis.interiorColor) {
-      var interior = analysis.interiorColor;
-      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
-      $('editInteriorColor').value = interior;
-    }
+    if (analysis.interiorColor) $('editInteriorColor').value = analysis.interiorColor;
 
     // Body style -> category mapping (only if empty)
     if (analysis.bodyStyle) {
-      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var catMap = { Truck: 'Truck', Pickup: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Car', Car: 'Car', Coupe: 'Car', Convertible: 'Car', Wagon: 'Car', Hatchback: 'Car', Van: 'Van', Minivan: 'Van' };
       var cat = catMap[analysis.bodyStyle];
       if (cat && !$('editCategory').value) $('editCategory').value = cat;
     }
@@ -1786,15 +2187,11 @@
     if (!analysis) return;
     // Colors always from photos
     if (analysis.exteriorColor) $('addExteriorColor').value = analysis.exteriorColor;
-    if (analysis.interiorColor) {
-      var interior = analysis.interiorColor;
-      if (analysis.interiorMaterial) interior += ' ' + analysis.interiorMaterial;
-      $('addInteriorColor').value = interior;
-    }
+    if (analysis.interiorColor) $('addInteriorColor').value = analysis.interiorColor;
 
     // Body style -> category (only if empty)
     if (analysis.bodyStyle) {
-      var catMap = { Truck: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Sedan', Coupe: 'Sedan', Van: 'Van', Convertible: 'Sedan', Wagon: 'Sedan', Hatchback: 'Sedan' };
+      var catMap = { Truck: 'Truck', Pickup: 'Truck', SUV: 'SUV', Crossover: 'SUV', Sedan: 'Car', Car: 'Car', Coupe: 'Car', Convertible: 'Car', Wagon: 'Car', Hatchback: 'Car', Van: 'Van', Minivan: 'Van' };
       var cat = catMap[analysis.bodyStyle];
       if (cat && !$('addCategory').value) $('addCategory').value = cat;
     }
@@ -1880,8 +2277,19 @@
     if (editVinDecodeData.make) $('editMake').value = editVinDecodeData.make;
     if (editVinDecodeData.model) $('editModel').value = editVinDecodeData.model;
     if (editVinDecodeData.trim) $('editTrim').value = editVinDecodeData.trim;
-    if (editVinDecodeData.engine) $('editEngine').value = editVinDecodeData.engine;
-    if (editVinDecodeData.transmission) $('editTransmission').value = editVinDecodeData.transmission;
+    if (editVinDecodeData.engine) {
+      $('editEngine').value = editVinDecodeData.engine;
+      var cylMatch = editVinDecodeData.engine.match(/V(\d+)/i) || editVinDecodeData.engine.match(/(\d+)-cyl/i);
+      if (cylMatch) $('editCylinders').value = cylMatch[1];
+    }
+    if (editVinDecodeData.transmission) {
+      var transLower = editVinDecodeData.transmission.toLowerCase();
+      $('editTransmission').value = transLower.includes('manual') ? 'Manual' : 'Automatic';
+    }
+    if (editVinDecodeData.doors) {
+      var doorVal = String(editVinDecodeData.doors).trim();
+      $('editDoors').value = (doorVal === '2' || doorVal.includes('2')) ? '2D' : '4D';
+    }
     if (editVinDecodeData.fuel) {
       var fuelMap = { Gasoline: 'Gasoline', Diesel: 'Diesel', Electric: 'Electric', Hybrid: 'Hybrid' };
       var match = Object.keys(fuelMap).find(function (k) { return (editVinDecodeData.fuel || '').includes(k); });
@@ -2006,29 +2414,47 @@
   function editHandlePhotoSelect(event) {
     var files = event.target.files;
     if (!files || !files.length) return;
-    editPhotoFiles = Array.from(files).slice(0, 25);
+    var result = validatePhotoFiles(files);
+    if (result.rejected.length) {
+      showPhotoError('editPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    var totalExisting = editKeptImages.length + editPhotoFiles.length;
+    var space = MAX_PHOTOS - totalExisting;
+    if (result.valid.length > space) {
+      result.valid = result.valid.slice(0, Math.max(0, space));
+      showPhotoError('editPhotoError', 'Max ' + MAX_PHOTOS + ' photos total. Only ' + result.valid.length + ' added.');
+    }
+    editPhotoFiles = editPhotoFiles.concat(result.valid);
     renderEditPhotoPreview();
+    updatePhotoCount('editPhotoCount', editKeptImages.length + editPhotoFiles.length);
   }
 
   function renderEditPhotoPreview() {
     var preview = $('editPhotoPreview');
     if (!preview) return;
     preview.innerHTML = '';
+    var totalCount = editKeptImages.length + editPhotoFiles.length;
+    updatePhotoCount('editPhotoCount', totalCount);
+
     // Determine effective preview
     var effectivePreview = editPreviewName;
     if (!effectivePreview) {
       effectivePreview = editKeptImages.length ? editKeptImages[0] : (editPhotoFiles.length ? 'new-0' : null);
     }
-    // Render kept (existing) images
+    // Render kept (existing) images with drag-to-reorder
     editKeptImages.forEach(function (url, i) {
       var isPreview = (url === effectivePreview);
+      var globalIdx = i;
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
       div.dataset.url = url;
-      div.innerHTML = '<img src="' + resolveImageSrc(url) + '" alt="Photo ' + (i + 1) + '" title="Click to set as preview">' +
+      div.dataset.type = 'kept';
+      div.dataset.idx = i;
+      div.draggable = true;
+      div.innerHTML = '<img src="' + resolveImageSrc(url) + '" alt="Photo ' + (i + 1) + '" title="Click to set as featured">' +
         '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
-        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (isPreview ? 'Preview' : 'Photo ' + (i + 1)) + '</span>';
+        (isPreview ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Featured' : (globalIdx + 1) + ' of ' + totalCount) + '</span>';
       div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
         e.stopPropagation();
         editKeptImages = editKeptImages.filter(function (u) { return u !== url; });
@@ -2039,22 +2465,50 @@
         editPreviewName = url;
         renderEditPhotoPreview();
       });
+      // Drag-to-reorder within kept images
+      div.addEventListener('dragstart', function (e) {
+        e.dataTransfer.setData('text/plain', 'kept:' + i);
+        div.classList.add('dragging');
+      });
+      div.addEventListener('dragend', function () { div.classList.remove('dragging'); });
+      div.addEventListener('dragover', function (e) { e.preventDefault(); div.classList.add('drag-over'); });
+      div.addEventListener('dragleave', function () { div.classList.remove('drag-over'); });
+      div.addEventListener('drop', function (e) {
+        e.preventDefault();
+        div.classList.remove('drag-over');
+        var payload = e.dataTransfer.getData('text/plain');
+        if (!payload.startsWith('kept:')) return;
+        var fromIdx = parseInt(payload.split(':')[1], 10);
+        if (isNaN(fromIdx) || fromIdx === i) return;
+        var moved = editKeptImages.splice(fromIdx, 1)[0];
+        editKeptImages.splice(i, 0, moved);
+        renderEditPhotoPreview();
+      });
       preview.appendChild(div);
     });
     // Render new (uploaded) files
     editPhotoFiles.forEach(function (file, i) {
       var newId = 'new-' + i;
       var isPreview = (newId === effectivePreview);
+      var globalIdx = editKeptImages.length + i;
       var div = document.createElement('div');
       div.className = 'photo-thumb' + (isPreview ? ' is-preview' : '');
+      div.draggable = true;
       var reader = new FileReader();
       reader.onload = function (e) {
         var img = div.querySelector('img');
         if (img) img.src = e.target.result;
       };
-      div.innerHTML = '<img src="" alt="New photo ' + (i + 1) + '" title="Click to set as preview">' +
-        (isPreview ? '<div class="photo-preview-badge">Preview</div>' : '') +
-        '<span class="photo-label">' + (isPreview ? 'Preview' : 'New ' + (i + 1)) + '</span>';
+      div.innerHTML = '<img src="" alt="New photo ' + (i + 1) + '" title="Click to set as featured">' +
+        '<button type="button" class="photo-remove-btn" title="Remove">&times;</button>' +
+        (isPreview ? '<div class="photo-preview-badge">Featured</div>' : '') +
+        '<span class="photo-label">' + (isPreview ? 'Featured' : (globalIdx + 1) + ' of ' + totalCount) + '</span>';
+      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        editPhotoFiles.splice(i, 1);
+        if (editPreviewName === newId) editPreviewName = null;
+        renderEditPhotoPreview();
+      });
       div.addEventListener('click', function () {
         editPreviewName = newId;
         renderEditPhotoPreview();
@@ -2062,9 +2516,12 @@
       preview.appendChild(div);
       reader.readAsDataURL(file);
     });
-    // Show/hide scan button
+    // Show/hide AI buttons
+    var hasPhotos = editKeptImages.length > 0 || editPhotoFiles.length > 0;
     var scanBtn = $('editScanPhotosBtn');
-    if (scanBtn) scanBtn.classList.toggle('hide', !editKeptImages.length && !editPhotoFiles.length);
+    if (scanBtn) scanBtn.classList.toggle('hide', !hasPhotos);
+    var autofillBtn = $('editAiAutofillBtn');
+    if (autofillBtn) autofillBtn.classList.toggle('hide', !hasPhotos && !($('editVin') && $('editVin').value.trim()));
   }
 
   function setupEditPhotoDrop() {
@@ -2905,9 +3362,61 @@
     }
   }
 
+  // ─── Edit Modal Unsaved Changes Guard ──────────────────────────────────────
+  function snapshotEditForm() {
+    var editFields = ['editName','editSku','editCategory','editYear','editMake','editModel',
+      'editTrim','editVin','editQuantity','editPrice','editEngine','editCylinders','editTransmission',
+      'editStatus','editStock','editMileage','editDrivetrain','editDoors','editFuelType','editMpgCity',
+      'editMpgHighway','editExteriorColor','editInteriorColor','editBadge','editSupplier',
+      'editCondition','editTitleState','editWarranty',
+      'editDescription','editFeatures'];
+    var snap = {};
+    editFields.forEach(function(id) { var el = $(id); snap[id] = el ? el.value : ''; });
+    snap._keptImages = editKeptImages.slice();
+    snap._photoFileCount = editPhotoFiles.length;
+    return snap;
+  }
+
+  function isEditFormDirty() {
+    if (!editFormSnapshot) return false;
+    var current = snapshotEditForm();
+    for (var key in editFormSnapshot) {
+      if (key === '_keptImages') {
+        if (JSON.stringify(editFormSnapshot._keptImages) !== JSON.stringify(current._keptImages)) return true;
+      } else if (editFormSnapshot[key] !== current[key]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function tryCloseEditModal() {
+    if (isEditFormDirty()) {
+      if (!confirm('You may lose unsaved data. Are you sure you want to continue?')) return;
+    }
+    editFormSnapshot = null;
+    editModal.classList.remove('active');
+  }
+
   // ─── Modal Close ────────────────────────────────────────────────────────────
   function closeModals(event) {
     if (event.target.matches('.modal') || event.target.dataset.close !== undefined) {
+      // Edit modal is locked — only closeable via Cancel / X button (routed through tryCloseEditModal)
+      if (editModal.classList.contains('active') &&
+          (event.target === editModal || editModal.contains(event.target))) {
+        // Clicking the backdrop (the .modal overlay itself) is blocked
+        if (event.target === editModal) {
+          event.stopPropagation();
+          return; // do nothing — modal is locked
+        }
+        // Explicit close button inside the modal
+        if (event.target.dataset.close !== undefined) {
+          event.stopPropagation();
+          tryCloseEditModal();
+          return;
+        }
+        return;
+      }
       document.querySelectorAll('.modal').forEach((modal) => modal.classList.remove('active'));
     }
   }
@@ -3280,7 +3789,7 @@
     // Inventory table
     $('inventoryTable').addEventListener('click', handleTableActions);
     $('editForm').addEventListener('submit', handleEditSubmit);
-    $('cancelEdit').addEventListener('click', () => editModal.classList.remove('active'));
+    $('cancelEdit').addEventListener('click', () => tryCloseEditModal());
     $('editSearch').addEventListener('input', () => { currentPage = 1; renderInventoryTable(); });
     $('prevPage').addEventListener('click', () => { currentPage = Math.max(1, currentPage - 1); renderInventoryTable(); });
     $('nextPage').addEventListener('click', () => {
@@ -3321,6 +3830,34 @@
       });
     }
 
+    // Unified AI Autofill — Add form
+    if ($('addAiAutofillBtn')) {
+      $('addAiAutofillBtn').addEventListener('click', function () { runAiAutofill('add'); });
+    }
+    if ($('addAiApplyBtn')) {
+      $('addAiApplyBtn').addEventListener('click', function () { applyAiReviewSelections('add'); });
+    }
+    if ($('addAiDismissBtn')) {
+      $('addAiDismissBtn').addEventListener('click', function () {
+        var panel = $('addAiReview');
+        if (panel) panel.classList.add('hide');
+      });
+    }
+
+    // Unified AI Autofill — Edit modal
+    if ($('editAiAutofillBtn')) {
+      $('editAiAutofillBtn').addEventListener('click', function () { runAiAutofill('edit'); });
+    }
+    if ($('editAiApplyBtn')) {
+      $('editAiApplyBtn').addEventListener('click', function () { applyAiReviewSelections('edit'); });
+    }
+    if ($('editAiDismissBtn')) {
+      $('editAiDismissBtn').addEventListener('click', function () {
+        var panel = $('editAiReview');
+        if (panel) panel.classList.add('hide');
+      });
+    }
+
     // Inventory import/export
     $('loadFromSiteBtn').addEventListener('click', loadInventoryFromSite);
     $('importInventoryFile').addEventListener('change', importInventoryFile);
@@ -3328,11 +3865,22 @@
 
     // Add Vehicle
     addForm.addEventListener('submit', handleAddSubmit);
-    $('clearAdd').addEventListener('click', () => { addForm.reset(); hideFeedback(addFeedback); updateLivePreview(); });
+    $('clearAdd').addEventListener('click', () => {
+      addForm.reset(); hideFeedback(addFeedback); updateLivePreview();
+      addPhotoFiles = []; addPreviewIndex = 0;
+      if ($('photoPreview')) $('photoPreview').innerHTML = '';
+      updatePhotoCount('addPhotoCount', 0);
+      if ($('addAiReview')) $('addAiReview').classList.add('hide');
+      if ($('addAiStatus')) $('addAiStatus').classList.add('hide');
+    });
     $('cancelEditVehicle').addEventListener('click', exitEditMode);
     $('decodeVinBtn').addEventListener('click', decodeVin);
     $('applyVinBtn').addEventListener('click', applyVinData);
-    $('addVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
+    $('addVin').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+      var autofillBtn = $('addAiAutofillBtn');
+      if (autofillBtn) autofillBtn.classList.toggle('hide', !this.value.trim() && !addPhotoFiles.length);
+    });
     $('generateDescBtn').addEventListener('click', generateAIDescription);
     $('addPhotos').addEventListener('change', handlePhotoSelect);
 
@@ -3376,6 +3924,18 @@
     // Modals
     previewModal.addEventListener('click', closeModals);
     editModal.addEventListener('click', closeModals);
+
+    // Escape key — edit modal is locked (must use Cancel button), other modals close normally
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (editModal.classList.contains('active')) {
+          // Edit modal is locked — Escape triggers the unsaved-changes guard
+          tryCloseEditModal();
+        } else {
+          document.querySelectorAll('.modal.active').forEach(function(m) { m.classList.remove('active'); });
+        }
+      }
+    });
 
     // Sold modal
     var soldModal = $('soldModal');

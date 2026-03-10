@@ -1022,6 +1022,154 @@ button:hover {
   border-radius: 0 0 6px 6px; pointer-events: none;
 }
 
+/* ─── Photo Upload Header & Count ─────────────────────────────────────── */
+.photo-upload-header {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.photo-upload-header h4 { margin: 0; }
+.photo-count-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface2);
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  vertical-align: middle;
+  margin-left: 6px;
+}
+.photo-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.photo-upload-error {
+  font-size: 12px;
+  color: var(--danger);
+  background: rgba(242, 85, 94, 0.1);
+  border-radius: var(--radius-control);
+  padding: 6px 10px;
+  margin: 4px 0;
+}
+
+/* ─── Photo Drag-to-Reorder ──────────────────────────────────────────── */
+.sortable-grid .photo-thumb {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.sortable-grid .photo-thumb.dragging {
+  opacity: 0.35;
+  transform: scale(0.92);
+}
+.sortable-grid .photo-thumb.drag-over {
+  outline: 2px dashed var(--secondary-500);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+.sortable-grid .photo-thumb[draggable="true"] {
+  cursor: grab;
+}
+.sortable-grid .photo-thumb[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* ─── AI Autofill Actions & Status ───────────────────────────────────── */
+.photo-ai-actions {
+  display: flex; gap: var(--space-xs); flex-wrap: wrap;
+  margin-top: var(--space-xs);
+}
+.ai-autofill-btn {
+  background: linear-gradient(135deg, rgba(103,103,247,.15), rgba(245,158,11,.12)) !important;
+  border-color: var(--secondary-500) !important;
+  color: var(--secondary-300) !important;
+}
+.ai-autofill-btn:hover {
+  background: linear-gradient(135deg, rgba(103,103,247,.25), rgba(245,158,11,.18)) !important;
+}
+.ai-status-panel {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: rgba(103,103,247,.08);
+  border: 1px solid rgba(103,103,247,.2);
+  border-radius: var(--radius-control);
+  margin-top: var(--space-xs);
+}
+.ai-status-icon {
+  font-size: 18px;
+  animation: ai-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ai-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.ai-status-text {
+  font-size: 13px;
+  color: var(--secondary-300);
+  font-weight: 500;
+}
+
+/* ─── AI Review Panel ────────────────────────────────────────────────── */
+.ai-review-panel {
+  background: var(--surface1);
+  border: 1px solid rgba(103,103,247,.2);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+}
+.ai-review-header {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--secondary-300);
+  margin-bottom: var(--space-sm);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.ai-review-hint {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.ai-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-xs);
+}
+.ai-review-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border-radius: var(--radius-control);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ai-review-item:hover {
+  background: var(--control-hover);
+}
+.ai-review-item input[type="checkbox"] {
+  flex-shrink: 0;
+  accent-color: var(--secondary-500);
+}
+.ai-review-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  min-width: 60px;
+}
+.ai-review-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.ai-review-item.has-manual {
+  border-left: 3px solid var(--warning);
+}
+.ai-manual-note {
+  font-size: 10px;
+  color: var(--warning);
+  margin-left: auto;
+}
+.ai-review-actions {
+  display: flex; gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
 /* ─── Light Mode ─────────────────────────────────────────────────────────── */
 @media (prefers-color-scheme: light) {
   :root {

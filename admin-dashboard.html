@@ -389,14 +389,14 @@
 
             <section class="mid-grid">
               <article class="card">
-                <div class="card-head"><h2>Views by Category</h2></div>
+                <div class="card-head"><h2>Views by Body Type</h2></div>
                 <div class="chart-container-sm"><canvas id="categoryViewsChart"></canvas></div>
               </article>
               <article class="card">
-                <div class="card-head"><h2>Category Breakdown</h2></div>
+                <div class="card-head"><h2>Body Type Breakdown</h2></div>
                 <div class="table-container">
                   <table>
-                    <thead><tr><th>Category</th><th>Count</th><th>Available</th><th>Sold</th><th>Views</th></tr></thead>
+                    <thead><tr><th>Body</th><th>Count</th><th>Available</th><th>Sold</th><th>Views</th></tr></thead>
                     <tbody id="categoryTableBody"><tr><td colspan="5" class="muted">Loading...</td></tr></tbody>
                   </table>
                 </div>
@@ -487,7 +487,7 @@
                   <tr>
                     <th>SKU</th>
                     <th>Name</th>
-                    <th>Category</th>
+                    <th>Body</th>
                     <th>Status</th>
                     <th>Featured</th>
                     <th>Price</th>
@@ -541,20 +541,37 @@
                   <label>Stock #<input id="addStock" type="text" placeholder="D2601"></label>
                   <label>Item Name<input id="addName" type="text" required></label>
                   <label>SKU<input id="addSku" type="text" required></label>
-                  <label>Category
+                  <label>Body
                     <select id="addCategory" required>
                       <option value="">Select type...</option>
                       <option value="Truck">Truck</option>
                       <option value="SUV">SUV / Crossover</option>
-                      <option value="Sedan">Sedan / Car</option>
-                      <option value="Diesel">Diesel Vehicle</option>
+                      <option value="Car">Car</option>
                       <option value="Van">Van / Minivan</option>
+                      <option value="Diesel">Diesel Vehicle</option>
                     </select>
                   </label>
                   <label>Price<input id="addPrice" type="number" min="0" step="0.01" value="0"></label>
                   <label>Mileage<input id="addMileage" type="number" min="0" value="0"></label>
                   <label>Engine<input id="addEngine" type="text" placeholder="5.0L V8"></label>
-                  <label>Transmission<input id="addTransmission" type="text" placeholder="Automatic"></label>
+                  <label>Cylinders
+                    <select id="addCylinders">
+                      <option value="">Select...</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="8">8</option>
+                      <option value="10">10</option>
+                      <option value="12">12</option>
+                    </select>
+                  </label>
+                  <label>Transmission
+                    <select id="addTransmission">
+                      <option value="Automatic" selected>Automatic</option>
+                      <option value="Manual">Manual</option>
+                    </select>
+                  </label>
                   <label>Drivetrain
                     <select id="addDrivetrain">
                       <option value="">Select...</option>
@@ -562,6 +579,12 @@
                       <option value="RWD">RWD</option>
                       <option value="AWD">AWD</option>
                       <option value="4WD">4WD</option>
+                    </select>
+                  </label>
+                  <label>Doors
+                    <select id="addDoors">
+                      <option value="4D" selected>4D</option>
+                      <option value="2D">2D</option>
                     </select>
                   </label>
                   <label>Fuel Type
@@ -609,12 +632,51 @@
 
                 <!-- Photo Upload -->
                 <div class="photo-section full-field">
-                  <label>Vehicle Photos
-                    <input id="addPhotos" type="file" multiple accept="image/*">
-                  </label>
-                  <div id="photoPreview" class="photo-grid"></div>
-                  <button id="addScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                  <div class="photo-upload-header">
+                    <label>Vehicle Photos <span class="photo-count-badge" id="addPhotoCount">0 / 25</span>
+                      <input id="addPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                    </label>
+                    <span class="photo-hint">JPG, PNG, or WebP &mdash; up to 25 images. Drag to reorder. First = featured.</span>
+                  </div>
+                  <p id="addPhotoError" class="photo-upload-error hide" role="alert"></p>
+                  <div id="photoPreview" class="photo-grid sortable-grid"></div>
+                  <div class="photo-ai-actions">
+                    <button id="addScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                    <button id="addAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
+                  </div>
+                  <div id="addAiStatus" class="ai-status-panel hide" role="status">
+                    <div class="ai-status-icon" id="addAiIcon">&#9889;</div>
+                    <div class="ai-status-text" id="addAiStatusText">Running AI autofill&hellip;</div>
+                  </div>
+                  <div id="addAiReview" class="ai-review-panel hide">
+                    <div class="ai-review-header">AI Suggested Values <span class="ai-review-hint">Uncheck to reject. Manual edits always take priority.</span></div>
+                    <div id="addAiReviewGrid" class="ai-review-grid"></div>
+                    <div class="ai-review-actions">
+                      <button id="addAiApplyBtn" class="primary-btn small-btn" type="button">Apply Selected</button>
+                      <button id="addAiDismissBtn" class="ghost-btn small-btn" type="button">Dismiss</button>
+                    </div>
+                  </div>
                   <div id="addScanResults" class="scan-results hide"></div>
+                </div>
+
+                <div class="form-section-header" style="margin-top:var(--space-md)">
+                  <h4>Administrative Details</h4>
+                </div>
+                <div class="panel-grid">
+                  <label>Condition
+                    <input id="addCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+                  </label>
+                  <label>Title Status
+                    <select id="addTitleState">
+                      <option value="Clean" selected>Clean</option>
+                      <option value="Salvage">Salvage</option>
+                      <option value="Rebuilt">Rebuilt</option>
+                      <option value="Flood">Flood</option>
+                    </select>
+                  </label>
+                  <label>Warranty
+                    <input id="addWarranty" type="text" value="Extended Warranty Available" readonly style="opacity:0.7;cursor:default">
+                  </label>
                 </div>
 
                 <p id="addFeedback" class="feedback hide full-field" role="status"></p>
@@ -728,7 +790,7 @@
               <div class="bulk-action-card">
                 <h4>Mass Update</h4>
                 <label>Price +/- %<input id="massPrice" type="number" step="0.1" value="0"></label>
-                <label>Replace Category<input id="massCategory" type="text" placeholder="Optional"></label>
+                <label>Replace Body Type<input id="massCategory" type="text" placeholder="Optional"></label>
                 <button id="applyMass" class="primary-btn" type="button">Apply</button>
               </div>
             </div>
@@ -1006,21 +1068,37 @@
               <label>Stock #<input id="editStock" type="text"></label>
               <label>Name<input id="editName" type="text" required></label>
               <label>SKU<input id="editSku" type="text" readonly></label>
-              <label>Category
+              <label>Body
                 <select id="editCategory" required>
                   <option value="">Select type...</option>
                   <option value="Truck">Truck</option>
                   <option value="SUV">SUV / Crossover</option>
-                  <option value="Sedan">Sedan / Car</option>
-                  <option value="Diesel">Diesel Vehicle</option>
+                  <option value="Car">Car</option>
                   <option value="Van">Van / Minivan</option>
-                  <option value="used">Used</option>
+                  <option value="Diesel">Diesel Vehicle</option>
                 </select>
               </label>
               <label>Price<input id="editPrice" type="number" min="0" step="0.01"></label>
               <label>Mileage<input id="editMileage" type="number" min="0"></label>
               <label>Engine<input id="editEngine" type="text"></label>
-              <label>Transmission<input id="editTransmission" type="text"></label>
+              <label>Cylinders
+                <select id="editCylinders">
+                  <option value="">Select...</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="8">8</option>
+                  <option value="10">10</option>
+                  <option value="12">12</option>
+                </select>
+              </label>
+              <label>Transmission
+                <select id="editTransmission">
+                  <option value="Automatic">Automatic</option>
+                  <option value="Manual">Manual</option>
+                </select>
+              </label>
               <label>Drivetrain
                 <select id="editDrivetrain">
                   <option value="">Select...</option>
@@ -1028,6 +1106,12 @@
                   <option value="RWD">RWD</option>
                   <option value="AWD">AWD</option>
                   <option value="4WD">4WD</option>
+                </select>
+              </label>
+              <label>Doors
+                <select id="editDoors">
+                  <option value="4D">4D</option>
+                  <option value="2D">2D</option>
                 </select>
               </label>
               <label>Fuel Type
@@ -1064,7 +1148,6 @@
               </label>
               <label>Supplier<input id="editSupplier" type="text"></label>
             </div>
-
             <!-- Full-width fields -->
             <label class="full-field">
               <span class="desc-label-row">
@@ -1076,19 +1159,58 @@
             <label class="full-field">Features (comma separated)
               <input id="editFeatures" type="text" placeholder="4x4, Tow package, Bluetooth">
             </label>
+
+            <div class="form-section-header" style="margin-top:var(--space-md)">
+              <h4>Administrative Details</h4>
+            </div>
+            <div class="panel-grid">
+              <label>Condition
+                <input id="editCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+              </label>
+              <label>Title Status
+                <select id="editTitleState">
+                  <option value="Clean" selected>Clean</option>
+                  <option value="Salvage">Salvage</option>
+                  <option value="Rebuilt">Rebuilt</option>
+                  <option value="Flood">Flood</option>
+                </select>
+              </label>
+              <label>Warranty
+                <input id="editWarranty" type="text" value="Extended Warranty Available" readonly style="opacity:0.7;cursor:default">
+              </label>
+            </div>
           </div>
 
           <!-- Right Column: Photos -->
           <div class="edit-photos-col">
             <div class="edit-photos-section">
-              <h4>Vehicle Photos</h4>
+              <div class="photo-upload-header">
+                <h4>Vehicle Photos <span class="photo-count-badge" id="editPhotoCount">0 / 25</span></h4>
+                <span class="photo-hint">JPG, PNG, or WebP &mdash; up to 25. Drag to reorder.</span>
+              </div>
               <div class="edit-photo-drop" id="editPhotoDrop">
                 <span>&#128247;</span>
                 <p>Drop photos here or click to upload</p>
-                <input id="editPhotos" type="file" multiple accept="image/*">
+                <input id="editPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
               </div>
-              <div id="editPhotoPreview" class="photo-grid"></div>
-              <button id="editScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+              <p id="editPhotoError" class="photo-upload-error hide" role="alert"></p>
+              <div id="editPhotoPreview" class="photo-grid sortable-grid"></div>
+              <div class="photo-ai-actions">
+                <button id="editScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
+                <button id="editAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
+              </div>
+              <div id="editAiStatus" class="ai-status-panel hide" role="status">
+                <div class="ai-status-icon" id="editAiIcon">&#9889;</div>
+                <div class="ai-status-text" id="editAiStatusText">Running AI autofill&hellip;</div>
+              </div>
+              <div id="editAiReview" class="ai-review-panel hide">
+                <div class="ai-review-header">AI Suggested Values <span class="ai-review-hint">Uncheck to reject.</span></div>
+                <div id="editAiReviewGrid" class="ai-review-grid"></div>
+                <div class="ai-review-actions">
+                  <button id="editAiApplyBtn" class="primary-btn small-btn" type="button">Apply Selected</button>
+                  <button id="editAiDismissBtn" class="ghost-btn small-btn" type="button">Dismiss</button>
+                </div>
+              </div>
               <div id="editScanResults" class="scan-results hide"></div>
             </div>
             <p id="editFeedback" class="feedback hide" role="status"></p>
