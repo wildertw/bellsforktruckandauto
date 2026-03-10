@@ -69,6 +69,7 @@
   let editKeptImages = []; // existing image keys to keep when editing
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
+  let editFormSnapshot = null; // snapshot of initial form values for dirty-check
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -1095,6 +1096,7 @@
       if ($('editAiReview')) $('editAiReview').classList.add('hide');
       if ($('editAiStatus')) $('editAiStatus').classList.add('hide');
       editModal.classList.add('active');
+      editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
       if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
         inventory = inventory.filter((entry) => entry.sku !== sku);
@@ -1179,7 +1181,8 @@
       persistInventory();
       renderInventoryTable();
 
-      // Close modal
+      // Close modal (saved, no dirty-check needed)
+      editFormSnapshot = null;
       editModal.classList.remove('active');
 
       // Auto-publish to live site
@@ -3224,9 +3227,51 @@
     }
   }
 
+  // ─── Edit Modal Unsaved Changes Guard ──────────────────────────────────────
+  function snapshotEditForm() {
+    var editFields = ['editName','editSku','editCategory','editYear','editMake','editModel',
+      'editTrim','editVin','editQuantity','editPrice','editEngine','editTransmission',
+      'editStatus','editStock','editMileage','editDrivetrain','editFuelType','editMpgCity',
+      'editMpgHighway','editExteriorColor','editInteriorColor','editBadge','editSupplier',
+      'editDescription','editFeatures'];
+    var snap = {};
+    editFields.forEach(function(id) { var el = $(id); snap[id] = el ? el.value : ''; });
+    snap._keptImages = editKeptImages.slice();
+    snap._photoFileCount = editPhotoFiles.length;
+    return snap;
+  }
+
+  function isEditFormDirty() {
+    if (!editFormSnapshot) return false;
+    var current = snapshotEditForm();
+    for (var key in editFormSnapshot) {
+      if (key === '_keptImages') {
+        if (JSON.stringify(editFormSnapshot._keptImages) !== JSON.stringify(current._keptImages)) return true;
+      } else if (editFormSnapshot[key] !== current[key]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function tryCloseEditModal() {
+    if (isEditFormDirty()) {
+      if (!confirm('You have unsaved changes. Discard them?')) return;
+    }
+    editFormSnapshot = null;
+    editModal.classList.remove('active');
+  }
+
   // ─── Modal Close ────────────────────────────────────────────────────────────
   function closeModals(event) {
     if (event.target.matches('.modal') || event.target.dataset.close !== undefined) {
+      // Guard the edit modal with unsaved-changes check
+      if (editModal.classList.contains('active') &&
+          (event.target === editModal || editModal.contains(event.target))) {
+        event.stopPropagation();
+        tryCloseEditModal();
+        return;
+      }
       document.querySelectorAll('.modal').forEach((modal) => modal.classList.remove('active'));
     }
   }
@@ -3734,6 +3779,17 @@
     // Modals
     previewModal.addEventListener('click', closeModals);
     editModal.addEventListener('click', closeModals);
+
+    // Escape key closes modals (with unsaved-changes guard for edit modal)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (editModal.classList.contains('active')) {
+          tryCloseEditModal();
+        } else {
+          document.querySelectorAll('.modal.active').forEach(function(m) { m.classList.remove('active'); });
+        }
+      }
+    });
 
     // Sold modal
     var soldModal = $('soldModal');
