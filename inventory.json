@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:55:13.871Z",
+  "lastUpdated": "2026-03-10T03:55:16.910Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -1059,30 +1059,6 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GCRWKED1JZ34288",
-      "stockNumber": "2939",
-      "year": 2018,
-      "make": "CHEVROLET",
-      "model": "SILVERADO 1500",
-      "trim": "",
-      "engine": "",
-      "transmission": "",
-      "drivetrain": "",
-      "fuelType": "",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
