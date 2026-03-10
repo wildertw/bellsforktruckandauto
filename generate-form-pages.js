@@ -13,7 +13,7 @@ const {
   escapeHtml, escapeAttr,
 } = require('./build-utils');
 
-const ASSET_PREFIX = '../';
+const ASSET_PREFIX = '/';
 
 // ── Form page definitions ──
 
@@ -114,9 +114,7 @@ function generateFormPage(page, formContent) {
   <meta property="og:image" content="${SITE_URL}/assets/hero/shop-front-og.jpg">
   <meta property="og:site_name" content="${DEALER_NAME}">
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
   <style>
     .bfat-navlink{font-size:.88rem;letter-spacing:.07em;color:#ffffff!important;transition:background .18s,color .18s}
@@ -290,7 +288,7 @@ function generateFormPage(page, formContent) {
     </a>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js"></script>
   <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
   <script src="/assets/js/sms-limiter.js" defer></script>
   <script src="/assets/js/tracker.js" defer></script>
