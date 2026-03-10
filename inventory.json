@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:58:22.993Z",
+  "lastUpdated": "2026-03-10T03:58:25.250Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -384,30 +384,6 @@
         "2021-super-white-toyota-tacoma-02932bf-06.png",
         "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1G1FB1R78M0138570",
-      "stockNumber": "02942BF",
-      "year": 2021,
-      "make": "CHEVROLET",
-      "model": "CAMARO",
-      "trim": "1LS/1LT",
-      "engine": "LT1 - Direct Injection, AFM, Variable Valve Timing, High Output, ALUM",
-      "transmission": "Automatic",
-      "drivetrain": "RWD/Rear-Wheel Drive",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
