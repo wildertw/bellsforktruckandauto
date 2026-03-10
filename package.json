@@ -17,7 +17,8 @@
     "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory && npm run build:sitemap"
   },
   "dependencies": {
-    "@netlify/blobs": "^10.7.0"
+    "@netlify/blobs": "^10.7.0",
+    "mammoth": "^1.11.0"
   },
   "devDependencies": {
     "clean-css-cli": "^5.6.3",
