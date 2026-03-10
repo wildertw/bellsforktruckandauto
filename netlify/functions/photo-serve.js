@@ -45,6 +45,16 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: 'Missing photo key' };
   }
 
+  // Path traversal protection — reject directory traversal and null bytes
+  if (key.includes('..') || key.includes('\0') || key.includes('/') || key.includes('\\')) {
+    return { statusCode: 400, body: 'Invalid photo key' };
+  }
+
+  // Validate key format: only alphanumeric, hyphens, underscores, and a single dot for extension
+  if (!/^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$/.test(key)) {
+    return { statusCode: 400, body: 'Invalid photo key format' };
+  }
+
   try {
     const store = blobStore('vehicle-photos');
     const data = await store.get(key, { type: 'arrayBuffer' });

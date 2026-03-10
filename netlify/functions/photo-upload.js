@@ -86,10 +86,52 @@ exports.handler = async (event) => {
     };
   }
 
+  // Validate stockNumber format — alphanumeric + hyphens only, max 20 chars
+  const cleanStock = String(stockNumber).replace(/[^A-Za-z0-9\-]/g, '').slice(0, 20);
+  if (!cleanStock) {
+    return {
+      statusCode: 400,
+      headers: CORS,
+      body: JSON.stringify({ error: 'Invalid stockNumber format.' }),
+    };
+  }
+
+  // Validate photoIndex is a reasonable number (1-25)
+  const photoIdx = Number(photoIndex);
+  if (!Number.isInteger(photoIdx) || photoIdx < 0 || photoIdx > 25) {
+    return {
+      statusCode: 400,
+      headers: CORS,
+      body: JSON.stringify({ error: 'photoIndex must be an integer between 0 and 25.' }),
+    };
+  }
+
+  // Validate content type — only allow image MIME types
+  const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+  const normalizedType = (contentType || 'image/png').toLowerCase().trim();
+  if (!ALLOWED_TYPES.includes(normalizedType)) {
+    return {
+      statusCode: 400,
+      headers: CORS,
+      body: JSON.stringify({ error: 'Invalid content type. Allowed: JPEG, PNG, WebP.' }),
+    };
+  }
+
+  // Quick base64 length check before decoding (avoids memory spike on huge payloads)
+  // base64 encodes 3 bytes into 4 chars; 5MB = ~6.67M base64 chars
+  if (typeof imageData !== 'string' || imageData.length > 7 * 1024 * 1024) {
+    return {
+      statusCode: 413,
+      headers: CORS,
+      body: JSON.stringify({ error: 'Image too large. Maximum 5MB per photo.' }),
+    };
+  }
+
   // Build blob key
-  const idx = String(Number(photoIndex)).padStart(2, '0');
-  const ext = (contentType || 'image/png').includes('jpeg') || (contentType || '').includes('jpg') ? 'jpg' : 'png';
-  const blobKey = stockNumber.toUpperCase() + '-' + idx + '.' + ext;
+  const idx = String(photoIdx).padStart(2, '0');
+  const EXT_MAP = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+  const ext = EXT_MAP[normalizedType] || 'png';
+  const blobKey = cleanStock.toUpperCase() + '-' + idx + '.' + ext;
 
   try {
     const store = blobStore('vehicle-photos');
@@ -100,6 +142,25 @@ exports.handler = async (event) => {
         statusCode: 413,
         headers: CORS,
         body: JSON.stringify({ error: 'Image too large. Maximum 5MB per photo.' }),
+      };
+    }
+
+    // Validate image magic bytes to prevent non-image file uploads
+    if (buffer.length < 4) {
+      return {
+        statusCode: 400,
+        headers: CORS,
+        body: JSON.stringify({ error: 'File too small to be a valid image.' }),
+      };
+    }
+    const magicJpeg = buffer[0] === 0xFF && buffer[1] === 0xD8;
+    const magicPng  = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+    const magicWebp = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46;
+    if (!magicJpeg && !magicPng && !magicWebp) {
+      return {
+        statusCode: 400,
+        headers: CORS,
+        body: JSON.stringify({ error: 'File does not appear to be a valid image (JPEG, PNG, or WebP).' }),
       };
     }
 

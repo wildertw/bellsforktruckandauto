@@ -89,6 +89,54 @@ exports.handler = async (event) => {
     };
   }
 
+  // Validate each vehicle has required fields and sane data types
+  const validationErrors = [];
+  const seenKeys = new Set();
+  inventory.vehicles.forEach(function (v, i) {
+    const label = v.stockNumber || v.vin || ('index ' + i);
+    // Required fields
+    if (!v.stockNumber && !v.vin) {
+      validationErrors.push(label + ': must have stockNumber or VIN');
+    }
+    if (!v.make || typeof v.make !== 'string') {
+      validationErrors.push(label + ': missing or invalid make');
+    }
+    if (!v.model || typeof v.model !== 'string') {
+      validationErrors.push(label + ': missing or invalid model');
+    }
+    // Type checks (non-destructive: allow existing data through if loosely valid)
+    if (v.year != null && (isNaN(Number(v.year)) || Number(v.year) < 1900 || Number(v.year) > new Date().getFullYear() + 2)) {
+      validationErrors.push(label + ': year out of range (1900-' + (new Date().getFullYear() + 2) + ')');
+    }
+    if (v.price != null && (isNaN(Number(v.price)) || Number(v.price) < 0)) {
+      validationErrors.push(label + ': price must be a non-negative number');
+    }
+    if (v.mileage != null && (isNaN(Number(v.mileage)) || Number(v.mileage) < 0)) {
+      validationErrors.push(label + ': mileage must be a non-negative number');
+    }
+    if (v.images && !Array.isArray(v.images)) {
+      validationErrors.push(label + ': images must be an array');
+    }
+    // Duplicate check
+    const key = v.stockNumber || v.vin;
+    if (key && seenKeys.has(key)) {
+      validationErrors.push(label + ': duplicate stockNumber/VIN in this upload');
+    }
+    if (key) seenKeys.add(key);
+  });
+
+  if (validationErrors.length > 0) {
+    return {
+      statusCode: 400,
+      headers: CORS,
+      body: JSON.stringify({
+        error: 'Vehicle validation failed',
+        details: validationErrors.slice(0, 20),
+        totalErrors: validationErrors.length,
+      }),
+    };
+  }
+
   // Load current production inventory from Blobs for diff comparison
   let currentVehicles = [];
   try {

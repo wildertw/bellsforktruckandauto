@@ -12,6 +12,7 @@
   const VISION_API = '/.netlify/functions/vehicle-vision';
   const SETTINGS_API = '/.netlify/functions/admin-settings';
   const SALES_API = '/.netlify/functions/sales-data';
+  const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
 
   let blogToken = '';
   let blogUser = '';
@@ -154,15 +155,21 @@
   }
 
   // ─── Photo Upload (Netlify Blobs) ────────────────────────────────────────
+  var MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB per photo
+
   async function uploadPhotoToBlobs(file, stockNumber, photoIndex) {
     var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
     if (!session.username || !session.passwordHash) {
       throw new Error('Not authenticated. Please log in again.');
     }
+    // Client-side file size check to fail fast before base64 encoding
+    if (file.size > MAX_PHOTO_SIZE_BYTES) {
+      throw new Error('Photo "' + (file.name || 'unknown') + '" exceeds 5MB limit (' + (file.size / 1024 / 1024).toFixed(1) + 'MB).');
+    }
     var base64 = await new Promise(function (resolve, reject) {
       var reader = new FileReader();
       reader.onload = function () { resolve(reader.result.split(',')[1]); };
-      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.onerror = function () { reject(new Error('Failed to read file: ' + (file.name || 'unknown'))); };
       reader.readAsDataURL(file);
     });
     var res = await fetch('/.netlify/functions/photo-upload', {
@@ -178,7 +185,7 @@
     });
     if (!res.ok) {
       var err = await res.json().catch(function () { return {}; });
-      throw new Error(err.error || 'Photo upload failed');
+      throw new Error(err.error || 'Photo upload failed for ' + (file.name || 'photo ' + photoIndex));
     }
     var data = await res.json();
     return data.key; // e.g. "blob:D2601-01.png"
@@ -186,12 +193,105 @@
 
   async function uploadPhotos(files, stockNumber, progressCb) {
     var keys = [];
+    var errors = [];
     for (var i = 0; i < files.length; i++) {
       if (progressCb) progressCb(i + 1, files.length);
-      var key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
-      keys.push(key);
+      try {
+        var key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
+        keys.push(key);
+      } catch (err) {
+        errors.push({ index: i, name: files[i].name, error: err.message });
+      }
+    }
+    // If ALL photos failed, throw. If some failed, warn but continue.
+    if (keys.length === 0 && errors.length > 0) {
+      throw new Error('All photo uploads failed. First error: ' + errors[0].error);
+    }
+    if (errors.length > 0) {
+      console.warn('Photo upload partial failure:', errors);
     }
     return keys;
+  }
+
+  // ─── OEM Label Detection ──────────────────────────────────────────────────
+  // After upload, scan each photo via GPT-4o Vision to detect OEM labels
+  // and extract paint codes / color names.
+  async function detectOemLabels(imageKeys) {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) return { oem_scan: null, photo_roles: [] };
+
+    var siteOrigin = window.location.origin;
+    var photoRoles = [];
+    var oemScan = null;
+
+    for (var i = 0; i < imageKeys.length; i++) {
+      var key = imageKeys[i];
+      // Resolve blob key to a public URL the serverless function can fetch
+      var imageUrl;
+      if (key.startsWith('blob:')) {
+        imageUrl = siteOrigin + '/photos/' + key.slice(5);
+      } else if (key.startsWith('http')) {
+        imageUrl = key;
+      } else {
+        imageUrl = siteOrigin + '/assets/vehicles/' + key;
+      }
+
+      try {
+        var res = await fetch(OEM_DETECT_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auth: { user: session.username, passwordHash: session.passwordHash },
+            imageUrl: imageUrl,
+          }),
+        });
+        if (!res.ok) continue;
+        var data = await res.json();
+        if (data.ok && data.is_oem_label_photo) {
+          photoRoles.push({ filename: key, role: 'oem_label_processing_only' });
+          // Keep the first high-confidence detection as the OEM scan
+          if (!oemScan || (data.extraction_confidence || 0) > (oemScan.confidence || 0)) {
+            oemScan = {
+              paint_code: data.extracted_paint_code || '',
+              color_name: data.extracted_color_name || '',
+              raw_text: data.raw_extracted_text || '',
+              confidence: data.extraction_confidence || 0,
+              source_image: key,
+            };
+          }
+        }
+      } catch (err) {
+        console.warn('OEM detection failed for ' + key + ':', err.message);
+      }
+    }
+    return { oem_scan: oemScan, photo_roles: photoRoles };
+  }
+
+  // ─── OEM Detection Preview (renders into #oemPreview container) ──────────
+  function renderOemPreview(vehicle) {
+    var container = document.getElementById('oemPreview');
+    if (!container) return;
+    var scan = vehicle.oem_scan;
+    if (!scan) {
+      container.innerHTML = '<span style="color:#999;font-size:.85rem;">No OEM label detected</span>';
+      return;
+    }
+    var swatchHtml = '';
+    var cd = vehicle.color_display;
+    if (cd && cd.web_swatch_hex) {
+      swatchHtml = '<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:' + cd.web_swatch_hex + ';border:1px solid #ccc;vertical-align:middle;margin-right:6px;"></span>';
+    }
+    var confPct = Math.round((scan.confidence || 0) * 100);
+    var confColor = confPct >= 80 ? '#28a745' : confPct >= 50 ? '#ffc107' : '#dc3545';
+    container.innerHTML =
+      '<div style="background:#f8f9fa;border:1px solid #dee2e6;border-radius:6px;padding:10px 14px;margin-top:8px;">' +
+      '<div style="font-weight:600;margin-bottom:6px;font-size:.9rem;">OEM Label Detected</div>' +
+      '<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.85rem;">' +
+      '<span style="color:#666;">Paint Code:</span><span style="font-weight:600;">' + (scan.paint_code || '—') + '</span>' +
+      '<span style="color:#666;">Color Name:</span><span>' + swatchHtml + (scan.color_name || (cd && cd.exterior_color_name) || '—') + '</span>' +
+      '<span style="color:#666;">Confidence:</span><span style="color:' + confColor + ';font-weight:600;">' + confPct + '%</span>' +
+      '<span style="color:#666;">Source:</span><span style="font-size:.8rem;color:#888;">' + (scan.source_image || '—') + '</span>' +
+      '</div></div>';
   }
 
   // ─── Resolve image name to a displayable src URL ────────────────────────
@@ -204,62 +304,88 @@
   }
 
   // ─── Auto Publish (Stage + Publish in one step) ───────────────────────────
+  var autoPublishInProgress = false; // prevent concurrent publishes from same browser
+
   async function autoPublish() {
+    if (autoPublishInProgress) {
+      throw new Error('A publish is already in progress. Please wait.');
+    }
+
     var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
     if (!session.username) {
       throw new Error('Not authenticated. Please log in again.');
     }
 
-    // Build publish-ready inventory — exclude sold vehicles from live site
-    var vehicles = inventory.filter(function (v) { return v.status !== 'sold'; }).map(function (item) {
-      return {
-        vin: item.vin, stockNumber: item.stockNumber || item.sku,
-        year: item.year, make: item.make, model: item.model, trim: item.trim,
-        engine: item.engine, transmission: item.transmission,
-        drivetrain: item.drivetrain, fuelType: item.fuelType,
-        mpgCity: item.mpgCity, mpgHighway: item.mpgHighway,
-        mileage: item.mileage, price: item.price,
-        type: item.category, exteriorColor: item.exteriorColor,
-        interiorColor: item.interiorColor, description: item.description,
-        features: item.features, status: item.status,
-        badge: item.badge, featured: item.featured || false,
-        condition: item.condition || 'Used',
-        titleState: item.titleState || 'Clean',
-        warranty: item.warranty || 'Extended Warranty Available',
-        cylinders: item.cylinders || '',
-        doors: item.doors || '',
-        images: item.images || [],
-        dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
-      };
-    });
-    var publishData = { vehicles: vehicles, lastUpdated: new Date().toISOString() };
+    autoPublishInProgress = true;
+    try {
+      // Build publish-ready inventory — exclude sold vehicles from live site
+      var vehicles = inventory.filter(function (v) { return v.status !== 'sold'; }).map(function (item) {
+        return {
+          vin: item.vin, stockNumber: item.stockNumber || item.sku,
+          year: item.year, make: item.make, model: item.model, trim: item.trim,
+          engine: item.engine, transmission: item.transmission,
+          drivetrain: item.drivetrain, fuelType: item.fuelType,
+          mpgCity: item.mpgCity, mpgHighway: item.mpgHighway,
+          mileage: item.mileage, price: item.price,
+          type: item.category, exteriorColor: item.exteriorColor,
+          interiorColor: item.interiorColor, description: item.description,
+          features: item.features, status: item.status,
+          badge: item.badge, featured: item.featured || false,
+          condition: item.condition || 'Used',
+          titleState: item.titleState || 'Clean',
+          warranty: item.warranty || 'Extended Warranty Available',
+          cylinders: item.cylinders || '',
+          doors: item.doors || '',
+          images: item.images || [],
+          dateAdded: item.dateAdded || new Date().toISOString().split('T')[0],
+          paintCode: item.paintCode || '',
+          oem_scan: item.oem_scan || null,
+          photo_roles: item.photo_roles || [],
+          color_display: item.color_display || null,
+        };
+      });
 
-    // Stage
-    showToast('Staging inventory...');
-    var stageRes = await fetch(STAGE_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
-        inventory: publishData,
-      }),
-    });
-    var stageResult = await stageRes.json();
-    if (!stageRes.ok) throw new Error(stageResult.error || 'Staging failed');
+      // Pre-publish validation: reject if any vehicle is missing required fields
+      var invalid = vehicles.filter(function (v) { return !v.make || !v.model; });
+      if (invalid.length > 0) {
+        throw new Error(invalid.length + ' vehicle(s) missing Make or Model. Fix before publishing.');
+      }
 
-    // Publish
-    showToast('Publishing to live site...');
-    var pubRes = await fetch(PUBLISH_API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
-      }),
-    });
-    var pubResult = await pubRes.json();
-    if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed');
+      var publishData = { vehicles: vehicles, lastUpdated: new Date().toISOString() };
 
-    return pubResult;
+      // Stage
+      showToast('Staging inventory...');
+      var stageRes = await fetch(STAGE_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
+          inventory: publishData,
+        }),
+      });
+      var stageResult = await stageRes.json().catch(function () { return {}; });
+      if (!stageRes.ok) {
+        var stageMsg = stageResult.error || 'Staging failed (HTTP ' + stageRes.status + ')';
+        if (stageResult.details) stageMsg += ': ' + stageResult.details.slice(0, 3).join('; ');
+        throw new Error(stageMsg);
+      }
+
+      // Publish
+      showToast('Publishing to live site...');
+      var pubRes = await fetch(PUBLISH_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash || authPasswordHash },
+        }),
+      });
+      var pubResult = await pubRes.json().catch(function () { return {}; });
+      if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed (HTTP ' + pubRes.status + ')');
+
+      return pubResult;
+    } finally {
+      autoPublishInProgress = false;
+    }
   }
 
   // ─── Auth ───────────────────────────────────────────────────────────────────
@@ -1257,9 +1383,15 @@
     updateBulkBar();
   }
 
+  var editSubmitInProgress = false; // double-submit guard
+
   async function handleEditSubmit(event) {
     event.preventDefault();
     if (!editingItem) return;
+
+    // Prevent double submissions
+    if (editSubmitInProgress) return;
+    editSubmitInProgress = true;
 
     // Disable submit button during save
     var submitBtn = event.target.querySelector('[type="submit"]');
@@ -1344,6 +1476,7 @@
       }
       setTimeout(hideToast, 8000);
     } finally {
+      editSubmitInProgress = false;
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Changes'; }
       editPhotoFiles = [];
     }
@@ -1442,8 +1575,14 @@
   }
 
   // ─── Add Vehicle ────────────────────────────────────────────────────────────
+  var addSubmitInProgress = false; // double-submit guard
+
   async function handleAddSubmit(event) {
     event.preventDefault();
+
+    // Prevent double submissions
+    if (addSubmitInProgress) return;
+
     const name = $('addName').value.trim();
     const sku = $('addSku').value.trim();
     const category = $('addCategory').value;
@@ -1452,12 +1591,35 @@
       return;
     }
 
-    // Disable submit button
+    // Additional required field validation for production quality
+    var make = $('addMake').value.trim();
+    var model = $('addModel').value.trim();
+    if (!make || !model) {
+      showFeedback(addFeedback, 'Make and Model are required for a valid listing.', true);
+      return;
+    }
+
+    // Disable submit button and set guard
+    addSubmitInProgress = true;
     var submitBtn = event.target.querySelector('[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
 
     try {
-      // Reorder photos so the selected preview is first, then upload
+      // Check for duplicate SKU early (before photo upload to avoid wasted uploads)
+      var isEditMode = $('editModeBadge') && !$('editModeBadge').classList.contains('hide');
+      if (!isEditMode && inventory.some((item) => item.sku === sku)) {
+        showFeedback(addFeedback, 'SKU already exists. Choose a different SKU.', true);
+        return;
+      }
+
+      // Also check for duplicate VIN if provided
+      var vin = $('addVin').value.trim().toUpperCase();
+      if (!isEditMode && vin && inventory.some((item) => item.vin && item.vin.toUpperCase() === vin)) {
+        showFeedback(addFeedback, 'A vehicle with this VIN already exists.', true);
+        return;
+      }
+
+      // Upload photos FIRST — do not create vehicle record if photos fail
       var imageUrls = [];
       if (addPhotoFiles.length > 0) {
         if (addPreviewIndex > 0 && addPreviewIndex < addPhotoFiles.length) {
@@ -1465,7 +1627,7 @@
           addPhotoFiles.unshift(previewFile);
           addPreviewIndex = 0;
         }
-        var addStock = $('addStock').value.trim() || $('addVin').value.trim() || sku;
+        var addStock = $('addStock').value.trim() || vin || sku;
         showToast('Uploading photos...');
         imageUrls = await uploadPhotos(addPhotoFiles, addStock, function (current, total) {
           showToast('Uploading photo ' + current + ' of ' + total + '...');
@@ -1474,8 +1636,36 @@
 
       var vehicle = buildVehicleFromForm();
       vehicle.images = imageUrls;
+      vehicle.dateAdded = vehicle.dateAdded || new Date().toISOString().split('T')[0];
 
-      if ($('editModeBadge') && !$('editModeBadge').classList.contains('hide')) {
+      // Run OEM label detection on newly uploaded photos
+      if (imageUrls.length > 0) {
+        showToast('Scanning photos for OEM labels...');
+        try {
+          var oemResult = await detectOemLabels(imageUrls);
+          if (oemResult.photo_roles.length > 0) {
+            vehicle.photo_roles = oemResult.photo_roles;
+          }
+          if (oemResult.oem_scan) {
+            vehicle.oem_scan = oemResult.oem_scan;
+            // Auto-fill paint code if extracted and not already set
+            if (oemResult.oem_scan.paint_code && !vehicle.paintCode) {
+              vehicle.paintCode = oemResult.oem_scan.paint_code;
+            }
+            // Resolve color display using ColorLookup if available
+            if (window.ColorLookup && window.ColorLookup.resolveVehicleColorDisplay) {
+              vehicle.color_display = window.ColorLookup.resolveVehicleColorDisplay(vehicle);
+            }
+            showToast('OEM label detected — paint code: ' + (oemResult.oem_scan.paint_code || 'N/A'), 'success');
+          }
+        } catch (oemErr) {
+          console.warn('OEM detection error (non-fatal):', oemErr.message);
+        }
+        // Show OEM preview after detection
+        renderOemPreview(vehicle);
+      }
+
+      if (isEditMode) {
         // Edit mode - update existing
         const idx = inventory.findIndex((item) => item.sku === sku);
         if (idx >= 0) {
@@ -1483,6 +1673,15 @@
           if (imageUrls.length === 0 && inventory[idx].images) {
             vehicle.images = inventory[idx].images;
           }
+          // Preserve OEM metadata from existing record when no new photos uploaded
+          if (imageUrls.length === 0) {
+            vehicle.oem_scan = inventory[idx].oem_scan || vehicle.oem_scan;
+            vehicle.photo_roles = inventory[idx].photo_roles || vehicle.photo_roles;
+            vehicle.paintCode = inventory[idx].paintCode || vehicle.paintCode;
+            vehicle.color_display = inventory[idx].color_display || vehicle.color_display;
+          }
+          // Preserve original dateAdded
+          vehicle.dateAdded = inventory[idx].dateAdded || vehicle.dateAdded;
           inventory[idx] = vehicle;
           persistInventory();
           renderInventoryTable();
@@ -1490,11 +1689,6 @@
           exitEditMode();
         }
       } else {
-        if (inventory.some((item) => item.sku === sku)) {
-          showFeedback(addFeedback, 'SKU already exists.', true);
-          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
-          return;
-        }
         inventory.unshift(vehicle);
         persistInventory();
         renderInventoryTable();
@@ -1515,7 +1709,8 @@
       showFeedback(addFeedback, 'Save error: ' + err.message, true);
       setTimeout(hideToast, 8000);
     } finally {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
+      addSubmitInProgress = false;
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = isEditMode ? 'Update Vehicle' : 'Save Vehicle'; }
     }
   }
 
@@ -1553,6 +1748,10 @@
       doors: $('addDoors').value || '4D',
       featured: false,
       images: [],
+      paintCode: '',
+      oem_scan: null,
+      photo_roles: [],
+      color_display: null,
     };
   }
 
@@ -1587,6 +1786,19 @@
     $('addDoors').value = item.doors || '4D';
     $('addDescription').value = item.description || '';
     $('addFeatures').value = (item.features || []).join(', ');
+
+    // Store OEM metadata on the form element for preservation during edits
+    var addFormEl = document.getElementById('addForm') || document.querySelector('form');
+    if (addFormEl) {
+      addFormEl._oemScan = item.oem_scan || null;
+      addFormEl._photoRoles = item.photo_roles || [];
+      addFormEl._paintCode = item.paintCode || '';
+      addFormEl._colorDisplay = item.color_display || null;
+    }
+
+    // Render OEM detection preview if data exists
+    renderOemPreview(item);
+
     $('editModeBadge').classList.remove('hide');
     $('cancelEditVehicle').classList.remove('hide');
     $('submitVehicleBtn').textContent = 'Update Vehicle';
@@ -1788,17 +2000,20 @@
   function validatePhotoFiles(files) {
     var valid = [];
     var rejected = [];
+    var oversized = [];
     Array.from(files).forEach(function (f) {
       var ext = (f.name || '').toLowerCase().match(/\.[^.]+$/);
       var extOk = ext && ALLOWED_PHOTO_EXTS.includes(ext[0]);
       var typeOk = ALLOWED_PHOTO_TYPES.includes(f.type);
-      if (extOk || typeOk) {
-        valid.push(f);
+      if (!extOk && !typeOk) {
+        rejected.push(f.name + ' (invalid type)');
+      } else if (f.size > MAX_PHOTO_SIZE_BYTES) {
+        oversized.push(f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + 'MB)');
       } else {
-        rejected.push(f.name);
+        valid.push(f);
       }
     });
-    return { valid: valid.slice(0, MAX_PHOTOS), rejected: rejected };
+    return { valid: valid.slice(0, MAX_PHOTOS), rejected: rejected, oversized: oversized };
   }
 
   function showPhotoError(elId, msg) {
@@ -1821,6 +2036,9 @@
     var result = validatePhotoFiles(files);
     if (result.rejected.length) {
       showPhotoError('addPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    if (result.oversized && result.oversized.length) {
+      showPhotoError('addPhotoError', 'Skipped ' + result.oversized.length + ' file(s) over 5MB: ' + result.oversized.join(', '));
     }
     if (result.valid.length + addPhotoFiles.length > MAX_PHOTOS) {
       var space = MAX_PHOTOS - addPhotoFiles.length;
@@ -2482,6 +2700,9 @@
     var result = validatePhotoFiles(files);
     if (result.rejected.length) {
       showPhotoError('editPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+    }
+    if (result.oversized && result.oversized.length) {
+      showPhotoError('editPhotoError', 'Skipped ' + result.oversized.length + ' file(s) over 5MB: ' + result.oversized.join(', '));
     }
     var totalExisting = editKeptImages.length + editPhotoFiles.length;
     var space = MAX_PHOTOS - totalExisting;

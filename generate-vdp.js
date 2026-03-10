@@ -13,6 +13,7 @@ const {
   escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
+  filterPublicImages,
 } = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
@@ -66,13 +67,15 @@ function generateDescription(v) {
   }
 
   // Appearance — exterior + interior with optional interior type
-  if (v.exteriorColor && v.interiorColor) {
+  // Use resolved color display name if available
+  const descExtColor = (v._colorDisplay && v._colorDisplay.exterior_color_name) || v.exteriorColor || '';
+  if (descExtColor && v.interiorColor) {
     const intDetail = v.interiorType
       ? `${v.interiorColor} ${v.interiorType}`
       : `${v.interiorColor} interior`;
-    parts.push(`Finished in ${v.exteriorColor} on the outside with a comfortable ${intDetail}.`);
-  } else if (v.exteriorColor) {
-    parts.push(`Finished in ${v.exteriorColor}.`);
+    parts.push(`Finished in ${descExtColor} on the outside with a comfortable ${intDetail}.`);
+  } else if (descExtColor) {
+    parts.push(`Finished in ${descExtColor}.`);
   }
 
   // Fuel economy
@@ -141,8 +144,10 @@ function generateVDPFaq(v, title) {
 function buildSchema(v) {
   const title = vehicleTitle(v);
   const vdpUrl = `${SITE_URL}${buildVDPPath(v)}`;
-  const mainImage = v.images && v.images.length > 0
-    ? resolveImgAbs(v.images[0])
+  // Use public images only (OEM labels excluded) for schema
+  const pubImages = v._publicImages || v.images || [];
+  const mainImage = pubImages.length > 0
+    ? resolveImgAbs(pubImages[0])
     : `${SITE_URL}/assets/logo.png`;
 
   const schema = {
@@ -155,7 +160,7 @@ function buildSchema(v) {
         name: title,
         description: generateDescription(v),
         url: vdpUrl,
-        image: (v.images || []).map(img => resolveImgAbs(img)),
+        image: pubImages.map(img => resolveImgAbs(img)),
         brand: { '@type': 'Brand', name: titleCase(v.make) },
         manufacturer: { '@type': 'Organization', name: titleCase(v.make) },
         model: titleCase(v.model),
@@ -173,7 +178,7 @@ function buildSchema(v) {
         ...(v.transmission ? { vehicleTransmission: v.transmission } : {}),
         ...(v.engine ? { vehicleEngine: { '@type': 'EngineSpecification', name: v.engine } } : {}),
         ...(v.fuelType ? { fuelType: v.fuelType } : {}),
-        ...(v.exteriorColor ? { color: v.exteriorColor } : {}),
+        ...((v._colorDisplay && v._colorDisplay.exterior_color_name) || v.exteriorColor ? { color: (v._colorDisplay && v._colorDisplay.exterior_color_name) || v.exteriorColor } : {}),
         ...(v.interiorColor ? { vehicleInteriorColor: v.interiorColor } : {}),
         ...(v.mpgCity && v.mpgHighway ? {
           fuelEfficiency: `${v.mpgCity} city / ${v.mpgHighway} highway MPG`
@@ -233,8 +238,8 @@ function buildSchema(v) {
           }
         }))
       },
-      // ImageObject entries for vehicle photos (up to 25)
-      ...(v.images || []).slice(0, 25).map((img, i) => ({
+      // ImageObject entries for vehicle photos (up to 25) — OEM labels excluded
+      ...pubImages.slice(0, 25).map((img, i) => ({
         '@type': 'ImageObject',
         url: resolveImgAbs(img),
         name: `${title} - Photo ${i + 1}`,
@@ -259,11 +264,13 @@ function generateVDPHtml(v, allVehicles) {
   const stock = v.stockNumber ? `Stock #${v.stockNumber}` : '';
   const vin = v.vin || '';
   const vinB64 = vin ? Buffer.from(vin).toString('base64') : '';
-  const mainImage = v.images && v.images.length > 0
-    ? resolveImg(v.images[0], ASSET_PREFIX)
+  // Use public images (OEM label photos excluded) for gallery + OG image
+  const vdpPubImages = v._publicImages || v.images || [];
+  const mainImage = vdpPubImages.length > 0
+    ? resolveImg(vdpPubImages[0], ASSET_PREFIX)
     : '';
-  const mainImageAbs = v.images && v.images.length > 0
-    ? resolveImgAbs(v.images[0])
+  const mainImageAbs = vdpPubImages.length > 0
+    ? resolveImgAbs(vdpPubImages[0])
     : `${SITE_URL}/assets/hero/shop-front-og.jpg`;
 
   const applyHref = `${ASSET_PREFIX}financing.html?tab=financing&vehicle=${encodeURIComponent(title)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
@@ -299,8 +306,13 @@ function generateVDPHtml(v, allVehicles) {
   ];
 
   // ── Section 3: Appearance ──
+  const cd = v._colorDisplay || {};
+  const extColorDisplay = cd.exterior_color_name || v.exteriorColor || '—';
+  const paintCodeDisplay = cd.paint_code || v.paintCode || '';
+  const swatchHex = cd.web_swatch_hex || '';
   const appearSpecs = [
-    { label: 'Exterior Color', value: v.exteriorColor  || '—' },
+    { label: 'Exterior Color', value: extColorDisplay, swatch: swatchHex },
+    ...(paintCodeDisplay ? [{ label: 'Paint Code', value: paintCodeDisplay }] : []),
     { label: 'Interior Color', value: v.interiorColor  || '—' },
     { label: 'Interior Type',  value: v.interiorType   || '—' },
   ];
@@ -827,9 +839,9 @@ ${buildSchema(v)}
 
     <!-- Photo Gallery -->
     <section aria-label="Vehicle photos">
-${v.images && v.images.length > 0 ? `      <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
+${vdpPubImages.length > 0 ? `      <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
         <div class="swiper-wrapper">
-          ${v.images.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
         <div class="swiper-pagination"></div>
         <div class="swiper-button-prev d-none d-md-flex"></div>
@@ -837,7 +849,7 @@ ${v.images && v.images.length > 0 ? `      <div class="swiper vdp-gallery" style
       </div>
       <div class="swiper vdp-thumbs mt-2" style="height:80px;">
         <div class="swiper-wrapper">
-          ${v.images.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
       </div>` : `      <div class="d-flex align-items-center justify-content-center" style="height:300px;background:#e9e9e9;color:#999;">
         <div class="text-center">
@@ -906,7 +918,7 @@ ${techSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-s
               Appearance
             </div>
             <div class="vdp-spec-grid">
-${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${escapeHtml(s.value)}</div></div>`).join('\n')}
+${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${s.swatch ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${s.swatch};border:1px solid #ccc;vertical-align:middle;margin-right:5px;"></span>` : ''}${escapeHtml(s.value)}</div></div>`).join('\n')}
             </div>
           </div>
 

@@ -21,12 +21,19 @@ function buildRow(v) {
   const engine = escapeHtml(v.engine || '\u2014');
   const trans = escapeHtml(v.transmission || '\u2014');
   const drive = escapeHtml(v.drivetrain || '\u2014');
-  const extColor = escapeHtml(v.exteriorColor || '\u2014');
   const fuel = escapeHtml(v.fuelType || '\u2014');
+
+  // Use resolved color display (from paint code/OEM scan/name), fallback to raw field
+  const colorDisplay = v._colorDisplay || {};
+  const extColorName = colorDisplay.exterior_color_name || v.exteriorColor || '';
+  const extColor = escapeHtml(extColorName || '\u2014');
+  const swatchHex = colorDisplay.web_swatch_hex || '';
 
   const vdpUrl = buildVDPPath(v);
 
-  const mainImage = v.images && v.images.length > 0 ? String(v.images[0]).trim() : '';
+  // Use public images (OEM label photos filtered out)
+  const pubImages = v._publicImages || v.images || [];
+  const mainImage = pubImages.length > 0 ? String(pubImages[0]).trim() : '';
   const resolvedSrc = resolveImg(mainImage);
   const imgHtml = mainImage
     ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy" decoding="async"${mainImage.startsWith('http') ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
@@ -49,7 +56,7 @@ function buildRow(v) {
 <div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">${engine}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">${trans}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">${drive}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${extColor}</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">${fuel}</span></div>
 </div>
 </div>

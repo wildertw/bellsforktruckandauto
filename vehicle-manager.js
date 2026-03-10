@@ -8,6 +8,8 @@ let EDIT_ORIGINAL_DATE = null;
 let EXISTING_IMAGE_NAMES = [];   // filenames/keys already in inventory
 let NEW_IMAGE_FILES = [];        // File objects selected in this session
 let PREVIEW_IMAGE_NAME = null;  // user-chosen preview image (null = first image)
+let VM_SUBMIT_IN_PROGRESS = false; // double-submit guard
+const VM_MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5 MB per photo
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
@@ -100,6 +102,9 @@ function getEffectivePreviewName() {
 // Uploads a photo to Netlify Blobs. Original filename is ignored; the server
 // creates a standardized key like STOCKNUMBER-01.jpg and returns blob:key.
 async function uploadPhotoToBlobs(file, stockNumber, photoIndex) {
+  if (file.size > VM_MAX_PHOTO_SIZE) {
+    throw new Error('Photo "' + file.name + '" exceeds 5 MB limit.');
+  }
   const session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
   if (!session.username || !session.passwordHash) {
     throw new Error('Not authenticated. Please log in again.');
@@ -131,12 +136,76 @@ async function uploadPhotoToBlobs(file, stockNumber, photoIndex) {
 
 async function uploadPhotos(files, stockNumber, progressCb) {
   const keys = [];
+  const errors = [];
   for (let i = 0; i < files.length; i++) {
     if (progressCb) progressCb(i + 1, files.length);
-    const key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
-    keys.push(key);
+    try {
+      const key = await uploadPhotoToBlobs(files[i], stockNumber, i + 1);
+      keys.push(key);
+    } catch (err) {
+      console.error('Photo upload failed for ' + files[i].name + ':', err);
+      errors.push(files[i].name + ': ' + err.message);
+    }
+  }
+  if (keys.length === 0 && errors.length > 0) {
+    throw new Error('All photo uploads failed:\n' + errors.join('\n'));
+  }
+  if (errors.length > 0) {
+    console.warn('Some photos failed to upload:', errors);
   }
   return keys;
+}
+
+// ─── OEM Label Detection ────────────────────────────────────────────────────
+const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
+
+async function detectOemLabels(imageKeys) {
+  const session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+  if (!session.username || !session.passwordHash) return { oem_scan: null, photo_roles: [] };
+
+  const siteOrigin = window.location.origin;
+  const photoRoles = [];
+  let oemScan = null;
+
+  for (let i = 0; i < imageKeys.length; i++) {
+    const key = imageKeys[i];
+    let imageUrl;
+    if (key.startsWith('blob:')) {
+      imageUrl = siteOrigin + '/photos/' + key.slice(5);
+    } else if (key.startsWith('http')) {
+      imageUrl = key;
+    } else {
+      imageUrl = siteOrigin + '/assets/vehicles/' + key;
+    }
+
+    try {
+      const res = await fetch(OEM_DETECT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          imageUrl: imageUrl,
+        }),
+      });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data.ok && data.is_oem_label_photo) {
+        photoRoles.push({ filename: key, role: 'oem_label_processing_only' });
+        if (!oemScan || (data.extraction_confidence || 0) > (oemScan.confidence || 0)) {
+          oemScan = {
+            paint_code: data.extracted_paint_code || '',
+            color_name: data.extracted_color_name || '',
+            raw_text: data.raw_extracted_text || '',
+            confidence: data.extraction_confidence || 0,
+            source_image: key,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('OEM detection failed for ' + key + ':', err.message);
+    }
+  }
+  return { oem_scan: oemScan, photo_roles: photoRoles };
 }
 
 // ─── Dynamic year max ──────────────────────────────────────────────────────────
@@ -286,7 +355,7 @@ function setupVinDecoder() {
       // Populate basic fields
       if ($('year'))  $('year').value  = year;
       if ($('make'))  $('make').value  = toTitleCase(make);
-      if ($('model')) $('model').value = model;
+      if ($('model')) $('model').value = toTitleCase(model);
       if ($('trim'))  $('trim').value  = trim;
 
       // Engine
@@ -422,7 +491,7 @@ function setupVinDecoder() {
         const setField = (id, val) => { const el = $(id); if (el) el.textContent = val || '–'; };
         setField('decodedYear', year);
         setField('decodedMake', toTitleCase(make));
-        setField('decodedModel', model);
+        setField('decodedModel', toTitleCase(model));
         setField('decodedTrim', trim);
         setField('decodedBody', bodyClass);
         setField('decodedDrive', driveType);
@@ -651,110 +720,160 @@ function setupFormHandlers() {
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    if (VM_SUBMIT_IN_PROGRESS) return;
+    VM_SUBMIT_IN_PROGRESS = true;
 
-    const g = (id) => { const el = $(id); return el ? el.value.trim() : ''; };
+    const submitBtn = form.querySelector('button[type="submit"]');
+    try {
+      const g = (id) => { const el = $(id); return el ? el.value.trim() : ''; };
 
-    const vin = g('vin').toUpperCase();
-    if (vin && vin.length !== 17) {
-      alert('VIN must be 17 characters.');
-      return;
-    }
-
-    const stockNumber = g('stockNumber');
-
-    const vehicle = {
-      vin:           vin,
-      stockNumber:   stockNumber,
-      year:          g('year') ? parseInt(g('year'), 10) : null,
-      make:          toTitleCase(g('make')),
-      model:         g('model'),
-      trim:          g('trim'),
-      engine:        g('engine'),
-      transmission:  g('transmission'),
-      drivetrain:    g('drivetrain'),
-      fuelType:      g('fuelType'),
-      mpgCity:       g('mpgCity') ? parseInt(g('mpgCity'), 10) : null,
-      mpgHighway:    g('mpgHighway') ? parseInt(g('mpgHighway'), 10) : null,
-      mileage:       g('mileage') ? parseInt(g('mileage'), 10) : null,
-      price:         g('price') ? parseInt(g('price'), 10) : null,
-      type:          g('type'),
-      exteriorColor: g('exteriorColor'),
-      interiorColor: g('interiorColor'),
-      description:   g('description'),
-      features:      g('features').split(',').map(f => f.trim()).filter(Boolean),
-      status:        g('status') || 'available',
-      badge:         g('badge'),
-      images:        [],
-      dateAdded:     new Date().toISOString()
-    };
-
-    // Auto-description if still empty
-    if (!vehicle.description) {
-      const parts = [];
-      if (vehicle.drivetrain) parts.push(vehicle.drivetrain);
-      if (vehicle.engine) parts.push(vehicle.engine);
-      if (vehicle.mileage) parts.push(`${vehicle.mileage.toLocaleString()} miles`);
-      vehicle.description = parts.join(', ');
-    }
-
-    // Upload new photos to Netlify Blobs
-    let newImageKeys = [];
-    if (NEW_IMAGE_FILES.length) {
-      const uploadId = stockNumber || vin || String(Date.now());
-      try {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading photos…'; }
-        newImageKeys = await uploadPhotos(NEW_IMAGE_FILES, uploadId, (current, total) => {
-          if (submitBtn) submitBtn.textContent = `Uploading photo ${current}/${total}…`;
-        });
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = EDIT_INDEX !== null ? 'Update Vehicle' : 'Add Vehicle'; }
-      } catch (err) {
-        alert('Photo upload failed: ' + err.message);
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = EDIT_INDEX !== null ? 'Update Vehicle' : 'Add Vehicle'; }
+      const vin = g('vin').toUpperCase();
+      if (vin && vin.length !== 17) {
+        alert('VIN must be 17 characters.');
         return;
       }
-    }
 
-    // Images: combine new blob keys with existing, move preview to front
-    let combined = newImageKeys.length
-      ? [...newImageKeys, ...EXISTING_IMAGE_NAMES]
-      : [...EXISTING_IMAGE_NAMES];
-    combined = uniqueKeepOrder(combined);
-    if (PREVIEW_IMAGE_NAME && combined.includes(PREVIEW_IMAGE_NAME)) {
-      combined = [PREVIEW_IMAGE_NAME, ...combined.filter(n => n !== PREVIEW_IMAGE_NAME)];
-    }
-    vehicle.images = combined;
+      const stockNumber = g('stockNumber');
+      const makeName = toTitleCase(g('make'));
+      const modelName = toTitleCase(g('model'));
 
-    const inv = readInventory();
+      // Required field validation
+      if (!makeName) { alert('Make is required.'); return; }
+      if (!modelName) { alert('Model is required.'); return; }
 
-    // Add vs edit
-    const isEdit = EDIT_INDEX !== null && inv.vehicles[EDIT_INDEX];
+      const isEdit = EDIT_INDEX !== null;
 
-    if (isEdit) {
-      vehicle.dateAdded = EDIT_ORIGINAL_DATE || inv.vehicles[EDIT_INDEX].dateAdded || vehicle.dateAdded;
-      inv.vehicles[EDIT_INDEX] = vehicle;
-    } else {
-      // basic dedupe warning
-      const dup = inv.vehicles.find(v => (vehicle.vin && v.vin === vehicle.vin) || (vehicle.stockNumber && v.stockNumber === vehicle.stockNumber));
-      if (dup) {
-        const ok = confirm('A vehicle with the same VIN or Stock # already exists in your local inventory. Add anyway?');
-        if (!ok) return;
+      // Duplicate check BEFORE photo upload (fail fast)
+      if (!isEdit) {
+        const inv = readInventory();
+        if (vin && inv.vehicles.some(v => v.vin && v.vin.toUpperCase() === vin)) {
+          if (!confirm('A vehicle with the same VIN already exists. Add anyway?')) return;
+        }
+        if (stockNumber && inv.vehicles.some(v => v.stockNumber && v.stockNumber === stockNumber)) {
+          if (!confirm('A vehicle with the same Stock # already exists. Add anyway?')) return;
+        }
       }
-      inv.vehicles.push(vehicle);
+
+      const vehicle = {
+        vin:           vin,
+        stockNumber:   stockNumber,
+        year:          g('year') ? parseInt(g('year'), 10) : null,
+        make:          makeName,
+        model:         modelName,
+        trim:          g('trim'),
+        engine:        g('engine'),
+        transmission:  g('transmission'),
+        drivetrain:    g('drivetrain'),
+        fuelType:      g('fuelType'),
+        mpgCity:       g('mpgCity') ? parseInt(g('mpgCity'), 10) : null,
+        mpgHighway:    g('mpgHighway') ? parseInt(g('mpgHighway'), 10) : null,
+        mileage:       g('mileage') ? parseInt(g('mileage'), 10) : null,
+        price:         g('price') ? parseInt(g('price'), 10) : null,
+        type:          g('type'),
+        exteriorColor: g('exteriorColor'),
+        interiorColor: g('interiorColor'),
+        description:   g('description'),
+        features:      g('features').split(',').map(f => f.trim()).filter(Boolean),
+        status:        g('status') || 'available',
+        badge:         g('badge'),
+        images:        [],
+        dateAdded:     new Date().toISOString(),
+        paintCode:     '',
+        oem_scan:      null,
+        photo_roles:   [],
+        color_display: null,
+      };
+
+      // Auto-description if still empty
+      if (!vehicle.description) {
+        const parts = [];
+        if (vehicle.drivetrain) parts.push(vehicle.drivetrain);
+        if (vehicle.engine) parts.push(vehicle.engine);
+        if (vehicle.mileage) parts.push(`${vehicle.mileage.toLocaleString()} miles`);
+        vehicle.description = parts.join(', ');
+      }
+
+      // Upload new photos to Netlify Blobs
+      let newImageKeys = [];
+      if (NEW_IMAGE_FILES.length) {
+        const uploadId = stockNumber || vin || String(Date.now());
+        try {
+          if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading photos…'; }
+          newImageKeys = await uploadPhotos(NEW_IMAGE_FILES, uploadId, (current, total) => {
+            if (submitBtn) submitBtn.textContent = `Uploading photo ${current}/${total}…`;
+          });
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = isEdit ? 'Update Vehicle' : 'Add Vehicle'; }
+        } catch (err) {
+          alert('Photo upload failed: ' + err.message);
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = isEdit ? 'Update Vehicle' : 'Add Vehicle'; }
+          return;
+        }
+      }
+
+      // Run OEM label detection on newly uploaded photos
+      if (newImageKeys.length > 0 && typeof detectOemLabels === 'function') {
+        try {
+          if (submitBtn) submitBtn.textContent = 'Scanning for OEM labels…';
+          const oemResult = await detectOemLabels(newImageKeys);
+          if (oemResult.photo_roles.length > 0) {
+            vehicle.photo_roles = oemResult.photo_roles;
+          }
+          if (oemResult.oem_scan) {
+            vehicle.oem_scan = oemResult.oem_scan;
+            if (oemResult.oem_scan.paint_code && !vehicle.paintCode) {
+              vehicle.paintCode = oemResult.oem_scan.paint_code;
+            }
+            if (window.ColorLookup && window.ColorLookup.resolveVehicleColorDisplay) {
+              vehicle.color_display = window.ColorLookup.resolveVehicleColorDisplay(vehicle);
+            }
+          }
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = isEdit ? 'Update Vehicle' : 'Add Vehicle'; }
+        } catch (oemErr) {
+          console.warn('OEM detection error (non-fatal):', oemErr.message);
+        }
+      }
+
+      // Images: combine new blob keys with existing, move preview to front
+      let combined = newImageKeys.length
+        ? [...newImageKeys, ...EXISTING_IMAGE_NAMES]
+        : [...EXISTING_IMAGE_NAMES];
+      combined = uniqueKeepOrder(combined);
+      if (PREVIEW_IMAGE_NAME && combined.includes(PREVIEW_IMAGE_NAME)) {
+        combined = [PREVIEW_IMAGE_NAME, ...combined.filter(n => n !== PREVIEW_IMAGE_NAME)];
+      }
+      vehicle.images = combined;
+
+      const inv = readInventory();
+      const editTarget = isEdit && inv.vehicles[EDIT_INDEX];
+
+      if (editTarget) {
+        vehicle.dateAdded = EDIT_ORIGINAL_DATE || inv.vehicles[EDIT_INDEX].dateAdded || vehicle.dateAdded;
+        // Preserve OEM metadata from existing record when no new photos uploaded
+        if (!newImageKeys.length) {
+          vehicle.oem_scan = editTarget.oem_scan || vehicle.oem_scan;
+          vehicle.photo_roles = editTarget.photo_roles || vehicle.photo_roles;
+          vehicle.paintCode = editTarget.paintCode || vehicle.paintCode;
+          vehicle.color_display = editTarget.color_display || vehicle.color_display;
+        }
+        inv.vehicles[EDIT_INDEX] = vehicle;
+      } else {
+        inv.vehicles.push(vehicle);
+      }
+
+      writeInventory(inv);
+      downloadInventoryJSON(inv);
+
+      const action = editTarget ? 'updated' : 'added';
+      const photoMsg = newImageKeys.length ? `\n${newImageKeys.length} photo(s) uploaded to server.` : '';
+      alert(`Vehicle ${action}!\n\n${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
+        photoMsg + `\n\ninventory.json has been downloaded.\nUpload it to your website root to publish changes.`);
+
+      cancelEdit();
+      loadInventoryTable();
+      updateInventoryStatus();
+    } finally {
+      VM_SUBMIT_IN_PROGRESS = false;
     }
-
-    writeInventory(inv);
-    downloadInventoryJSON(inv);
-
-    const action = isEdit ? 'updated' : 'added';
-    const photoMsg = newImageKeys.length ? `\n${newImageKeys.length} photo(s) uploaded to server.` : '';
-    alert(`Vehicle ${action}!\n\n${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
-      photoMsg + `\n\ninventory.json has been downloaded.\nUpload it to your website root to publish changes.`);
-
-    cancelEdit();
-    loadInventoryTable();
-    updateInventoryStatus();
   });
 
   const cancelBtn = $('cancelEditBtn');

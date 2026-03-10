@@ -131,8 +131,8 @@ exports.handler = async (event) => {
 
   // Read staged inventory from Blobs
   let staged;
+  const store = blobStore({ name: 'inventory', consistency: 'strong' });
   try {
-    const store = blobStore({ name: 'inventory', consistency: 'strong' });
     staged = await store.get('staged', { type: 'json' });
   } catch (err) {
     return {
@@ -150,65 +150,119 @@ exports.handler = async (event) => {
     };
   }
 
-  // Build the clean inventory.json to commit (strip staging metadata)
-  const publishData = {
-    lastUpdated: new Date().toISOString(),
-    vehicles: staged.vehicles,
-  };
-  const jsonContent   = JSON.stringify(publishData, null, 2);
-  const base64Content = Buffer.from(jsonContent).toString('base64');
-
-  const filePath = `/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/inventory.json`;
-
-  // Get the current file SHA (required by GitHub API to update a file)
-  const getResult = await githubRequest('GET', filePath, GITHUB_TOKEN);
-  if (getResult.status !== 200) {
-    return {
-      statusCode: 502,
-      headers: CORS,
-      body: JSON.stringify({
-        error: `Could not fetch inventory.json from GitHub (HTTP ${getResult.status}). Check GITHUB_TOKEN and repo settings.`,
-      }),
-    };
-  }
-  const currentSHA = getResult.data.sha;
-
-  // Commit the new inventory.json
-  const commitMessage = `Update inventory — ${publishData.vehicles.length} vehicles (via admin by ${auth.user})`;
-  const putResult = await githubRequest('PUT', filePath, GITHUB_TOKEN, {
-    message: commitMessage,
-    content: base64Content,
-    sha: currentSHA,
-    committer: { name: 'Bells Fork Admin', email: 'admin@bellsforkautoandtruck.com' },
-  });
-
-  if (putResult.status !== 200 && putResult.status !== 201) {
-    return {
-      statusCode: 502,
-      headers: CORS,
-      body: JSON.stringify({
-        error: 'GitHub commit failed: ' + (putResult.data.message || `HTTP ${putResult.status}`),
-      }),
-    };
+  // Guard: reject stale staged data (older than 1 hour)
+  if (staged._stagedAt) {
+    const stagedAge = Date.now() - new Date(staged._stagedAt).getTime();
+    if (stagedAge > 60 * 60 * 1000) {
+      return {
+        statusCode: 409,
+        headers: CORS,
+        body: JSON.stringify({
+          error: 'Staged inventory is stale (staged ' + Math.round(stagedAge / 60000) + ' minutes ago). Please re-stage before publishing.',
+        }),
+      };
+    }
   }
 
-  // Update "current" blob and clear the staged blob
+  // Concurrent publish lock — use a simple blob lock with TTL
+  const lockKey = 'publish-lock';
   try {
-    const store = blobStore({ name: 'inventory', consistency: 'strong' });
-    await store.setJSON('current', publishData);
-    await store.delete('staged');
+    const existingLock = await store.get(lockKey, { type: 'json' });
+    if (existingLock) {
+      const lockAge = Date.now() - new Date(existingLock.lockedAt).getTime();
+      if (lockAge < 120000) { // Lock is still valid (2 minute TTL)
+        return {
+          statusCode: 409,
+          headers: CORS,
+          body: JSON.stringify({
+            error: 'Another publish is in progress (by ' + (existingLock.user || 'unknown') + '). Please wait and try again.',
+          }),
+        };
+      }
+      // Lock expired — safe to proceed
+    }
   } catch {
-    // Non-fatal — the GitHub commit succeeded, site will rebuild
+    // No lock exists — safe to proceed
   }
 
-  return {
-    statusCode: 200,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ok: true,
-      count: publishData.vehicles.length,
-      commitSha: putResult.data.commit?.sha,
-      message: 'Inventory published! Netlify will rebuild the site in ~30 seconds.',
-    }),
-  };
+  // Acquire lock
+  try {
+    await store.setJSON(lockKey, { user: auth.user, lockedAt: new Date().toISOString() });
+  } catch {
+    // Non-fatal — proceed anyway, lock is a best-effort guard
+  }
+
+  try {
+    // Build the clean inventory.json to commit (strip staging metadata)
+    const publishData = {
+      lastUpdated: new Date().toISOString(),
+      vehicles: staged.vehicles,
+    };
+    const jsonContent   = JSON.stringify(publishData, null, 2);
+    const base64Content = Buffer.from(jsonContent).toString('base64');
+
+    const filePath = `/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/contents/inventory.json`;
+
+    // Get the current file SHA (required by GitHub API to update a file)
+    const getResult = await githubRequest('GET', filePath, GITHUB_TOKEN);
+    if (getResult.status !== 200) {
+      return {
+        statusCode: 502,
+        headers: CORS,
+        body: JSON.stringify({
+          error: `Could not fetch inventory.json from GitHub (HTTP ${getResult.status}). Check GITHUB_TOKEN and repo settings.`,
+        }),
+      };
+    }
+    const currentSHA = getResult.data.sha;
+
+    // Commit the new inventory.json
+    const commitMessage = `Update inventory — ${publishData.vehicles.length} vehicles (via admin by ${auth.user})`;
+    const putResult = await githubRequest('PUT', filePath, GITHUB_TOKEN, {
+      message: commitMessage,
+      content: base64Content,
+      sha: currentSHA,
+      committer: { name: 'Bells Fork Admin', email: 'admin@bellsforkautoandtruck.com' },
+    });
+
+    if (putResult.status !== 200 && putResult.status !== 201) {
+      // GitHub SHA conflict means someone else committed in between — a race condition
+      const isConflict = putResult.status === 409 || (putResult.data.message || '').includes('sha');
+      return {
+        statusCode: 502,
+        headers: CORS,
+        body: JSON.stringify({
+          error: isConflict
+            ? 'Conflict: inventory.json was modified by another process. Please re-stage and try again.'
+            : 'GitHub commit failed: ' + (putResult.data.message || `HTTP ${putResult.status}`),
+        }),
+      };
+    }
+
+    // Update "current" blob and clear the staged blob
+    try {
+      await store.setJSON('current', publishData);
+      await store.delete('staged');
+    } catch {
+      // Non-fatal — the GitHub commit succeeded, site will rebuild
+    }
+
+    return {
+      statusCode: 200,
+      headers: { ...CORS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ok: true,
+        count: publishData.vehicles.length,
+        commitSha: putResult.data.commit?.sha,
+        message: 'Inventory published! Netlify will rebuild the site in ~30 seconds.',
+      }),
+    };
+  } finally {
+    // Release the publish lock
+    try {
+      await store.delete(lockKey);
+    } catch {
+      // Best-effort — lock will expire naturally after TTL
+    }
+  }
 };

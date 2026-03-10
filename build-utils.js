@@ -192,6 +192,9 @@ function inferVehicleType(v) {
   return 'car';
 }
 
+// ── Color lookup integration ──
+const { resolveVehicleColorDisplay, filterPublicImages } = require('./color-lookup');
+
 // ── Load inventory helper ──
 
 function loadAvailableVehicles() {
@@ -204,6 +207,13 @@ function loadAvailableVehicles() {
         v.images = v.images.map(img => resolveInventoryImageName(img));
       }
       v._inferredType = inferVehicleType(v);
+
+      // Resolve color display from all sources (paint code, OEM scan, name)
+      v._colorDisplay = resolveVehicleColorDisplay(v);
+
+      // Build public-facing images list (excludes OEM label photos)
+      v._publicImages = filterPublicImages(v.images || [], v.photo_roles || []);
+
       return v;
     });
 }
@@ -216,4 +226,5 @@ module.exports = {
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   buildLocalImageCandidates, resolveInventoryImageName, resolveImg, resolveImgAbs,
   inferVehicleType, loadAvailableVehicles,
+  resolveVehicleColorDisplay, filterPublicImages,
 };

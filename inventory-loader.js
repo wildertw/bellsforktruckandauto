@@ -125,9 +125,22 @@ class InventoryLoader {
     this.bindImageFallbacks(this.grid);
   }
 
+  getPublicImages(v) {
+    const images = v.images || [];
+    const roles = v.photo_roles || [];
+    if (!roles.length) return images;
+    const excludeSet = new Set();
+    roles.forEach(pr => {
+      if (pr.role === 'oem_label_processing_only') excludeSet.add(pr.filename);
+    });
+    if (excludeSet.size === 0) return images;
+    return images.filter(img => !excludeSet.has(img));
+  }
+
   createVehicleCard(v) {
     const priceRange = this.getPriceRange(v.price);
-    const mainImage = v.images && v.images.length > 0 ? v.images[0] : '';
+    const pubImages = this.getPublicImages(v);
+    const mainImage = pubImages.length > 0 ? pubImages[0] : '';
     const badgeClass = this.getBadgeClass(v.badge);
     const features = v.features || [];
 
@@ -394,7 +407,8 @@ class InventoryLoader {
     const yearMake = `${v.year || ''} ${make}`.trim();
     const href = this.buildVDPUrl(v);
 
-    const mainImage = (v.images && v.images.length) ? v.images[0] : '';
+    const pubImages = this.getPublicImages(v);
+    const mainImage = pubImages.length > 0 ? pubImages[0] : '';
 
     const isLocal = mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('blob:');
     const imgHtml = mainImage
