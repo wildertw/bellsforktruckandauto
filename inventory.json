@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:57:36.038Z",
+  "lastUpdated": "2026-03-10T03:57:55.770Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -220,30 +220,6 @@
         "blob:02927BF-09.jpg",
         "blob:02927BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GNSKC7C7FR280449",
-      "stockNumber": "02928BF",
-      "year": 1985,
-      "make": "CHEVROLET",
-      "model": "SUBURBAN",
-      "trim": "",
-      "engine": "6.2L V8",
-      "transmission": "Automatic",
-      "drivetrain": "",
-      "fuelType": "Diesel",
-      "mileage": 164000,
-      "price": 15000,
-      "type": "used",
-      "exteriorColor": "Silver Ice Metallic",
-      "interiorColor": "Black",
-      "description": "This classic 1985 Chevrolet Suburban features a powerful 6.2L V8 engine and has only 164,000 miles on the odometer. With its spacious interior and legendary durability, this Suburban is a reliable choice for families or outdoor enthusiasts.",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
