@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T02:34:46.564Z",
+  "lastUpdated": "2026-03-10T02:39:05.391Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -669,13 +669,13 @@
       "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 100000,
-      "price": 18900,
+      "mpgCity": 15,
+      "mpgHighway": 21,
+      "mileage": 74311,
+      "price": 25995,
       "type": "Truck",
-      "exteriorColor": "",
-      "interiorColor": "",
+      "exteriorColor": "Oxford White",
+      "interiorColor": "Black",
       "description": "This 2017 FORD F-150 SuperCab offers power and durability with its 5.0L V8 engine, perfect for tackling any task. With only 100,000 miles on the odometer, this truck is ready for the road ahead and is sure to impress with its reliability and performance.",
       "features": [],
       "status": "available",
