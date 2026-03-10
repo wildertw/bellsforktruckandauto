@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:58:32.968Z",
+  "lastUpdated": "2026-03-10T03:58:38.036Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -492,7 +492,7 @@
       "features": [],
       "status": "available",
       "badge": "",
-      "featured": true,
+      "featured": false,
       "images": [],
       "dateAdded": "2026-03-10"
     },
