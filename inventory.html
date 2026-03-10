@@ -476,6 +476,208 @@
     /* ══ Inventory page background ══ */
     #main { background: #f1f1f1; }
 
+    /* ══ Filter bar count strip ══ */
+    .inv-filter-bar {
+      background: #dc3545;
+      padding: .65rem 1rem;
+      color: #fff;
+      font-weight: 600;
+      font-size: .93rem;
+      letter-spacing: .03em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    /* ══ Each vehicle card ══ */
+    .inv-row {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 0;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      transition: box-shadow .15s;
+    }
+    .inv-row:hover { box-shadow: 0 4px 18px rgba(0,0,0,.13); }
+
+    /* Red top accent bar — matches site */
+    .inv-row-header {
+      background: #dc3545;
+      height: 10px;
+    }
+
+    .inv-row-body {
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* ── Image column ── */
+    .inv-img-col {
+      width: 260px;
+      min-width: 220px;
+      flex-shrink: 0;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: #e8e8e8;
+    }
+    .inv-img-col img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      transition: transform .25s;
+    }
+    .inv-img-col:hover img { transform: scale(1.03); }
+    .inv-img-placeholder {
+      width: 100%;
+      height: 200px;
+      background: #ebebeb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: .8rem;
+      gap: .5rem;
+    }
+
+    /* ── Info column (middle) ── */
+    .inv-info-col {
+      flex: 1;
+      padding: 1rem 1.3rem;
+      border-right: 1px solid #e8e8e8;
+      position: relative;
+    }
+    .inv-type-icon {
+      position: absolute;
+      top: 0.6rem;
+      right: 1rem;
+      opacity: 1;
+      pointer-events: none;
+      line-height: 0;
+    }
+    .inv-vehicle-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #111;
+      margin: 0 0 .1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .inv-vehicle-title:hover { color: #dc3545; text-decoration: underline; }
+    .inv-trim-label {
+      font-weight: 400;
+      color: #666;
+      font-size: 1rem;
+    }
+    .inv-stock-vin {
+      font-size: .8rem;
+      color: #888;
+      margin-bottom: .75rem;
+    }
+    .vin-reveal-btn {
+      background: none;
+      border: 1px dashed #ccc;
+      border-radius: 4px;
+      color: #888;
+      cursor: pointer;
+      font-size: .75rem;
+      padding: 1px 7px;
+      vertical-align: middle;
+    }
+    .vin-reveal-btn:hover { background: #f5f5f5; border-color: #aaa; color: #333; }
+
+    /* Specs labeled pairs layout */
+    .inv-spec-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .2rem 1.5rem;
+      font-size: .875rem;
+    }
+    .inv-spec-row { display: flex; gap: .35rem; align-items: baseline; }
+    .inv-spec-label { font-weight: 700; color: #333; white-space: nowrap; min-width: 58px; }
+    .inv-spec-value { color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+    /* ── Action column (right) ── */
+    .inv-action-col {
+      width: 220px;
+      min-width: 200px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 1rem;
+      gap: .45rem;
+      justify-content: center;
+      background: #fafafa;
+      border-left: 1px solid #eee;
+    }
+
+    /* Price box */
+    .inv-price-retail {
+      background: #444;
+      color: #fff;
+      text-align: center;
+      padding: .55rem .5rem;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      border-radius: 3px 3px 0 0;
+      text-transform: uppercase;
+    }
+    .inv-price-main {
+      background: #28a745;
+      color: #fff;
+      text-align: center;
+      padding: .6rem .5rem .75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      border-radius: 0 0 3px 3px;
+      margin-bottom: .4rem;
+      line-height: 1;
+    }
+    .inv-price-main.call-price {
+      font-size: 1rem;
+      padding: 1rem .5rem;
+    }
+
+    /* Action buttons */
+    .inv-btn {
+      display: block;
+      text-align: center;
+      padding: .5rem .5rem;
+      border-radius: 3px;
+      font-size: .82rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background .15s, border-color .15s, color .15s;
+      line-height: 1.3;
+    }
+    .inv-btn-details  { background: #555; color: #fff; border-color: #555; }
+    .inv-btn-details:hover { background: #333; color: #fff; }
+    .inv-btn-inquiry  { background: #dc3545; color: #fff; border-color: #dc3545; }
+    .inv-btn-inquiry:hover { background: #bb2d3b; color: #fff; }
+    .inv-btn-financing{ background: #fff; color: #dc3545; border-color: #dc3545; }
+    .inv-btn-financing:hover { background: #dc3545; color: #fff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .inv-row-body { flex-direction: column; }
+      .inv-img-col  { width: 100%; min-width: 0; }
+      .inv-img-col img { height: 220px; }
+      .inv-action-col { width: 100%; min-width: 0; flex-direction: row; flex-wrap: wrap; }
+      .inv-price-retail, .inv-price-main { flex: 0 0 100%; }
+      .inv-btn { flex: 1; min-width: 120px; }
+    }
+
+
     /* ── Filter bar ── */
     .filter-section {
       background: #fff;
@@ -542,6 +744,7 @@
 </head>
 
 <body>
+<a href="#main" class="skip-link">Skip to inventory</a>
 <!-- TOP IDENTITY BAR — social left, logo center, phone/address right -->
   <div class="site-identity-bar bg-white border-bottom py-3" style="position:relative;">
     <div class="container">
@@ -669,12 +872,12 @@
           <!-- Filter bar -->
           <div class="filter-section">
             <div class="row g-2 align-items-end">
-              <div class="col-md-4">
+              <div class="col-12 col-md-4">
                 <label for="searchVehicle" class="form-label fw-bold small text-uppercase mb-1">Search</label>
                 <input type="text" class="form-control form-control-sm" id="searchVehicle"
                        placeholder="Make, model, keyword…">
               </div>
-              <div class="col-md-3">
+              <div class="col-md-3 d-none d-md-block">
                 <label for="filterType" class="form-label fw-bold small text-uppercase mb-1">Type</label>
                 <select class="form-select form-select-sm" id="filterType">
                   <option value="all">All Types</option>
@@ -684,7 +887,7 @@
                   <option value="diesel">Diesel Vehicles</option>
                 </select>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-3 d-none d-md-block">
                 <label for="filterPrice" class="form-label fw-bold small text-uppercase mb-1">Price Range</label>
                 <select class="form-select form-select-sm" id="filterPrice">
                   <option value="all">Any Price</option>
@@ -694,7 +897,7 @@
                   <option value="over30">$30,000+</option>
                 </select>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-2 d-none d-md-block">
                 <button class="btn btn-danger btn-sm w-100" id="searchBtn" type="button">
                   <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
                     <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -710,7 +913,13 @@
             <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
               <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/>
             </svg>
-            <span id="vehicleCount">40 Vehicles Available</span>
+            <span id="vehicleCount">38 Vehicles Available</span>
+            <select class="form-select form-select-sm d-none d-md-inline-block" id="sortDropdown" style="width:auto;margin-left:auto;background:#dc3545;color:#fff;border-color:#dc3545;font-size:.82rem;font-weight:600;">
+              <option value="newest">Newest First</option>
+              <option value="priceLow">Price: Low to High</option>
+              <option value="priceHigh">Price: High to Low</option>
+              <option value="milesLow">Mileage: Low to High</option>
+            </select>
           </div>
 
           <!-- Inventory list -->
@@ -718,7 +927,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02937BF/Used-2020-Chevrolet-TAHOE-LT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1GNSKBKC2LR309210_1.jpg" alt="2020 Chevrolet TAHOE" loading="lazy" decoding="async" data-local-image="VEHICLE-1GNSKBKC2LR309210_1.jpg"></a>
+<a href="/vdp/02937BF/Used-2020-Chevrolet-TAHOE-LT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1GNSKBKC2LR309210_1.jpg" alt="2020 Chevrolet TAHOE" loading="lazy" decoding="async" data-local-image="VEHICLE-1GNSKBKC2LR309210_1.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02937BF/Used-2020-Chevrolet-TAHOE-LT-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2020 Chevrolet TAHOE <span class="inv-trim-label">LT</span></a>
 <div class="inv-stock-vin">Stock #: 02937BF</div>
@@ -743,7 +952,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02914BF/Used-2016-CHEVROLET-Corvette-Preferred-2LT-w-Z51-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02914BF-08.jpg" alt="2016 CHEVROLET Corvette" loading="lazy" decoding="async" data-local-image="blob:02914BF-08.jpg"></a>
+<a href="/vdp/02914BF/Used-2016-CHEVROLET-Corvette-Preferred-2LT-w-Z51-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02914BF-08.jpg" alt="2016 CHEVROLET Corvette" loading="lazy" decoding="async" data-local-image="blob:02914BF-08.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02914BF/Used-2016-CHEVROLET-Corvette-Preferred-2LT-w-Z51-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2016 CHEVROLET Corvette <span class="inv-trim-label">Preferred 2LT w/Z51</span></a>
 <div class="inv-stock-vin">Stock #: 02914BF</div>
@@ -768,7 +977,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02923BF/Used-2016-FORD-F-250-Super-Duty-Single-Rear-Wheel-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02923BF-03.jpg" alt="2016 FORD F-250" loading="lazy" decoding="async" data-local-image="blob:02923BF-03.jpg"></a>
+<a href="/vdp/02923BF/Used-2016-FORD-F-250-Super-Duty-Single-Rear-Wheel-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02923BF-03.jpg" alt="2016 FORD F-250" loading="lazy" decoding="async" data-local-image="blob:02923BF-03.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02923BF/Used-2016-FORD-F-250-Super-Duty-Single-Rear-Wheel-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2016 FORD F-250 <span class="inv-trim-label">Super Duty - Single Rear Wheel</span></a>
 <div class="inv-stock-vin">Stock #: 02923BF</div>
@@ -818,7 +1027,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02926BF/Used-2017-Chevrolet-2500-High-Country-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1GCWK1EK7HF203958-01.jpg" alt="2017 Chevrolet 2500" loading="lazy" decoding="async" data-local-image="VEHICLE-1GCWK1EK7HF203958-01.jpg"></a>
+<a href="/vdp/02926BF/Used-2017-Chevrolet-2500-High-Country-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1GCWK1EK7HF203958-01.jpg" alt="2017 Chevrolet 2500" loading="lazy" decoding="async" data-local-image="VEHICLE-1GCWK1EK7HF203958-01.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02926BF/Used-2017-Chevrolet-2500-High-Country-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2017 Chevrolet 2500 <span class="inv-trim-label">High Country</span></a>
 <div class="inv-stock-vin">Stock #: 02926BF</div>
@@ -843,7 +1052,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02927BF/Used-2019-RAM-1500-SLT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02927BF-01.jpg" alt="2019 RAM 1500" loading="lazy" decoding="async" data-local-image="blob:02927BF-01.jpg"></a>
+<a href="/vdp/02927BF/Used-2019-RAM-1500-SLT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02927BF-01.jpg" alt="2019 RAM 1500" loading="lazy" decoding="async" data-local-image="blob:02927BF-01.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02927BF/Used-2019-RAM-1500-SLT-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2019 RAM 1500 <span class="inv-trim-label">SLT</span></a>
 <div class="inv-stock-vin">Stock #: 02927BF</div>
@@ -868,32 +1077,32 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02928BF/Used-1985-CHEVROLET-SUBURBAN-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div></a>
+<a href="/vdp/02928BF/Used-2015-CHEVROLET-Suburban-LT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div></a>
 <div class="inv-info-col" style="position:relative;">
-<a href="/vdp/02928BF/Used-1985-CHEVROLET-SUBURBAN-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">1985 CHEVROLET SUBURBAN</a>
+<a href="/vdp/02928BF/Used-2015-CHEVROLET-Suburban-LT-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2015 CHEVROLET Suburban LT</a>
 <div class="inv-stock-vin">Stock #: 02928BF</div>
 <div class="inv-spec-grid">
 <div class="inv-spec-row"><span class="inv-spec-label">Mileage:</span><span class="inv-spec-value">164,000 mi</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">6.2L V8</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">5.3L V8</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">Automatic</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">—</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">RWD</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">Silver Ice Metallic</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">Diesel</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">Gasoline</span></div>
 </div>
 </div>
 <div class="inv-action-col">
 <div class="inv-price-retail">Our Price</div>
 <div class="inv-price-main">$15,000</div>
-<a href="/vdp/02928BF/Used-1985-CHEVROLET-SUBURBAN-for-sale-in-Greenville-NC-27858/" class="inv-btn inv-btn-details">View Details</a>
-<a href="financing.html?vehicle=1985%20CHEVROLET%20SUBURBAN&stock=02928BF&price=15000#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
-<a href="contact.html?vehicle=1985%20CHEVROLET%20SUBURBAN&stock=02928BF#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
+<a href="/vdp/02928BF/Used-2015-CHEVROLET-Suburban-LT-for-sale-in-Greenville-NC-27858/" class="inv-btn inv-btn-details">View Details</a>
+<a href="financing.html?vehicle=2015%20CHEVROLET%20Suburban%20LT&stock=02928BF&price=15000#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
+<a href="contact.html?vehicle=2015%20CHEVROLET%20Suburban%20LT&stock=02928BF#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
 </div>
 </div>
 </div>
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02929BF/Used-2004-CHEVROLET-Silverado-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02929BF-04.jpg" alt="2004 CHEVROLET Silverado" loading="lazy" decoding="async" data-local-image="blob:02929BF-04.jpg"></a>
+<a href="/vdp/02929BF/Used-2004-CHEVROLET-Silverado-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02929BF-04.jpg" alt="2004 CHEVROLET Silverado" loading="lazy" decoding="async" data-local-image="blob:02929BF-04.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02929BF/Used-2004-CHEVROLET-Silverado-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2004 CHEVROLET Silverado</a>
 <div class="inv-stock-vin">Stock #: 02929BF</div>
@@ -918,7 +1127,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02930BF/Used-2011-CHEVROLET-Silverado-LT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02930BF-01.jpg" alt="2011 CHEVROLET Silverado" loading="lazy" decoding="async" data-local-image="blob:02930BF-01.jpg"></a>
+<a href="/vdp/02930BF/Used-2011-CHEVROLET-Silverado-LT-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/02930BF-01.jpg" alt="2011 CHEVROLET Silverado" loading="lazy" decoding="async" data-local-image="blob:02930BF-01.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02930BF/Used-2011-CHEVROLET-Silverado-LT-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2011 CHEVROLET Silverado <span class="inv-trim-label">LT</span></a>
 <div class="inv-stock-vin">Stock #: 02930BF</div>
@@ -943,7 +1152,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02931BF/Used-2016-Jeep-Wrangler-Sport-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1C4BJWDG2GL268370_1.jpg" alt="2016 Jeep Wrangler" loading="lazy" decoding="async" data-local-image="VEHICLE-1C4BJWDG2GL268370_1.jpg"></a>
+<a href="/vdp/02931BF/Used-2016-Jeep-Wrangler-Sport-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/VEHICLE-1C4BJWDG2GL268370_1.jpg" alt="2016 Jeep Wrangler" loading="lazy" decoding="async" data-local-image="VEHICLE-1C4BJWDG2GL268370_1.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02931BF/Used-2016-Jeep-Wrangler-Sport-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2016 Jeep Wrangler <span class="inv-trim-label">Sport</span></a>
 <div class="inv-stock-vin">Stock #: 02931BF</div>
@@ -968,7 +1177,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02932BF/Used-2021-Toyota-Tacoma-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/2021-super-white-toyota-tacoma-02932bf-01.png" alt="2021 Toyota Tacoma" loading="lazy" decoding="async" data-local-image="2021-super-white-toyota-tacoma-02932bf-01.png"></a>
+<a href="/vdp/02932BF/Used-2021-Toyota-Tacoma-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/2021-super-white-toyota-tacoma-02932bf-01.png" alt="2021 Toyota Tacoma" loading="lazy" decoding="async" data-local-image="2021-super-white-toyota-tacoma-02932bf-01.png" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02932BF/Used-2021-Toyota-Tacoma-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2021 Toyota Tacoma</a>
 <div class="inv-stock-vin">Stock #: 02932BF</div>
@@ -1093,7 +1302,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02955BF/Used-2018-Chevrolet-SILVERADO-1500-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png" alt="2018 Chevrolet SILVERADO 1500" loading="lazy" decoding="async" data-local-image="2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png"></a>
+<a href="/vdp/02955BF/Used-2018-Chevrolet-SILVERADO-1500-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="assets/vehicles/2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png" alt="2018 Chevrolet SILVERADO 1500" loading="lazy" decoding="async" data-local-image="2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-01.png" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02955BF/Used-2018-Chevrolet-SILVERADO-1500-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2018 Chevrolet SILVERADO 1500 <span class="inv-trim-label">LTZ</span></a>
 <div class="inv-stock-vin">Stock #: 02955BF</div>
@@ -1118,7 +1327,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/02956BF/Used-2021-FORD-Bronco-Sport-Outer-Banks-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="2021 FORD Bronco Sport" loading="lazy" decoding="async"></a>
+<a href="/vdp/02956BF/Used-2021-FORD-Bronco-Sport-Outer-Banks-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="2021 FORD Bronco Sport" loading="lazy" decoding="async" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/02956BF/Used-2021-FORD-Bronco-Sport-Outer-Banks-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2021 FORD Bronco Sport <span class="inv-trim-label">Outer Banks</span></a>
 <div class="inv-stock-vin">Stock #: 02956BF</div>
@@ -1693,7 +1902,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/2907/Used-2020-DODGE-Challenger-R-T-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/2907-01.jpg" alt="2020 DODGE Challenger" loading="lazy" decoding="async" data-local-image="blob:2907-01.jpg"></a>
+<a href="/vdp/2907/Used-2020-DODGE-Challenger-R-T-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/2907-01.jpg" alt="2020 DODGE Challenger" loading="lazy" decoding="async" data-local-image="blob:2907-01.jpg" onload="this.classList.add('loaded')"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/2907/Used-2020-DODGE-Challenger-R-T-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2020 DODGE Challenger <span class="inv-trim-label">R/T</span></a>
 <div class="inv-stock-vin">Stock #: 2907</div>
@@ -1942,6 +2151,20 @@
         c.classList.toggle('active', c.dataset.type === val);
       });
     });
+
+    // Desktop sort dropdown
+    const sortDropdown = document.getElementById('sortDropdown');
+    if (sortDropdown) {
+      sortDropdown.addEventListener('change', () => {
+        const sortChipEl = document.getElementById('sortChip');
+        if (sortChipEl) {
+          sortChipEl.dataset.sort = sortDropdown.value;
+          const label = sortDropdown.options[sortDropdown.selectedIndex].text;
+          sortChipEl.textContent = label;
+        }
+        applyFilters();
+      });
+    }
   });
 
   async function loadVehicles() {
@@ -1960,29 +2183,63 @@
     }
   }
 
+  // Normalize vehicle type to a canonical category for filtering
+  const TRUCK_MODELS = /f-?150|f-?250|f-?350|silverado|sierra|tundra|tacoma|ram\s*1500|ram\s*2500|ram\s*3500|gladiator|ranger|colorado|canyon|titan|frontier|2500|3500/i;
+  const SUV_MODELS = /suburban|tahoe|bronco|explorer|expedition|4runner|highlander|pathfinder|pilot|traverse|blazer|equinox|qx80|qx60|santa\s*fe|wrangler|cherokee|durango|sequoia/i;
+  const CAR_MODELS = /camaro|corvette|mustang|challenger|charger|altima|civic|accord|corolla|camry|jetta|xjl|portfolio|impala|malibu|maxima|sentra/i;
+
+  function normalizeType(t, v) {
+    const raw = String(t || '').toLowerCase().trim();
+    if (raw === 'truck' || raw === 'pickup') return 'truck';
+    if (raw === 'suv' || raw === 'crossover') return 'suv';
+    if (raw === 'car' || raw === 'sedan' || raw === 'coupe') return 'car';
+    if (raw === 'diesel') return 'diesel';
+    // Infer type from model name when type is "used" or unknown
+    if (v) {
+      const model = (v.model || '') + ' ' + (v.trim || '');
+      if (TRUCK_MODELS.test(model)) return 'truck';
+      if (SUV_MODELS.test(model)) return 'suv';
+      if (CAR_MODELS.test(model)) return 'car';
+    }
+    return raw;
+  }
+
+  // Also check fuelType for diesel detection
+  function isDiesel(v) {
+    return (v.fuelType || '').toLowerCase() === 'diesel';
+  }
+
   function applyFilters() {
     const q     = document.getElementById('searchVehicle').value.trim().toLowerCase();
     const type  = document.getElementById('filterType').value;
     const price = document.getElementById('filterPrice').value;
     const sortChip = document.getElementById('sortChip');
-    const sortMode = sortChip ? sortChip.dataset.sort : 'newest';
+    const sortDD = document.getElementById('sortDropdown');
+    const sortMode = sortDD ? sortDD.value : (sortChip ? sortChip.dataset.sort : 'newest');
 
     const filtered = ALL_VEHICLES.filter(v => {
-      const searchable = `${v.year} ${v.make} ${v.model} ${v.trim||''} ${v.description||''} ${v.vin||''}`.toLowerCase();
+      const searchable = `${v.year} ${v.make} ${v.model} ${v.trim||''} ${v.description||''} ${v.vin||''} ${v.engine||''} ${v.drivetrain||''} ${v.exteriorColor||''} ${v.fuelType||''}`.toLowerCase();
       const matchQ     = !q || searchable.includes(q);
-      const matchType  = type === 'all' || v.type === type;
+      const vType = normalizeType(v.type, v);
+      const matchType  = type === 'all' || vType === type || (type === 'diesel' && isDiesel(v));
       const pr = priceRange(v.price);
       const matchPrice = price === 'all' || pr === price;
       return matchQ && matchType && matchPrice;
     });
 
     // Sort based on active sort mode
+    // For price sorts, push $0 (call-for-price) vehicles to the end
     if (sortMode === 'priceLow') {
-      filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+      filtered.sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
     } else if (sortMode === 'priceHigh') {
-      filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+      filtered.sort((a, b) => {
+        if (!b.price && !a.price) return 0;
+        if (!b.price) return -1;
+        if (!a.price) return 1;
+        return b.price - a.price;
+      });
     } else if (sortMode === 'milesLow') {
-      filtered.sort((a, b) => (a.mileage || 0) - (b.mileage || 0));
+      filtered.sort((a, b) => (a.mileage || Infinity) - (b.mileage || Infinity));
     } else {
       filtered.sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
     }
@@ -1991,6 +2248,7 @@
   }
 
   function priceRange(p) {
+    if (!p || p <= 0) return 'none';
     if (p < 10000) return 'under10';
     if (p < 20000) return '10to20';
     if (p < 30000) return '20to30';
@@ -2111,7 +2369,7 @@
       : `${vehicles.length} Vehicle${vehicles.length !== 1 ? 's' : ''} Available`;
 
     if (vehicles.length === 0) {
-      list.innerHTML = '<div class="text-center py-5 text-muted">No vehicles found matching your criteria.</div>';
+      list.innerHTML = '<div class="text-center py-5"><p class="text-muted mb-3">No vehicles found matching your criteria.</p><button class="btn btn-outline-danger btn-sm" onclick="resetFilters()">Clear Filters</button></div>';
       return;
     }
 
@@ -2119,16 +2377,30 @@
     bindImageFallbacks(list);
   }
 
+  // Clean up messy drivetrain values like "4WD/4-Wheel Drive/4x4" -> "4WD"
+  function cleanDrivetrain(d) {
+    if (!d) return '—';
+    const raw = d.trim();
+    if (raw.includes('/')) return raw.split('/')[0].trim();
+    return raw;
+  }
+
+  // Truncate engine descriptions to avoid overflow
+  function truncateEngine(e) {
+    if (!e || e === '—') return '—';
+    if (e.length <= 40) return e;
+    return e.substring(0, 37) + '…';
+  }
   function buildRow(v) {
     const title    = `${v.year} ${v.make} ${v.model}`;
     const trim     = v.trim || '';
     const price    = v.price ? `$${Number(v.price).toLocaleString()}` : 'Call for Price';
     const miles    = v.mileage ? `${Number(v.mileage).toLocaleString()} mi` : '—';
     const stock    = v.stockNumber ? `Stock #: ${v.stockNumber}` : '';
-    const vinBtn   = v.vin ? `<button class="vin-reveal-btn" data-vin="${btoa(v.vin)}" onclick="revealVin(this)">&#128269; Click to see VIN</button>` : '';
-    const engine   = v.engine   || '—';
+    const vinBtn   = v.vin ? `<button class="vin-reveal-btn" data-vin="${btoa(v.vin)}" onclick="revealVin(this)" aria-label="Reveal VIN number">&#128269; Click to see VIN</button>` : '';
+    const engine   = truncateEngine(v.engine);
     const trans    = v.transmission || '—';
-    const drive    = v.drivetrain || '—';
+    const drive    = cleanDrivetrain(v.drivetrain);
     const extColor = v.exteriorColor || '—';
     const fuel     = v.fuelType || '—';
 
@@ -2181,6 +2453,16 @@
         </div>
       </div>
     </div>`;
+  }
+
+  function resetFilters() {
+    document.getElementById('searchVehicle').value = '';
+    document.getElementById('filterType').value = 'all';
+    document.getElementById('filterPrice').value = 'all';
+    var dd = document.getElementById('sortDropdown');
+    if (dd) dd.value = 'newest';
+    document.querySelectorAll('#mobileChips .filter-chip').forEach(function(c) { c.classList.toggle('active', c.dataset.type === 'all'); });
+    applyFilters();
   }
 
   function revealVin(btn) {
