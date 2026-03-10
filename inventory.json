@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:54:42.872Z",
+  "lastUpdated": "2026-03-10T03:54:52.794Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -939,30 +939,6 @@
       "dateAdded": "2026-03-10"
     },
     {
-      "vin": "1G1FB1R7XJ0156632",
-      "stockNumber": "03017BF",
-      "year": 2018,
-      "make": "CHEVROLET",
-      "model": "CAMARO",
-      "trim": "1LS/1LT",
-      "engine": "LT1 - Direct Injection, AFM, Variable Valve Timing, High Output, ALUM",
-      "transmission": "Automatic",
-      "drivetrain": "RWD/Rear-Wheel Drive",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
-      "dateAdded": "2026-03-10"
-    },
-    {
       "vin": "1FTEW1E53KFB96224",
       "stockNumber": "02915BFA",
       "year": 2019,
@@ -1024,30 +1000,6 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "3TMCP5AN2PM650535",
-      "stockNumber": "03018BF",
-      "year": 2023,
-      "make": "TOYOTA",
-      "model": "TACOMA",
-      "trim": "SR5",
-      "engine": "",
-      "transmission": "",
-      "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
