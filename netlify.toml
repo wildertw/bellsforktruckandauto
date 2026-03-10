@@ -30,6 +30,7 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: blob: res.cloudinary.com; frame-src 'self' www.google.com; connect-src 'self' vpic.nhtsa.dot.gov; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
 
 # ── Caching Headers ──
 

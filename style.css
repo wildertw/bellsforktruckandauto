@@ -582,9 +582,26 @@ button:focus-visible {
   header,
   footer,
   .hero,
-  #appointment {
-    display: none;
+  #appointment,
+  .swiper-button-prev,
+  .swiper-button-next,
+  .swiper-pagination,
+  .vdp-cta-card,
+  .vdp-similar,
+  .vdp-breadcrumb,
+  .btn,
+  .back-to-top {
+    display: none !important;
   }
+  body { font-size: 12pt; color: #000; background: #fff; }
+  .vdp-main { padding: 0; }
+  .vdp-vehicle-title { font-size: 18pt; color: #000; }
+  .vdp-price-tag { font-size: 16pt; color: #000; }
+  .vdp-spec-grid { page-break-inside: avoid; }
+  .vdp-section { border: 1px solid #ccc; margin-bottom: 0.5rem; }
+  .vdp-section-header { background: #eee !important; color: #000 !important; }
+  a { color: #000; text-decoration: none; }
+  img { max-height: 300px; }
 }
 
 

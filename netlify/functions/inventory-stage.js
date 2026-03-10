@@ -6,9 +6,8 @@
  * Validates the user, then stores inventory in Netlify Blobs as "staged".
  * Returns a diff summary so the admin can review before publishing.
  *
- * Optional env var:
+ * Required env var:
  *   INVENTORY_ADMIN_USERS — JSON: {"frank":"<sha256>","trey":"<sha256>"}
- *   (falls back to the hashes from admin-login.html if not set)
  */
 
 const crypto = require('crypto');
