@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:57:41.452Z",
+  "lastUpdated": "2026-03-10T05:01:23.469Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -204,7 +204,7 @@
       "fuelType": "Gasoline",
       "mileage": 135000,
       "price": 19995,
-      "type": "Truck",
+      "type": "used",
       "exteriorColor": "Bright White Clearcoat",
       "interiorColor": "Grey",
       "description": "This 2019 RAM 1500 SLT boasts a powerful 5.7L engine and has been meticulously maintained, with 135,000 highway miles. With its rugged yet refined design, this truck is ready to tackle any job you throw its way.",
@@ -327,43 +327,6 @@
         "blob:02930BF-08.jpg",
         "blob:02930BF-09.jpg",
         "blob:02930BF-10.jpg"
-      ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1C4BJWDG2GL268370",
-      "stockNumber": "02931BF",
-      "year": 2016,
-      "make": "Jeep",
-      "model": "Wrangler",
-      "trim": "Sport",
-      "engine": "3.6L 6-Cyl",
-      "transmission": "",
-      "drivetrain": "4WD",
-      "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 95000,
-      "price": 16995,
-      "type": "suv",
-      "exteriorColor": "Granite Crystal Metallic Clearcoat",
-      "interiorColor": "Gray",
-      "description": "Introducing the 2016 Jeep Wrangler Sport, a rugged SUV designed for adventure and versatility. With a powerful 3.6L V6 engine and 4WD capabilities, this vehicle is perfect for both on- and off-road journeys. With 95,000 miles and a striking Granite Crystal Metallic exterior, it combines style with performance. Experience the freedom of the open road in this reliable and iconic vehicle.",
-      "features": [
-        "4WD",
-        "V6",
-        "3.6L",
-        "Turbo"
-      ],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "VEHICLE-1C4BJWDG2GL268370-01.jpg",
-        "VEHICLE-1C4BJWDG2GL268370-02.jpg",
-        "VEHICLE-1C4BJWDG2GL268370-03.jpg",
-        "VEHICLE-1C4BJWDG2GL268370-04.jpg",
-        "VEHICLE-1C4BJWDG2GL268370-05.jpg"
       ],
       "dateAdded": "2026-03-10"
     },
