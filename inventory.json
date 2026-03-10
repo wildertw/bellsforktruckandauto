@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:02:04.489Z",
+  "lastUpdated": "2026-03-10T04:09:48.185Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -12,13 +12,13 @@
       "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
+      "mpgCity": 15,
+      "mpgHighway": 21,
       "mileage": 175000,
       "price": 27000,
       "type": "SUV",
-      "exteriorColor": "",
-      "interiorColor": "",
+      "exteriorColor": "Shadow Gray Metallic",
+      "interiorColor": "Black",
       "description": "This 2020 Chevrolet Tahoe LT offers excellent value in a spacious, three-row SUV perfect for families and those needing versatile cargo space. Equipped with a robust L83 engine featuring direct injection and variable valve timing, this vehicle delivers reliable performance and capability. With 175,000 miles, it represents a solid pre-owned option for buyers seeking a well-established full-size SUV at an attractive price point.",
       "features": [
         "Back-Up Camera",
