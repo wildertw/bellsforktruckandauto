@@ -14,13 +14,8 @@
 
 const crypto = require('crypto');
 
-const FALLBACK_USERS = {
-  trey:  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-  frank: '8e0a49d96938eca5a973cb170f392fa6e117ac8e0bbae8f281f365d7fd3c4139',
-};
-
 const CORS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
@@ -56,11 +51,14 @@ exports.handler = async (event) => {
 
   let usersConfig;
   try {
-    usersConfig = JSON.parse(process.env.BLOG_ADMIN_USERS || '{}');
+    const envUsers = process.env.BLOG_ADMIN_USERS;
+    if (!envUsers) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS not set' }) };
+    }
+    usersConfig = JSON.parse(envUsers);
   } catch {
     return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS invalid' }) };
   }
-  usersConfig = { ...FALLBACK_USERS, ...usersConfig };
 
   let body;
   try {
@@ -102,9 +100,19 @@ exports.handler = async (event) => {
     secret
   );
 
+  // Set HTTP-only cookie for Edge Function auth gate
+  const cookieMaxAge = 8 * 60 * 60; // 8 hours (matches JWT expiry)
+  const isProduction = (process.env.URL || '').includes('bellsforkautoandtruck.com');
+  const securePart = isProduction ? '; Secure' : '';
+  const cookieHeader = `bf_admin_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${cookieMaxAge}${securePart}`;
+
   return {
     statusCode: 200,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
+    headers: {
+      ...CORS,
+      'Content-Type': 'application/json',
+      'Set-Cookie': cookieHeader,
+    },
     body: JSON.stringify({ token, user: displayName, expiresAt }),
   };
 };

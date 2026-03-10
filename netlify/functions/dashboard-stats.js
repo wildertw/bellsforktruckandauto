@@ -23,23 +23,21 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const FALLBACK_USERS = {
-  frank: '8e0a49d96938eca5a973cb170f392fa6e117ac8e0bbae8f281f365d7fd3c4139',
-  trey:  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-};
-
 const CORS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
 
 function validateAuth(user, passwordHash) {
-  let usersConfig = FALLBACK_USERS;
+  let usersConfig;
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
-    if (envUsers) usersConfig = JSON.parse(envUsers);
-  } catch { /* fallback */ }
+    if (!envUsers) return false;
+    usersConfig = JSON.parse(envUsers);
+  } catch {
+    return false;
+  }
 
   const normalized = (user || '').trim().toLowerCase();
   const expected = usersConfig[normalized];

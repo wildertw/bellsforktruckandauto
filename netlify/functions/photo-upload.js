@@ -22,13 +22,8 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const FALLBACK_USERS = {
-  frank: '8e0a49d96938eca5a973cb170f392fa6e117ac8e0bbae8f281f365d7fd3c4139',
-  trey:  '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
-};
-
 const CORS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
@@ -57,9 +52,13 @@ exports.handler = async (event) => {
 
   let usersConfig;
   try {
-    usersConfig = { ...FALLBACK_USERS, ...JSON.parse(process.env.INVENTORY_ADMIN_USERS || '{}') };
+    const envUsers = process.env.INVENTORY_ADMIN_USERS;
+    if (!envUsers) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
+    }
+    usersConfig = JSON.parse(envUsers);
   } catch {
-    usersConfig = { ...FALLBACK_USERS };
+    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
   let body;

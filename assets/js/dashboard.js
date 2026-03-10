@@ -1619,6 +1619,7 @@
 
     try {
       const res = await fetch(NHTSA_API + '/' + vin + '?format=json');
+      if (!res.ok) throw new Error('VIN lookup failed (HTTP ' + res.status + ')');
       const data = await res.json();
       const result = data.Results && data.Results[0];
       if (!result || result.ErrorCode === '6') throw new Error('VIN not found');
@@ -1920,6 +1921,7 @@
         if (statusText) statusText.textContent = 'Decoding VIN\u2026';
         try {
           var vinRes = await fetch(NHTSA_API + '/' + vin + '?format=json');
+          if (!vinRes.ok) throw new Error('VIN lookup failed');
           var vinJson = await vinRes.json();
           var r = (vinJson.Results && vinJson.Results[0]) || {};
           var clean = function (v) { return (v && v !== 'Not Applicable' && v !== 'N/A') ? v.trim() : ''; };
@@ -2302,6 +2304,7 @@
 
     try {
       var res = await fetch(NHTSA_API + '/' + vin + '?format=json');
+      if (!res.ok) throw new Error('VIN lookup failed (HTTP ' + res.status + ')');
       var data = await res.json();
       var result = data.Results && data.Results[0];
       if (!result || result.ErrorCode === '6') throw new Error('VIN not found');
@@ -3845,7 +3848,11 @@
       blogUser = '';
       authPasswordHash = '';
       sessionStorage.removeItem('bf_admin_session');
+      // Clear the server-side auth cookie
+      document.cookie = 'bf_admin_token=; Path=/; Max-Age=0; SameSite=Strict';
       toggleAuth(false);
+      // Reload to trigger edge function auth gate
+      window.location.reload();
     });
 
     // Inventory table

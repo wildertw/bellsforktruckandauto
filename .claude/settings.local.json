@@ -237,7 +237,9 @@
       "Bash(node import-scraped-inventory.js)",
       "Bash(grep -r \"modal\\\\|Modal\\\\|dialog\\\\|Dialog\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.html\" ! -path \"*/node_modules/*\")",
       "Bash(grep -r \"beforeunload\\\\|unload\\\\|beforeLeave\\\\|isDirty\\\\|hasChanged\\\\|unsaved\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.js\" --include=\"*.html\" ! -path \"*/node_modules/*\")",
-      "Bash(grep -r \"function.*handleTableActions\\\\|function handleTable\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.js\" ! -path \"*/node_modules/*\")"
+      "Bash(grep -r \"function.*handleTableActions\\\\|function handleTable\" \"C:\\\\Users\\\\twild\\\\OneDrive\\\\Desktop\\\\WE\\\\bellsforkclaudeupdate-site\" --include=\"*.js\" ! -path \"*/node_modules/*\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''inventory.json'',''utf8''\\)\\); console.log\\(''JSON valid''\\)\")",
+      "Bash(GIT_EDITOR=true git rebase --continue)"
     ]
   }
 }

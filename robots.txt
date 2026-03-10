@@ -8,6 +8,7 @@ Disallow: /admin.html
 Disallow: /admin-login.html
 Disallow: /admin-bulk.html
 Disallow: /admin-bellsfork.html
+Disallow: /admin-dashboard.html
 Disallow: /inventory.json
 # Block parameterized inventory URLs to prevent crawl bloat
 Disallow: /*?make=*

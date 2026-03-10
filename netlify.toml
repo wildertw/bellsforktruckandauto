@@ -3,6 +3,34 @@
   publish = "."
   functions = "netlify/functions"
 
+# ── Edge Functions (server-side auth gate for admin pages) ──
+[[edge_functions]]
+  function = "admin-auth"
+  path = "/admin-dashboard.html"
+
+[[edge_functions]]
+  function = "admin-auth"
+  path = "/admin"
+
+[[edge_functions]]
+  function = "admin-auth"
+  path = "/admin/blog"
+
+[[edge_functions]]
+  function = "admin-auth"
+  path = "/admin/upload"
+
+# ── Global Security Headers ──
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
+
 # ── Caching Headers ──
 
 # Optimized hero images — long cache

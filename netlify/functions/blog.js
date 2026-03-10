@@ -18,7 +18,7 @@ const COMMENTS_STORE = 'blog-comments';
 const IMAGES_STORE = 'blog-images';
 
 const BASE_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
   'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
