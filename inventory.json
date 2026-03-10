@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:01:10.929Z",
+  "lastUpdated": "2026-03-10T03:01:31.834Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -957,30 +957,6 @@
         "blob:03014BF-14.jpg",
         "blob:03014BF-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "5TEVL52N8YZ708255",
-      "stockNumber": "03015BF",
-      "year": 2000,
-      "make": "TOYOTA",
-      "model": "TACOMA",
-      "trim": "DELUXE",
-      "engine": "2RZ-FE",
-      "transmission": "",
-      "drivetrain": "4x2",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
