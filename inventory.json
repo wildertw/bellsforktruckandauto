@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T00:41:39.778Z",
+  "lastUpdated": "2026-03-10T01:01:56.305Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -721,30 +721,6 @@
         "blob:02981BF-11.jpg",
         "blob:02981BF-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "JN8AZ2NF6F9808993",
-      "stockNumber": "02980BF",
-      "year": 2015,
-      "make": "INFINITI",
-      "model": "QX80",
-      "trim": "",
-      "engine": "5.6",
-      "transmission": "",
-      "drivetrain": "4x2",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
