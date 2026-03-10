@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:09:48.185Z",
+  "lastUpdated": "2026-03-10T04:11:44.472Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -64,11 +64,11 @@
       "transmission": "Automatic",
       "drivetrain": "RWD",
       "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 97000,
+      "mpgCity": 16,
+      "mpgHighway": 29,
+      "mileage": 97344,
       "price": 35000,
-      "type": "Sedan",
+      "type": "Car",
       "exteriorColor": "Red",
       "interiorColor": "Tan",
       "description": "This sleek 2016 CHEVROLET Corvette Preferred 2LT with Z51 package features a powerful 6.2L V8 engine and has been meticulously maintained with 97,000 miles. A true performance machine with luxury amenities, this Corvette is ready to impress on the road.",
