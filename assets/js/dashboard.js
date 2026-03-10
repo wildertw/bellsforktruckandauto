@@ -81,6 +81,7 @@
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
   let editFormSnapshot = null; // snapshot of initial form values for dirty-check
+  let selectedSkus = new Set();  // multi-select for bulk delete
   // Deleted vehicles are permanently removed — no tracking needed.
   // Sold vehicles stay in inventory with status 'sold' (filtered from live site).
   localStorage.removeItem('dashboardDeletedVehicles'); // clean up old tracking data
@@ -1026,7 +1027,9 @@
     const pageSlice = filteredInventory.slice(start, start + pageSize);
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
-      return '<tr>' +
+      var isChecked = selectedSkus.has(item.sku);
+      return '<tr' + (isChecked ? ' class="selected-row"' : '') + '>' +
+      '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
       '<td>' + item.name + '</td>' +
       '<td>' + item.category + '</td>' +
@@ -1052,6 +1055,13 @@
       '</td></tr>';
     }).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
+    updateBulkBar();
+    // Sync select-all checkbox with current page state
+    var selectAll = $('selectAllCheckbox');
+    if (selectAll) {
+      var pageSkus = pageSlice.map(function(v) { return v.sku; });
+      selectAll.checked = pageSkus.length > 0 && pageSkus.every(function(s) { return selectedSkus.has(s); });
+    }
   }
 
   // ─── Inventory Table Actions ────────────────────────────────────────────────
@@ -1160,6 +1170,86 @@
         });
       }
     }
+  }
+
+  // ─── Bulk Select & Delete ──────────────────────────────────────────────────
+  function updateBulkBar() {
+    var bar = $('bulkBar');
+    var countEl = $('bulkCount');
+    if (!bar || !countEl) return;
+    if (selectedSkus.size > 0) {
+      bar.classList.remove('hide');
+      countEl.textContent = selectedSkus.size + ' selected';
+    } else {
+      bar.classList.add('hide');
+    }
+  }
+
+  function handleRowCheckbox(event) {
+    if (!event.target.matches('.row-select')) return;
+    var sku = event.target.dataset.sku;
+    if (event.target.checked) {
+      selectedSkus.add(sku);
+      event.target.closest('tr').classList.add('selected-row');
+    } else {
+      selectedSkus.delete(sku);
+      event.target.closest('tr').classList.remove('selected-row');
+    }
+    updateBulkBar();
+    // Sync select-all checkbox
+    var selectAll = $('selectAllCheckbox');
+    if (selectAll) {
+      var checkboxes = inventoryTableBody.querySelectorAll('.row-select');
+      selectAll.checked = checkboxes.length > 0 && Array.from(checkboxes).every(function(cb) { return cb.checked; });
+    }
+  }
+
+  function handleSelectAll(event) {
+    var checked = event.target.checked;
+    var checkboxes = inventoryTableBody.querySelectorAll('.row-select');
+    checkboxes.forEach(function(cb) {
+      cb.checked = checked;
+      var sku = cb.dataset.sku;
+      if (checked) {
+        selectedSkus.add(sku);
+        cb.closest('tr').classList.add('selected-row');
+      } else {
+        selectedSkus.delete(sku);
+        cb.closest('tr').classList.remove('selected-row');
+      }
+    });
+    updateBulkBar();
+  }
+
+  function handleBulkDelete() {
+    if (selectedSkus.size === 0) return;
+    var count = selectedSkus.size;
+    if (!confirm('Permanently delete ' + count + ' vehicle' + (count > 1 ? 's' : '') + '? This cannot be undone.')) return;
+    inventory = inventory.filter(function(v) { return !selectedSkus.has(v.sku); });
+    selectedSkus.clear();
+    persistInventory();
+    renderInventoryTable();
+    showFeedback(editFeedback, count + ' vehicle' + (count > 1 ? 's' : '') + ' permanently deleted.');
+    showToast('Publishing deletions to live site...');
+    autoPublish().then(function () {
+      showToast('\u2713 ' + count + ' deleted & published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    }).catch(function (err) {
+      showToast('Error publishing: ' + err.message, 'error');
+      setTimeout(hideToast, 8000);
+    });
+  }
+
+  function handleBulkDeselect() {
+    selectedSkus.clear();
+    var checkboxes = inventoryTableBody.querySelectorAll('.row-select');
+    checkboxes.forEach(function(cb) {
+      cb.checked = false;
+      cb.closest('tr').classList.remove('selected-row');
+    });
+    var selectAll = $('selectAllCheckbox');
+    if (selectAll) selectAll.checked = false;
+    updateBulkBar();
   }
 
   async function handleEditSubmit(event) {
@@ -3755,6 +3845,10 @@
 
     // Inventory table
     $('inventoryTable').addEventListener('click', handleTableActions);
+    $('inventoryTable').addEventListener('change', handleRowCheckbox);
+    if ($('selectAllCheckbox')) $('selectAllCheckbox').addEventListener('change', handleSelectAll);
+    if ($('bulkDeleteBtn')) $('bulkDeleteBtn').addEventListener('click', handleBulkDelete);
+    if ($('bulkDeselectBtn')) $('bulkDeselectBtn').addEventListener('click', handleBulkDeselect);
     $('editForm').addEventListener('submit', handleEditSubmit);
     $('cancelEdit').addEventListener('click', () => tryCloseEditModal());
     $('editSearch').addEventListener('input', () => { currentPage = 1; renderInventoryTable(); });

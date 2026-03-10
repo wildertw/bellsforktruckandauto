@@ -155,6 +155,17 @@ body {
 
 .danger-text { color: var(--danger) !important; }
 
+.bulk-action-bar {
+  display: flex; align-items: center; gap: var(--space-sm);
+  background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;
+  padding: .5rem 1rem; margin-bottom: var(--space-sm);
+}
+.bulk-action-bar .ghost-btn { height: 32px; font-size: 13px; }
+.bulk-action-bar #bulkCount { font-weight: 600; font-size: 14px; margin-right: auto; }
+tr.selected-row { background: #fff8e1 !important; }
+#inventoryTable th:first-child,
+#inventoryTable td:first-child { text-align: center; width: 40px; }
+
 .full-width { width: 100%; }
 
 .import-label {

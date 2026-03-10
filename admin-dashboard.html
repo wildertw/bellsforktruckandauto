@@ -478,6 +478,11 @@
                 <button id="nextPage" class="ghost-btn" type="button">Next</button>
               </div>
             </div>
+            <div id="bulkBar" class="bulk-action-bar hide">
+              <span id="bulkCount">0 selected</span>
+              <button id="bulkDeleteBtn" class="ghost-btn danger-text" type="button">Delete Selected</button>
+              <button id="bulkDeselectBtn" class="ghost-btn" type="button">Deselect All</button>
+            </div>
             <p id="inventoryStatus" class="muted small-text"></p>
             <p id="featuredStatus" class="muted small-text"></p>
             <p id="editFeedback" class="feedback hide" role="status"></p>
@@ -485,6 +490,7 @@
               <table id="inventoryTable">
                 <thead>
                   <tr>
+                    <th style="width:40px"><input type="checkbox" id="selectAllCheckbox" title="Select all on this page"></th>
                     <th>SKU</th>
                     <th>Name</th>
                     <th>Body</th>
