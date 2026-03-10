@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:54:52.794Z",
+  "lastUpdated": "2026-03-10T03:55:03.954Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -1059,30 +1059,6 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1GTPEEDM12M234288",
-      "stockNumber": "3032",
-      "year": 2021,
-      "make": "GMC",
-      "model": "SIERRA 1500",
-      "trim": "",
-      "engine": "L30",
-      "transmission": "",
-      "drivetrain": "",
-      "fuelType": "",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
