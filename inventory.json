@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T03:55:16.910Z",
+  "lastUpdated": "2026-03-10T03:55:23.182Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -2127,60 +2127,6 @@
         "VEHICLE-1C6RREFT4KN770971-11.jpg",
         "VEHICLE-1C6RREFT4KN770971-12.jpg",
         "VEHICLE-1C6RREFT4KN770971-13.jpg"
-      ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1G1FF1R79M0138570",
-      "stockNumber": "138570BF",
-      "year": 2021,
-      "make": "Chevrolet",
-      "model": "Camaro",
-      "trim": "1LZ/1SS",
-      "engine": "6.2L 8-Cyl",
-      "transmission": "Automatic",
-      "drivetrain": "RWD",
-      "fuelType": "Gasoline",
-      "mpgCity": null,
-      "mpgHighway": null,
-      "mileage": 43511,
-      "price": 0,
-      "type": "car",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "This 2021 Chevrolet Camaro 1LZ/1SS is a well-maintained pre-owned vehicle featuring RWD, 6.2L 8-Cyl, Automatic transmission. With 43,511 miles on the odometer, this vehicle has plenty of life left. Equipped with Back-Up Camera, Bluetooth Connection, Navigation, Keyless Start, Keyless Entry. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
-      "features": [
-        "Back-Up Camera",
-        "Bluetooth Connection",
-        "Navigation",
-        "Keyless Start",
-        "Keyless Entry",
-        "Satellite Radio",
-        "Cruise Control",
-        "Stability Control",
-        "Security Alarm System",
-        "MP3 Player",
-        "AUX Input"
-      ],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [
-        "VEHICLE-1G1FF1R79M0138570-01.jpg",
-        "VEHICLE-1G1FF1R79M0138570-02.jpg",
-        "VEHICLE-1G1FF1R79M0138570-03.jpg",
-        "VEHICLE-1G1FF1R79M0138570-04.jpg",
-        "VEHICLE-1G1FF1R79M0138570-05.jpg",
-        "VEHICLE-1G1FF1R79M0138570-06.jpg",
-        "VEHICLE-1G1FF1R79M0138570-07.jpg",
-        "VEHICLE-1G1FF1R79M0138570-08.jpg",
-        "VEHICLE-1G1FF1R79M0138570-09.jpg",
-        "VEHICLE-1G1FF1R79M0138570-10.jpg",
-        "VEHICLE-1G1FF1R79M0138570-11.jpg",
-        "VEHICLE-1G1FF1R79M0138570-12.jpg",
-        "VEHICLE-1G1FF1R79M0138570-13.jpg",
-        "VEHICLE-1G1FF1R79M0138570-14.jpg",
-        "VEHICLE-1G1FF1R79M0138570-15.jpg"
       ],
       "dateAdded": "2026-03-10"
     },
