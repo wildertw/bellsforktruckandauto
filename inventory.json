@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:11:44.472Z",
+  "lastUpdated": "2026-03-10T03:10:46.856Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -12,13 +12,13 @@
       "transmission": "Automatic",
       "drivetrain": "4WD",
       "fuelType": "Gasoline",
-      "mpgCity": 15,
-      "mpgHighway": 21,
+      "mpgCity": null,
+      "mpgHighway": null,
       "mileage": 175000,
       "price": 27000,
       "type": "SUV",
-      "exteriorColor": "Shadow Gray Metallic",
-      "interiorColor": "Black",
+      "exteriorColor": "",
+      "interiorColor": "",
       "description": "This 2020 Chevrolet Tahoe LT offers excellent value in a spacious, three-row SUV perfect for families and those needing versatile cargo space. Equipped with a robust L83 engine featuring direct injection and variable valve timing, this vehicle delivers reliable performance and capability. With 175,000 miles, it represents a solid pre-owned option for buyers seeking a well-established full-size SUV at an attractive price point.",
       "features": [
         "Back-Up Camera",
@@ -51,7 +51,7 @@
         "VEHICLE-1GNSKBKC2LR309210-05.jpg",
         "VEHICLE-1GNSKBKC2LR309210-06.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1G1YK2D73G5118890",
@@ -64,11 +64,11 @@
       "transmission": "Automatic",
       "drivetrain": "RWD",
       "fuelType": "Gasoline",
-      "mpgCity": 16,
-      "mpgHighway": 29,
-      "mileage": 97344,
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 97000,
       "price": 35000,
-      "type": "Car",
+      "type": "Sedan",
       "exteriorColor": "Red",
       "interiorColor": "Tan",
       "description": "This sleek 2016 CHEVROLET Corvette Preferred 2LT with Z51 package features a powerful 6.2L V8 engine and has been meticulously maintained with 97,000 miles. A true performance machine with luxury amenities, this Corvette is ready to impress on the road.",
@@ -105,7 +105,7 @@
         "blob:02914BF-09.jpg",
         "blob:02914BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1FT7W2B50GEE02234",
@@ -140,7 +140,7 @@
         "blob:02923BF-09.jpg",
         "blob:02923BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1FTEW1C59KFA20135",
@@ -185,7 +185,41 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GCWK1EK7HF203958",
+      "stockNumber": "02926BF",
+      "year": 2017,
+      "make": "Chevrolet",
+      "model": "2500",
+      "trim": "High Country",
+      "engine": "Vortec 6.0L Variable Valve Timing V8 SFI, E85-compatible, FlexFuel capable of running on unleaded or up to 85% ethanol",
+      "transmission": "",
+      "drivetrain": "4WD",
+      "fuelType": "Diesel",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 151828,
+      "price": 38995,
+      "type": "truck",
+      "exteriorColor": "Black",
+      "interiorColor": "Black",
+      "description": "Introducing this robust 2017 Chevrolet 2500 High Country, designed for both power and luxury. Equipped with a Vortec 6.0L V8 engine and a dependable 4WD drivetrain, this truck is ready for any challenge. With a stylish black exterior and a comfortable matching interior, it combines performance and aesthetics seamlessly. Perfect for those who demand versatility and capability, this vehicle is an excellent choice for work or play.",
+      "features": [
+        "4WD"
+      ],
+      "status": "available",
+      "badge": "",
+      "featured": true,
+      "images": [
+        "VEHICLE-1GCWK1EK7HF203958-01.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-02.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-03.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-04.jpg",
+        "VEHICLE-1GCWK1EK7HF203958-05.jpg"
+      ],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1C6RR6T45K7506702",
@@ -220,7 +254,31 @@
         "blob:02927BF-09.jpg",
         "blob:02927BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GNSKC7C7FR280449",
+      "stockNumber": "02928BF",
+      "year": 1985,
+      "make": "CHEVROLET",
+      "model": "SUBURBAN",
+      "trim": "",
+      "engine": "6.2L V8",
+      "transmission": "Automatic",
+      "drivetrain": "",
+      "fuelType": "Diesel",
+      "mileage": 164000,
+      "price": 15000,
+      "type": "used",
+      "exteriorColor": "Silver Ice Metallic",
+      "interiorColor": "Black",
+      "description": "This classic 1985 Chevrolet Suburban features a powerful 6.2L V8 engine and has only 164,000 miles on the odometer. With its spacious interior and legendary durability, this Suburban is a reliable choice for families or outdoor enthusiasts.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1GCHK23D041175472",
@@ -261,7 +319,7 @@
         "blob:02929BF-09.jpg",
         "blob:02929BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1GCRCREA2BZ393745",
@@ -300,7 +358,187 @@
         "blob:02930BF-09.jpg",
         "blob:02930BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1C4BJWDG2GL268370",
+      "stockNumber": "02931BF",
+      "year": 2016,
+      "make": "Jeep",
+      "model": "Wrangler",
+      "trim": "Sport",
+      "engine": "3.6L 6-Cyl",
+      "transmission": "",
+      "drivetrain": "4WD",
+      "fuelType": "Gasoline",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 95000,
+      "price": 16995,
+      "type": "suv",
+      "exteriorColor": "Granite Crystal Metallic Clearcoat",
+      "interiorColor": "Gray",
+      "description": "Introducing the 2016 Jeep Wrangler Sport, a rugged SUV designed for adventure and versatility. With a powerful 3.6L V6 engine and 4WD capabilities, this vehicle is perfect for both on- and off-road journeys. With 95,000 miles and a striking Granite Crystal Metallic exterior, it combines style with performance. Experience the freedom of the open road in this reliable and iconic vehicle.",
+      "features": [
+        "4WD",
+        "V6",
+        "3.6L",
+        "Turbo"
+      ],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [
+        "VEHICLE-1C4BJWDG2GL268370-01.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-02.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-03.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-04.jpg",
+        "VEHICLE-1C4BJWDG2GL268370-05.jpg"
+      ],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "3TM4Z5CN1MM156792",
+      "stockNumber": "02932BF",
+      "year": 2021,
+      "make": "Toyota",
+      "model": "Tacoma",
+      "trim": "",
+      "engine": "3.5L 6-Cyl",
+      "transmission": "",
+      "drivetrain": "",
+      "fuelType": "Gasoline",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 107000,
+      "price": 25995,
+      "type": "truck",
+      "exteriorColor": "Super White",
+      "interiorColor": "Gray",
+      "description": "Introducing this 2021 Toyota Tacoma, a robust and reliable truck that combines performance with safety. Powered by a 3.5L V6 engine, it delivers a smooth drive and impressive capabilities with 107,000 miles. Enjoy peace of mind with advanced features including a backup camera, forward collision warning, and adaptive cruise control. The striking Super White exterior and comfortable gray interior make this Tacoma as stylish as it is functional, perfect for both work and play.",
+      "features": [
+        "V6",
+        "3.5L",
+        "Backup Camera",
+        "ABS",
+        "Traction Control",
+        "Stability Control",
+        "Daytime Running Lights",
+        "Forward Collision Warning",
+        "Lane Departure Warning",
+        "Adaptive Cruise Control",
+        "Automatic Emergency Braking",
+        "Auto-Reverse Windows"
+      ],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [
+        "2021-super-white-toyota-tacoma-02932bf-01.png",
+        "2021-super-white-toyota-tacoma-02932bf-02.png",
+        "2021-super-white-toyota-tacoma-02932bf-03.png",
+        "2021-super-white-toyota-tacoma-02932bf-04.png",
+        "2021-super-white-toyota-tacoma-02932bf-05.png",
+        "2021-super-white-toyota-tacoma-02932bf-06.png",
+        "2021-super-white-toyota-tacoma-02932bf-07.png"
+      ],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "JF1VA1L6XM9505926",
+      "stockNumber": "02934BF",
+      "year": 2021,
+      "make": "SUBARU",
+      "model": "WRX",
+      "trim": "Limited+L+KA+RE+BSD+H/K+M/R",
+      "engine": "DIB Turbo",
+      "transmission": "Manual/Standard",
+      "drivetrain": "AWD/All-Wheel Drive",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GCPTBE14J1171074",
+      "stockNumber": "02941BF",
+      "year": 2018,
+      "make": "CHEVROLET",
+      "model": "COLORADO",
+      "trim": "Work Truck",
+      "engine": "LWN - DI: Direct Injection, XLDE",
+      "transmission": "Automatic",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Diesel",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GKFS2HK7HR209139",
+      "stockNumber": "02940BF",
+      "year": 2017,
+      "make": "GMC",
+      "model": "YUKON DENALI",
+      "trim": "",
+      "engine": "",
+      "transmission": "",
+      "drivetrain": "",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1G1FB1R78M0138570",
+      "stockNumber": "02942BF",
+      "year": 2021,
+      "make": "CHEVROLET",
+      "model": "CAMARO",
+      "trim": "1LS/1LT",
+      "engine": "LT1 - Direct Injection, AFM, Variable Valve Timing, High Output, ALUM",
+      "transmission": "Automatic",
+      "drivetrain": "RWD/Rear-Wheel Drive",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1GCRWKED0JR347965",
@@ -337,7 +575,7 @@
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-09.png",
         "2018-deep-ocean-blue-metallic-chevrolet-silverado-1500-02955bf-10.png"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "3FMCR9C60MRA25571",
@@ -384,7 +622,79 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "5TFEY5F14EX339447",
+      "stockNumber": "02960BF",
+      "year": 2014,
+      "make": "TOYOTA",
+      "model": "TUNDRA",
+      "trim": "SR5",
+      "engine": "3UR-FE",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1FTFW1E59JKD87537",
+      "stockNumber": "02964BF",
+      "year": 2018,
+      "make": "FORD",
+      "model": "F-150",
+      "trim": "",
+      "engine": "5.0L 4V",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1FTFW1E77MFA76974",
+      "stockNumber": "2967",
+      "year": 2021,
+      "make": "FORD",
+      "model": "F-150",
+      "trim": "F-Series",
+      "engine": "",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1FTEX1CF2HKD83738",
@@ -408,9 +718,273 @@
       "features": [],
       "status": "available",
       "badge": "",
+      "featured": true,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GCRWKED8HZ254252",
+      "stockNumber": "02981BF",
+      "year": 2017,
+      "make": "CHEVROLET",
+      "model": "SILVERADO 1500",
+      "trim": "",
+      "engine": "V-Shaped",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
       "featured": false,
       "images": [],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "JN8AZ2NF6F9808993",
+      "stockNumber": "02980BF",
+      "year": 2015,
+      "make": "INFINITI",
+      "model": "QX80",
+      "trim": "",
+      "engine": "5.6",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "3GTU2MEC5G2322869",
+      "stockNumber": "02982BF",
+      "year": 2016,
+      "make": "GMC",
+      "model": "SIERRA 1500",
+      "trim": "SLE",
+      "engine": "L83 - SIDI, VVT, AFM, E85 MAX, Aluminum.",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GNSK2KC7BR280590",
+      "stockNumber": "02988BF",
+      "year": 2011,
+      "make": "CHEVROLET",
+      "model": "SUBURBAN",
+      "trim": "Police Vehicle",
+      "engine": "LAF",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1FTFX1EF6DKB33738",
+      "stockNumber": "02992BF",
+      "year": 2013,
+      "make": "FORD",
+      "model": "F-150",
+      "trim": "",
+      "engine": "V-Shaped",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GNSKCKC3JR178472",
+      "stockNumber": "02993BF",
+      "year": 2018,
+      "make": "CHEVROLET",
+      "model": "TAHOE",
+      "trim": "Premier",
+      "engine": "L83 - Spark Ignited Direct Injection, Variable Valve Timing, AFM, E85 MAX, ALUM",
+      "transmission": "Automatic",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "SAJWA2G79KBW20017",
+      "stockNumber": "03002BF",
+      "year": 2019,
+      "make": "JAGUAR",
+      "model": "XJL PORTFOLIO",
+      "trim": "XJL Portfolio/XJ 50",
+      "engine": "S/C LEV3 SULEV30",
+      "transmission": "Automatic",
+      "drivetrain": "RWD/Rear-Wheel Drive",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1C6RREHT4KN770971",
+      "stockNumber": "03003BF",
+      "year": 2019,
+      "make": "RAM",
+      "model": "1500",
+      "trim": "Limited",
+      "engine": "V-Shaped",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1C6JJT6N9NL104313",
+      "stockNumber": "03014BF",
+      "year": 2022,
+      "make": "JEEP",
+      "model": "GLADIATOR",
+      "trim": "",
+      "engine": "In-Line",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "5TEVL52N8YZ708255",
+      "stockNumber": "03015BF",
+      "year": 2000,
+      "make": "TOYOTA",
+      "model": "TACOMA",
+      "trim": "DELUXE",
+      "engine": "2RZ-FE",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1G1FB1R7XJ0156632",
+      "stockNumber": "03017BF",
+      "year": 2018,
+      "make": "CHEVROLET",
+      "model": "CAMARO",
+      "trim": "1LS/1LT",
+      "engine": "LT1 - Direct Injection, AFM, Variable Valve Timing, High Output, ALUM",
+      "transmission": "Automatic",
+      "drivetrain": "RWD/Rear-Wheel Drive",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1FTEW1E53KFB96224",
@@ -474,7 +1048,31 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "3TMCP5AN2PM650535",
+      "stockNumber": "03018BF",
+      "year": 2023,
+      "make": "TOYOTA",
+      "model": "TACOMA",
+      "trim": "SR5",
+      "engine": "",
+      "transmission": "",
+      "drivetrain": "4WD/4-Wheel Drive/4x4",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "3GTU2WEC1EG333280",
@@ -533,7 +1131,103 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GTPEEDM12M234288",
+      "stockNumber": "3032",
+      "year": 2021,
+      "make": "GMC",
+      "model": "SIERRA 1500",
+      "trim": "",
+      "engine": "L30",
+      "transmission": "",
+      "drivetrain": "",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GTPEEDM12M234288",
+      "stockNumber": "03032-A",
+      "year": 2021,
+      "make": "GMC",
+      "model": "2500",
+      "trim": "",
+      "engine": "L30",
+      "transmission": "",
+      "drivetrain": "",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "1GCRWKED1JZ34288",
+      "stockNumber": "2939",
+      "year": 2018,
+      "make": "CHEVROLET",
+      "model": "SILVERADO 1500",
+      "trim": "",
+      "engine": "",
+      "transmission": "",
+      "drivetrain": "",
+      "fuelType": "",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
+    },
+    {
+      "vin": "5NMS33AA1KH048032",
+      "stockNumber": "3013",
+      "year": 2019,
+      "make": "HYUNDAI",
+      "model": "SANTA FE",
+      "trim": "SEL, SEL Plus",
+      "engine": "T-GDI THETA II",
+      "transmission": "",
+      "drivetrain": "4x2",
+      "fuelType": "Gasoline",
+      "mileage": 0,
+      "price": 0,
+      "type": "used",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [],
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "2C3CDZBT8LH123188",
@@ -579,7 +1273,7 @@
         "blob:2907-09.jpg",
         "blob:2907-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-06"
     },
     {
       "vin": "1GCHK23U04F175472",
@@ -629,7 +1323,7 @@
         "VEHICLE-1GCHK23U04F175472-13.jpg",
         "VEHICLE-1GCHK23U04F175472-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1FTFX1EF6DKE83738",
@@ -670,7 +1364,7 @@
         "VEHICLE-1FTFX1EF6DKE83738-10.jpg",
         "VEHICLE-1FTFX1EF6DKE83738-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "5TFHY5F14EX339447",
@@ -729,7 +1423,7 @@
         "VEHICLE-5TFHY5F14EX339447-14.jpg",
         "VEHICLE-5TFHY5F14EX339447-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1GNSCJKC7FR289449",
@@ -793,7 +1487,7 @@
         "VEHICLE-1GNSCJKC7FR289449-17.jpg",
         "VEHICLE-1GNSCJKC7FR289449-18.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "WDDUG8FB5FA200319",
@@ -853,7 +1547,63 @@
         "VEHICLE-WDDUG8FB5FA200319-14.jpg",
         "VEHICLE-WDDUG8FB5FA200319-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
+    },
+    {
+      "vin": "1FT7W2BT0GEB02234",
+      "stockNumber": "B02234BF",
+      "year": 2016,
+      "make": "Ford",
+      "model": "F-250",
+      "trim": "PLATINUM",
+      "engine": "6.7L 8-Cyl",
+      "transmission": "Automatic",
+      "drivetrain": "4WD",
+      "fuelType": "Diesel",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 175740,
+      "price": 32000,
+      "type": "diesel",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "This 2016 Ford F-250 PLATINUM is a well-maintained pre-owned vehicle featuring 4WD, 6.7L 8-Cyl, Automatic transmission. With 175,740 miles on the odometer, this vehicle has plenty of life left. Equipped with Back-Up Camera, Leather Seat, Bluetooth Connection, Navigation, Keyless Entry. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
+      "features": [
+        "Back-Up Camera",
+        "Leather Seat",
+        "Bluetooth Connection",
+        "Navigation",
+        "Keyless Entry",
+        "Satellite Radio",
+        "Cruise Control",
+        "Remote Engine Start",
+        "Stability Control",
+        "Security Alarm System",
+        "HD Radio",
+        "MP3 Player",
+        "AUX Input",
+        "Tow Hitch",
+        "Premium Sound"
+      ],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [
+        "VEHICLE-1FT7W2BT0GEB02234-01.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-02.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-03.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-04.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-05.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-06.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-07.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-08.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-09.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-10.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-11.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-12.jpg",
+        "VEHICLE-1FT7W2BT0GEB02234-13.jpg"
+      ],
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "3GTU2MEC5GG322869",
@@ -903,7 +1653,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1C4BJWDGXGL268370",
@@ -947,7 +1697,7 @@
         "VEHICLE-1C4BJWDGXGL268370-10.jpg",
         "VEHICLE-1C4BJWDGXGL268370-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "3GCUKREC2HG250205",
@@ -999,7 +1749,7 @@
         "VEHICLE-3GCUKREC2HG250205-11.jpg",
         "VEHICLE-3GCUKREC2HG250205-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1GC1KWEY7HF203959",
@@ -1041,7 +1791,7 @@
       ],
       "status": "available",
       "badge": "",
-      "featured": true,
+      "featured": false,
       "images": [
         "VEHICLE-1GC1KWEY7HF203959-01.jpg",
         "VEHICLE-1GC1KWEY7HF203959-02.jpg",
@@ -1056,7 +1806,7 @@
         "VEHICLE-1GC1KWEY7HF203959-11.jpg",
         "VEHICLE-1GC1KWEY7HF203959-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1FTFW1EF7HFA76996",
@@ -1108,7 +1858,7 @@
         "VEHICLE-1FTFW1EF7HFA76996-15.jpg",
         "VEHICLE-1FTFW1EF7HFA76996-16.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1G1FH1R7XJ0156632",
@@ -1164,7 +1914,7 @@
         "VEHICLE-1G1FH1R7XJ0156632-12.jpg",
         "VEHICLE-1G1FH1R7XJ0156632-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "3GCUKSEC0JG347965",
@@ -1218,7 +1968,7 @@
         "VEHICLE-3GCUKSEC0JG347965-09.jpg",
         "VEHICLE-3GCUKSEC0JG347965-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1GNSCBKC2JR250590",
@@ -1278,7 +2028,7 @@
         "VEHICLE-1GNSCBKC2JR250590-13.jpg",
         "VEHICLE-1GNSCBKC2JR250590-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1FTEW1EP1JKE38404",
@@ -1321,7 +2071,7 @@
         "VEHICLE-1FTEW1EP1JKE38404-10.jpg",
         "VEHICLE-1FTEW1EP1JKE38404-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1FTFX1E59JKD87637",
@@ -1374,7 +2124,7 @@
         "VEHICLE-1FTFX1E59JKD87637-16.jpg",
         "VEHICLE-1FTFX1E59JKD87637-17.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1GKS1AKC0KR400775",
@@ -1430,7 +2180,7 @@
         "VEHICLE-1GKS1AKC0KR400775-12.jpg",
         "VEHICLE-1GKS1AKC0KR400775-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "SAJWA2G79K8W20017",
@@ -1495,7 +2245,7 @@
         "VEHICLE-SAJWA2G79K8W20017-18.jpg",
         "VEHICLE-SAJWA2G79K8W20017-19.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1C6RREFT4KN770971",
@@ -1546,7 +2296,61 @@
         "VEHICLE-1C6RREFT4KN770971-12.jpg",
         "VEHICLE-1C6RREFT4KN770971-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
+    },
+    {
+      "vin": "1G1FF1R79M0138570",
+      "stockNumber": "138570BF",
+      "year": 2021,
+      "make": "Chevrolet",
+      "model": "Camaro",
+      "trim": "1LZ/1SS",
+      "engine": "6.2L 8-Cyl",
+      "transmission": "Automatic",
+      "drivetrain": "RWD",
+      "fuelType": "Gasoline",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 43511,
+      "price": 0,
+      "type": "car",
+      "exteriorColor": "",
+      "interiorColor": "",
+      "description": "This 2021 Chevrolet Camaro 1LZ/1SS is a well-maintained pre-owned vehicle featuring RWD, 6.2L 8-Cyl, Automatic transmission. With 43,511 miles on the odometer, this vehicle has plenty of life left. Equipped with Back-Up Camera, Bluetooth Connection, Navigation, Keyless Start, Keyless Entry. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
+      "features": [
+        "Back-Up Camera",
+        "Bluetooth Connection",
+        "Navigation",
+        "Keyless Start",
+        "Keyless Entry",
+        "Satellite Radio",
+        "Cruise Control",
+        "Stability Control",
+        "Security Alarm System",
+        "MP3 Player",
+        "AUX Input"
+      ],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "images": [
+        "VEHICLE-1G1FF1R79M0138570-01.jpg",
+        "VEHICLE-1G1FF1R79M0138570-02.jpg",
+        "VEHICLE-1G1FF1R79M0138570-03.jpg",
+        "VEHICLE-1G1FF1R79M0138570-04.jpg",
+        "VEHICLE-1G1FF1R79M0138570-05.jpg",
+        "VEHICLE-1G1FF1R79M0138570-06.jpg",
+        "VEHICLE-1G1FF1R79M0138570-07.jpg",
+        "VEHICLE-1G1FF1R79M0138570-08.jpg",
+        "VEHICLE-1G1FF1R79M0138570-09.jpg",
+        "VEHICLE-1G1FF1R79M0138570-10.jpg",
+        "VEHICLE-1G1FF1R79M0138570-11.jpg",
+        "VEHICLE-1G1FF1R79M0138570-12.jpg",
+        "VEHICLE-1G1FF1R79M0138570-13.jpg",
+        "VEHICLE-1G1FF1R79M0138570-14.jpg",
+        "VEHICLE-1G1FF1R79M0138570-15.jpg"
+      ],
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1GTP9EED1MZ234288",
@@ -1587,7 +2391,7 @@
       ],
       "status": "available",
       "badge": "",
-      "featured": true,
+      "featured": false,
       "images": [
         "VEHICLE-1GTP9EED1MZ234288-01.jpg",
         "VEHICLE-1GTP9EED1MZ234288-02.jpg",
@@ -1604,7 +2408,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "JF1VA1A68M9805926",
@@ -1654,7 +2458,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "3TMAZ5CN1MM156792",
@@ -1704,7 +2508,7 @@
         "VEHICLE-3TMAZ5CN1MM156792-11.jpg",
         "VEHICLE-3TMAZ5CN1MM156792-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     },
     {
       "vin": "1C6HJTFG9NL104313",
@@ -1761,7 +2565,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-09"
     }
   ]
 }

@@ -92,55 +92,9 @@ async function optimizeHeroImages() {
 }
 
 async function optimizeVehicleImages() {
-  await ensureDir(OUT_DIR);
-
-  if (!fs.existsSync(VEHICLE_DIR)) {
-    console.log('  No vehicles directory found, skipping.');
-    return;
-  }
-
-  const files = fs.readdirSync(VEHICLE_DIR).filter((f) => {
-    const ext = path.extname(f).toLowerCase();
-    return ['.jpg', '.jpeg', '.png', '.webp'].includes(ext) && !f.startsWith('.');
-  });
-
-  console.log(`  Found ${files.length} vehicle images to optimize`);
-  let processed = 0;
-  let skipped = 0;
-
-  for (const file of files) {
-    const src = path.join(VEHICLE_DIR, file);
-    const baseName = path.parse(file).name;
-
-    // Check if already optimized
-    const checkFile = path.join(OUT_DIR, `${baseName}-400w.webp`);
-    if (fs.existsSync(checkFile)) {
-      skipped++;
-      continue;
-    }
-
-    try {
-      for (const size of VEHICLE_SIZES) {
-        const webpOut = path.join(OUT_DIR, `${baseName}-${size.suffix}.webp`);
-        const jpgOut = path.join(OUT_DIR, `${baseName}-${size.suffix}.jpg`);
-
-        await sharp(src)
-          .resize(size.width, null, { withoutEnlargement: true })
-          .webp({ quality: size.quality - 5, effort: 4 })
-          .toFile(webpOut);
-
-        await sharp(src)
-          .resize(size.width, null, { withoutEnlargement: true })
-          .jpeg({ quality: size.quality, mozjpeg: true })
-          .toFile(jpgOut);
-      }
-      processed++;
-    } catch (err) {
-      console.error(`    Error processing ${file}:`, err.message);
-    }
-  }
-
-  console.log(`  Optimized: ${processed}, Skipped (already done): ${skipped}`);
+  // Vehicle photos are now managed via Netlify Blobs (dashboard upload).
+  // Skip build-time optimization — images are served directly from blob storage.
+  console.log('  Vehicle images served from Netlify Blobs — skipping build-time optimization.');
 }
 
 async function main() {
