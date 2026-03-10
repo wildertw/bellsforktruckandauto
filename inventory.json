@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:44:06.383Z",
+  "lastUpdated": "2026-03-10T04:45:30.544Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -896,10 +896,10 @@
       "vin": "WDDUG8FB5FA200319",
       "stockNumber": "200319BF",
       "year": 2015,
-      "make": "Mercedes-benz",
+      "make": "MERCEDES-BENZ",
       "model": "S-Class",
       "trim": "S550",
-      "engine": "4.7L 8-Cyl",
+      "engine": "4.7L V8",
       "transmission": "Automatic",
       "drivetrain": "AWD",
       "fuelType": "Gasoline",
@@ -907,10 +907,10 @@
       "mpgHighway": null,
       "mileage": 78923,
       "price": 25995,
-      "type": "car",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "This 2015 Mercedes-benz S-Class S550 is a well-maintained pre-owned vehicle featuring AWD, 4.7L 8-Cyl, Automatic transmission. With 78,923 miles on the odometer, this vehicle has plenty of life left. Equipped with Back-Up Camera, Leather Seat, Bluetooth Connection, Navigation, Heated Front Seats. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
+      "type": "Car",
+      "exteriorColor": "Black",
+      "interiorColor": "Black",
+      "description": "Experience luxury and performance in this 2015 Mercedes-Benz S-Class S550 with a powerful 4.7L V8 engine and only 78,923 miles. Equipped with features such as back-up camera, leather seats, Bluetooth connection, navigation, heated front seats, and more, this vehicle offers unparalleled comfort and convenience for every drive.",
       "features": [
         "Back-Up Camera",
         "Leather Seat",
@@ -931,7 +931,7 @@
         "Premium Sound"
       ],
       "status": "available",
-      "badge": "",
+      "badge": "Low Miles",
       "featured": false,
       "images": [
         "VEHICLE-WDDUG8FB5FA200319-01.jpg",
