@@ -253,7 +253,7 @@ function buildSchema(v) {
 
 // ── Image path depth calculation ──
 // VDP pages live at /vdp/{id}/{slug}/index.html — 3 levels deep from root
-const ASSET_PREFIX = '../../../';
+const ASSET_PREFIX = '/';
 
 // ── HTML Template ──
 function generateVDPHtml(v, allVehicles) {
