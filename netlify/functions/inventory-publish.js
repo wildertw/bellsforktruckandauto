@@ -6,10 +6,10 @@
  * Reads staged inventory from Netlify Blobs, commits it to GitHub as inventory.json.
  * The GitHub commit triggers Netlify to auto-rebuild and deploy the site.
  *
- * Required Netlify env vars:
+ * Required Netlify env vars (set for ALL deploy contexts):
  *   GITHUB_TOKEN       — Personal Access Token with "Contents: Read & Write" on the repo
- *   GITHUB_REPO_OWNER  — GitHub username or org (e.g. wildertw)
- *   GITHUB_REPO_NAME   — Repository name (e.g. bellsforktruckandauto)
+ *   GH_REPO_OWNER      — GitHub username or org (e.g. wildertw)
+ *   GH_REPO_NAME       — Repository name (e.g. bellsforktruckandauto)
  *
  * Optional:
  *   INVENTORY_ADMIN_USERS — JSON: {"frank":"<sha256>","trey":"<sha256>"}
