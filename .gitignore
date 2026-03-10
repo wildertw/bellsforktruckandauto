@@ -2,3 +2,6 @@
 .netlify
 node_modules/
 .env
+
+# Vehicle images (managed externally)
+assets/vehicles/

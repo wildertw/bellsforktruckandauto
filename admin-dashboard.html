@@ -621,34 +621,6 @@
                   </label>
                   <label>Supplier<input id="addSupplier" type="text"></label>
                 </div>
-                <div class="form-section-header" style="margin-top:var(--space-md)">
-                  <h4>Administrative Details</h4>
-                </div>
-                <div class="panel-grid">
-                  <label>Condition
-                    <select id="addCondition">
-                      <option value="Used" selected>Used</option>
-                      <option value="New">New</option>
-                      <option value="Certified Pre-Owned">Certified Pre-Owned</option>
-                    </select>
-                  </label>
-                  <label>Title State
-                    <select id="addTitleState">
-                      <option value="Clean" selected>Clean</option>
-                      <option value="Salvage">Salvage</option>
-                      <option value="Rebuilt">Rebuilt</option>
-                      <option value="Flood">Flood</option>
-                    </select>
-                  </label>
-                  <label>Warranty
-                    <select id="addWarranty">
-                      <option value="Extended Warranty Available" selected>Extended Warranty Available</option>
-                      <option value="Factory Warranty">Factory Warranty</option>
-                      <option value="As-Is">As-Is</option>
-                      <option value="Limited Warranty">Limited Warranty</option>
-                    </select>
-                  </label>
-                </div>
                 <label class="full-field">
                   <span class="desc-label-row">
                     <span>Description</span>
@@ -685,6 +657,26 @@
                     </div>
                   </div>
                   <div id="addScanResults" class="scan-results hide"></div>
+                </div>
+
+                <div class="form-section-header" style="margin-top:var(--space-md)">
+                  <h4>Administrative Details</h4>
+                </div>
+                <div class="panel-grid">
+                  <label>Condition
+                    <input id="addCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+                  </label>
+                  <label>Title Status
+                    <select id="addTitleState">
+                      <option value="Clean" selected>Clean</option>
+                      <option value="Salvage">Salvage</option>
+                      <option value="Rebuilt">Rebuilt</option>
+                      <option value="Flood">Flood</option>
+                    </select>
+                  </label>
+                  <label>Warranty
+                    <input id="addWarranty" type="text" value="Extended Warranty Available" readonly style="opacity:0.7;cursor:default">
+                  </label>
                 </div>
 
                 <p id="addFeedback" class="feedback hide full-field" role="status"></p>
@@ -1156,35 +1148,6 @@
               </label>
               <label>Supplier<input id="editSupplier" type="text"></label>
             </div>
-            <div class="form-section-header" style="margin-top:var(--space-md)">
-              <h4>Administrative Details</h4>
-            </div>
-            <div class="panel-grid">
-              <label>Condition
-                <select id="editCondition">
-                  <option value="Used" selected>Used</option>
-                  <option value="New">New</option>
-                  <option value="Certified Pre-Owned">Certified Pre-Owned</option>
-                </select>
-              </label>
-              <label>Title State
-                <select id="editTitleState">
-                  <option value="Clean" selected>Clean</option>
-                  <option value="Salvage">Salvage</option>
-                  <option value="Rebuilt">Rebuilt</option>
-                  <option value="Flood">Flood</option>
-                </select>
-              </label>
-              <label>Warranty
-                <select id="editWarranty">
-                  <option value="Extended Warranty Available" selected>Extended Warranty Available</option>
-                  <option value="Factory Warranty">Factory Warranty</option>
-                  <option value="As-Is">As-Is</option>
-                  <option value="Limited Warranty">Limited Warranty</option>
-                </select>
-              </label>
-            </div>
-
             <!-- Full-width fields -->
             <label class="full-field">
               <span class="desc-label-row">
@@ -1196,6 +1159,26 @@
             <label class="full-field">Features (comma separated)
               <input id="editFeatures" type="text" placeholder="4x4, Tow package, Bluetooth">
             </label>
+
+            <div class="form-section-header" style="margin-top:var(--space-md)">
+              <h4>Administrative Details</h4>
+            </div>
+            <div class="panel-grid">
+              <label>Condition
+                <input id="editCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+              </label>
+              <label>Title Status
+                <select id="editTitleState">
+                  <option value="Clean" selected>Clean</option>
+                  <option value="Salvage">Salvage</option>
+                  <option value="Rebuilt">Rebuilt</option>
+                  <option value="Flood">Flood</option>
+                </select>
+              </label>
+              <label>Warranty
+                <input id="editWarranty" type="text" value="Extended Warranty Available" readonly style="opacity:0.7;cursor:default">
+              </label>
+            </div>
           </div>
 
           <!-- Right Column: Photos -->

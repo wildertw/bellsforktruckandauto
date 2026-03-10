@@ -81,6 +81,9 @@
   let addPreviewIndex = 0;     // which new photo is the preview in Add form
   let editPreviewName = null;  // URL or 'new-N' identifier for preview in Edit modal
   let editFormSnapshot = null; // snapshot of initial form values for dirty-check
+  // Track deleted SKUs/VINs to prevent accidental re-addition
+  const DELETED_KEY = 'dashboardDeletedVehicles';
+  let deletedVehicles = JSON.parse(localStorage.getItem(DELETED_KEY) || '[]');
 
   // ─── DOM References ─────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
@@ -133,6 +136,27 @@
 
   function persistInventory() {
     localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+  }
+
+  function trackDeletedVehicle(item) {
+    deletedVehicles.push({
+      sku: item.sku,
+      vin: item.vin || '',
+      stockNumber: item.stockNumber || '',
+      deletedAt: new Date().toISOString(),
+    });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
+  }
+
+  function wasDeleted(sku, vin) {
+    return deletedVehicles.some(function(d) {
+      return d.sku === sku || (vin && d.vin && d.vin === vin);
+    });
+  }
+
+  function clearDeletedRecord(sku) {
+    deletedVehicles = deletedVehicles.filter(function(d) { return d.sku !== sku; });
+    localStorage.setItem(DELETED_KEY, JSON.stringify(deletedVehicles));
   }
 
   // ─── Toast Notifications ──────────────────────────────────────────────────
@@ -324,8 +348,29 @@
     return res.json();
   }
 
+  // ─── Add Form Dirty Check ───────────────────────────────────────────────────
+  function isAddFormDirty() {
+    if (!addForm) return false;
+    var fields = ['addName','addSku','addCategory','addYear','addMake','addModel',
+      'addTrim','addVin','addPrice','addEngine','addTransmission','addStock',
+      'addMileage','addDescription'];
+    for (var i = 0; i < fields.length; i++) {
+      var el = $(fields[i]);
+      if (el && el.value && el.value.trim()) return true;
+    }
+    if (addPhotoFiles.length > 0) return true;
+    return false;
+  }
+
   // ─── Tab Navigation ─────────────────────────────────────────────────────────
   function switchTab(tab) {
+    // Guard: warn if leaving the Add Vehicle tab with unsaved data
+    var activeTab = document.querySelector('.tab.active');
+    if (activeTab && activeTab.dataset.tab === 'add' && tab.dataset.tab !== 'add') {
+      if (isAddFormDirty()) {
+        if (!confirm('You may lose unsaved data. Are you sure you want to continue?')) return;
+      }
+    }
     tabs.forEach((t) => t.classList.toggle('active', t === tab));
     panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === tab.dataset.tab));
   }
@@ -1119,11 +1164,12 @@
       editModal.classList.add('active');
       editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
-      if (confirm('Delete ' + item.name + ' (' + item.sku + ')?')) {
+      if (confirm('Delete ' + item.name + ' (' + item.sku + ')? This cannot be undone.')) {
+        trackDeletedVehicle(item);
         inventory = inventory.filter((entry) => entry.sku !== sku);
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Item removed.');
+        showFeedback(editFeedback, 'Item permanently removed.');
         // Auto-publish deletion to live site
         showToast('Publishing deletion to live site...');
         autoPublish().then(function () {
@@ -1277,7 +1323,7 @@
         const data = JSON.parse(reader.result);
         const vehicles = data.vehicles || data;
         if (!Array.isArray(vehicles)) throw new Error('Invalid format');
-        inventory = vehicles.map((v, i) => ({
+        var mapped = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.sku || v.vin || ('IMP-' + String(i + 1).padStart(3, '0')),
           name: v.name || [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
@@ -1300,9 +1346,14 @@
           doors: v.doors || '',
           images: v.images,
         }));
+        // Filter out previously deleted vehicles
+        var skipped = mapped.filter(function(v) { return wasDeleted(v.sku, v.vin); });
+        inventory = mapped.filter(function(v) { return !wasDeleted(v.sku, v.vin); });
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Imported ' + inventory.length + ' vehicles.');
+        var msg = 'Imported ' + inventory.length + ' vehicles.';
+        if (skipped.length) msg += ' (' + skipped.length + ' previously deleted vehicles excluded.)';
+        showFeedback(editFeedback, msg);
       } catch (err) {
         showFeedback(editFeedback, 'Import failed: ' + err.message, true);
       }
@@ -1372,6 +1423,15 @@
           showFeedback(addFeedback, 'SKU already exists.', true);
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
           return;
+        }
+        // Prevent re-adding a previously deleted vehicle
+        var addVin = $('addVin') ? $('addVin').value.trim() : '';
+        if (wasDeleted(sku, addVin)) {
+          if (!confirm('This vehicle was previously deleted. Are you sure you want to re-add it?')) {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Vehicle'; }
+            return;
+          }
+          clearDeletedRecord(sku);
         }
         inventory.unshift(vehicle);
         persistInventory();
@@ -3332,7 +3392,7 @@
 
   function tryCloseEditModal() {
     if (isEditFormDirty()) {
-      if (!confirm('You have unsaved changes. Discard them?')) return;
+      if (!confirm('You may lose unsaved data. Are you sure you want to continue?')) return;
     }
     editFormSnapshot = null;
     editModal.classList.remove('active');
@@ -3341,11 +3401,20 @@
   // ─── Modal Close ────────────────────────────────────────────────────────────
   function closeModals(event) {
     if (event.target.matches('.modal') || event.target.dataset.close !== undefined) {
-      // Guard the edit modal with unsaved-changes check
+      // Edit modal is locked — only closeable via Cancel / X button (routed through tryCloseEditModal)
       if (editModal.classList.contains('active') &&
           (event.target === editModal || editModal.contains(event.target))) {
-        event.stopPropagation();
-        tryCloseEditModal();
+        // Clicking the backdrop (the .modal overlay itself) is blocked
+        if (event.target === editModal) {
+          event.stopPropagation();
+          return; // do nothing — modal is locked
+        }
+        // Explicit close button inside the modal
+        if (event.target.dataset.close !== undefined) {
+          event.stopPropagation();
+          tryCloseEditModal();
+          return;
+        }
         return;
       }
       document.querySelectorAll('.modal').forEach((modal) => modal.classList.remove('active'));
@@ -3720,7 +3789,7 @@
     // Inventory table
     $('inventoryTable').addEventListener('click', handleTableActions);
     $('editForm').addEventListener('submit', handleEditSubmit);
-    $('cancelEdit').addEventListener('click', () => editModal.classList.remove('active'));
+    $('cancelEdit').addEventListener('click', () => tryCloseEditModal());
     $('editSearch').addEventListener('input', () => { currentPage = 1; renderInventoryTable(); });
     $('prevPage').addEventListener('click', () => { currentPage = Math.max(1, currentPage - 1); renderInventoryTable(); });
     $('nextPage').addEventListener('click', () => {
@@ -3856,10 +3925,11 @@
     previewModal.addEventListener('click', closeModals);
     editModal.addEventListener('click', closeModals);
 
-    // Escape key closes modals (with unsaved-changes guard for edit modal)
+    // Escape key — edit modal is locked (must use Cancel button), other modals close normally
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         if (editModal.classList.contains('active')) {
+          // Edit modal is locked — Escape triggers the unsaved-changes guard
           tryCloseEditModal();
         } else {
           document.querySelectorAll('.modal.active').forEach(function(m) { m.classList.remove('active'); });
