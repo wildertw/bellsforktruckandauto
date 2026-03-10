@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T04:30:48.826Z",
+  "lastUpdated": "2026-03-10T04:33:13.093Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -555,30 +555,6 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-10"
-    },
-    {
-      "vin": "1FTFW1E59JKD87537",
-      "stockNumber": "02964BF",
-      "year": 2018,
-      "make": "FORD",
-      "model": "F-150",
-      "trim": "",
-      "engine": "5.0L 4V",
-      "transmission": "",
-      "drivetrain": "4WD/4-Wheel Drive/4x4",
-      "fuelType": "Gasoline",
-      "mileage": 0,
-      "price": 0,
-      "type": "used",
-      "exteriorColor": "",
-      "interiorColor": "",
-      "description": "",
-      "features": [],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "images": [],
       "dateAdded": "2026-03-10"
     },
     {
