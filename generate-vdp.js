@@ -1228,12 +1228,14 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   }
 
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
-document.addEventListener('DOMContentLoaded',function(){
+function initSwiper(){
+  if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}
   var thumbs=new Swiper('.vdp-thumbs',{slidesPerView:'auto',spaceBetween:8,freeMode:true,watchSlidesProgress:true});
   new Swiper('.vdp-gallery',{loop:true,spaceBetween:10,pagination:{el:'.swiper-pagination',clickable:true},navigation:{nextEl:'.swiper-button-next',prevEl:'.swiper-button-prev'},thumbs:{swiper:thumbs}});
-});
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initSwiper);}else{initSwiper();}
   </script>
   <script src="/assets/js/sms-limiter.js" defer></script>
   <script src="/assets/js/tracker.js" defer></script>
