@@ -1,5 +1,5 @@
 /**
- * Google Apps Script — Bells Fork Blog Auto-Importer
+ * Google Apps Script - Bells Fork Blog Auto-Importer
  *
  * Watches a Google Drive folder for new .docx files and automatically
  * imports them as blog posts via the Netlify blog-docx-import function.
@@ -19,16 +19,16 @@
  * - Posts are created as DRAFTS by default (review at /admin/blog)
  *
  * FILENAME CONVENTIONS:
- * - "My Blog Title.docx"              → title: "My Blog Title", category: "General"
- * - "[Trucks] My Blog Title.docx"     → title: "My Blog Title", category: "Trucks"
- * - "[Maintenance] Oil Change Tips.docx" → title: "Oil Change Tips", category: "Maintenance"
+ * - "My Blog Title.docx"                 -> title: "My Blog Title", category: "General"
+ * - "[Trucks] My Blog Title.docx"        -> title: "My Blog Title", category: "Trucks"
+ * - "[Maintenance] Oil Change Tips.docx"  -> title: "Oil Change Tips", category: "Maintenance"
  */
 
-// ═══════════════════════════════════════════════════════════════
-// CONFIG — Update these values
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
+// CONFIG - Update these values
+// ---------------------------------------------------------------
 
-const CONFIG = {
+var CONFIG = {
   // Your Netlify site URL (no trailing slash)
   SITE_URL: 'https://bellsforkautoandtruck.com',
 
@@ -42,30 +42,30 @@ const CONFIG = {
   DEFAULT_STATUS: 'draft',
 
   // Default author name
-  DEFAULT_AUTHOR: 'Bells Fork Team',
+  DEFAULT_AUTHOR: 'Bells Fork Team'
 };
 
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
 // MAIN FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
 
 /**
  * Run this ONCE to set up the time-based trigger (every 5 minutes).
  */
 function setupTrigger() {
   // Remove any existing triggers for this function
-  const triggers = ScriptApp.getProjectTriggers();
-  for (const trigger of triggers) {
-    if (trigger.getHandlerFunction() === 'checkForNewDocs') {
-      ScriptApp.deleteTrigger(trigger);
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'checkForNewDocs') {
+      ScriptApp.deleteTrigger(triggers[i]);
     }
   }
 
-  // Create new trigger — runs every 5 minutes
+  // Create new trigger - runs every 5 minutes
   ScriptApp.newTrigger('checkForNewDocs')
-    .timeDriven()
-    .everyMinutes(5)
-    .create();
+      .timeDriven()
+      .everyMinutes(5)
+      .create();
 
   Logger.log('Trigger set up. checkForNewDocs will run every 5 minutes.');
 }
@@ -74,44 +74,44 @@ function setupTrigger() {
  * Remove the trigger (stop watching).
  */
 function removeTrigger() {
-  const triggers = ScriptApp.getProjectTriggers();
-  for (const trigger of triggers) {
-    if (trigger.getHandlerFunction() === 'checkForNewDocs') {
-      ScriptApp.deleteTrigger(trigger);
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'checkForNewDocs') {
+      ScriptApp.deleteTrigger(triggers[i]);
     }
   }
   Logger.log('Trigger removed. Auto-import stopped.');
 }
 
 /**
- * Main function — checks the folder for new .docx files and imports them.
+ * Main function - checks the folder for new .docx files and imports them.
  * Called automatically by the time trigger, or run manually to test.
  */
 function checkForNewDocs() {
-  const folder = findFolder(CONFIG.FOLDER_NAME);
+  var folder = findFolder(CONFIG.FOLDER_NAME);
   if (!folder) {
     Logger.log('Folder "' + CONFIG.FOLDER_NAME + '" not found in Google Drive.');
     return;
   }
 
   // Get or create the "Processed" subfolder
-  const processedFolder = getOrCreateSubfolder(folder, 'Processed');
+  var processedFolder = getOrCreateSubfolder(folder, 'Processed');
 
   // Find all .docx files in the folder (not in subfolders)
-  const files = folder.getFilesByType(MimeType.MICROSOFT_WORD);
-  let count = 0;
+  var files = folder.getFilesByType(MimeType.MICROSOFT_WORD);
+  var count = 0;
 
   while (files.hasNext()) {
-    const file = files.next();
-    const filename = file.getName();
+    var file = files.next();
+    var filename = file.getName();
 
     // Skip non-.docx files (extra safety check)
-    if (!filename.toLowerCase().endsWith('.docx')) continue;
+    if (filename.toLowerCase().indexOf('.docx') === -1) continue;
 
     Logger.log('Found new .docx: ' + filename);
 
     try {
-      const result = importDocxFile(file);
+      var result = importDocxFile(file);
       Logger.log('Import result: ' + JSON.stringify(result));
 
       // Move file to Processed folder
@@ -120,7 +120,7 @@ function checkForNewDocs() {
       count++;
     } catch (err) {
       Logger.log('ERROR importing "' + filename + '": ' + err.message);
-      // Don't move the file — it will be retried next run
+      // Don't move the file - it will be retried next run
     }
   }
 
@@ -135,32 +135,32 @@ function checkForNewDocs() {
  * Import a single .docx file to the blog.
  */
 function importDocxFile(file) {
-  const filename = file.getName();
-  const blob = file.getBlob();
-  const base64 = Utilities.base64Encode(blob.getBytes());
+  var filename = file.getName();
+  var blob = file.getBlob();
+  var base64 = Utilities.base64Encode(blob.getBytes());
 
-  const payload = {
+  var payload = {
     file: base64,
     filename: filename,
     status: CONFIG.DEFAULT_STATUS,
-    author: CONFIG.DEFAULT_AUTHOR,
+    author: CONFIG.DEFAULT_AUTHOR
   };
 
-  const url = CONFIG.SITE_URL + '/.netlify/functions/blog-docx-import';
+  var url = CONFIG.SITE_URL + '/.netlify/functions/blog-docx-import';
 
-  const options = {
+  var options = {
     method: 'post',
     contentType: 'application/json',
     headers: {
-      'X-API-Key': CONFIG.API_KEY,
+      'X-API-Key': CONFIG.API_KEY
     },
     payload: JSON.stringify(payload),
-    muteHttpExceptions: true,
+    muteHttpExceptions: true
   };
 
-  const response = UrlFetchApp.fetch(url, options);
-  const code = response.getResponseCode();
-  const body = JSON.parse(response.getContentText());
+  var response = UrlFetchApp.fetch(url, options);
+  var code = response.getResponseCode();
+  var body = JSON.parse(response.getContentText());
 
   if (code !== 200) {
     throw new Error('API returned ' + code + ': ' + (body.error || 'Unknown error'));
@@ -169,15 +169,15 @@ function importDocxFile(file) {
   return body;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
 // HELPER FUNCTIONS
-// ═══════════════════════════════════════════════════════════════
+// ---------------------------------------------------------------
 
 /**
  * Find a folder by name in Google Drive.
  */
 function findFolder(name) {
-  const folders = DriveApp.getFoldersByName(name);
+  var folders = DriveApp.getFoldersByName(name);
   if (folders.hasNext()) {
     return folders.next();
   }
@@ -188,7 +188,7 @@ function findFolder(name) {
  * Get or create a subfolder inside a parent folder.
  */
 function getOrCreateSubfolder(parent, subName) {
-  const subs = parent.getFoldersByName(subName);
+  var subs = parent.getFoldersByName(subName);
   if (subs.hasNext()) {
     return subs.next();
   }
@@ -196,27 +196,27 @@ function getOrCreateSubfolder(parent, subName) {
 }
 
 /**
- * Manual test — run this to test the import with a specific file.
+ * Manual test - run this to test the import with a specific file.
  * Useful for debugging without waiting for the trigger.
  */
 function testImport() {
-  const folder = findFolder(CONFIG.FOLDER_NAME);
+  var folder = findFolder(CONFIG.FOLDER_NAME);
   if (!folder) {
     Logger.log('Folder not found!');
     return;
   }
 
-  const files = folder.getFilesByType(MimeType.MICROSOFT_WORD);
+  var files = folder.getFilesByType(MimeType.MICROSOFT_WORD);
   if (!files.hasNext()) {
     Logger.log('No .docx files in folder.');
     return;
   }
 
-  const file = files.next();
+  var file = files.next();
   Logger.log('Testing with: ' + file.getName());
 
   try {
-    const result = importDocxFile(file);
+    var result = importDocxFile(file);
     Logger.log('SUCCESS: ' + JSON.stringify(result, null, 2));
   } catch (err) {
     Logger.log('ERROR: ' + err.message);
