@@ -53,20 +53,12 @@
   }
 
   function renderFallback() {
-    // Show the existing static reviews if API fails
+    // No fake reviews — show a message prompting visitors to check Google
     container.innerHTML =
-      '<div class="col-md-4 mb-4"><div class="card p-4 h-100 border-0 shadow-sm">' +
-        '<div class="text-warning mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
-        '<p class="fst-italic text-muted">&ldquo;Found a great F-150 at Bells Fork. The price was fair and they were upfront about everything. No pressure, no games. Highly recommend.&rdquo;</p>' +
-        '<strong class="mt-auto">Michael R.</strong></div></div>' +
-      '<div class="col-md-4 mb-4"><div class="card p-4 h-100 border-0 shadow-sm">' +
-        '<div class="text-warning mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
-        '<p class="fst-italic text-muted">&ldquo;Bought a used RAV4 here and it was exactly as described. They showed me the inspection report and walked me through everything. Honest dealers are hard to find.&rdquo;</p>' +
-        '<strong class="mt-auto">Sarah J.</strong></div></div>' +
-      '<div class="col-md-4 mb-4"><div class="card p-4 h-100 border-0 shadow-sm">' +
-        '<div class="text-warning mb-2">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
-        '<p class="fst-italic text-muted">&ldquo;Picked up a diesel RAM for my business. They had it ready and the whole process was smooth. Best vehicle buying experience I&apos;ve had.&rdquo;</p>' +
-        '<strong class="mt-auto">David P.</strong></div></div>';
+      '<div class="col-12 text-center py-4">' +
+        '<p class="text-muted">Reviews are temporarily unavailable. ' +
+        '<a href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/" target="_blank" rel="noopener">See our reviews on Google</a>.</p>' +
+      '</div>';
   }
 
   async function loadReviews() {
