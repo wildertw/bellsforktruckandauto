@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-10T14:52:06.912Z",
+  "lastUpdated": "2026-03-11T02:37:33.261Z",
   "vehicles": [
     {
       "vin": "1GNSKBKC2LR309210",
@@ -43,6 +43,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GNSKBKC2LR309210-01.jpg",
         "VEHICLE-1GNSKBKC2LR309210-02.jpg",
@@ -51,7 +56,11 @@
         "VEHICLE-1GNSKBKC2LR309210-05.jpg",
         "VEHICLE-1GNSKBKC2LR309210-06.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1G1YK2D73G5118890",
@@ -93,6 +102,11 @@
       "status": "available",
       "badge": "Great Value",
       "featured": true,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02914BF-08.jpg",
         "blob:02914BF-01.jpg",
@@ -105,7 +119,11 @@
         "blob:02914BF-09.jpg",
         "blob:02914BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTEW1C59KFA20135",
@@ -138,6 +156,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTEW1C59KFA20135-01.jpg",
         "VEHICLE-1FTEW1C59KFA20135-02.jpg",
@@ -150,7 +173,11 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GCWK1EK7HF203958",
@@ -177,6 +204,11 @@
       "status": "available",
       "badge": "",
       "featured": true,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02926BF-01.jpg",
         "blob:02926BF-02.jpg",
@@ -189,7 +221,11 @@
         "blob:02926BF-09.jpg",
         "blob:02926BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1C6RR6T45K7506702",
@@ -212,6 +248,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02927BF-01.jpg",
         "blob:02927BF-02.jpg",
@@ -224,7 +265,11 @@
         "blob:02927BF-09.jpg",
         "blob:02927BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GCHK23D041175472",
@@ -253,6 +298,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02929BF-04.jpg",
         "blob:02929BF-01.jpg",
@@ -265,7 +315,11 @@
         "blob:02929BF-09.jpg",
         "blob:02929BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GCRCREA2BZ393745",
@@ -292,6 +346,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02930BF-01.jpg",
         "blob:02930BF-02.jpg",
@@ -304,7 +363,11 @@
         "blob:02930BF-09.jpg",
         "blob:02930BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3TM4Z5CN1MM156792",
@@ -342,6 +405,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "2021-super-white-toyota-tacoma-02932bf-01.png",
         "2021-super-white-toyota-tacoma-02932bf-02.png",
@@ -351,7 +419,11 @@
         "2021-super-white-toyota-tacoma-02932bf-06.png",
         "2021-super-white-toyota-tacoma-02932bf-07.png"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GCRWKED0JR347965",
@@ -376,6 +448,11 @@
       "status": "available",
       "badge": "",
       "featured": true,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:02955BF-01.jpg",
         "blob:02955BF-02.jpg",
@@ -388,7 +465,11 @@
         "blob:02955BF-09.jpg",
         "blob:02955BF-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3FMCR9C60MRA25571",
@@ -425,6 +506,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg",
@@ -435,7 +521,11 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTEW1E53KFB96224",
@@ -475,7 +565,12 @@
       ],
       "status": "available",
       "badge": "",
-      "featured": false,
+      "featured": true,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTEW1E53KFB96224-01.jpg",
         "VEHICLE-1FTEW1E53KFB96224-02.jpg",
@@ -499,7 +594,11 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3GTU2WEC1EG333280",
@@ -543,6 +642,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-3GTU2WEC1EG333280-01.jpg",
         "VEHICLE-3GTU2WEC1EG333280-02.jpg",
@@ -558,7 +662,11 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "2C3CDZBT8LH123188",
@@ -592,6 +700,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "blob:2907-01.jpg",
         "blob:2907-02.jpg",
@@ -604,7 +717,11 @@
         "blob:2907-09.jpg",
         "blob:2907-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GCHK23U04F175472",
@@ -638,6 +755,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GCHK23U04F175472-01.jpg",
         "VEHICLE-1GCHK23U04F175472-02.jpg",
@@ -654,7 +776,11 @@
         "VEHICLE-1GCHK23U04F175472-13.jpg",
         "VEHICLE-1GCHK23U04F175472-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTFX1EF6DKE83738",
@@ -682,6 +808,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTFX1EF6DKE83738-01.jpg",
         "VEHICLE-1FTFX1EF6DKE83738-02.jpg",
@@ -695,7 +826,11 @@
         "VEHICLE-1FTFX1EF6DKE83738-10.jpg",
         "VEHICLE-1FTFX1EF6DKE83738-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "5TFHY5F14EX339447",
@@ -737,6 +872,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-5TFHY5F14EX339447-01.jpg",
         "VEHICLE-5TFHY5F14EX339447-02.jpg",
@@ -754,7 +894,11 @@
         "VEHICLE-5TFHY5F14EX339447-14.jpg",
         "VEHICLE-5TFHY5F14EX339447-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GNSCJKC7FR289449",
@@ -798,6 +942,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GNSCJKC7FR289449-01.jpg",
         "VEHICLE-1GNSCJKC7FR289449-02.jpg",
@@ -818,7 +967,11 @@
         "VEHICLE-1GNSCJKC7FR289449-17.jpg",
         "VEHICLE-1GNSCJKC7FR289449-18.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "WDDUG8FB5FA200319",
@@ -861,6 +1014,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-WDDUG8FB5FA200319-01.jpg",
         "VEHICLE-WDDUG8FB5FA200319-02.jpg",
@@ -878,7 +1036,11 @@
         "VEHICLE-WDDUG8FB5FA200319-14.jpg",
         "VEHICLE-WDDUG8FB5FA200319-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FT7W2BT0GEB02234",
@@ -919,6 +1081,11 @@
       "status": "available",
       "badge": "",
       "featured": true,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FT7W2BT0GEB02234-01.jpg",
         "VEHICLE-1FT7W2BT0GEB02234-02.jpg",
@@ -934,7 +1101,11 @@
         "VEHICLE-1FT7W2BT0GEB02234-12.jpg",
         "VEHICLE-1FT7W2BT0GEB02234-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3GTU2MEC5GG322869",
@@ -971,6 +1142,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-3GTU2MEC5GG322869-01.jpg",
         "VEHICLE-3GTU2MEC5GG322869-02.jpg",
@@ -984,7 +1160,11 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1C4BJWDGXGL268370",
@@ -1015,6 +1195,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1C4BJWDGXGL268370-01.jpg",
         "VEHICLE-1C4BJWDGXGL268370-02.jpg",
@@ -1028,7 +1213,11 @@
         "VEHICLE-1C4BJWDGXGL268370-10.jpg",
         "VEHICLE-1C4BJWDGXGL268370-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3GCUKREC2HG250205",
@@ -1066,6 +1255,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-3GCUKREC2HG250205-01.jpg",
         "VEHICLE-3GCUKREC2HG250205-02.jpg",
@@ -1080,7 +1274,11 @@
         "VEHICLE-3GCUKREC2HG250205-11.jpg",
         "VEHICLE-3GCUKREC2HG250205-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GC1KWEY7HF203959",
@@ -1123,6 +1321,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GC1KWEY7HF203959-01.jpg",
         "VEHICLE-1GC1KWEY7HF203959-02.jpg",
@@ -1137,7 +1340,11 @@
         "VEHICLE-1GC1KWEY7HF203959-11.jpg",
         "VEHICLE-1GC1KWEY7HF203959-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTFW1EF7HFA76996",
@@ -1171,6 +1378,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTFW1EF7HFA76996-01.jpg",
         "VEHICLE-1FTFW1EF7HFA76996-02.jpg",
@@ -1189,7 +1401,11 @@
         "VEHICLE-1FTFW1EF7HFA76996-15.jpg",
         "VEHICLE-1FTFW1EF7HFA76996-16.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1G1FH1R7XJ0156632",
@@ -1230,6 +1446,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1G1FH1R7XJ0156632-01.jpg",
         "VEHICLE-1G1FH1R7XJ0156632-02.jpg",
@@ -1245,7 +1466,11 @@
         "VEHICLE-1G1FH1R7XJ0156632-12.jpg",
         "VEHICLE-1G1FH1R7XJ0156632-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3GCUKSEC0JG347965",
@@ -1287,6 +1512,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-3GCUKSEC0JG347965-01.jpg",
         "VEHICLE-3GCUKSEC0JG347965-02.jpg",
@@ -1299,7 +1529,11 @@
         "VEHICLE-3GCUKSEC0JG347965-09.jpg",
         "VEHICLE-3GCUKSEC0JG347965-10.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GNSCBKC2JR250590",
@@ -1343,6 +1577,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GNSCBKC2JR250590-01.jpg",
         "VEHICLE-1GNSCBKC2JR250590-02.jpg",
@@ -1359,7 +1598,11 @@
         "VEHICLE-1GNSCBKC2JR250590-13.jpg",
         "VEHICLE-1GNSCBKC2JR250590-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTEW1EP1JKE38404",
@@ -1389,6 +1632,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTEW1EP1JKE38404-01.jpg",
         "VEHICLE-1FTEW1EP1JKE38404-02.jpg",
@@ -1402,7 +1650,11 @@
         "VEHICLE-1FTEW1EP1JKE38404-10.jpg",
         "VEHICLE-1FTEW1EP1JKE38404-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1FTFX1E59JKD87637",
@@ -1437,6 +1689,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1FTFX1E59JKD87637-01.jpg",
         "VEHICLE-1FTFX1E59JKD87637-02.jpg",
@@ -1455,7 +1712,11 @@
         "VEHICLE-1FTFX1E59JKD87637-16.jpg",
         "VEHICLE-1FTFX1E59JKD87637-17.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GKS1AKC0KR400775",
@@ -1496,6 +1757,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GKS1AKC0KR400775-01.jpg",
         "VEHICLE-1GKS1AKC0KR400775-02.jpg",
@@ -1511,7 +1777,11 @@
         "VEHICLE-1GKS1AKC0KR400775-12.jpg",
         "VEHICLE-1GKS1AKC0KR400775-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "SAJWA2G79K8W20017",
@@ -1555,6 +1825,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-SAJWA2G79K8W20017-01.jpg",
         "VEHICLE-SAJWA2G79K8W20017-02.jpg",
@@ -1576,7 +1851,11 @@
         "VEHICLE-SAJWA2G79K8W20017-18.jpg",
         "VEHICLE-SAJWA2G79K8W20017-19.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1C6RREFT4KN770971",
@@ -1612,6 +1891,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1C6RREFT4KN770971-01.jpg",
         "VEHICLE-1C6RREFT4KN770971-02.jpg",
@@ -1627,7 +1911,11 @@
         "VEHICLE-1C6RREFT4KN770971-12.jpg",
         "VEHICLE-1C6RREFT4KN770971-13.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1GTP9EED1MZ234288",
@@ -1669,6 +1957,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1GTP9EED1MZ234288-01.jpg",
         "VEHICLE-1GTP9EED1MZ234288-02.jpg",
@@ -1685,7 +1978,11 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "JF1VA1A68M9805926",
@@ -1722,6 +2019,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-JF1VA1A68M9805926-01.jpg",
         "VEHICLE-JF1VA1A68M9805926-02.jpg",
@@ -1735,7 +2037,11 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "3TMAZ5CN1MM156792",
@@ -1771,6 +2077,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-3TMAZ5CN1MM156792-01.jpg",
         "VEHICLE-3TMAZ5CN1MM156792-02.jpg",
@@ -1785,7 +2096,11 @@
         "VEHICLE-3TMAZ5CN1MM156792-11.jpg",
         "VEHICLE-3TMAZ5CN1MM156792-12.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     },
     {
       "vin": "1C6HJTFG9NL104313",
@@ -1825,6 +2140,11 @@
       "status": "available",
       "badge": "",
       "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "",
+      "doors": "",
       "images": [
         "VEHICLE-1C6HJTFG9NL104313-01.jpg",
         "VEHICLE-1C6HJTFG9NL104313-02.jpg",
@@ -1842,7 +2162,11 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-03-10"
+      "dateAdded": "2026-03-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
     }
   ]
 }
