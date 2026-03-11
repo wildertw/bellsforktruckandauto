@@ -288,7 +288,7 @@ function generateFormPage(page, formContent) {
     </a>
   </div>
 
-  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js"></script>
+  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
   <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
   <script src="/assets/js/sms-limiter.js" defer></script>
   <script src="/assets/js/tracker.js" defer></script>

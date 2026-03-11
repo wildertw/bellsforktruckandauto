@@ -391,10 +391,6 @@ function generateVDPHtml(v, allVehicles) {
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
 
-  <!-- Preconnect -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <!-- Bootstrap 5 CSS + Swiper (self-hosted) -->
   <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css">
@@ -1211,7 +1207,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   </div>
 
   <!-- Bootstrap JS (self-hosted) -->
-  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js"></script>
+  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
 
   <script>
   // Year in footer

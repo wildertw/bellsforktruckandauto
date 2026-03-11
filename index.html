@@ -64,10 +64,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/assets/favicon.png">
 
-  <!-- Preconnect -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <!-- Bootstrap 5 CSS (self-hosted) -->
   <link href="/assets/vendor/bootstrap.min.css" rel="stylesheet">
 
@@ -185,6 +181,17 @@
       text-transform:uppercase;
     }
     .home-search-row .btn:hover{ background:#9e1b20; border-color:#9e1b20; }
+
+    /* Skeleton loading animation */
+    @keyframes skeleton-pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
+    .skeleton{animation:skeleton-pulse 1.5s ease-in-out infinite;background:#e0e0e0;border-radius:4px;}
+    .skeleton-card{background:#fff;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12);display:flex;flex-direction:column;}
+    .skeleton-img{width:100%;aspect-ratio:4/3;background:#e0e0e0;animation:skeleton-pulse 1.5s ease-in-out infinite;}
+    .skeleton-body{padding:12px;}
+    .skeleton-line{height:14px;margin-bottom:8px;border-radius:4px;}
+    .skeleton-line.w75{width:75%;}
+    .skeleton-line.w50{width:50%;}
+    .skeleton-line.w40{width:40%;}
 
     .featured-grid{
       display: grid;
@@ -966,7 +973,12 @@
     <h2 class="home-featured-title">Featured Vehicles</h2>
 
     <div class="featured-grid" id="featuredGrid">
-      <!-- Cards injected by inventory-loader.js -->
+      <!-- Skeleton placeholders replaced by inventory-loader.js -->
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w50"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w50"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w50"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w50"></div><div class="skeleton skeleton-line w40"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton skeleton-line w75"></div><div class="skeleton skeleton-line w50"></div><div class="skeleton skeleton-line w40"></div></div></div>
     </div>
 
     <div class="home-viewall">
@@ -1151,7 +1163,11 @@
     <section id="reviews" class="section-pad bg-light">
       <div class="container">
          <h2 class="section-title text-center mx-auto mb-5">Customer Reviews</h2>
-         <div class="row g-4" id="homeReviews"><div class="col-12 text-center py-4"><div class="spinner-border text-muted" role="status"><span class="visually-hidden">Loading reviews...</span></div></div></div>
+         <div class="row g-4" id="homeReviews">
+           <div class="col-md-4"><div class="card p-4 h-100 border-0 shadow-sm"><div class="skeleton skeleton-line w50" style="height:18px;margin-bottom:12px;"></div><div class="skeleton skeleton-line w75" style="height:12px;"></div><div class="skeleton skeleton-line" style="width:90%;height:12px;"></div><div class="skeleton skeleton-line w40" style="height:12px;margin-top:16px;"></div></div></div>
+           <div class="col-md-4"><div class="card p-4 h-100 border-0 shadow-sm"><div class="skeleton skeleton-line w50" style="height:18px;margin-bottom:12px;"></div><div class="skeleton skeleton-line w75" style="height:12px;"></div><div class="skeleton skeleton-line" style="width:85%;height:12px;"></div><div class="skeleton skeleton-line w40" style="height:12px;margin-top:16px;"></div></div></div>
+           <div class="col-md-4"><div class="card p-4 h-100 border-0 shadow-sm"><div class="skeleton skeleton-line w50" style="height:18px;margin-bottom:12px;"></div><div class="skeleton skeleton-line w75" style="height:12px;"></div><div class="skeleton skeleton-line" style="width:88%;height:12px;"></div><div class="skeleton skeleton-line w40" style="height:12px;margin-top:16px;"></div></div></div>
+         </div>
       </div>
     </section>
     <script>
@@ -1323,12 +1339,12 @@
   </footer>
 
   <!-- Bootstrap JS (self-hosted) -->
-  <script src="/assets/vendor/bootstrap.bundle.min.js"></script>
-  
+  <script src="/assets/vendor/bootstrap.bundle.min.js" defer></script>
+
   <!-- Vehicle type icons -->
-  <script src="/assets/js/vehicle-icons.js"></script>
+  <script src="/assets/js/vehicle-icons.js" defer></script>
   <!-- Dynamic Inventory Loader -->
-  <script src="/inventory-loader.js"></script>
+  <script src="/inventory-loader.js" defer></script>
   
   <!-- Page Scripts -->
   <script>
