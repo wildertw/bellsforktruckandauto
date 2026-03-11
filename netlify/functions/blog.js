@@ -17,17 +17,31 @@ const POSTS_STORE = 'blog-posts';
 const COMMENTS_STORE = 'blog-comments';
 const IMAGES_STORE = 'blog-images';
 
-const BASE_HEADERS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+// Module-level CORS headers set per-request in handler
+let _cors = {};
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
 
 function json(statusCode, data, extraHeaders = {}) {
   return {
     statusCode,
     headers: {
-      ...BASE_HEADERS,
+      ..._cors,
       'Content-Type': 'application/json',
       ...extraHeaders,
     },
@@ -195,8 +209,10 @@ async function parseBody(event) {
 }
 
 exports.handler = async (event) => {
+  _cors = corsHeaders(event);
+
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: BASE_HEADERS, body: '' };
+    return { statusCode: 200, headers: _cors, body: '' };
   }
 
   const params = event.queryStringParameters || {};
@@ -212,13 +228,13 @@ exports.handler = async (event) => {
     if (!id) return json(400, { error: 'id is required' });
     const imageBlob = await imageStore.get(id, { type: 'json' }).catch(() => null);
     if (!imageBlob || !imageBlob.base64 || !imageBlob.contentType) {
-      return { statusCode: 404, headers: BASE_HEADERS, body: '' };
+      return { statusCode: 404, headers: _cors, body: '' };
     }
     return {
       statusCode: 200,
       isBase64Encoded: true,
       headers: {
-        ...BASE_HEADERS,
+        ..._cors,
         'Content-Type': imageBlob.contentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
       },

@@ -22,11 +22,22 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
@@ -44,44 +55,44 @@ function validateAuth(user, passwordHash, usersConfig) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   let usersConfig;
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { auth, stockNumber, photoIndex, imageData, contentType } = body;
 
   if (!auth || !auth.user || !auth.passwordHash) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
   }
   if (!validateAuth(auth.user, auth.passwordHash, usersConfig)) {
     await new Promise(r => setTimeout(r, 600));
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   if (!stockNumber || photoIndex == null || !imageData) {
     return {
       statusCode: 400,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Missing required fields: stockNumber, photoIndex, imageData' }),
     };
   }
@@ -91,7 +102,7 @@ exports.handler = async (event) => {
   if (!cleanStock) {
     return {
       statusCode: 400,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Invalid stockNumber format.' }),
     };
   }
@@ -101,7 +112,7 @@ exports.handler = async (event) => {
   if (!Number.isInteger(photoIdx) || photoIdx < 0 || photoIdx > 25) {
     return {
       statusCode: 400,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'photoIndex must be an integer between 0 and 25.' }),
     };
   }
@@ -112,7 +123,7 @@ exports.handler = async (event) => {
   if (!ALLOWED_TYPES.includes(normalizedType)) {
     return {
       statusCode: 400,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Invalid content type. Allowed: JPEG, PNG, WebP.' }),
     };
   }
@@ -122,7 +133,7 @@ exports.handler = async (event) => {
   if (typeof imageData !== 'string' || imageData.length > 7 * 1024 * 1024) {
     return {
       statusCode: 413,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Image too large. Maximum 5MB per photo.' }),
     };
   }
@@ -140,7 +151,7 @@ exports.handler = async (event) => {
     if (buffer.length > 5 * 1024 * 1024) {
       return {
         statusCode: 413,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'Image too large. Maximum 5MB per photo.' }),
       };
     }
@@ -149,7 +160,7 @@ exports.handler = async (event) => {
     if (buffer.length < 4) {
       return {
         statusCode: 400,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'File too small to be a valid image.' }),
       };
     }
@@ -159,7 +170,7 @@ exports.handler = async (event) => {
     if (!magicJpeg && !magicPng && !magicWebp) {
       return {
         statusCode: 400,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'File does not appear to be a valid image (JPEG, PNG, or WebP).' }),
       };
     }
@@ -178,7 +189,7 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Failed to store photo: ' + err.message }),
     };
   }

@@ -22,11 +22,22 @@ function blobStore(name) {
   return getStore({ name, siteID, token, apiURL: 'https://api.netlify.com' });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
@@ -46,18 +57,18 @@ const BLOB_KEY = 'admin-settings';
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
 
   let usersConfig;
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
   // Both GET and POST require auth via query params or body
@@ -72,23 +83,23 @@ exports.handler = async (event) => {
     try {
       body = JSON.parse(event.body || '{}');
     } catch {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+      return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
     }
     authUser = body.auth && body.auth.user;
     authHash = body.auth && body.auth.passwordHash;
 
     if (!authUser || !authHash) {
-      return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+      return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
     }
 
     if (!validateAuth(authUser, authHash, usersConfig)) {
-      return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+      return { statusCode: 403, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
     }
 
     // Save settings
     const { settings } = body;
     if (!settings || typeof settings !== 'object') {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'settings object required' }) };
+      return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'settings object required' }) };
     }
 
     try {
@@ -113,22 +124,22 @@ exports.handler = async (event) => {
 
       return {
         statusCode: 200,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
         body: JSON.stringify({ ok: true, message: 'Settings saved.' }),
       };
     } catch (err) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Failed to save: ' + err.message }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Failed to save: ' + err.message }) };
     }
   } else {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   // GET — load settings
   if (!authUser || !authHash) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
   }
   if (!validateAuth(authUser, authHash, usersConfig)) {
-    return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 403, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   try {
@@ -139,7 +150,7 @@ exports.handler = async (event) => {
     // Mask the OpenAI key for display
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ok: true,
         settings: {
@@ -152,6 +163,6 @@ exports.handler = async (event) => {
       }),
     };
   } catch (err) {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Failed to load: ' + err.message }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Failed to load: ' + err.message }) };
   }
 };

@@ -21,11 +21,22 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash) {
   let usersConfig;
@@ -69,12 +80,12 @@ function parseAuth(headers) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
 
   const { user: authUser, hash: authHash } = parseAuth(event.headers);
   if (!validateAuth(authUser, authHash)) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
   const store = blobStore({ name: 'sales-records', consistency: 'strong' });
@@ -86,12 +97,12 @@ exports.handler = async (event) => {
       const records = await store.get(RECORDS_KEY, { type: 'json' });
       return {
         statusCode: 200,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
         body: JSON.stringify(records || []),
       };
     } catch (err) {
       console.error('Sales GET error:', err);
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Failed to read sales records' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Failed to read sales records' }) };
     }
   }
 
@@ -101,12 +112,12 @@ exports.handler = async (event) => {
     try {
       body = JSON.parse(event.body);
     } catch {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+      return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
     }
 
     const record = body.record;
     if (!record || !record.vehicleId) {
-      return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Missing record or vehicleId' }) };
+      return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Missing record or vehicleId' }) };
     }
 
     try {
@@ -122,14 +133,14 @@ exports.handler = async (event) => {
       await store.setJSON(RECORDS_KEY, existing);
       return {
         statusCode: 200,
-        headers: { ...CORS, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
         body: JSON.stringify({ ok: true, count: existing.length }),
       };
     } catch (err) {
       console.error('Sales POST error:', err);
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Failed to write sales record' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Failed to write sales record' }) };
     }
   }
 
-  return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+  return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
 };

@@ -23,11 +23,22 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash) {
   let usersConfig;
@@ -195,13 +206,13 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
 
   // Auth check
   const { user: authUser, hash: authHash } = parseAuth(event.headers);
   if (!validateAuth(authUser, authHash)) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Unauthorized' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Unauthorized' }) };
   }
 
   const params = event.queryStringParameters || {};
@@ -216,7 +227,7 @@ exports.handler = async (event) => {
         const goals = await analyticsStore.get(goalsKey, { type: 'json' });
         return {
           statusCode: 200,
-          headers: { ...CORS, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
           body: JSON.stringify(goals || {
             monthlyLeads: 50,
             monthlyVisitors: 500,
@@ -229,7 +240,7 @@ exports.handler = async (event) => {
       if (event.httpMethod === 'POST') {
         let body;
         try { body = JSON.parse(event.body); } catch {
-          return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+          return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
         }
         const goals = {
           monthlyLeads: Number(body.monthlyLeads) || 50,
@@ -242,21 +253,62 @@ exports.handler = async (event) => {
         await analyticsStore.setJSON(goalsKey, goals);
         return {
           statusCode: 200,
-          headers: { ...CORS, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
           body: JSON.stringify(goals),
         };
       }
 
-      return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+      return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
     } catch (err) {
       console.error('Goals error:', err);
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Internal error' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Internal error' }) };
+    }
+  }
+
+  // ─── Reset Analytics (wipe all daily KPI data, preserve inventory & goals) ──
+  if (params.action === 'reset') {
+    if (event.httpMethod !== 'POST' && event.httpMethod !== 'DELETE') {
+      return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Use POST or DELETE for reset' }) };
+    }
+    try {
+      const analyticsStore = blobStore({ name: 'site-analytics', consistency: 'strong' });
+      const salesStore = blobStore({ name: 'sales-records', consistency: 'strong' });
+
+      // List and delete all daily:* analytics keys (preserve config:goals)
+      let deletedCount = 0;
+      const listed = await analyticsStore.list();
+      const blobs = (listed && listed.blobs) ? listed.blobs : [];
+      for (const blob of blobs) {
+        const key = blob.key || blob;
+        if (typeof key === 'string' && key.startsWith('daily:')) {
+          await analyticsStore.delete(key);
+          deletedCount++;
+        }
+      }
+
+      // Reset sales records (cars sold counter) — inventory is NOT touched
+      await salesStore.setJSON('all', []);
+
+      return {
+        statusCode: 200,
+        headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ok: true,
+          message: 'Analytics data wiped. Inventory preserved.',
+          deletedDailyKeys: deletedCount,
+          resetBy: authUser,
+          resetAt: new Date().toISOString(),
+        }),
+      };
+    } catch (err) {
+      console.error('Reset error:', err);
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Reset failed: ' + err.message }) };
     }
   }
 
   // ─── Stats Aggregation ──────────────────────────────────────────────────────
   if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   const period = params.period || 'week';
@@ -464,14 +516,14 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
       body: JSON.stringify(result),
     };
   } catch (err) {
     console.error('Dashboard stats error:', err);
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Internal error' }),
     };
   }

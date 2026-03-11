@@ -14,11 +14,22 @@
 
 const crypto = require('crypto');
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
@@ -68,10 +79,10 @@ If NOT an OEM label, set paint_code, color_name, raw_text to "" and confidence t
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   // Build users config
@@ -79,31 +90,31 @@ exports.handler = async (event) => {
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { auth, imageUrl } = body;
 
   if (!auth || !auth.user || !auth.passwordHash) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
   }
   if (!validateAuth(auth.user, auth.passwordHash, usersConfig)) {
-    return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 403, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   if (!imageUrl || typeof imageUrl !== 'string') {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'imageUrl is required (string)' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'imageUrl is required (string)' }) };
   }
 
   // Resolve OpenAI API key
@@ -132,7 +143,7 @@ exports.handler = async (event) => {
   if (!openaiKey) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'No OpenAI API key configured.' }),
     };
   }
@@ -164,7 +175,7 @@ exports.handler = async (event) => {
       const errText = await res.text();
       return {
         statusCode: res.status === 429 ? 429 : 502,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'OpenAI API error: ' + res.status, detail: errText }),
       };
     }
@@ -179,7 +190,7 @@ exports.handler = async (event) => {
     } catch {
       return {
         statusCode: 502,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'Failed to parse AI response', raw: content }),
       };
     }
@@ -200,7 +211,7 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 502,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'OEM label detection failed: ' + err.message }),
     };
   }

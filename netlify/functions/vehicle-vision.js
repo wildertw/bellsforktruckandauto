@@ -13,11 +13,22 @@
 
 const crypto = require('crypto');
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
@@ -55,10 +66,10 @@ Return ONLY the JSON object. No markdown formatting, no code fences, no explanat
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   // Build users config
@@ -66,11 +77,11 @@ exports.handler = async (event) => {
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
   // Parse body
@@ -78,28 +89,28 @@ exports.handler = async (event) => {
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { auth, imageUrls } = body;
 
   // Validate auth
   if (!auth || !auth.user || !auth.passwordHash) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
   }
   if (!validateAuth(auth.user, auth.passwordHash, usersConfig)) {
-    return { statusCode: 403, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 403, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   // Validate imageUrls
   if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'imageUrls must be a non-empty array' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'imageUrls must be a non-empty array' }) };
   }
   const validUrls = imageUrls
     .filter(url => typeof url === 'string' && url.startsWith('https://'))
     .slice(0, 5);
   if (validUrls.length === 0) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'No valid HTTPS image URLs provided' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'No valid HTTPS image URLs provided' }) };
   }
 
   // Resolve OpenAI API key: env var → blob settings → Authorization header
@@ -129,7 +140,7 @@ exports.handler = async (event) => {
   if (!openaiKey) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY env var or provide key in Settings.' }),
     };
   }
@@ -167,7 +178,7 @@ exports.handler = async (event) => {
       const status = res.status === 429 ? 429 : 502;
       return {
         statusCode: status,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'OpenAI API error: ' + res.status, detail: errText }),
       };
     }
@@ -184,7 +195,7 @@ exports.handler = async (event) => {
     } catch {
       return {
         statusCode: 502,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({ error: 'Failed to parse AI response as JSON', raw: content }),
       };
     }
@@ -201,7 +212,7 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 502,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Vision API call failed: ' + err.message }),
     };
   }

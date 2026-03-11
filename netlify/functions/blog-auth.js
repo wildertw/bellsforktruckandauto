@@ -14,11 +14,22 @@
 
 const crypto = require('crypto');
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
 
 function b64url(buf) {
   return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -33,18 +44,18 @@ function createJWT(payload, secret) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   const secret = process.env.BLOG_JWT_SECRET;
   if (!secret) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Server configuration error: BLOG_JWT_SECRET not set' }),
     };
   }
@@ -53,24 +64,24 @@ exports.handler = async (event) => {
   try {
     const envUsers = process.env.BLOG_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS not set' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS not set' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS invalid' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: BLOG_ADMIN_USERS invalid' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid request body' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid request body' }) };
   }
 
   const { username, passwordHash } = body;
 
   if (!username || !passwordHash) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Username and passwordHash required' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Username and passwordHash required' }) };
   }
 
   const normalized = username.trim().toLowerCase();
@@ -89,7 +100,7 @@ exports.handler = async (event) => {
   if (!matches) {
     // Artificial delay to slow brute-force attempts
     await new Promise(r => setTimeout(r, 600));
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   const displayName = normalized.charAt(0).toUpperCase() + normalized.slice(1);
@@ -102,14 +113,14 @@ exports.handler = async (event) => {
 
   // Set HTTP-only cookie for Edge Function auth gate
   const cookieMaxAge = 8 * 60 * 60; // 8 hours (matches JWT expiry)
-  const isProduction = (process.env.URL || '').includes('bellsforkautoandtruck.com');
+  const isProduction = (process.env.URL || '').includes('bellsforktruckandauto.com');
   const securePart = isProduction ? '; Secure' : '';
   const cookieHeader = `bf_admin_token=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${cookieMaxAge}${securePart}`;
 
   return {
     statusCode: 200,
     headers: {
-      ...CORS,
+      ...corsHeaders(event),
       'Content-Type': 'application/json',
       'Set-Cookie': cookieHeader,
     },

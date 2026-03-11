@@ -31,11 +31,22 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
 
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
@@ -84,10 +95,10 @@ function githubRequest(method, urlPath, token, body) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   const GITHUB_TOKEN      = process.env.GITHUB_TOKEN;
@@ -97,7 +108,7 @@ exports.handler = async (event) => {
   if (!GITHUB_TOKEN || !GITHUB_REPO_OWNER || !GITHUB_REPO_NAME) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'GitHub env vars not configured. Contact site admin.' }),
     };
   }
@@ -106,27 +117,27 @@ exports.handler = async (event) => {
   try {
     const envUsers = process.env.INVENTORY_ADMIN_USERS;
     if (!envUsers) {
-      return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
+      return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS not set' }) };
     }
     usersConfig = JSON.parse(envUsers);
   } catch {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON body' }) };
   }
 
   const { auth } = body;
   if (!auth || !auth.user || !auth.passwordHash) {
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Authentication required' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Authentication required' }) };
   }
   if (!validateAuth(auth.user, auth.passwordHash, usersConfig)) {
     await new Promise(r => setTimeout(r, 600));
-    return { statusCode: 401, headers: CORS, body: JSON.stringify({ error: 'Invalid credentials' }) };
+    return { statusCode: 401, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
 
   // Read staged inventory from Blobs
@@ -137,7 +148,7 @@ exports.handler = async (event) => {
   } catch (err) {
     return {
       statusCode: 500,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'Could not read staged inventory: ' + err.message }),
     };
   }
@@ -145,7 +156,7 @@ exports.handler = async (event) => {
   if (!staged || !Array.isArray(staged.vehicles)) {
     return {
       statusCode: 404,
-      headers: CORS,
+      headers: corsHeaders(event),
       body: JSON.stringify({ error: 'No staged inventory found. Please upload and stage first.' }),
     };
   }
@@ -156,7 +167,7 @@ exports.handler = async (event) => {
     if (stagedAge > 60 * 60 * 1000) {
       return {
         statusCode: 409,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({
           error: 'Staged inventory is stale (staged ' + Math.round(stagedAge / 60000) + ' minutes ago). Please re-stage before publishing.',
         }),
@@ -173,7 +184,7 @@ exports.handler = async (event) => {
       if (lockAge < 120000) { // Lock is still valid (2 minute TTL)
         return {
           statusCode: 409,
-          headers: CORS,
+          headers: corsHeaders(event),
           body: JSON.stringify({
             error: 'Another publish is in progress (by ' + (existingLock.user || 'unknown') + '). Please wait and try again.',
           }),
@@ -208,7 +219,7 @@ exports.handler = async (event) => {
     if (getResult.status !== 200) {
       return {
         statusCode: 502,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({
           error: `Could not fetch inventory.json from GitHub (HTTP ${getResult.status}). Check GITHUB_TOKEN and repo settings.`,
         }),
@@ -222,7 +233,7 @@ exports.handler = async (event) => {
       message: commitMessage,
       content: base64Content,
       sha: currentSHA,
-      committer: { name: 'Bells Fork Admin', email: 'admin@bellsforkautoandtruck.com' },
+      committer: { name: 'Bells Fork Admin', email: 'admin@bellsforktruckandauto.com' },
     });
 
     if (putResult.status !== 200 && putResult.status !== 201) {
@@ -230,7 +241,7 @@ exports.handler = async (event) => {
       const isConflict = putResult.status === 409 || (putResult.data.message || '').includes('sha');
       return {
         statusCode: 502,
-        headers: CORS,
+        headers: corsHeaders(event),
         body: JSON.stringify({
           error: isConflict
             ? 'Conflict: inventory.json was modified by another process. Please re-stage and try again.'

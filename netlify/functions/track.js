@@ -21,11 +21,22 @@ function blobStore(nameOrOpts) {
   return getStore({ ...nameOrOpts, ...cfg });
 }
 
-const CORS = {
-  'Access-Control-Allow-Origin': process.env.URL || 'https://bellsforkautoandtruck.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin',
+  };
+}
 
 const VALID_TYPES = ['page_view', 'phone_click', 'form_submit', 'session_start', 'session_end'];
 const MAX_UNIQUE_VISITORS = 10000;
@@ -73,18 +84,18 @@ function ensureFields(daily) {
 exports.handler = async (event) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS, body: '' };
+    return { statusCode: 200, headers: corsHeaders(event), body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   let body;
   try {
     body = JSON.parse(event.body);
   } catch {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
   const { type, visitorId, page } = body;
@@ -92,10 +103,10 @@ exports.handler = async (event) => {
 
   // Validate
   if (!type || !VALID_TYPES.includes(type)) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid event type' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid event type' }) };
   }
   if (!visitorId || typeof visitorId !== 'string' || visitorId.length > 64) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'Invalid visitorId' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid visitorId' }) };
   }
 
   try {
@@ -175,9 +186,9 @@ exports.handler = async (event) => {
     // Write back
     await store.setJSON(key, daily);
 
-    return { statusCode: 204, headers: CORS, body: '' };
+    return { statusCode: 204, headers: corsHeaders(event), body: '' };
   } catch (err) {
     console.error('Track function error:', err);
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: 'Internal error' }) };
+    return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Internal error' }) };
   }
 };
