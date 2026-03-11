@@ -76,7 +76,7 @@ exports.handler = async (event) => {
         if (age < cacheHours * 60 * 60 * 1000) {
           return {
             statusCode: 200,
-            headers: { ...CORS, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+            headers: { ...corsHeaders(event), 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
             body: JSON.stringify({ ok: true, reviews: cached.reviews, source: 'cache', fetchedAt: cached.fetchedAt }),
           };
         }
@@ -99,7 +99,7 @@ exports.handler = async (event) => {
     }
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ok: true,
         reviews: manualReviews,
@@ -182,7 +182,7 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
       body: JSON.stringify({
         ok: true,
         reviews: combined,

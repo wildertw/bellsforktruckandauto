@@ -128,19 +128,10 @@ function buildPopularHTML(vehicles) {
 }
 
 // ── Build reviews fallback HTML ──
+// No placeholder reviews — show a loading spinner that JS will replace with real Google reviews
 
 function buildReviewsHTML() {
-  const reviews = [
-    { author: 'Michael R.', rating: 5, text: 'Found a great F-150 at Bells Fork. The price was fair and they were upfront about everything. No pressure, no games. Highly recommend.' },
-    { author: 'Sarah J.', rating: 5, text: 'Bought a used RAV4 here and it was exactly as described. They showed me the inspection report and walked me through everything. Honest dealers are hard to find.' },
-    { author: 'David P.', rating: 5, text: 'Picked up a diesel RAM for my business. They had it ready and the whole process was smooth. Best vehicle buying experience I\'ve had.' },
-  ];
-
-  return reviews.map(r => {
-    let stars = '';
-    for (let i = 0; i < 5; i++) stars += i < r.rating ? '\u2605' : '\u2606';
-    return `<div class="col-md-4"><div class="card p-4 h-100 border-0 shadow-sm"><div class="text-warning mb-2">${stars}</div><p class="fst-italic text-muted">\u201c${escapeHtml(r.text)}\u201d</p><div class="fw-bold mt-auto">\u2013 ${escapeHtml(r.author)}</div></div></div>`;
-  }).join('');
+  return '<div class="col-12 text-center py-4"><div class="spinner-border text-muted" role="status"><span class="visually-hidden">Loading reviews...</span></div></div>';
 }
 
 // ── Main ──
