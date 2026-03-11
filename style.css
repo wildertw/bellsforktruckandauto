@@ -45,6 +45,40 @@ body {
   top: 0;
 }
 
+/* Navigation links */
+.bfat-navlink {
+  font-size: .88rem;
+  letter-spacing: .07em;
+  color: #ffffff !important;
+  transition: background .18s, color .18s;
+}
+.bfat-navlink:hover,
+.bfat-navlink:focus,
+.bfat-navlink.active {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+/* Footer link hover */
+.footer-link:hover {
+  color: #fff !important;
+}
+
+/* Identity bar */
+.site-identity-bar {
+  position: relative;
+}
+@media (max-width: 576px) {
+  .site-identity-bar .ms-auto { margin-left: 0 !important; }
+  .site-identity-bar a[style*="position:absolute"] {
+    position: static !important;
+    transform: none !important;
+    display: block;
+    text-align: center;
+    margin: .5rem auto;
+  }
+}
+
 /* Top Bar */
 .top-bar {
   background: var(--brand-dark);
@@ -1063,4 +1097,65 @@ html {
   .inv-action-col { width: 100%; min-width: 0; flex-direction: row; flex-wrap: wrap; }
   .inv-price-retail, .inv-price-main { flex: 0 0 100%; }
   .inv-btn { flex: 1; min-width: 120px; }
+}
+
+/* ── Filter section ── */
+.filter-section {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Mobile filter chips ── */
+.mobile-filter-chips {
+  display: none;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: .5rem;
+  padding: .25rem 0 .75rem;
+  margin-bottom: .5rem;
+}
+.mobile-filter-chips::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: .4rem .9rem;
+  border-radius: 20px;
+  border: 1.5px solid #dc3545;
+  background: #fff;
+  color: #dc3545;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.filter-chip.active {
+  background: #dc3545;
+  color: #fff;
+}
+.sort-chip {
+  flex-shrink: 0;
+  padding: .4rem .9rem;
+  border-radius: 20px;
+  border: 1.5px solid #333;
+  background: #fff;
+  color: #333;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  margin-left: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.sort-chip.active {
+  background: #333;
+  color: #fff;
+}
+@media (max-width: 767.98px) {
+  .mobile-filter-chips { display: flex; }
 }

@@ -64,6 +64,9 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/assets/favicon.png">
 
+  <!-- Preload LCP hero image (above the fold) -->
+  <link rel="preload" as="image" type="image/webp" href="/assets/hero/storefront-hero-opt.webp">
+
   <!-- Bootstrap 5 CSS (self-hosted) -->
   <link href="/assets/vendor/bootstrap.min.css" rel="stylesheet">
 
@@ -71,56 +74,6 @@
   <link href="/style.min.css" rel="stylesheet">
   <!-- Home inventory + featured carousel (Marks & Son style inspired) -->
   <style>
-  /* Skip to main content link (accessibility) */
-    .skip-link {
-      position: absolute;
-      top: -40px;
-      left: 0;
-      background: #dc3545;
-      color: #fff;
-      padding: 8px 16px;
-      z-index: 10000;
-      font-weight: 600;
-      text-decoration: none;
-      transition: top .2s;
-    }
-    .skip-link:focus {
-      top: 0;
-    }
-  /* Nav hover: red background on hover */
-    .bfat-navlink {
-      font-size: .88rem;
-      letter-spacing: .07em;
-      color: #ffffff !important;
-      transition: background .18s, color .18s;
-    }
-    .bfat-navlink:hover,
-    .bfat-navlink:focus,
-    .bfat-navlink.active {
-      background: #dc3545 !important;
-      color: #ffffff !important;
-    }
-    /* Footer link hover */
-    .footer-link:hover {
-      color: #fff !important;
-    }
-    /* Identity bar — keep position:relative for absolute logo centering */
-    .site-identity-bar {
-      position: relative;
-    }
-    /* Responsive: stack on mobile */
-    @media (max-width: 576px) {
-      .site-identity-bar .ms-auto { margin-left: 0 !important; }
-      .site-identity-bar a[style*="position:absolute"] {
-        position: static !important;
-        transform: none !important;
-        display: block;
-        text-align: center;
-        margin: .5rem auto;
-      }
-    }
-
-
     /* ===== Hero background (static image) ===== */
     .hero { position: relative; overflow: hidden; padding-bottom: 60px; }
     .hero-bg { position: absolute; inset: 0; z-index: 0; }

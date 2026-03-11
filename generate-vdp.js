@@ -391,9 +391,11 @@ function generateVDPHtml(v, allVehicles) {
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
 
-  <!-- Bootstrap 5 CSS + Swiper (self-hosted) -->
+  <!-- Bootstrap 5 CSS (self-hosted) -->
   <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css">
+  <!-- Swiper CSS: load async, swap once ready (gallery is below fold on mobile) -->
+  <link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css"></noscript>
 
   <!-- Custom Styles -->
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
@@ -404,32 +406,6 @@ ${buildSchema(v)}
   </script>
 
   <style>
-    /* Nav hover: red background on hover */
-    .bfat-navlink {
-      font-size: .88rem;
-      letter-spacing: .07em;
-      color: #ffffff !important;
-      transition: background .18s, color .18s;
-    }
-    .bfat-navlink:hover,
-    .bfat-navlink:focus,
-    .bfat-navlink.active {
-      background: #dc3545 !important;
-      color: #ffffff !important;
-    }
-    .footer-link:hover { color: #fff !important; }
-    .site-identity-bar { position: relative; }
-    @media (max-width: 576px) {
-      .site-identity-bar .ms-auto { margin-left: 0 !important; }
-      .site-identity-bar a[style*="position:absolute"] {
-        position: static !important;
-        transform: none !important;
-        display: block;
-        text-align: center;
-        margin: .5rem auto;
-      }
-    }
-
     /* ═══ VDP Styles ═══ */
     .vdp-main { background: #f1f1f1; padding-bottom: 3rem; }
 
@@ -835,7 +811,7 @@ ${buildSchema(v)}
     <section aria-label="Vehicle photos">
 ${vdpPubImages.length > 0 ? `      <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
         <div class="swiper-wrapper">
-          ${vdpPubImages.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
         <div class="swiper-pagination"></div>
         <div class="swiper-button-prev d-none d-md-flex"></div>
@@ -843,7 +819,7 @@ ${vdpPubImages.length > 0 ? `      <div class="swiper vdp-gallery" style="border
       </div>
       <div class="swiper vdp-thumbs mt-2" style="height:80px;">
         <div class="swiper-wrapper">
-          ${vdpPubImages.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
       </div>` : `      <div class="d-flex align-items-center justify-content-center" style="height:300px;background:#e9e9e9;color:#999;">
         <div class="text-center">
@@ -912,7 +888,7 @@ ${techSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-s
               Appearance
             </div>
             <div class="vdp-spec-grid">
-${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${s.swatch ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${s.swatch};border:1px solid #ccc;vertical-align:middle;margin-right:5px;"></span>` : ''}${escapeHtml(s.value)}</div></div>`).join('\n')}
+${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${s.swatch ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${s.swatch};border:1px solid #ccc;vertical-align:middle;margin-right:5px;" title="Approximate color swatch"></span>` : ''}${escapeHtml(s.value)}</div></div>`).join('\n')}
             </div>
           </div>
 
@@ -1096,7 +1072,7 @@ ${similar.map(sv => {
   const svMiles = sv.mileage ? `${Number(sv.mileage).toLocaleString()} mi` : '';
   return `          <div class="col-6 col-md-4 col-lg-2">
             <a href="${svHref}" class="vdp-similar-card">
-${svImg ? `              <img src="${escapeAttr(svImg)}" alt="${escapeAttr(svTitle)}" loading="lazy">` : `              <div style="height:160px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8rem;">No Photo</div>`}
+${svImg ? `              <img src="${escapeAttr(svImg)}" alt="${escapeAttr(svTitle)}" width="200" height="160" loading="lazy">` : `              <div style="height:160px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8rem;">No Photo</div>`}
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">${escapeHtml(svTitle)}</div>
                 <div class="vdp-similar-price">${escapeHtml(svPrice)}</div>
@@ -1222,7 +1198,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   }
 
   </script>
-  <script src="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.js"></script>
+  <script src="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.js" defer></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}

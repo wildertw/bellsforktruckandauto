@@ -55,11 +55,11 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="/assets/favicon.png">
 
-  <!-- Preconnect -->
-
-  <!-- Bootstrap 5 CSS + Swiper (self-hosted) -->
+  <!-- Bootstrap 5 CSS (self-hosted) -->
   <link href="/assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css">
+  <!-- Swiper CSS: load async, swap once ready (gallery is below fold on mobile) -->
+  <link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css"></noscript>
 
   <!-- Custom Styles -->
   <link href="/style.min.css" rel="stylesheet">
@@ -263,32 +263,6 @@
   </script>
 
   <style>
-    /* Nav hover: red background on hover */
-    .bfat-navlink {
-      font-size: .88rem;
-      letter-spacing: .07em;
-      color: #ffffff !important;
-      transition: background .18s, color .18s;
-    }
-    .bfat-navlink:hover,
-    .bfat-navlink:focus,
-    .bfat-navlink.active {
-      background: #dc3545 !important;
-      color: #ffffff !important;
-    }
-    .footer-link:hover { color: #fff !important; }
-    .site-identity-bar { position: relative; }
-    @media (max-width: 576px) {
-      .site-identity-bar .ms-auto { margin-left: 0 !important; }
-      .site-identity-bar a[style*="position:absolute"] {
-        position: static !important;
-        transform: none !important;
-        display: block;
-        text-align: center;
-        margin: .5rem auto;
-      }
-    }
-
     /* ═══ VDP Styles ═══ */
     .vdp-main { background: #f1f1f1; padding-bottom: 3rem; }
 
@@ -694,14 +668,14 @@
     <section aria-label="Vehicle photos">
       <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
         <div class="swiper-wrapper">
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg" alt="2021 Ford Bronco Sport Outer Banks" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
         </div>
         <div class="swiper-pagination"></div>
         <div class="swiper-button-prev d-none d-md-flex"></div>
@@ -709,14 +683,14 @@
       </div>
       <div class="swiper vdp-thumbs mt-2" style="height:80px;">
         <div class="swiper-wrapper">
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
-          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg" alt="Thumbnail" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728611/qcegyslxpfgnhhkj1tgg.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/mvdqfrzkpiq0r5n5dgov.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728612/ylkxg1gmfvjvguy76j6d.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728613/iqxqkawvdut1aeqhgkai.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728614/j8uxsz5w1nrsqm0qxiit.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/a5w6usthdfhpomecdgkm.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
+          <div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>
         </div>
       </div>
     </section>
@@ -941,7 +915,7 @@
         <div class="row g-3">
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/02937BF/Used-2020-Chevrolet-Tahoe-LT-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1GNSKBKC2LR309210-01.jpg" alt="2020 Chevrolet Tahoe LT" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1GNSKBKC2LR309210-01.jpg" alt="2020 Chevrolet Tahoe LT" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2020 Chevrolet Tahoe LT</div>
                 <div class="vdp-similar-price">$27,000</div>
@@ -951,7 +925,7 @@
           </div>
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/02924BF/Used-2019-Ford-F-150-XLT-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1FTEW1C59KFA20135-01.jpg" alt="2019 Ford F-150 XLT" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1FTEW1C59KFA20135-01.jpg" alt="2019 Ford F-150 XLT" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2019 Ford F-150 XLT</div>
                 <div class="vdp-similar-price">$26,500</div>
@@ -961,7 +935,7 @@
           </div>
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/02915BFA/Used-2019-Ford-F-150-LARIAT-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1FTEW1E53KFB96224-01.jpg" alt="2019 Ford F-150 LARIAT" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1FTEW1E53KFB96224-01.jpg" alt="2019 Ford F-150 LARIAT" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2019 Ford F-150 LARIAT</div>
                 <div class="vdp-similar-price">$60,000</div>
@@ -971,7 +945,7 @@
           </div>
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/E83738BF/Used-2013-Ford-F-150-XL-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1FTFX1EF6DKE83738-01.jpg" alt="2013 Ford F-150 XL" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1FTFX1EF6DKE83738-01.jpg" alt="2013 Ford F-150 XL" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2013 Ford F-150 XL</div>
                 <div class="vdp-similar-price">$15,000</div>
@@ -981,7 +955,7 @@
           </div>
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/289449BF/Used-2015-Chevrolet-Suburban-LT-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1GNSCJKC7FR289449-01.jpg" alt="2015 Chevrolet Suburban LT" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1GNSCJKC7FR289449-01.jpg" alt="2015 Chevrolet Suburban LT" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2015 Chevrolet Suburban LT</div>
                 <div class="vdp-similar-price">$15,000</div>
@@ -991,7 +965,7 @@
           </div>
           <div class="col-6 col-md-4 col-lg-2">
             <a href="/vdp/B02234BF/Used-2016-Ford-F-250-PLATINUM-for-sale-in-Greenville-NC-27858/" class="vdp-similar-card">
-              <img src="/assets/vehicles/VEHICLE-1FT7W2BT0GEB02234-01.jpg" alt="2016 Ford F-250 PLATINUM" loading="lazy">
+              <img src="/assets/vehicles/VEHICLE-1FT7W2BT0GEB02234-01.jpg" alt="2016 Ford F-250 PLATINUM" width="200" height="160" loading="lazy">
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">2016 Ford F-250 PLATINUM</div>
                 <div class="vdp-similar-price">$32,000</div>
@@ -1116,7 +1090,7 @@
   }
 
   </script>
-  <script src="/assets/vendor/swiper-bundle.min.js"></script>
+  <script src="/assets/vendor/swiper-bundle.min.js" defer></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}

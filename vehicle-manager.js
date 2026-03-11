@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
   setupInventorySearch();
   setupAISettings();
   setupAIDescription();
+  setupSwatchPreviews();
   loadInventoryTable();
   renderImagePreview();
   updateInventoryStatus();
@@ -206,6 +207,93 @@ async function detectOemLabels(imageKeys) {
     }
   }
   return { oem_scan: oemScan, photo_roles: photoRoles };
+}
+
+// ─── Swatch Hex Preview ──────────────────────────────────────────────────────
+function updateSwatchPreview(inputId, previewId) {
+  const input = $(inputId);
+  const chip = $(previewId);
+  if (!input || !chip) return;
+  const hex = (input.value || '').trim();
+  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+    chip.style.background = hex;
+  } else {
+    chip.style.background = '#eee';
+  }
+}
+
+function setupSwatchPreviews() {
+  const addInput = $('addSwatchHex');
+  if (addInput) {
+    addInput.addEventListener('input', function () {
+      updateSwatchPreview('addSwatchHex', 'addSwatchPreview');
+    });
+  }
+  const editInput = $('editSwatchHex');
+  if (editInput) {
+    editInput.addEventListener('input', function () {
+      updateSwatchPreview('editSwatchHex', 'editSwatchPreview');
+    });
+  }
+}
+
+// ─── OEM/Color Detection Preview Panel ───────────────────────────────────────
+function renderOemColorPreview(vehicle) {
+  var panel = $('oemColorDetection');
+  if (!panel) return;
+
+  var v = vehicle || {};
+  var oemScan = v.oem_scan || {};
+  var hasOemData = !!(oemScan.paint_code || oemScan.color_name || oemScan.confidence);
+  var hasColorDisplay = !!(v.color_display || v.paintCode || v.swatchHex);
+
+  if (!hasOemData && !hasColorDisplay) {
+    panel.classList.add('hide');
+    return;
+  }
+
+  panel.classList.remove('hide');
+
+  // Resolve color display for preview
+  var cd = v.color_display;
+  if (!cd && window.ColorLookup && window.ColorLookup.resolveVehicleColorDisplay) {
+    cd = window.ColorLookup.resolveVehicleColorDisplay(v);
+  }
+  cd = cd || {};
+
+  // Populate fields
+  var el;
+  el = $('oemDetectedLabel');
+  if (el) el.textContent = hasOemData ? 'Yes' : 'No';
+
+  el = $('oemConfidenceLabel');
+  if (el) {
+    var conf = oemScan.confidence || 0;
+    if (conf >= 0.8) el.textContent = 'High (' + Math.round(conf * 100) + '%)';
+    else if (conf >= 0.5) el.textContent = 'Medium (' + Math.round(conf * 100) + '%)';
+    else if (conf > 0) el.textContent = 'Low (' + Math.round(conf * 100) + '%)';
+    else el.textContent = '—';
+  }
+
+  el = $('oemExtPaintCode');
+  if (el) el.textContent = oemScan.paint_code || '—';
+
+  el = $('oemExtColor');
+  if (el) el.textContent = oemScan.color_name || '—';
+
+  el = $('oemFinalColor');
+  if (el) el.textContent = cd.exterior_color_name || v.exteriorColor || '—';
+
+  el = $('oemFinalPaintCode');
+  if (el) el.textContent = cd.paint_code || v.paintCode || '—';
+
+  // Swatch
+  var swatchHex = v.swatchHex || cd.web_swatch_hex || '';
+  el = $('oemSwatchChip');
+  if (el) el.style.background = /^#[0-9A-Fa-f]{6}$/.test(swatchHex) ? swatchHex : '#eee';
+
+  el = $('oemSwatchLabel');
+  if (el) el.textContent = swatchHex ? (cd.web_swatch_label || 'Approximate website sample') : '—';
 }
 
 // ─── Dynamic year max ──────────────────────────────────────────────────────────
@@ -778,7 +866,8 @@ function setupFormHandlers() {
         badge:         g('badge'),
         images:        [],
         dateAdded:     new Date().toISOString(),
-        paintCode:     '',
+        paintCode:     g('paintCode') || '',
+        swatchHex:     g('swatchHex') || '',
         oem_scan:      null,
         photo_roles:   [],
         color_display: null,
@@ -827,6 +916,7 @@ function setupFormHandlers() {
               vehicle.color_display = window.ColorLookup.resolveVehicleColorDisplay(vehicle);
             }
           }
+          renderOemColorPreview(vehicle);
           if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = isEdit ? 'Update Vehicle' : 'Add Vehicle'; }
         } catch (oemErr) {
           console.warn('OEM detection error (non-fatal):', oemErr.message);
@@ -852,7 +942,8 @@ function setupFormHandlers() {
         if (!newImageKeys.length) {
           vehicle.oem_scan = editTarget.oem_scan || vehicle.oem_scan;
           vehicle.photo_roles = editTarget.photo_roles || vehicle.photo_roles;
-          vehicle.paintCode = editTarget.paintCode || vehicle.paintCode;
+          vehicle.paintCode = vehicle.paintCode || editTarget.paintCode || '';
+          vehicle.swatchHex = vehicle.swatchHex || editTarget.swatchHex || '';
           vehicle.color_display = editTarget.color_display || vehicle.color_display;
         }
         inv.vehicles[EDIT_INDEX] = vehicle;
@@ -910,10 +1001,18 @@ function startEdit(idx) {
   set('type', v.type || '');
   set('exteriorColor', v.exteriorColor || '');
   set('interiorColor', v.interiorColor || '');
+  set('paintCode', v.paintCode || '');
+  set('swatchHex', v.swatchHex || '');
   set('description', v.description || '');
   set('features', Array.isArray(v.features) ? v.features.join(', ') : (v.features || ''));
   set('status', v.status || 'available');
   set('badge', v.badge || '');
+
+  // Update swatch preview chip
+  updateSwatchPreview('addSwatchHex', 'addSwatchPreview');
+
+  // Show OEM/Color Detection panel if data exists
+  renderOemColorPreview(v);
 
   // Clear file input
   const photos = $('photos');
@@ -970,6 +1069,15 @@ function cancelEdit() {
 
   const title = $('formTitle');
   if (title) title.textContent = 'Step 2: Add Vehicle';
+
+  // Hide OEM preview panel and clear new fields
+  var oemPanel = $('oemColorDetection');
+  if (oemPanel) oemPanel.classList.add('hide');
+  var pcField = $('addPaintCode');
+  if (pcField) pcField.value = '';
+  var shField = $('addSwatchHex');
+  if (shField) shField.value = '';
+  updateSwatchPreview('addSwatchHex', 'addSwatchPreview');
 
   renderImagePreview();
   updateLivePreview();

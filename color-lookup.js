@@ -310,8 +310,23 @@ function reverseLookupColorName(make, colorName, year) {
 // ── Main resolution function ──
 // Resolves final display color from all available sources.
 // Returns a color_display object.
+// If vehicle.swatchHex is set (manual override), it takes precedence for the swatch hex value.
 function resolveVehicleColorDisplay(vehicle) {
   const v = vehicle || {};
+  const result = _resolveVehicleColorCore(v);
+
+  // Manual swatchHex override: if set, it wins for web_swatch_hex display
+  const manualSwatch = (v.swatchHex || '').trim();
+  if (/^#[0-9A-Fa-f]{6}$/.test(manualSwatch)) {
+    result.web_swatch_hex = manualSwatch;
+    result.web_swatch_label = result.web_swatch_label || 'Manual swatch';
+    result.is_approximate_swatch = true;
+  }
+
+  return result;
+}
+
+function _resolveVehicleColorCore(v) {
   const result = {
     exterior_color_name: null,
     paint_code: null,
