@@ -232,6 +232,7 @@ function buildCard(v) {
         <img src="${escapeAttr(resolvedSrc)}"
              alt="${escapeAttr(vehicleLabel)}"
              class="card-img-top"
+             width="400" height="220"
              style="height:220px; object-fit:cover;"
              loading="lazy" decoding="async">
       </a>`
@@ -346,13 +347,6 @@ ${buildItemListSchema(filtered, cat)}
   <script type="application/ld+json">
 ${buildFAQSchema(cat.faqs)}
   </script>
-  <style>
-    .bfat-navlink{font-size:.88rem;letter-spacing:.07em;color:#ffffff!important;transition:background .18s,color .18s}
-    .bfat-navlink:hover,.bfat-navlink:focus,.bfat-navlink.active{background:#dc3545!important;color:#ffffff!important}
-    .footer-link:hover{color:#fff!important}
-    .site-identity-bar{position:relative}
-    @media(max-width:576px){.site-identity-bar .ms-auto{margin-left:0!important}.site-identity-bar a[style*="position:absolute"]{position:static!important;transform:none!important;display:block;text-align:center;margin:.5rem auto}}
-  </style>
 </head>
 <body>
 

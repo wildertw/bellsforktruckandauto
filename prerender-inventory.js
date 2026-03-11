@@ -36,7 +36,7 @@ function buildRow(v) {
   const mainImage = pubImages.length > 0 ? String(pubImages[0]).trim() : '';
   const resolvedSrc = resolveImg(mainImage);
   const imgHtml = mainImage
-    ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" loading="lazy" decoding="async"${mainImage.startsWith('http') ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
+    ? `<img src="${escapeAttr(resolvedSrc)}" alt="${escapeAttr(title)}" width="260" height="200" loading="lazy" decoding="async"${mainImage.startsWith('http') ? '' : ` data-local-image="${escapeAttr(mainImage)}"`}>`
     : `<div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div>`;
 
   const fullTitle = title + (trim ? ' ' + trim : '');

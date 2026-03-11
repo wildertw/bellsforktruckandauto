@@ -1,13 +1,15 @@
 // Service Worker — Bells Fork Truck & Auto
 // Stale-while-revalidate for static assets, network-first for API calls
 
-const CACHE_NAME = 'bfat-v1';
+const CACHE_NAME = 'bfat-v2';
 const PRECACHE = [
   '/',
   '/style.min.css',
+  '/assets/vendor/bootstrap.min.css',
   '/assets/logo.webp',
   '/assets/logo.png',
   '/assets/favicon.png',
+  '/assets/hero/storefront-hero-opt.webp',
   '/assets/hero/shop-front-mobile.webp',
   '/assets/hero/shop-front-tablet.webp',
   '/assets/hero/shop-front-desktop.webp',

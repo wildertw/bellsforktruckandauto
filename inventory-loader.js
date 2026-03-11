@@ -137,6 +137,17 @@ class InventoryLoader {
     return images.filter(img => !excludeSet.has(img));
   }
 
+  buildColorChip(v) {
+    const cd = v.color_display || {};
+    const colorName = cd.exterior_color_name || v.exteriorColor || '';
+    const swatchHex = v.swatchHex || cd.web_swatch_hex || '';
+    if (!colorName && !swatchHex) return '';
+    const chip = /^#[0-9A-Fa-f]{6}$/.test(swatchHex)
+      ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;" title="Approximate color swatch"></span>`
+      : '';
+    return `<p class="text-muted small mb-2">${chip}${this.escapeHtml(colorName)}</p>`;
+  }
+
   createVehicleCard(v) {
     const priceRange = this.getPriceRange(v.price);
     const pubImages = this.getPublicImages(v);
@@ -171,6 +182,7 @@ class InventoryLoader {
                 <img src="${this.resolveImageUrl(mainImage)}"
                      alt="${v.year} ${v.make} ${v.model}"
                      class="card-img-top"
+                     width="400" height="220"
                      style="height:220px; object-fit:cover;"
                      loading="lazy" decoding="async"
                      onload="this.classList.add('loaded')"${localImageAttr}>
@@ -191,6 +203,7 @@ class InventoryLoader {
               <span class="badge bg-danger ms-2 flex-shrink-0">${this.formatMoney(v.price).replace('$', '$')}</span>
             </div>
             <p class="text-muted small mb-2">${v.description || ''}</p>
+            ${this.buildColorChip(v)}
             ${v.mileage ? `<p class="text-muted small mb-2"><strong>${Number(v.mileage).toLocaleString()} miles</strong></p>` : ''}
             ${mpgDisplay}
             ${stockDisplay}
@@ -412,7 +425,7 @@ class InventoryLoader {
 
     const isLocal = mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('blob:');
     const imgHtml = mainImage
-      ? `<img src="${this.escapeAttr(this.resolveImageUrl(mainImage))}" alt="${this.escapeAttr(yearMake + ' ' + model)}" loading="lazy"${isLocal ? ` data-local-image="${this.escapeAttr(mainImage)}"` : ''}>`
+      ? `<img src="${this.escapeAttr(this.resolveImageUrl(mainImage))}" alt="${this.escapeAttr(yearMake + ' ' + model)}" width="280" height="180" loading="lazy"${isLocal ? ` data-local-image="${this.escapeAttr(mainImage)}"` : ''}>`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;background:#e9e9e9;">
            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
              <rect x="3" y="7" width="18" height="10" rx="2"></rect>
