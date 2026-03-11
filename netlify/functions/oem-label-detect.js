@@ -197,7 +197,7 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: { ...CORS, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ok: true,
         is_oem_label_photo: !!analysis.is_oem_label,
