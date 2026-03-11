@@ -46,15 +46,22 @@ body {
 }
 
 /* Navigation links */
-.bfat-navlink {
+.nav-link.bfat-navlink {
   font-size: .88rem;
   letter-spacing: .07em;
-  color: #ffffff !important;
-  transition: background .18s, color .18s;
+  color: #dc3545 !important;
+  background: transparent !important;
+  transition: background .25s ease, color .25s ease;
 }
-.bfat-navlink:hover,
-.bfat-navlink:focus,
-.bfat-navlink.active {
+.nav-link.bfat-navlink:hover,
+.nav-link.bfat-navlink:focus-visible,
+.nav-link.bfat-navlink:focus {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+  outline: none;
+}
+.nav-link.bfat-navlink.active,
+.nav-item .nav-link.bfat-navlink[aria-current="page"] {
   background: #dc3545 !important;
   color: #ffffff !important;
 }
