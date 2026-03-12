@@ -82,12 +82,6 @@
   [headers.values]
     Cache-Control = "public, max-age=300, stale-while-revalidate=600"
 
-# Non-www to www canonical redirect
-[[redirects]]
-  from = "https://bellsforktruckandauto.com/*"
-  to = "https://www.bellsforktruckandauto.com/:splat"
-  status = 301
-  force = true
 
 [[redirects]]
   from = "/photos/*"
