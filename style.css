@@ -75,16 +75,25 @@ body {
 .site-identity-bar {
   position: relative;
 }
-@media (max-width: 576px) {
-  .site-identity-bar .ms-auto { margin-left: 0 !important; }
+@media (max-width: 767px) {
+  /* Hide phone/address on mobile — the fixed action bar handles Call/Directions */
+  .site-identity-bar .ms-auto { display: none !important; }
+  /* Re-center the flex row so logo column centers naturally */
+  .site-identity-bar .d-flex.justify-content-between { justify-content: center !important; }
+  /* Keep social icons column visible but reduce padding */
+  .site-identity-bar .d-flex.flex-column { min-width: auto !important; }
+  /* Logo: undo absolute positioning so it flows normally */
   .site-identity-bar a[style*="position:absolute"] {
     position: static !important;
     transform: none !important;
-    display: block;
-    text-align: center;
-    margin: .5rem auto;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
   }
+  /* Reduce vertical padding on mobile */
+  .site-identity-bar { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
 }
+
 
 /* Top Bar */
 .top-bar {
@@ -455,9 +464,9 @@ footer .border-secondary {
     padding-right: 15px;
   }
   
-  /* Better mobile footer */
+  /* Better mobile footer — extra bottom padding clears fixed action bar (~70px) */
   footer {
-    padding: 2rem 0 !important;
+    padding: 2rem 0 calc(2rem + 72px) !important;
   }
   
   footer .col-lg-4,
@@ -1124,6 +1133,9 @@ html {
   gap: .5rem;
   padding: .25rem 0 .75rem;
   margin-bottom: .5rem;
+  /* Fade-out on right edge to indicate more chips are scrollable */
+  mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black calc(100% - 48px), transparent 100%);
 }
 .mobile-filter-chips::-webkit-scrollbar { display: none; }
 .filter-chip {

@@ -456,6 +456,15 @@
     loadPosts();
   </script>
   <script src="/assets/js/tracker.js" defer></script>
+  <script src="/assets/js/sms-limiter.js" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+
+  <nav class="mobile-action-bar d-md-none" aria-label="Quick actions">
+    <a class="mobile-action" href="tel:+12524960005">Call</a>
+    <a class="mobile-action sms-limited" href="sms:+12529170551">Text</a>
+    <a class="mobile-action"
+      href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/@35.5641622,-77.367721,15z/data=!3m1!4b1!4m6!3m5!1s0x89aeddacc00176bf:0x2e8db9e8d1d56161!8m2!3d35.5641462!4d-77.349267!16s%2Fg%2F11yxj2p8q_?hl=en&entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D"
+       target="_blank" rel="noopener">Directions</a>
+  </nav>
 </body>
 </html>
