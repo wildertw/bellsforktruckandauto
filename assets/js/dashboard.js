@@ -426,11 +426,9 @@
       toggleAuth(true, blogUser);
       loginFeedback.textContent = '';
       await Promise.all([loadBlogPosts(), loadBlogComments()]);
-      // Only sync inventory from site if dashboard has no local data.
-      // Otherwise trust localStorage — it's the source of truth after edits.
-      if (!localStorage.getItem(INVENTORY_KEY)) {
-        loadInventoryFromSite();
-      }
+      // Always sync inventory from live site on login — inventory.json is the
+      // source of truth. localStorage is only used as a within-session buffer.
+      loadInventoryFromSite();
       // Load dashboard overview stats on login
       renderOverview();
     } catch (err) {
