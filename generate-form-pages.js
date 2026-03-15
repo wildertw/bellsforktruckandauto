@@ -85,7 +85,7 @@ function extractPaneContent(html, paneId) {
 function buildCrossLinks(currentSlug) {
   return FORM_PAGES
     .filter(p => p.slug !== currentSlug)
-    .map(p => `<a href="/${p.slug}/" class="btn btn-outline-secondary btn-sm me-2 mb-2">${p.title}</a>`)
+    .map(p => `<a href="/${p.slug}/" class="cross-link-btn">${p.title}</a>`)
     .join('');
 }
 
@@ -169,23 +169,37 @@ function generateFormPage(page, formContent) {
 
   <main>
     <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" style="background:#f9f9f9;border-bottom:1px solid #eee;padding:.6rem 0;font-size:.85rem;">
+    <nav class="bfat-breadcrumb" aria-label="Breadcrumb">
       <div class="container">
         <a href="${ASSET_PREFIX}index.html">Home</a>
-        <span class="mx-1">&rsaquo;</span>
+        <span class="separator">&rsaquo;</span>
         <a href="${ASSET_PREFIX}financing.html">Financing</a>
-        <span class="mx-1">&rsaquo;</span>
+        <span class="separator">&rsaquo;</span>
         <span>${escapeHtml(page.title)}</span>
       </div>
     </nav>
 
     <!-- Intro -->
-    <section class="py-4 py-md-5" style="background:#f1f1f1;">
+    <section class="page-intro">
       <div class="container">
         <h1 class="display-6 fw-bold mb-3">${escapeHtml(page.h1)}</h1>
         <p class="lead text-muted mb-0">${escapeHtml(page.intro)}</p>
       </div>
     </section>
+
+    ${page.slug === 'financing' ? `<!-- Progress Indicator -->
+    <ol class="form-progress" aria-label="Application sections">
+      <li class="active">Vehicle</li>
+      <li>Applicant</li>
+      <li>Employment</li>
+      <li>Trade-In</li>
+      <li>Submit</li>
+    </ol>
+    <!-- Security Notice -->
+    <div class="security-notice">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+      <span>This form is transmitted securely. Sensitive information like your SSN is optional and only used to pre-qualify you for financing.</span>
+    </div>` : ''}
 
     <!-- Form -->
     <section id="applications" class="py-4 py-md-5">
@@ -199,11 +213,11 @@ function generateFormPage(page, formContent) {
     </section>
 
     <!-- Cross-links -->
-    <section class="py-4 bg-light">
+    <section class="cross-links-section">
       <div class="container">
         <h2 class="h5 fw-bold mb-3">Other Services</h2>
         <div>${crossLinks}</div>
-        <a href="/inventory" class="btn btn-outline-dark btn-sm mt-2">Browse Inventory</a>
+        <a href="/inventory" class="cross-link-btn" style="border-color:var(--brand-primary);color:var(--brand-primary);">Browse Inventory</a>
       </div>
     </section>
   </main>
@@ -266,7 +280,7 @@ function generateFormPage(page, formContent) {
   </footer>
 
   <!-- Mobile Action Bar -->
-  <div class="mobile-action-bar d-lg-none">
+  <nav class="mobile-action-bar d-md-none" aria-label="Quick actions">
     <a href="tel:${DEALER_PHONE_TEL}" class="mobile-action" aria-label="Call us">
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/></svg>
       Call
@@ -279,7 +293,7 @@ function generateFormPage(page, formContent) {
       <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
       Directions
     </a>
-  </div>
+  </nav>
 
   <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
   <script>document.getElementById('year').textContent=new Date().getFullYear();</script>

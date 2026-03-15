@@ -3,14 +3,27 @@
 :root {
   /* Brand Colors */
   --brand-primary: #dc3545;
+  --brand-primary-dark: #c82333;
   --brand-secondary: #ffc107;
   --brand-dark: #1a1d23;
   --brand-light: #f8f9fa;
   --brand-text: #212529;
   --brand-text-muted: #6c757d;
-  
+  --brand-success: #28a745;
+
   /* Spacing */
   --section-padding: 80px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.1);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,.15);
+  --shadow-hover: 0 12px 30px rgba(0,0,0,.15);
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 }
 
 /* Typography */
@@ -928,8 +941,8 @@ html {
 .inv-row:hover { box-shadow: 0 4px 18px rgba(0,0,0,.13); }
 
 .inv-row-header {
-  background: #dc3545;
-  height: 10px;
+  background: var(--brand-primary);
+  height: 5px;
 }
 
 .inv-row-body {
@@ -1083,8 +1096,8 @@ html {
   transition: background .15s, border-color .15s, color .15s;
   line-height: 1.3;
 }
-.inv-btn-details  { background: #555; color: #fff; border-color: #555; }
-.inv-btn-details:hover { background: #333; color: #fff; }
+.inv-btn-details  { background: var(--brand-primary); color: #fff; border-color: var(--brand-primary); }
+.inv-btn-details:hover { background: var(--brand-primary-dark); color: #fff; }
 .inv-btn-inquiry  { background: #dc3545; color: #fff; border-color: #dc3545; }
 .inv-btn-inquiry:hover { background: #bb2d3b; color: #fff; }
 .inv-btn-financing{ background: #fff; color: #dc3545; border-color: #dc3545; }
@@ -1177,4 +1190,575 @@ html {
 }
 @media (max-width: 767.98px) {
   .mobile-filter-chips { display: flex; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   UX/UI POLISH — Production-grade improvements
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Improved FAQ Accordion ── */
+.accordion-item {
+  border: 1px solid #e9ecef;
+  border-radius: var(--radius-sm) !important;
+  margin-bottom: .5rem;
+  overflow: hidden;
+}
+.accordion-button {
+  font-weight: 600;
+  font-size: .95rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  color: var(--brand-text);
+}
+.accordion-button:not(.collapsed) {
+  background: #fef2f2;
+  color: var(--brand-primary);
+  box-shadow: none;
+}
+.accordion-button:focus {
+  box-shadow: 0 0 0 .2rem rgba(220,53,69,.15);
+  border-color: transparent;
+}
+.accordion-button::after {
+  background-size: 1rem;
+}
+.accordion-body {
+  font-size: .93rem;
+  line-height: 1.7;
+  color: var(--brand-text-muted);
+  padding: .75rem 1.25rem 1.25rem;
+}
+
+/* ── Shop by Body Style cards ── */
+.body-style-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--brand-text);
+  font-weight: 600;
+  font-size: .95rem;
+  transition: all .2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.body-style-card:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.body-style-card svg,
+.body-style-card .body-style-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--brand-primary);
+  opacity: .85;
+}
+.body-style-card:hover svg,
+.body-style-card:hover .body-style-icon {
+  opacity: 1;
+}
+
+/* ── Popular makes/models pill buttons ── */
+.pill-link {
+  display: inline-block;
+  padding: .5rem 1.25rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 50px;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  transition: all .2s ease;
+  background: #fff;
+}
+.pill-link:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  background: #fef2f2;
+}
+
+/* ── Trust badges row ── */
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 1.5rem 0;
+}
+.trust-badge {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--brand-text-muted);
+}
+.trust-badge svg {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+
+/* ── Section divider ── */
+.section-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #dee2e6 20%, #dee2e6 80%, transparent);
+  margin: 0;
+}
+
+/* ── Financing form progress indicator ── */
+.form-progress {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.form-progress li {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--brand-text-muted);
+  padding-top: 2.5rem;
+  max-width: 140px;
+}
+.form-progress li::before {
+  counter-increment: step;
+  content: counter(step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: var(--brand-text-muted);
+  font-weight: 700;
+  font-size: .85rem;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.form-progress li::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(-50% + 16px);
+  width: calc(100% - 32px);
+  height: 2px;
+  background: #e9ecef;
+  z-index: 0;
+}
+.form-progress li:first-child::after { display: none; }
+.form-progress li.active::before {
+  background: var(--brand-primary);
+  color: #fff;
+}
+.form-progress li.active ~ li::before {
+  background: #e9ecef;
+}
+.form-progress li.completed::before {
+  background: var(--brand-success);
+  color: #fff;
+  content: '\2713';
+}
+.form-progress li.completed::after,
+.form-progress li.active::after {
+  background: var(--brand-primary);
+}
+
+/* ── Financing app form styling improvements ── */
+.finance-app {
+  font-size: .92rem;
+}
+.finance-app-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+.finance-app-header h2 {
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: .5rem;
+}
+.dealer-info {
+  font-size: .85rem;
+  color: var(--brand-text-muted);
+  line-height: 1.6;
+}
+
+.app-section {
+  margin-bottom: 1.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.app-section-label {
+  background: var(--brand-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .6rem 1rem;
+}
+.app-section-label span {
+  color: inherit;
+}
+.app-section-body {
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+.app-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+.app-row:last-child { margin-bottom: 0; }
+.app-field {
+  flex: 1;
+  min-width: 140px;
+}
+.app-field.wide { flex: 2; min-width: 200px; }
+.app-field.narrow { flex: 0 0 120px; min-width: 100px; }
+.app-field.xs { flex: 0 0 80px; min-width: 70px; }
+.app-field label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #555;
+  margin-bottom: .25rem;
+}
+.app-field input,
+.app-field select {
+  width: 100%;
+  padding: .45rem .6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: .88rem;
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+.app-field input:focus,
+.app-field select:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 .15rem rgba(220,53,69,.12);
+  outline: none;
+}
+
+.co-applicant-toggle {
+  background: none;
+  border: 1.5px dashed #ccc;
+  border-radius: var(--radius-sm);
+  padding: .65rem 1.5rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  cursor: pointer;
+  transition: all .15s;
+  font-size: .88rem;
+}
+.co-applicant-toggle:hover {
+  border-color: var(--brand-primary);
+  background: #fef2f2;
+}
+.co-section-hidden { display: none; }
+
+.sig-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.sig-field {
+  flex: 1;
+  min-width: 180px;
+}
+.sig-field label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #666;
+  margin-bottom: .35rem;
+}
+
+.finance-app-footer {
+  border-top: 2px solid #e9ecef;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* ── Improved inventory row cards ── */
+.inv-row {
+  border-radius: var(--radius-sm);
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+.inv-row-header {
+  height: 5px;
+  background: var(--brand-primary);
+}
+.inv-btn {
+  border-radius: 4px;
+  font-size: .82rem;
+  font-weight: 600;
+  padding: .5rem .65rem;
+}
+.inv-btn-details {
+  background: var(--brand-primary);
+  color: #fff;
+  border-color: var(--brand-primary);
+  font-size: .88rem;
+  padding: .6rem .65rem;
+}
+.inv-btn-details:hover {
+  background: var(--brand-primary-dark);
+  color: #fff;
+}
+
+/* ── Category page intro section ── */
+.category-intro {
+  background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+  border-bottom: 1px solid #e9ecef;
+  padding: 2rem 0;
+}
+.category-intro h1 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: .5rem;
+}
+.category-intro .lead {
+  color: var(--brand-text-muted);
+  font-size: 1rem;
+  max-width: 700px;
+}
+.category-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  background: var(--brand-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: .82rem;
+  padding: .35rem .85rem;
+  border-radius: 50px;
+  margin-bottom: .75rem;
+}
+
+/* ── Why Buy section improvements ── */
+.why-buy-section {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin-top: 2rem;
+}
+.why-buy-section h2 {
+  font-weight: 700;
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
+  color: var(--brand-text);
+}
+.why-buy-section p {
+  font-size: .93rem;
+  line-height: 1.7;
+  color: var(--brand-text-muted);
+}
+
+/* ── Cross-links section (form pages) ── */
+.cross-links-section {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  padding: 1.75rem 0;
+}
+.cross-links-section h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+.cross-link-btn {
+  display: inline-block;
+  padding: .45rem 1rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 50px;
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  margin: 0 .35rem .5rem 0;
+  transition: all .15s;
+  background: #fff;
+}
+.cross-link-btn:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* ── Breadcrumb polish ── */
+.bfat-breadcrumb {
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  padding: .6rem 0;
+  font-size: .85rem;
+}
+.bfat-breadcrumb a {
+  color: var(--brand-primary);
+  text-decoration: none;
+}
+.bfat-breadcrumb a:hover {
+  text-decoration: underline;
+}
+.bfat-breadcrumb .separator {
+  color: #bbb;
+  margin: 0 .35rem;
+}
+
+/* ── Better section header for pages ── */
+.page-intro {
+  background: linear-gradient(135deg, #f1f1f1 0%, #f8f9fa 100%);
+  padding: 2rem 0 2.25rem;
+}
+.page-intro h1 {
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+.page-intro .lead {
+  color: var(--brand-text-muted);
+  max-width: 650px;
+}
+
+/* ── Security notice for sensitive forms ── */
+.security-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  padding: .75rem 1rem;
+  background: #f0f7ff;
+  border: 1px solid #bde0fe;
+  border-radius: var(--radius-sm);
+  font-size: .82rem;
+  color: #1e40af;
+  margin-bottom: 1.5rem;
+}
+.security-notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Footer polish (consistent across pages) ── */
+.bfat-footer {
+  background: #1a1a1a;
+  color: #ccc;
+}
+.bfat-footer h4,
+.bfat-footer h5 {
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: .75rem;
+}
+.bfat-footer a {
+  color: rgba(255,255,255,.6);
+  text-decoration: none;
+  transition: color .15s;
+}
+.bfat-footer a:hover {
+  color: var(--brand-primary);
+}
+.bfat-footer-bottom {
+  background: #111;
+  border-top: 1px solid #333;
+  padding: 1rem 0;
+  font-size: .82rem;
+  color: #666;
+  text-align: center;
+}
+
+/* ── Social icon consistency ── */
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform .15s, opacity .15s;
+}
+.social-icon:hover {
+  transform: translateY(-2px);
+  opacity: .9;
+}
+
+/* ── Mobile improvements ── */
+@media (max-width: 767px) {
+  .app-field { min-width: 100% !important; }
+  .app-field.narrow,
+  .app-field.xs { flex: 1 1 calc(50% - .375rem); min-width: calc(50% - .375rem) !important; }
+  .app-field.wide { min-width: 100% !important; }
+
+  .sig-row { flex-direction: column; }
+  .sig-field { min-width: 100%; }
+
+  .form-progress li { font-size: .7rem; padding-top: 2.25rem; }
+  .form-progress li::before { width: 28px; height: 28px; font-size: .78rem; }
+  .form-progress li::after { top: 13px; }
+
+  .why-buy-section { padding: 1.25rem; }
+
+  .trust-badges { gap: 1rem; }
+  .trust-badge { font-size: .8rem; }
+}
+
+/* ── Improve review cards ── */
+.review-card {
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s;
+}
+.review-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Better empty/loading states ── */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 2rem 0;
+  color: var(--brand-text-muted);
+  font-size: .88rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--brand-text-muted);
+}
+.empty-state svg {
+  opacity: .4;
+  margin-bottom: .75rem;
+}
+.empty-state p {
+  font-size: .93rem;
+  max-width: 400px;
+  margin: 0 auto;
 }

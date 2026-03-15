@@ -127,18 +127,18 @@
       border: 1px solid rgba(255,255,255,.18);
     }
     .home-search-row .btn{
-      background:#b21f24;
-      border-color:#b21f24;
+      background:#dc3545;
+      border-color:#dc3545;
       font-weight:700;
       letter-spacing:.04em;
       text-transform:uppercase;
     }
-    .home-search-row .btn:hover{ background:#9e1b20; border-color:#9e1b20; }
+    .home-search-row .btn:hover{ background:#c82333; border-color:#c82333; }
 
     /* Skeleton loading animation */
     @keyframes skeleton-pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
     .skeleton{animation:skeleton-pulse 1.5s ease-in-out infinite;background:#e0e0e0;border-radius:4px;}
-    .skeleton-card{background:#fff;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12);display:flex;flex-direction:column;}
+    .skeleton-card{background:#fff;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.12);display:flex;flex-direction:column;border-radius:var(--bf-radius, 14px);}
     .skeleton-img{width:100%;aspect-ratio:4/3;background:#e0e0e0;animation:skeleton-pulse 1.5s ease-in-out infinite;}
     .skeleton-body{padding:12px;}
     .skeleton-line{height:14px;margin-bottom:8px;border-radius:4px;}
@@ -182,7 +182,7 @@
       position:absolute;
       bottom: 10px;
       left: 0;
-      background:#b21f24;
+      background:#dc3545;
       color:#fff;
       font-weight:800;
       font-size: .68rem;
@@ -210,7 +210,7 @@
     .featured-price{
       font-size: 1.05rem;
       font-weight:800;
-      color:#b21f24;
+      color:#dc3545;
       margin:0;
     }
 
@@ -219,15 +219,15 @@
       text-align:center;
     }
     .home-viewall .btn{
-      background:#b21f24;
-      border-color:#b21f24;
+      background:#dc3545;
+      border-color:#dc3545;
       border-radius:2px;
       padding: .85rem 3rem;
       font-weight:700;
       text-transform:uppercase;
       letter-spacing:.05em;
     }
-    .home-viewall .btn:hover{ background:#9e1b20; border-color:#9e1b20; }
+    .home-viewall .btn:hover{ background:#c82333; border-color:#c82333; }
 
     @media (max-width: 1199.98px){
       .featured-grid{ grid-template-columns: repeat(4, 1fr); }
@@ -268,7 +268,7 @@
 
     :root{
       --bf-red: #dc3545;
-      --bf-red-dark: #b21f24;
+      --bf-red-dark: #dc3545;
       --bf-black: #111111;
       --bf-surface: #ffffff;
       --bf-text: #111111;
@@ -973,6 +973,31 @@
       </div>
     </section>
 
+    <!-- TRUST STRIP -->
+    <hr class="section-divider">
+    <section class="py-3 bg-white">
+      <div class="container">
+        <div class="trust-badges">
+          <div class="trust-badge">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z"/></svg>
+            Every Vehicle Inspected
+          </div>
+          <div class="trust-badge">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5a.5.5 0 0 1-.5-.5v-3.5A.5.5 0 0 1 8 4z"/></svg>
+            Same-Day Test Drives
+          </div>
+          <div class="trust-badge">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9A1.5 1.5 0 0 1 1.5 3H2V1.78a1.5 1.5 0 0 1 1.872-1.451l8.264 1.997zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5h-13z"/><path d="M3 7.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 10a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 3 10z"/></svg>
+            No Hidden Fees
+          </div>
+          <div class="trust-badge">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M0 3a2 2 0 0 1 2-2h13.5a.5.5 0 0 1 0 1H15v2a1 1 0 0 1 1 1v8.5a1.5 1.5 0 0 1-1.5 1.5h-12A2.5 2.5 0 0 1 0 12.5V3zm1 1.732V12.5A1.5 1.5 0 0 0 2.5 14h12a.5.5 0 0 0 .5-.5V5H2a1.99 1.99 0 0 1-1-.268zM1 3a1 1 0 0 0 1 1h12V2H2a1 1 0 0 0-1 1z"/></svg>
+            Financing Available
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ABOUT / TEAM -->
     <section id="about" class="section-pad">
       <div class="container">
@@ -1011,55 +1036,61 @@
       <div class="container">
         <h2 class="h4 fw-bold mb-4 text-center">Shop by Body Style</h2>
         <div class="row g-3 justify-content-center">
-          <div class="col-6 col-md-3"><a href="used-trucks-greenville-nc/" class="d-block text-center p-3 bg-white rounded shadow-sm text-decoration-none text-dark fw-semibold">Trucks</a></div>
-          <div class="col-6 col-md-3"><a href="used-suvs-greenville-nc/" class="d-block text-center p-3 bg-white rounded shadow-sm text-decoration-none text-dark fw-semibold">SUVs &amp; Crossovers</a></div>
-          <div class="col-6 col-md-3"><a href="used-cars-greenville-nc/" class="d-block text-center p-3 bg-white rounded shadow-sm text-decoration-none text-dark fw-semibold">Cars &amp; Sedans</a></div>
-          <div class="col-6 col-md-3"><a href="used-diesel-trucks-greenville-nc/" class="d-block text-center p-3 bg-white rounded shadow-sm text-decoration-none text-dark fw-semibold">Diesel Vehicles</a></div>
+          <div class="col-6 col-md-3">
+            <a href="used-trucks-greenville-nc/" class="body-style-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="15" height="10" rx="1"/><polygon points="16 9 20 9 23 12 23 16 16 16 16 9"/><circle cx="5.5" cy="18" r="2"/><circle cx="18.5" cy="18" r="2"/></svg>
+              Trucks
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="used-suvs-greenville-nc/" class="body-style-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h2l2-3h6l2 3h2a2 2 0 012 2v6a2 2 0 01-2 2M5 17a2 2 0 100 4 2 2 0 000-4zm14 0a2 2 0 100 4 2 2 0 000-4z"/></svg>
+              SUVs &amp; Crossovers
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="used-cars-greenville-nc/" class="body-style-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H8l-4 8h20L20 3zM2 11v5a1 1 0 001 1h1a2 2 0 104 0h8a2 2 0 104 0h1a1 1 0 001-1v-5H2z"/></svg>
+              Cars &amp; Sedans
+            </a>
+          </div>
+          <div class="col-6 col-md-3">
+            <a href="used-diesel-trucks-greenville-nc/" class="body-style-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="15" height="10" rx="1"/><polygon points="16 9 20 9 23 12 23 16 16 16 16 9"/><circle cx="5.5" cy="18" r="2"/><circle cx="18.5" cy="18" r="2"/><path d="M10 2v3M12 1v4M14 2v3" stroke-width="2"/></svg>
+              Diesel Vehicles
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- POPULAR MAKES -->
+    <!-- POPULAR MAKES & MODELS -->
     <section class="py-5 bg-white">
       <div class="container">
-        <h2 class="h4 fw-bold mb-4 text-center">Popular Makes</h2>
-        <div class="row g-2 justify-content-center">
-          <div class="col-auto"><a href="/inventory.html?make=chevrolet" class="btn btn-outline-dark btn-sm">Chevrolet</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=ford" class="btn btn-outline-dark btn-sm">Ford</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=gmc" class="btn btn-outline-dark btn-sm">GMC</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=toyota" class="btn btn-outline-dark btn-sm">Toyota</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=ram" class="btn btn-outline-dark btn-sm">RAM</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=jeep" class="btn btn-outline-dark btn-sm">Jeep</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=dodge" class="btn btn-outline-dark btn-sm">Dodge</a></div>
-          <div class="col-auto"><a href="/inventory.html?make=subaru" class="btn btn-outline-dark btn-sm">Subaru</a></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- POPULAR MODELS -->
-    <section class="py-5 bg-light">
-      <div class="container">
-        <h2 class="h4 fw-bold mb-4 text-center">Popular Models</h2>
-        <div class="row g-2 justify-content-center">
-          <div class="col-auto"><a href="used-ford-f150-greenville-nc/" class="btn btn-outline-dark btn-sm">Ford F-150</a></div>
-          <div class="col-auto"><a href="used-chevrolet-silverado-greenville-nc/" class="btn btn-outline-dark btn-sm">Chevy Silverado 1500</a></div>
-          <div class="col-auto"><a href="used-gmc-sierra-greenville-nc/" class="btn btn-outline-dark btn-sm">GMC Sierra 1500</a></div>
-          <div class="col-auto"><a href="used-toyota-tacoma-greenville-nc/" class="btn btn-outline-dark btn-sm">Toyota Tacoma</a></div>
-          <div class="col-auto"><a href="used-chevrolet-camaro-greenville-nc/" class="btn btn-outline-dark btn-sm">Chevy Camaro</a></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- QUICK LINKS -->
-    <section class="py-4 bg-light">
-      <div class="container">
-        <div class="row g-3 text-center">
-          <div class="col-6 col-md-4 col-lg-2"><a href="used-trucks-greenville-nc/" class="text-decoration-none text-dark d-block p-2"><strong>Used Trucks</strong></a></div>
-          <div class="col-6 col-md-4 col-lg-2"><a href="used-suvs-greenville-nc/" class="text-decoration-none text-dark d-block p-2"><strong>Used SUVs</strong></a></div>
-          <div class="col-6 col-md-4 col-lg-2"><a href="used-cars-greenville-nc/" class="text-decoration-none text-dark d-block p-2"><strong>Used Cars</strong></a></div>
-          <div class="col-6 col-md-4 col-lg-2"><a href="used-diesel-trucks-greenville-nc/" class="text-decoration-none text-dark d-block p-2"><strong>Diesel Trucks</strong></a></div>
-          <div class="col-6 col-md-4 col-lg-2"><a href="/financing.html" class="text-decoration-none text-dark d-block p-2"><strong>Financing</strong></a></div>
-          <div class="col-6 col-md-4 col-lg-2"><a href="/reviews.html" class="text-decoration-none text-dark d-block p-2"><strong>Reviews</strong></a></div>
+        <div class="row g-5">
+          <div class="col-lg-6">
+            <h2 class="h5 fw-bold mb-3 text-center text-lg-start">Popular Makes</h2>
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+              <a href="/inventory.html?make=chevrolet" class="pill-link">Chevrolet</a>
+              <a href="/inventory.html?make=ford" class="pill-link">Ford</a>
+              <a href="/inventory.html?make=gmc" class="pill-link">GMC</a>
+              <a href="/inventory.html?make=toyota" class="pill-link">Toyota</a>
+              <a href="/inventory.html?make=ram" class="pill-link">RAM</a>
+              <a href="/inventory.html?make=jeep" class="pill-link">Jeep</a>
+              <a href="/inventory.html?make=dodge" class="pill-link">Dodge</a>
+              <a href="/inventory.html?make=subaru" class="pill-link">Subaru</a>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <h2 class="h5 fw-bold mb-3 text-center text-lg-start">Popular Models</h2>
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start">
+              <a href="used-ford-f150-greenville-nc/" class="pill-link">Ford F-150</a>
+              <a href="used-chevrolet-silverado-greenville-nc/" class="pill-link">Chevy Silverado 1500</a>
+              <a href="used-gmc-sierra-greenville-nc/" class="pill-link">GMC Sierra 1500</a>
+              <a href="used-toyota-tacoma-greenville-nc/" class="pill-link">Toyota Tacoma</a>
+              <a href="used-chevrolet-camaro-greenville-nc/" class="pill-link">Chevy Camaro</a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1238,17 +1269,16 @@
           </p>
           <div class="d-flex gap-2">
             <a href="https://www.facebook.com/profile.php?id=61585590120772" target="_blank" aria-label="Facebook"
-               style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#333;color:#ccc;text-decoration:none;transition:background .2s;">
+               class="social-icon" style="background:#333;color:#ccc;">
               <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/></svg>
             </a>
             <a href="https://www.instagram.com/bellsforktruckandauto" target="_blank" aria-label="Instagram"
-               style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:5px;background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff;text-decoration:none;">
+               class="social-icon" style="background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%);color:#fff;">
               <svg width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.232-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/></svg>
             </a>
-
             <a href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/@35.5641622,-77.367721,15z/data=!3m1!4b1!4m6!3m5!1s0x89aeddacc00176bf:0x2e8db9e8d1d56161!8m2!3d35.5641462!4d-77.349267!16s%2Fg%2F11yxj2p8q_?hl=en&entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" aria-label="Google Business"
-               style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;text-decoration:none;overflow:hidden;transition:background .2s;">
-              <img src="/assets/google-icon-bw.png" alt="Google Business" width="38" height="38" style="display:block;">
+               class="social-icon" style="overflow:hidden;">
+              <img src="/assets/google-icon-bw.png" alt="Google Business" width="36" height="36" style="display:block;">
             </a>
           </div>
         </div>
