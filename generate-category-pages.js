@@ -260,9 +260,11 @@ function buildCard(v) {
       ${mpgDisplay}
       ${stockDisplay}
       <div class="d-grid gap-2 mt-auto">
-        <a href="${vdpUrl}" class="btn btn-sm btn-outline-danger w-100">View Details</a>
-        <a href="${applyHref}" class="btn btn-sm btn-danger w-100">Apply for This Vehicle</a>
-        <a href="${inquireHref}" class="btn btn-sm btn-outline-dark w-100">Inquire About This Vehicle</a>
+        <a href="${vdpUrl}" class="btn btn-sm btn-danger w-100">View Details</a>
+        <div class="d-flex gap-2">
+          <a href="${applyHref}" class="btn btn-sm btn-outline-secondary w-50">Apply</a>
+          <a href="${inquireHref}" class="btn btn-sm btn-outline-secondary w-50">Inquire</a>
+        </div>
       </div>
     </div>
   </article>
@@ -311,11 +313,14 @@ function generateCategoryPage(cat, vehicles, allCategories) {
   const cardsHTML = filtered.map(v => buildCard(v)).join('\n');
   const crossLinks = allCategories
     .filter(c => c.slug !== cat.slug)
-    .map(c => `<a href="/${c.slug}/" class="btn btn-outline-secondary btn-sm me-2 mb-2">${c.title.replace(' in Greenville, NC', '')}</a>`)
+    .map(c => `<a href="/${c.slug}/" class="cross-link-btn">${c.title.replace(' in Greenville, NC', '')}</a>`)
     .join('');
 
-  const faqHTML = cat.faqs.map(f =>
-    `<div class="mb-4"><h3 class="h6 fw-bold">${escapeHtml(f.q)}</h3><p class="text-muted mb-0">${escapeHtml(f.a)}</p></div>`
+  const faqHTML = cat.faqs.map((f, i) =>
+    `<div class="accordion-item">
+      <h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#catfaq${i}">${escapeHtml(f.q)}</button></h3>
+      <div id="catfaq${i}" class="accordion-collapse collapse" data-bs-parent="#categoryFAQ"><div class="accordion-body">${escapeHtml(f.a)}</div></div>
+    </div>`
   ).join('');
 
   return `<!DOCTYPE html>
@@ -411,11 +416,11 @@ ${buildFAQSchema(cat.faqs)}
     </nav>
 
     <!-- Hero / Intro -->
-    <section class="py-4 py-md-5" style="background:#f1f1f1;">
+    <section class="page-intro">
       <div class="container">
+        <div class="category-count-badge">${filtered.length} Vehicle${filtered.length !== 1 ? 's' : ''} Available</div>
         <h1 class="display-6 fw-bold mb-3">${escapeHtml(cat.h1)}</h1>
-        <p class="lead text-muted mb-2">${escapeHtml(cat.intro)}</p>
-        <p class="text-muted mb-0"><strong>${filtered.length}</strong> vehicle${filtered.length !== 1 ? 's' : ''} available</p>
+        <p class="lead text-muted mb-0" style="max-width:700px;">${escapeHtml(cat.intro)}</p>
       </div>
     </section>
 
@@ -437,27 +442,32 @@ ${buildFAQSchema(cat.faqs)}
     </section>` : ''}
 
     <!-- Cross-links to other categories -->
-    <section class="py-4 bg-white">
+    <section class="cross-links-section">
       <div class="container">
         <h2 class="h5 fw-bold mb-3">Browse Other Categories</h2>
         <div>${crossLinks}</div>
-        <a href="/inventory" class="btn btn-outline-dark btn-sm mt-2">View All Inventory</a>
+        <a href="/inventory" class="cross-link-btn" style="border-color:var(--brand-primary);color:var(--brand-primary);">View All Inventory</a>
       </div>
     </section>
 
     <!-- FAQ -->
     <section class="py-5" style="background:#f9f9f9;">
-      <div class="container">
-        <h2 class="h4 fw-bold mb-4">Frequently Asked Questions</h2>
-        ${faqHTML}
+      <div class="container" style="max-width:800px;">
+        <h2 class="h4 fw-bold mb-4 text-center">Frequently Asked Questions</h2>
+        <div class="accordion" id="categoryFAQ">
+          ${faqHTML}
+        </div>
       </div>
     </section>
 
     <!-- Financing CTA -->
-    <div class="text-center my-4">
-      <a href="${ASSET_PREFIX}financing.html" class="btn btn-primary btn-lg">Apply for Financing</a>
-      <p class="text-muted small mt-2 mb-0">All credit situations welcome. Quick online application.</p>
-    </div>
+    <section class="py-5 bg-brand-dark text-white text-center">
+      <div class="container">
+        <h2 class="h4 fw-bold mb-2">Ready to Finance Your Next Vehicle?</h2>
+        <p class="text-white-50 mb-4">All credit situations welcome. Quick online application with same-day response.</p>
+        <a href="${ASSET_PREFIX}financing/" class="btn btn-accent btn-lg">Apply for Financing</a>
+      </div>
+    </section>
 
     <!-- Areas Served -->
     <section class="py-4 bg-light">
