@@ -116,6 +116,7 @@ function generateFormPage(page, formContent) {
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
   <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
 </head>
 <body>
 
@@ -159,6 +160,7 @@ function generateFormPage(page, formContent) {
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}about.html">About</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}reviews.html">Reviews</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink active" href="${ASSET_PREFIX}financing.html">Financing</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="/pre-qualify-no-ssn-required/">Pre-Qualify No SSN</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}contact.html#visit">Contact</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}blog.html">Blog</a></li>
           </ul>
@@ -265,6 +267,7 @@ function generateFormPage(page, formContent) {
           <ul class="list-unstyled mb-0" style="font-size:.95rem;">
             <li class="mb-2"><a href="/inventory" class="text-white-50 text-decoration-none footer-link">Inventory</a></li>
             <li class="mb-2"><a href="/financing/" class="text-white-50 text-decoration-none footer-link">Financing</a></li>
+            <li class="mb-2"><a href="/pre-qualify-no-ssn-required/" class="text-white-50 text-decoration-none footer-link">Pre-Qualify No SSN</a></li>
             <li class="mb-2"><a href="/schedule-test-drive/" class="text-white-50 text-decoration-none footer-link">Test Drive</a></li>
             <li class="mb-2"><a href="/trade-in-value/" class="text-white-50 text-decoration-none footer-link">Trade-In</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}contact.html#visit" class="text-white-50 text-decoration-none footer-link">Contact Us</a></li>

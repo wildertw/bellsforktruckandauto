@@ -399,6 +399,7 @@ function generateVDPHtml(v, allVehicles) {
 
   <!-- Custom Styles -->
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
 
   <!-- Schema.org Structured Data -->
   <script type="application/ld+json">
@@ -783,6 +784,9 @@ ${buildSchema(v)}
               <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}financing.html">Financing</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="/pre-qualify-no-ssn-required/">Pre-Qualify No SSN</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}contact.html#visit">Contact</a>
             </li>
             <li class="nav-item">
@@ -1153,6 +1157,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
             <li class="mb-2"><a href="${ASSET_PREFIX}about.html" class="text-white-50 text-decoration-none footer-link">About Us</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}reviews.html" class="text-white-50 text-decoration-none footer-link">Reviews</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}financing.html" class="text-white-50 text-decoration-none footer-link">Financing</a></li>
+            <li class="mb-2"><a href="/pre-qualify-no-ssn-required/" class="text-white-50 text-decoration-none footer-link">Pre-Qualify No SSN</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}contact.html#visit" class="text-white-50 text-decoration-none footer-link">Contact Us</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}privacy.html" class="text-white-50 text-decoration-none footer-link">Privacy Policy</a></li>
           </ul>

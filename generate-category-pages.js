@@ -346,6 +346,7 @@ function generateCategoryPage(cat, vehicles, allCategories) {
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
   <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
   <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
   <script type="application/ld+json">
 ${buildItemListSchema(filtered, cat)}
   </script>
@@ -395,6 +396,7 @@ ${buildFAQSchema(cat.faqs)}
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}about.html">About</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}reviews.html">Reviews</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}financing.html">Financing</a></li>
+            <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="/pre-qualify-no-ssn-required/">Pre-Qualify No SSN</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}contact.html#visit">Contact</a></li>
             <li class="nav-item"><a class="nav-link px-4 py-3 fw-semibold text-uppercase bfat-navlink" href="${ASSET_PREFIX}blog.html">Blog</a></li>
           </ul>
@@ -525,6 +527,7 @@ ${buildFAQSchema(cat.faqs)}
             <li class="mb-2"><a href="/used-diesel-trucks-greenville-nc/" class="text-white-50 text-decoration-none footer-link">Diesel Trucks</a></li>
             <li class="mb-2"><a href="/inventory" class="text-white-50 text-decoration-none footer-link">All Inventory</a></li>
             <li class="mb-2"><a href="${ASSET_PREFIX}financing.html" class="text-white-50 text-decoration-none footer-link">Financing</a></li>
+            <li class="mb-2"><a href="/pre-qualify-no-ssn-required/" class="text-white-50 text-decoration-none footer-link">Pre-Qualify No SSN</a></li>
           </ul>
         </div>
       </div>
