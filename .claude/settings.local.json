@@ -316,7 +316,13 @@
       "Bash(find /c/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/netlify -type f -name *.js -o -name *.ts)",
       "Bash(grep -r \"finance\\\\|credit\\\\|application\\\\|submit\" /c/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/assets/js/*.js)",
       "Bash(npm install:*)",
-      "Bash(node -e \"require\\(''./netlify/functions/submission-created''\\); console.log\\(''Module loaded OK''\\)\")"
+      "Bash(node -e \"require\\(''./netlify/functions/submission-created''\\); console.log\\(''Module loaded OK''\\)\")",
+      "Bash(npx netlify-cli:*)",
+      "Bash(grep -E \"\\(deno|package\\)\\\\.json$\")",
+      "Bash(grep -E \"\\\\.\\(json|toml|yaml|yml\\)$|^d\")",
+      "Bash(grep -r \"data-netlify\\\\|form name\" /c/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/*.html /c/Users/twild/OneDrive/Desktop/WE/bellsforkclaudeupdate-site/*/*.html)",
+      "Bash(node -c netlify/functions/submission-created.js)",
+      "Bash(node -e \"require\\(''./netlify/functions/submission-created''\\); console.log\\(''Module loaded successfully''\\)\")"
     ]
   }
 }

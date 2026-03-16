@@ -201,6 +201,8 @@ exports.handler = async (event) => {
         // Lead source
         source: body.source || 'general',       // 'phone', 'form', 'prequalify'
         sourcePage: body.sourcePage || '',        // page URL where lead originated
+        formType: body.formType || '',            // e.g. 'contact-request', 'financing-application'
+        formDisplayName: body.formDisplayName || '', // e.g. 'Contact Request', 'Financing Application'
         // Classification
         status: body.status || 'cold',           // 'hot', 'warm', 'cold'
         outcome: 'active',                        // 'active', 'converted', 'lost'
@@ -275,6 +277,11 @@ exports.handler = async (event) => {
       if (body.contactPhone !== undefined) lead.contactPhone = body.contactPhone;
       if (body.contactEmail !== undefined) lead.contactEmail = body.contactEmail;
       if (body.notes !== undefined) lead.notes = body.notes;
+      // Update vehicle/source info
+      if (body.stockNumber !== undefined) lead.stockNumber = body.stockNumber;
+      if (body.vehicleName !== undefined) lead.vehicleName = body.vehicleName;
+      if (body.vehiclePrice !== undefined) lead.vehiclePrice = body.vehiclePrice;
+      if (body.source !== undefined) lead.source = body.source;
 
       lead.updatedAt = now;
       lead.updatedBy = body.updatedBy || 'admin';

@@ -567,6 +567,10 @@
                   <input type="text" class="form-control" id="name" name="name" required placeholder="John Doe">
                 </div>
                 <div class="col-md-6">
+                  <label for="email" class="form-label fw-bold small text-uppercase">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="col-md-6">
                   <label for="phone" class="form-label fw-bold small text-uppercase">Phone</label>
                   <input type="tel" class="form-control" id="phone" name="phone" required placeholder="(252) ..." inputmode="tel" autocomplete="tel">
                 </div>
@@ -825,6 +829,7 @@
        target="_blank" rel="noopener">Directions</a>
   </nav>
   <script src="/assets/js/sms-limiter.js" defer></script>
+<script src="/assets/js/submit-lock.js" defer></script>
 <script src="/assets/js/tracker.js" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>

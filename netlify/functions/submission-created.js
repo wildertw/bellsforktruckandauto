@@ -1,9 +1,19 @@
 /**
- * Bells Fork Truck & Auto — Financing Application Email w/ PDF Attachment
+ * Bells Fork Truck & Auto — Universal Form Submission Handler
  *
  * Netlify event function: automatically triggered on every form submission.
- * Filters for "financing-application" form, generates a PDF of the submitted
- * application, and emails it to the dealership with the PDF attached.
+ * For EVERY recognized form type:
+ *   1. Creates a lead record in the Leads pipeline (leads-db)
+ *   2. Generates a professional PDF of the submission
+ *   3. Emails the PDF to the admin team for offline review / printing
+ *
+ * Supported forms:
+ *   - financing-application
+ *   - offer-request
+ *   - test-drive-request
+ *   - trade-in-request
+ *   - consignment-request
+ *   - contact-request
  *
  * Required environment variables:
  *   SMTP_HOST        — SMTP server hostname (e.g. smtp.gmail.com)
@@ -12,10 +22,13 @@
  *   SMTP_PASS        — SMTP password / app-password
  *   FINANCE_EMAIL_TO — Recipient email(s), comma-separated
  *   FINANCE_EMAIL_FROM — Sender "From" address (optional, defaults to SMTP_USER)
+ *   SITE_ID          — Netlify site ID (for Blobs / lead storage)
+ *   NF_API_TOKEN     — Netlify API token (for Blobs / lead storage)
  */
 
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const { getStore } = require('@netlify/blobs');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -47,111 +60,425 @@ function fieldLabel(key) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// ─── PDF Section Definitions ────────────────────────────────────────────────
-// Groups form fields into logical sections for the PDF layout.
-// Each section has a title and an ordered list of field keys.
+/** Get a Netlify Blob store */
+function blobStore(name) {
+  const siteID = process.env.SITE_ID;
+  const token = process.env.NF_API_TOKEN;
+  if (!siteID || !token) return null;
+  return getStore({ name, siteID, token, apiURL: 'https://api.netlify.com', consistency: 'strong' });
+}
 
-const PDF_SECTIONS = [
-  {
-    title: 'Vehicle of Interest',
-    fields: [
-      'vehicle_year', 'vehicle_make', 'vehicle_model', 'vehicle_vin',
-      'vehicle_mileage', 'vehicle_color', 'vehicle_price',
-      'vehicle_downpayment', 'vehicle_term',
+// ─── Form Configuration ─────────────────────────────────────────────────────
+// Each form type maps to: display title, PDF heading, file prefix, accent color,
+// and ordered section definitions for the PDF layout.
+
+const FORM_CONFIGS = {
+  'financing-application': {
+    displayName: 'Financing Application',
+    pdfTitle: 'APPLICATION FOR FINANCING',
+    filePrefix: 'financing-application',
+    accentColor: '#dc3545',
+    leadSource: 'form',
+    // Extract contact name from financing-specific fields
+    getContactName: (d) => [sanitize(d.applicant_first_name), sanitize(d.applicant_last_name)].filter(Boolean).join(' '),
+    getContactPhone: (d) => sanitize(d.applicant_phone || ''),
+    getContactEmail: (d) => sanitize(d.applicant_email || ''),
+    getVehicle: (d) => [sanitize(d.vehicle_year), sanitize(d.vehicle_make), sanitize(d.vehicle_model)].filter(Boolean).join(' '),
+    sections: [
+      {
+        title: 'Vehicle of Interest',
+        fields: [
+          'vehicle_year', 'vehicle_make', 'vehicle_model', 'vehicle_vin',
+          'vehicle_mileage', 'vehicle_color', 'vehicle_price',
+          'vehicle_downpayment', 'vehicle_term',
+        ],
+      },
+      {
+        title: 'Applicant Information',
+        fields: [
+          'applicant_first_name', 'applicant_middle_name', 'applicant_last_name',
+          'applicant_suffix', 'applicant_dob', 'applicant_phone', 'applicant_email',
+          'applicant_drivers_license', 'applicant_dl_state',
+        ],
+      },
+      {
+        title: 'Applicant Address & Housing',
+        fields: [
+          'applicant_address', 'applicant_apt', 'applicant_city',
+          'applicant_state', 'applicant_zip', 'applicant_time_at_address',
+          'applicant_monthly_payment', 'applicant_mortgage_company',
+          'applicant_residence_type',
+        ],
+      },
+      {
+        title: 'Applicant Employment & Income',
+        fields: [
+          'applicant_employer', 'applicant_title', 'applicant_employment_type',
+          'applicant_gross_monthly_income', 'applicant_time_at_company',
+          'applicant_work_phone', 'applicant_additional_income',
+          'applicant_additional_income_source',
+        ],
+      },
+      {
+        title: 'Co-Applicant Information',
+        fields: [
+          'co_applicant_first_name', 'co_applicant_middle_name',
+          'co_applicant_last_name', 'co_applicant_suffix',
+          'co_applicant_dob', 'co_applicant_phone', 'co_applicant_email',
+          'co_applicant_drivers_license', 'co_applicant_dl_state',
+        ],
+      },
+      {
+        title: 'Co-Applicant Address & Housing',
+        fields: [
+          'co_applicant_address', 'co_applicant_apt', 'co_applicant_city',
+          'co_applicant_state', 'co_applicant_zip',
+          'co_applicant_time_at_address', 'co_applicant_monthly_payment',
+          'co_applicant_mortgage_company', 'co_applicant_residence_type',
+        ],
+      },
+      {
+        title: 'Co-Applicant Employment & Income',
+        fields: [
+          'co_applicant_employer', 'co_applicant_title',
+          'co_applicant_employment_type', 'co_applicant_gross_monthly_income',
+          'co_applicant_time_at_company', 'co_applicant_work_phone',
+          'co_applicant_additional_income', 'co_applicant_additional_income_source',
+        ],
+      },
+      {
+        title: 'Trade-In Vehicle',
+        fields: [
+          'tradein_year', 'tradein_make', 'tradein_model', 'tradein_vin',
+          'tradein_mileage', 'tradein_color', 'tradein_lien',
+          'tradein_payoff_amount', 'tradein_title_status',
+        ],
+      },
+      {
+        title: 'Authorization & Signatures',
+        fields: [
+          'confirm_accuracy', 'contact_consent',
+          'applicant_signature', 'applicant_signature_date',
+          'co_applicant_signature', 'co_applicant_signature_date',
+        ],
+      },
     ],
   },
-  {
-    title: 'Applicant Information',
-    fields: [
-      'applicant_first_name', 'applicant_middle_name', 'applicant_last_name',
-      'applicant_suffix', 'applicant_dob', 'applicant_phone', 'applicant_email',
-      'applicant_drivers_license', 'applicant_dl_state',
+
+  'offer-request': {
+    displayName: 'Vehicle Offer',
+    pdfTitle: 'VEHICLE PURCHASE OFFER',
+    filePrefix: 'offer-request',
+    accentColor: '#0d6efd',
+    leadSource: 'form',
+    getContactName: (d) => [sanitize(d.first_name), sanitize(d.last_name)].filter(Boolean).join(' '),
+    getContactPhone: (d) => sanitize(d.phone || ''),
+    getContactEmail: (d) => sanitize(d.email || ''),
+    getVehicle: (d) => sanitize(d.interest_vehicle || ''),
+    sections: [
+      {
+        title: 'Contact Information',
+        fields: [
+          'first_name', 'last_name', 'email', 'phone',
+          'preferred_contact', 'best_time',
+        ],
+      },
+      {
+        title: 'Address',
+        fields: ['street', 'city', 'state', 'zip'],
+      },
+      {
+        title: 'Vehicle of Interest',
+        fields: ['interest_vehicle', 'stock_vin', 'preferred_date', 'preferred_time'],
+      },
+      {
+        title: 'Financial Information',
+        fields: [
+          'monthly_budget', 'down_payment', 'credit_range',
+          'employment_status', 'monthly_income',
+        ],
+      },
+      {
+        title: 'Current Vehicle / Trade-In',
+        fields: [
+          'current_vehicle', 'current_vin', 'mileage',
+          'condition', 'payoff_amount',
+        ],
+      },
+      {
+        title: 'Additional Notes',
+        fields: ['notes'],
+      },
+      {
+        title: 'Authorization',
+        fields: ['confirm_accuracy', 'contact_consent'],
+      },
     ],
   },
-  {
-    title: 'Applicant Address & Housing',
-    fields: [
-      'applicant_address', 'applicant_apt', 'applicant_city',
-      'applicant_state', 'applicant_zip', 'applicant_time_at_address',
-      'applicant_monthly_payment', 'applicant_mortgage_company',
-      'applicant_residence_type',
+
+  'test-drive-request': {
+    displayName: 'Test Drive Request',
+    pdfTitle: 'TEST DRIVE REQUEST',
+    filePrefix: 'test-drive-request',
+    accentColor: '#198754',
+    leadSource: 'form',
+    getContactName: (d) => [sanitize(d.first_name), sanitize(d.last_name)].filter(Boolean).join(' '),
+    getContactPhone: (d) => sanitize(d.phone || ''),
+    getContactEmail: (d) => sanitize(d.email || ''),
+    getVehicle: (d) => sanitize(d.interest_vehicle || ''),
+    sections: [
+      {
+        title: 'Contact Information',
+        fields: [
+          'first_name', 'last_name', 'email', 'phone',
+          'preferred_contact', 'best_time',
+        ],
+      },
+      {
+        title: 'Address',
+        fields: ['street', 'city', 'state', 'zip'],
+      },
+      {
+        title: 'Vehicle of Interest',
+        fields: ['interest_vehicle', 'stock_vin', 'preferred_date', 'preferred_time'],
+      },
+      {
+        title: 'Financial Information',
+        fields: [
+          'monthly_budget', 'down_payment', 'credit_range',
+          'employment_status', 'monthly_income',
+        ],
+      },
+      {
+        title: 'Current Vehicle / Trade-In',
+        fields: [
+          'current_vehicle', 'current_vin', 'mileage',
+          'condition', 'payoff_amount',
+        ],
+      },
+      {
+        title: 'Additional Notes',
+        fields: ['notes'],
+      },
+      {
+        title: 'Authorization',
+        fields: ['confirm_accuracy', 'contact_consent'],
+      },
     ],
   },
-  {
-    title: 'Applicant Employment & Income',
-    fields: [
-      'applicant_employer', 'applicant_title', 'applicant_employment_type',
-      'applicant_gross_monthly_income', 'applicant_time_at_company',
-      'applicant_work_phone', 'applicant_additional_income',
-      'applicant_additional_income_source',
+
+  'trade-in-request': {
+    displayName: 'Trade-In Valuation',
+    pdfTitle: 'TRADE-IN VALUATION REQUEST',
+    filePrefix: 'trade-in-request',
+    accentColor: '#fd7e14',
+    leadSource: 'form',
+    getContactName: (d) => [sanitize(d.first_name), sanitize(d.last_name)].filter(Boolean).join(' '),
+    getContactPhone: (d) => sanitize(d.phone || ''),
+    getContactEmail: (d) => sanitize(d.email || ''),
+    getVehicle: (d) => sanitize(d.interest_vehicle || ''),
+    sections: [
+      {
+        title: 'Contact Information',
+        fields: [
+          'first_name', 'last_name', 'email', 'phone',
+          'preferred_contact', 'best_time',
+        ],
+      },
+      {
+        title: 'Address',
+        fields: ['street', 'city', 'state', 'zip'],
+      },
+      {
+        title: 'Vehicle of Interest',
+        fields: ['interest_vehicle', 'stock_vin', 'preferred_date', 'preferred_time'],
+      },
+      {
+        title: 'Financial Information',
+        fields: [
+          'monthly_budget', 'down_payment', 'credit_range',
+          'employment_status', 'monthly_income',
+        ],
+      },
+      {
+        title: 'Current Vehicle / Trade-In',
+        fields: [
+          'current_vehicle', 'current_vin', 'mileage',
+          'condition', 'payoff_amount',
+        ],
+      },
+      {
+        title: 'Additional Notes',
+        fields: ['notes'],
+      },
+      {
+        title: 'Authorization',
+        fields: ['confirm_accuracy', 'contact_consent'],
+      },
     ],
   },
-  {
-    title: 'Co-Applicant Information',
-    fields: [
-      'co_applicant_first_name', 'co_applicant_middle_name',
-      'co_applicant_last_name', 'co_applicant_suffix',
-      'co_applicant_dob', 'co_applicant_phone', 'co_applicant_email',
-      'co_applicant_drivers_license', 'co_applicant_dl_state',
+
+  'consignment-request': {
+    displayName: 'Consignment Request',
+    pdfTitle: 'VEHICLE CONSIGNMENT REQUEST',
+    filePrefix: 'consignment-request',
+    accentColor: '#6f42c1',
+    leadSource: 'form',
+    getContactName: (d) => [sanitize(d.first_name), sanitize(d.last_name)].filter(Boolean).join(' '),
+    getContactPhone: (d) => sanitize(d.phone || ''),
+    getContactEmail: (d) => sanitize(d.email || ''),
+    getVehicle: (d) => sanitize(d.current_vehicle || d.interest_vehicle || ''),
+    sections: [
+      {
+        title: 'Contact Information',
+        fields: [
+          'first_name', 'last_name', 'email', 'phone',
+          'preferred_contact', 'best_time',
+        ],
+      },
+      {
+        title: 'Address',
+        fields: ['street', 'city', 'state', 'zip'],
+      },
+      {
+        title: 'Vehicle of Interest',
+        fields: ['interest_vehicle', 'stock_vin', 'preferred_date', 'preferred_time'],
+      },
+      {
+        title: 'Financial Information',
+        fields: [
+          'monthly_budget', 'down_payment', 'credit_range',
+          'employment_status', 'monthly_income',
+        ],
+      },
+      {
+        title: 'Vehicle for Consignment',
+        fields: [
+          'current_vehicle', 'current_vin', 'mileage',
+          'condition', 'payoff_amount',
+        ],
+      },
+      {
+        title: 'Additional Notes',
+        fields: ['notes'],
+      },
+      {
+        title: 'Authorization',
+        fields: ['confirm_accuracy', 'contact_consent'],
+      },
     ],
   },
-  {
-    title: 'Co-Applicant Address & Housing',
-    fields: [
-      'co_applicant_address', 'co_applicant_apt', 'co_applicant_city',
-      'co_applicant_state', 'co_applicant_zip',
-      'co_applicant_time_at_address', 'co_applicant_monthly_payment',
-      'co_applicant_mortgage_company', 'co_applicant_residence_type',
+
+  'contact-request': {
+    displayName: 'Contact Request',
+    pdfTitle: 'CONTACT REQUEST',
+    filePrefix: 'contact-request',
+    accentColor: '#20c997',
+    leadSource: 'form',
+    getContactName: (d) => sanitize(d.name || [d.first_name, d.last_name].filter(Boolean).join(' ') || ''),
+    getContactPhone: (d) => sanitize(d.phone || ''),
+    getContactEmail: (d) => sanitize(d.email || ''),
+    getVehicle: (d) => sanitize(d.interest_vehicle || d.vehicle || d.service || ''),
+    sections: [
+      {
+        title: 'Contact Information',
+        fields: ['name', 'first_name', 'last_name', 'email', 'phone'],
+      },
+      {
+        title: 'Inquiry Details',
+        fields: ['service', 'details', 'message', 'notes', 'interest_vehicle', 'vehicle'],
+      },
     ],
   },
-  {
-    title: 'Co-Applicant Employment & Income',
-    fields: [
-      'co_applicant_employer', 'co_applicant_title',
-      'co_applicant_employment_type', 'co_applicant_gross_monthly_income',
-      'co_applicant_time_at_company', 'co_applicant_work_phone',
-      'co_applicant_additional_income', 'co_applicant_additional_income_source',
-    ],
-  },
-  {
-    title: 'Trade-In Vehicle',
-    fields: [
-      'tradein_year', 'tradein_make', 'tradein_model', 'tradein_vin',
-      'tradein_mileage', 'tradein_color', 'tradein_lien',
-      'tradein_payoff_amount', 'tradein_title_status',
-    ],
-  },
-  {
-    title: 'Authorization & Signatures',
-    fields: [
-      'confirm_accuracy', 'contact_consent',
-      'applicant_signature', 'applicant_signature_date',
-      'co_applicant_signature', 'co_applicant_signature_date',
-    ],
-  },
-];
+};
 
 // Fields to exclude from PDF (internal / honeypot)
 const EXCLUDE_FIELDS = new Set([
   'bot-field', 'form-name', 'request_type',
 ]);
 
+// ─── Lead Creation ──────────────────────────────────────────────────────────
+
+/**
+ * Create a lead record in the leads-db Blob store.
+ * Returns the created lead object, or null if storage is unavailable.
+ */
+async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message }) {
+  const store = blobStore('leads-db');
+  if (!store) {
+    console.warn('[submission-created] Blob store unavailable — skipping lead creation');
+    return null;
+  }
+
+  let leads;
+  try {
+    leads = await store.get('all', { type: 'json' });
+  } catch (e) {
+    // Key might not exist yet
+  }
+  if (!Array.isArray(leads)) leads = [];
+
+  // Deduplicate: skip if identical lead exists within last 60 seconds
+  const now = Date.now();
+  const DEDUP_WINDOW = 60 * 1000;
+  const isDupe = leads.some((l) =>
+    l.contactName === (contactName || '') &&
+    l.formType === formName &&
+    (now - (l.createdAt || 0)) < DEDUP_WINDOW
+  );
+  if (isDupe) {
+    console.log(`[submission-created] Duplicate lead suppressed for "${contactName}" (${formName})`);
+    return null;
+  }
+
+  const lead = {
+    id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
+    stockNumber: stockNumber || '',
+    vehicleName: vehicle || '',
+    vehiclePrice: null,
+    vehicleUrl: '',
+    source: source || 'form',
+    sourcePage: '',
+    formType: formName,
+    formDisplayName: displayName || formName,
+    status: 'hot',  // Form submissions are always high-intent
+    outcome: 'active',
+    contactName: contactName || '',
+    contactPhone: contactPhone || '',
+    contactEmail: contactEmail || '',
+    visitorId: '',
+    notes: message || `Auto-created from ${displayName || formName} submission`,
+    createdAt: now,
+    statusChangedAt: now,
+    convertedAt: null,
+    lostAt: null,
+    updatedBy: 'submission-handler',
+  };
+
+  leads.push(lead);
+  await store.setJSON('all', leads);
+
+  console.log(`[submission-created] Lead created: ${lead.id} (${contactName || 'unknown'})`);
+  return lead;
+}
+
 // ─── PDF Generation ─────────────────────────────────────────────────────────
 
 /**
  * Generate a PDF buffer from the submitted form data.
+ * Accepts a form config to customize the title, sections, and accent color.
  * Returns a Promise that resolves with a Buffer.
  */
-function generatePDF(data, submittedAt) {
+function generatePDF(data, submittedAt, config) {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
         size: 'LETTER',
         margins: { top: 50, bottom: 50, left: 50, right: 50 },
         info: {
-          Title: 'Financing Application - Bells Fork Truck & Auto',
+          Title: `${config.displayName} - Bells Fork Truck & Auto`,
           Author: 'Bells Fork Truck & Auto',
-          Subject: 'Financing Application Submission',
+          Subject: `${config.displayName} Submission`,
         },
       });
 
@@ -162,7 +489,7 @@ function generatePDF(data, submittedAt) {
 
       // ── Header ──
       doc.fontSize(18).font('Helvetica-Bold')
-        .text('APPLICATION FOR FINANCING', { align: 'center' });
+        .text(config.pdfTitle, { align: 'center' });
       doc.fontSize(10).font('Helvetica')
         .text('Bells Fork Truck & Auto', { align: 'center' })
         .text('3840 Charles Blvd, Greenville, NC 27858', { align: 'center' })
@@ -178,7 +505,7 @@ function generatePDF(data, submittedAt) {
       const pageWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
       const renderedFields = new Set();
 
-      for (const section of PDF_SECTIONS) {
+      for (const section of config.sections) {
         // Check if section has any non-empty values
         const sectionHasData = section.fields.some((key) => {
           const val = sanitize(data[key]);
@@ -258,7 +585,7 @@ function generatePDF(data, submittedAt) {
       // ── Footer ──
       doc.moveDown(1);
       doc.fontSize(8).fillColor('#999999').font('Helvetica')
-        .text('This document was auto-generated from an online financing application submission.', { align: 'center' })
+        .text(`This document was auto-generated from an online ${config.displayName.toLowerCase()} submission.`, { align: 'center' })
         .text('Bells Fork Truck & Auto — Confidential', { align: 'center' });
 
       doc.end();
@@ -306,6 +633,87 @@ async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, fil
   return info;
 }
 
+// ─── Email HTML Builder ─────────────────────────────────────────────────────
+
+function buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt }) {
+  const accent = config.accentColor;
+  const phone = config.getContactPhone(data);
+  const email = config.getContactEmail(data);
+
+  // Build summary rows from the most relevant fields
+  const rows = [];
+  rows.push(`<tr>
+    <td style="padding: 6px 12px; font-weight: bold; color: #555; width: 140px;">Name:</td>
+    <td style="padding: 6px 12px;">${sanitize(contactName)}</td>
+  </tr>`);
+
+  if (phone) {
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Phone:</td>
+      <td style="padding: 6px 12px;">${sanitize(phone)}</td>
+    </tr>`);
+  }
+  if (email) {
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Email:</td>
+      <td style="padding: 6px 12px;">${sanitize(email)}</td>
+    </tr>`);
+  }
+  if (vehicle) {
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Vehicle:</td>
+      <td style="padding: 6px 12px;">${sanitize(vehicle)}</td>
+    </tr>`);
+  }
+
+  // Form-specific extra rows
+  if (data.vehicle_price || data.monthly_budget) {
+    const priceVal = sanitize(data.vehicle_price || data.monthly_budget);
+    const priceLabel = data.vehicle_price ? 'Price' : 'Monthly Budget';
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">${priceLabel}:</td>
+      <td style="padding: 6px 12px;">${priceVal}</td>
+    </tr>`);
+  }
+  if (data.down_payment || data.vehicle_downpayment) {
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Down Payment:</td>
+      <td style="padding: 6px 12px;">${sanitize(data.down_payment || data.vehicle_downpayment)}</td>
+    </tr>`);
+  }
+  if (data.preferred_date) {
+    rows.push(`<tr>
+      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Preferred Date:</td>
+      <td style="padding: 6px 12px;">${sanitize(data.preferred_date)}</td>
+    </tr>`);
+  }
+
+  rows.push(`<tr>
+    <td style="padding: 6px 12px; font-weight: bold; color: #555;">Submitted:</td>
+    <td style="padding: 6px 12px;">${submittedAt.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'long', timeStyle: 'short' })}</td>
+  </tr>`);
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 2px solid ${accent}; padding-bottom: 8px;">
+        New ${config.displayName} Received
+      </h2>
+      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+        ${rows.join('\n        ')}
+      </table>
+      <p style="background: #f8f9fa; padding: 12px; border-radius: 4px; border-left: 4px solid ${accent}; color: #333;">
+        <strong>The complete ${config.displayName.toLowerCase()} is attached as a PDF.</strong><br>
+        <span style="font-size: 13px; color: #666;">Filename: ${filename}</span>
+      </p>
+      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+      <p style="font-size: 12px; color: #999;">
+        This email was sent automatically by the Bells Fork Truck &amp; Auto website
+        when a ${config.displayName.toLowerCase()} was submitted at bellsforktruckandauto.com.
+      </p>
+    </div>
+  `;
+}
+
 // ─── Main Handler ───────────────────────────────────────────────────────────
 
 exports.handler = async (event) => {
@@ -319,29 +727,53 @@ exports.handler = async (event) => {
 
   const formName = (payload.form_name || '').trim();
 
-  // Only process financing applications
-  if (formName !== 'financing-application') {
-    console.log(`[submission-created] Skipping form "${formName}" (not financing-application)`);
-    return { statusCode: 200, body: 'Skipped — not a financing application' };
+  // Look up the form configuration
+  const config = FORM_CONFIGS[formName];
+  if (!config) {
+    console.log(`[submission-created] Skipping unrecognized form "${formName}"`);
+    return { statusCode: 200, body: `Skipped — unrecognized form "${formName}"` };
   }
 
   const data = payload.data || {};
   const submittedAt = new Date();
 
-  // Build applicant name for filename and subject
-  const firstName = sanitize(data.applicant_first_name || '');
-  const lastName = sanitize(data.applicant_last_name || '');
-  const applicantName = [firstName, lastName].filter(Boolean).join(' ') || 'Unknown Applicant';
-  const nameSlug = slugify(applicantName) || 'applicant';
+  // Extract contact info using form-specific extractors
+  const contactName = config.getContactName(data) || 'Unknown';
+  const contactPhone = config.getContactPhone(data);
+  const contactEmail = config.getContactEmail(data);
+  const vehicle = config.getVehicle(data);
+
+  const nameSlug = slugify(contactName) || 'submission';
   const timestamp = formatTimestamp(submittedAt);
-  const filename = `financing-application-${nameSlug}-${timestamp}.pdf`;
+  const filename = `${config.filePrefix}-${nameSlug}-${timestamp}.pdf`;
 
-  console.log(`[submission-created] Processing financing application from "${applicantName}"`);
+  console.log(`[submission-created] Processing ${config.displayName} from "${contactName}"`);
 
-  // ── Step 1: Generate PDF ──
+  // ── Step 1: Create Lead Record ──
+  // Build a short notes summary from the form data
+  const leadMessage = sanitize(data.details || data.notes || data.message || '');
+  const stockNum = sanitize(data.stock_vin || data.vehicle_vin || '');
+  try {
+    await createLead({
+      contactName,
+      contactPhone,
+      contactEmail,
+      vehicle,
+      formName,
+      displayName: config.displayName,
+      source: config.leadSource,
+      stockNumber: stockNum,
+      message: leadMessage,
+    });
+  } catch (err) {
+    // Lead creation failure should not block PDF/email — log and continue
+    console.error('[submission-created] Lead creation failed (non-fatal):', err.message);
+  }
+
+  // ── Step 2: Generate PDF ──
   let pdfBuffer;
   try {
-    pdfBuffer = await generatePDF(data, submittedAt);
+    pdfBuffer = await generatePDF(data, submittedAt, config);
   } catch (err) {
     console.error('[submission-created] PDF generation failed:', err.message, err.stack);
     return { statusCode: 500, body: `PDF generation failed: ${err.message}` };
@@ -362,7 +794,7 @@ exports.handler = async (event) => {
 
   console.log(`[submission-created] PDF generated: ${filename} (${pdfBuffer.length} bytes)`);
 
-  // ── Step 2: Send email with attachment ──
+  // ── Step 3: Send email with attachment ──
   const recipientEmail = process.env.FINANCE_EMAIL_TO;
   if (!recipientEmail) {
     console.error('[submission-created] FINANCE_EMAIL_TO not configured — cannot send email');
@@ -370,61 +802,8 @@ exports.handler = async (event) => {
   }
 
   const fromEmail = process.env.FINANCE_EMAIL_FROM || process.env.SMTP_USER;
-  const vehicle = [
-    sanitize(data.vehicle_year),
-    sanitize(data.vehicle_make),
-    sanitize(data.vehicle_model),
-  ].filter(Boolean).join(' ');
-
-  const subject = `New Financing Application — ${applicantName}${vehicle ? ` | ${vehicle}` : ''}`;
-
-  // Build email body (summary + note about attachment)
-  const emailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333; border-bottom: 2px solid #dc3545; padding-bottom: 8px;">
-        New Financing Application Received
-      </h2>
-      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-        <tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555; width: 140px;">Applicant:</td>
-          <td style="padding: 6px 12px;">${applicantName}</td>
-        </tr>
-        ${data.applicant_phone ? `<tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Phone:</td>
-          <td style="padding: 6px 12px;">${sanitize(data.applicant_phone)}</td>
-        </tr>` : ''}
-        ${data.applicant_email ? `<tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Email:</td>
-          <td style="padding: 6px 12px;">${sanitize(data.applicant_email)}</td>
-        </tr>` : ''}
-        ${vehicle ? `<tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Vehicle:</td>
-          <td style="padding: 6px 12px;">${vehicle}</td>
-        </tr>` : ''}
-        ${data.vehicle_price ? `<tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Price:</td>
-          <td style="padding: 6px 12px;">${sanitize(data.vehicle_price)}</td>
-        </tr>` : ''}
-        ${data.vehicle_downpayment ? `<tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Down Payment:</td>
-          <td style="padding: 6px 12px;">${sanitize(data.vehicle_downpayment)}</td>
-        </tr>` : ''}
-        <tr>
-          <td style="padding: 6px 12px; font-weight: bold; color: #555;">Submitted:</td>
-          <td style="padding: 6px 12px;">${submittedAt.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'long', timeStyle: 'short' })}</td>
-        </tr>
-      </table>
-      <p style="background: #f8f9fa; padding: 12px; border-radius: 4px; border-left: 4px solid #dc3545; color: #333;">
-        <strong>The complete financing application is attached as a PDF.</strong><br>
-        <span style="font-size: 13px; color: #666;">Filename: ${filename}</span>
-      </p>
-      <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <p style="font-size: 12px; color: #999;">
-        This email was sent automatically by the Bells Fork Truck &amp; Auto website
-        when a financing application was submitted at bellsforktruckandauto.com.
-      </p>
-    </div>
-  `;
+  const subject = `New ${config.displayName} — ${contactName}${vehicle ? ` | ${vehicle}` : ''}`;
+  const emailHtml = buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt });
 
   try {
     await sendEmailWithAttachment({
@@ -440,6 +819,6 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: `Email send failed: ${err.message}` };
   }
 
-  console.log(`[submission-created] Financing application email sent successfully to ${recipientEmail}`);
-  return { statusCode: 200, body: 'Financing application email with PDF sent' };
+  console.log(`[submission-created] ${config.displayName} email sent successfully to ${recipientEmail}`);
+  return { statusCode: 200, body: `${config.displayName} processed: lead created, PDF emailed` };
 };

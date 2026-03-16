@@ -301,6 +301,7 @@ function generateFormPage(page, formContent) {
   <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
   <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
   <script src="/assets/js/sms-limiter.js" defer></script>
+  <script src="/assets/js/submit-lock.js" defer></script>
   <script src="/assets/js/tracker.js" defer></script>
   <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
