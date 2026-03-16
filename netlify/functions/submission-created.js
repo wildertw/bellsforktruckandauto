@@ -375,18 +375,18 @@ const FORM_CONFIGS = {
     filePrefix: 'contact-request',
     accentColor: '#20c997',
     leadSource: 'form',
-    getContactName: (d) => [sanitize(d.first_name || d.name), sanitize(d.last_name || '')].filter(Boolean).join(' '),
+    getContactName: (d) => sanitize(d.name || [d.first_name, d.last_name].filter(Boolean).join(' ') || ''),
     getContactPhone: (d) => sanitize(d.phone || ''),
     getContactEmail: (d) => sanitize(d.email || ''),
-    getVehicle: (d) => sanitize(d.interest_vehicle || d.vehicle || ''),
+    getVehicle: (d) => sanitize(d.interest_vehicle || d.vehicle || d.service || ''),
     sections: [
       {
         title: 'Contact Information',
-        fields: ['first_name', 'last_name', 'name', 'email', 'phone'],
+        fields: ['name', 'first_name', 'last_name', 'email', 'phone'],
       },
       {
-        title: 'Message',
-        fields: ['message', 'notes', 'interest_vehicle', 'vehicle'],
+        title: 'Inquiry Details',
+        fields: ['service', 'details', 'message', 'notes', 'interest_vehicle', 'vehicle'],
       },
     ],
   },
@@ -403,7 +403,7 @@ const EXCLUDE_FIELDS = new Set([
  * Create a lead record in the leads-db Blob store.
  * Returns the created lead object, or null if storage is unavailable.
  */
-async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, source }) {
+async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message }) {
   const store = blobStore('leads-db');
   if (!store) {
     console.warn('[submission-created] Blob store unavailable — skipping lead creation');
@@ -418,23 +418,36 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
   }
   if (!Array.isArray(leads)) leads = [];
 
+  // Deduplicate: skip if identical lead exists within last 60 seconds
   const now = Date.now();
+  const DEDUP_WINDOW = 60 * 1000;
+  const isDupe = leads.some((l) =>
+    l.contactName === (contactName || '') &&
+    l.formType === formName &&
+    (now - (l.createdAt || 0)) < DEDUP_WINDOW
+  );
+  if (isDupe) {
+    console.log(`[submission-created] Duplicate lead suppressed for "${contactName}" (${formName})`);
+    return null;
+  }
+
   const lead = {
     id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
-    stockNumber: '',
+    stockNumber: stockNumber || '',
     vehicleName: vehicle || '',
     vehiclePrice: null,
     vehicleUrl: '',
     source: source || 'form',
     sourcePage: '',
     formType: formName,
+    formDisplayName: displayName || formName,
     status: 'hot',  // Form submissions are always high-intent
     outcome: 'active',
     contactName: contactName || '',
     contactPhone: contactPhone || '',
     contactEmail: contactEmail || '',
     visitorId: '',
-    notes: `Auto-created from ${formName} submission`,
+    notes: message || `Auto-created from ${displayName || formName} submission`,
     createdAt: now,
     statusChangedAt: now,
     convertedAt: null,
@@ -737,6 +750,9 @@ exports.handler = async (event) => {
   console.log(`[submission-created] Processing ${config.displayName} from "${contactName}"`);
 
   // ── Step 1: Create Lead Record ──
+  // Build a short notes summary from the form data
+  const leadMessage = sanitize(data.details || data.notes || data.message || '');
+  const stockNum = sanitize(data.stock_vin || data.vehicle_vin || '');
   try {
     await createLead({
       contactName,
@@ -744,7 +760,10 @@ exports.handler = async (event) => {
       contactEmail,
       vehicle,
       formName,
+      displayName: config.displayName,
       source: config.leadSource,
+      stockNumber: stockNum,
+      message: leadMessage,
     });
   } catch (err) {
     // Lead creation failure should not block PDF/email — log and continue

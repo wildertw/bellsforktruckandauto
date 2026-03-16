@@ -945,18 +945,46 @@
     return div.innerHTML;
   }
 
+  // Human-readable form type labels for the dashboard
+  var formTypeLabels = {
+    'financing-application': 'Financing',
+    'offer-request': 'Offer',
+    'test-drive-request': 'Test Drive',
+    'trade-in-request': 'Trade-In',
+    'consignment-request': 'Consignment',
+    'contact-request': 'Contact',
+  };
+
+  function leadTitle(lead) {
+    // Use vehicle name/stock if available, otherwise show form type or contact name
+    if (lead.vehicleName) return lead.vehicleName;
+    if (lead.stockNumber) return lead.stockNumber;
+    var ft = formTypeLabels[lead.formType] || lead.formDisplayName || '';
+    if (ft) return ft + ' Inquiry';
+    if (lead.contactName) return lead.contactName;
+    return 'General Inquiry';
+  }
+
+  function formTypeBadge(lead) {
+    var label = formTypeLabels[lead.formType] || lead.formDisplayName || lead.formType || '';
+    if (!label) return '';
+    return '<span class="lead-form-badge">' + escapeHtml(label) + '</span>';
+  }
+
   function renderLeadCard(lead) {
     var sourceIcons = { phone: '&#128222;', form: '&#128233;', prequalify: '&#128179;', walkin: '&#128694;', other: '&#128172;' };
     var sourceIcon = sourceIcons[lead.source] || sourceIcons.other;
-    var title = lead.vehicleName || lead.stockNumber || 'Unknown Vehicle';
+    var title = leadTitle(lead);
     var contact = lead.contactName || lead.contactPhone || lead.contactEmail || '';
     var decayBadge = lead.decayedFrom ? '<span class="lead-decay-badge">Decayed from ' + lead.decayedFrom + '</span>' : '';
+    var ftBadge = formTypeBadge(lead);
 
     return '<div class="lead-card" data-lead-id="' + lead.id + '">' +
       '<div class="lead-card-top">' +
         '<span class="lead-source-icon">' + sourceIcon + '</span>' +
         '<div class="lead-card-info">' +
           '<strong class="lead-card-title">' + escapeHtml(title) + '</strong>' +
+          (ftBadge ? '<span class="lead-card-type">' + ftBadge + '</span>' : '') +
           (contact ? '<span class="lead-card-contact">' + escapeHtml(contact) + '</span>' : '') +
           (lead.vehiclePrice ? '<span class="lead-card-price">$' + Number(lead.vehiclePrice).toLocaleString() + '</span>' : '') +
         '</div>' +
@@ -1013,12 +1041,16 @@
                (l.stockNumber || '').toLowerCase().indexOf(lower) !== -1 ||
                (l.contactName || '').toLowerCase().indexOf(lower) !== -1 ||
                (l.contactPhone || '').toLowerCase().indexOf(lower) !== -1 ||
-               (l.contactEmail || '').toLowerCase().indexOf(lower) !== -1;
+               (l.contactEmail || '').toLowerCase().indexOf(lower) !== -1 ||
+               (l.formType || '').toLowerCase().indexOf(lower) !== -1;
       });
     }
 
+    // Sort newest first
+    filtered = filtered.slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+
     if (!filtered.length) {
-      body.innerHTML = '<tr><td colspan="6" class="muted">No leads found</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" class="muted">No leads found</td></tr>';
       return;
     }
 
@@ -1027,10 +1059,12 @@
     var outcomeLabels = { active: '<span class="lead-outcome active">Active</span>', converted: '<span class="lead-outcome converted">Converted</span>', lost: '<span class="lead-outcome lost">Lost</span>' };
 
     body.innerHTML = filtered.map(function (l) {
-      var title = l.vehicleName || l.stockNumber || 'General Inquiry';
+      var title = leadTitle(l);
       var contact = l.contactName || l.contactEmail || l.contactPhone || '';
+      var ftLabel = formTypeLabels[l.formType] || l.formDisplayName || l.formType || '-';
       return '<tr>' +
         '<td><strong>' + escapeHtml(title) + '</strong>' + (contact ? '<br><span class="muted small">' + escapeHtml(contact) + '</span>' : '') + '</td>' +
+        '<td>' + escapeHtml(ftLabel) + '</td>' +
         '<td>' + (statusLabels[l.status] || l.status) + '</td>' +
         '<td>' + (sourceLabels[l.source] || l.source) + '</td>' +
         '<td>' + formatLeadDate(l.createdAt) + '</td>' +
