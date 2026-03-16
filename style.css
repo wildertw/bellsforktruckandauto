@@ -1254,8 +1254,8 @@ html {
 }
 .body-style-card svg,
 .body-style-card .body-style-icon {
-  width: 40px;
-  height: 40px;
+  width: 200px;
+  height: auto;
   color: var(--brand-primary);
   opacity: .85;
 }
