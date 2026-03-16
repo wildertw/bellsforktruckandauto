@@ -35,6 +35,20 @@
   --info: #1d7cf2;
   --badge-red: #ff4d5a;
   --warning: #f59e0b;
+
+  /* ─── Bells Fork Batch Upload Tokens ─────────────────────────────── */
+  --bf-red-500:   #dc3545;
+  --bf-red-400:   #e6525f;
+  --bf-red-600:   #c82333;
+  --bf-gold-500:  #ffc107;
+  --bf-gold-300:  #ffe082;
+  --drop-zone-bg:       rgba(220, 53, 69, 0.04);
+  --drop-zone-border:   rgba(220, 53, 69, 0.25);
+  --drop-zone-active:   rgba(220, 53, 69, 0.12);
+  --upload-success:     #37bc7b;
+  --upload-error:       #f2555e;
+  --upload-progress:    #6767f7;
+  --upload-queued:      rgba(230, 237, 247, 0.15);
 }
 
 * { box-sizing: border-box; }
@@ -527,6 +541,229 @@ select option { background: #1d2730; }
 }
 .photo-label {
   font-size: 11px; color: var(--text-muted); text-align: center;
+}
+
+/* ─── Batch Media Upload Drop Zone ──────────────────────────────────── */
+.batch-drop-zone {
+  position: relative;
+  border: 2px dashed var(--drop-zone-border);
+  border-radius: 14px;
+  background: var(--drop-zone-bg);
+  padding: 36px 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.batch-drop-zone:hover {
+  border-color: var(--bf-red-400);
+  background: rgba(220, 53, 69, 0.06);
+}
+.batch-drop-zone.drag-over {
+  border-color: var(--bf-red-500);
+  background: var(--drop-zone-active);
+  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15);
+  transform: scale(1.005);
+}
+.batch-drop-zone .drop-icon {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+  opacity: 0.55;
+}
+.batch-drop-zone .drop-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.batch-drop-zone .drop-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.batch-drop-zone .drop-cta {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.batch-drop-zone .drop-cta .ghost-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+.batch-drop-zone .drop-specs {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.batch-drop-zone .drop-specs span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── Upload Gallery Grid ───────────────────────────────────────────── */
+.upload-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.upload-gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  margin-bottom: 2px;
+}
+.upload-gallery-header .gallery-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.upload-progress-summary {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.upload-progress-summary .uploading-count {
+  color: var(--upload-progress);
+  font-weight: 600;
+}
+
+.upload-card {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface1);
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  cursor: grab;
+}
+.upload-card:active { cursor: grabbing; }
+.upload-card.is-featured {
+  border-color: var(--bf-gold-500);
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25);
+}
+.upload-card.dragging {
+  opacity: 0.35;
+  transform: scale(0.92);
+}
+.upload-card.drag-over {
+  outline: 2px dashed var(--secondary-500);
+  outline-offset: 2px;
+}
+.upload-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.upload-card .img-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 1.5rem;
+}
+
+/* Status indicators */
+.upload-status {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+.status-queued    { background: var(--upload-queued); }
+.status-uploading { background: var(--upload-progress); font-size: 0.55rem; }
+.status-complete  { background: var(--upload-success); }
+.status-error     { background: var(--upload-error); cursor: pointer; }
+
+/* Progress bar overlay */
+.upload-card .progress-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(0,0,0,0.4);
+}
+.upload-card .progress-fill {
+  height: 100%;
+  background: var(--upload-progress);
+  transition: width 0.15s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Featured badge */
+.upload-card .featured-badge {
+  position: absolute;
+  top: 5px; left: 5px;
+  background: var(--bf-gold-500);
+  color: #1a1d23;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+/* Remove button on upload cards */
+.upload-card .card-remove {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.upload-card:hover .card-remove { display: flex; }
+.upload-card:hover .upload-status { display: none; }
+.upload-card.status-error-card:hover .upload-status { display: flex; }
+.upload-card.status-error-card:hover .card-remove { display: none; }
+
+/* Retry button */
+.upload-card .retry-btn {
+  position: absolute;
+  bottom: 6px; left: 50%; transform: translateX(-50%);
+  background: var(--upload-error);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.upload-card .retry-btn:hover { background: var(--bf-red-400); }
+
+/* Success animation */
+@keyframes uploadPop {
+  0%   { transform: scale(1); border-color: transparent; }
+  40%  { transform: scale(1.06); border-color: var(--upload-success); }
+  100% { transform: scale(1); border-color: transparent; }
+}
+.upload-card.just-completed {
+  animation: uploadPop 0.35s ease;
 }
 
 /* Live Preview */
@@ -1702,4 +1939,359 @@ button:hover {
   font-size: 12px;
   color: var(--text-secondary, #aaa);
   font-style: italic;
+}
+
+/* ─── Lead Legend Details (collapsible) ─────────────────────────────────── */
+.lead-legend-details {
+  cursor: pointer;
+}
+.lead-legend-summary {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 0;
+  color: var(--text-secondary, #aaa);
+}
+.lead-legend-details .lead-legend-grid {
+  margin-top: 12px;
+}
+
+/* ─── Lead Manager ──────────────────────────────────────────────────────── */
+.lead-manager .card-head {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lead-manager-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lead-filter-select {
+  background: var(--bg-card, #1a1a2e);
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+.lead-search-input {
+  background: var(--bg-card, #1a1a2e);
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  min-width: 160px;
+}
+.lead-search-input::placeholder {
+  color: var(--text-secondary, #888);
+}
+.lead-manager-note {
+  font-size: 12px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+/* ─── Lead Pipeline (3-column Kanban) ───────────────────────────────────── */
+.lead-pipeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+.lead-column {
+  background: var(--bg-inset, rgba(255,255,255,0.03));
+  border-radius: var(--radius-card, 10px);
+  padding: 14px;
+  min-height: 120px;
+  border-top: 3px solid transparent;
+}
+.lead-col-hot { border-top-color: #ff5a28; }
+.lead-col-warm { border-top-color: #ffb428; }
+.lead-col-cold { border-top-color: #50a0ff; }
+
+.lead-col-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.lead-col-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+.lead-col-icon {
+  font-size: 18px;
+}
+.lead-col-count {
+  background: var(--bg-card, #1a1a2e);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+.lead-col-desc {
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+.lead-col-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lead-empty {
+  font-size: 12px;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* ─── Lead Card ─────────────────────────────────────────────────────────── */
+.lead-card {
+  background: var(--bg-card, #1a1a2e);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid var(--border, #333);
+  transition: border-color 0.15s;
+}
+.lead-card:hover {
+  border-color: var(--accent, #6767f7);
+}
+.lead-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lead-source-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.lead-card-info {
+  flex: 1;
+  min-width: 0;
+}
+.lead-card-title {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lead-card-contact {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+  margin-top: 2px;
+}
+.lead-card-price {
+  display: block;
+  font-size: 12px;
+  color: var(--accent-green, #37bc7b);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.lead-card-time {
+  font-size: 11px;
+  color: var(--text-secondary, #888);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.lead-card-decay {
+  margin-top: 4px;
+}
+.lead-decay-badge {
+  font-size: 10px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.lead-card-notes {
+  font-size: 11px;
+  color: var(--text-secondary, #aaa);
+  margin: 6px 0 0;
+  line-height: 1.4;
+}
+.lead-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border, #333);
+}
+
+/* ─── Lead Action Buttons ───────────────────────────────────────────────── */
+.lead-action-btn {
+  background: none;
+  border: 1px solid var(--border, #333);
+  color: var(--text-secondary, #aaa);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.lead-action-btn:hover {
+  color: var(--text-primary, #fff);
+  border-color: var(--text-secondary, #888);
+}
+.lead-btn-convert:hover {
+  border-color: #37bc7b;
+  color: #37bc7b;
+  background: rgba(55, 188, 123, 0.08);
+}
+.lead-btn-lost:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+.lead-btn-edit:hover {
+  border-color: var(--accent, #6767f7);
+  color: var(--accent, #6767f7);
+}
+.lead-btn-delete:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+.lead-action-btn.small {
+  padding: 3px 6px;
+  font-size: 12px;
+}
+.lead-db-actions {
+  display: flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+/* ─── Lead Status & Outcome Badges ──────────────────────────────────────── */
+.lead-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.lead-status-badge.hot {
+  background: rgba(255, 90, 40, 0.15);
+  color: #ff5a28;
+}
+.lead-status-badge.warm {
+  background: rgba(255, 180, 40, 0.15);
+  color: #ffb428;
+}
+.lead-status-badge.cold {
+  background: rgba(80, 160, 255, 0.15);
+  color: #50a0ff;
+}
+.lead-outcome {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.lead-outcome.active {
+  background: rgba(103, 103, 247, 0.12);
+  color: var(--accent, #6767f7);
+}
+.lead-outcome.converted {
+  background: rgba(55, 188, 123, 0.12);
+  color: #37bc7b;
+}
+.lead-outcome.lost {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* ─── Lead Modal ────────────────────────────────────────────────────────── */
+.modal-lead {
+  max-width: 540px;
+}
+#leadModal.show {
+  display: grid;
+  place-items: center;
+}
+#leadModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  padding: 20px;
+}
+#leadModal .modal-dialog {
+  background: var(--bg-card, #1a1a2e);
+  border-radius: var(--radius-card, 10px);
+  border: 1px solid var(--border, #333);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+#leadModal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border, #333);
+}
+#leadModal .modal-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+#leadModal .modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary, #aaa);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+#leadModal .modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#leadModal .modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary, #aaa);
+}
+#leadModal .modal-body input,
+#leadModal .modal-body select,
+#leadModal .modal-body textarea {
+  background: var(--bg-inset, rgba(255,255,255,0.05));
+  color: var(--text-primary, #fff);
+  border: 1px solid var(--border, #333);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+#leadModal .modal-body textarea {
+  resize: vertical;
+}
+#leadModal .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #333);
 }

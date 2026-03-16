@@ -100,6 +100,7 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
   let totalViews = 0;
   let totalPhoneClicks = 0;
   let totalFormSubmits = 0;
+  let totalPrequalifySubmits = 0;
   const allVisitorIds = new Set();
 
   // Enhanced aggregates
@@ -117,6 +118,7 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
   let todayUniques = 0;
   let todayPhoneClicks = 0;
   let todayFormSubmits = 0;
+  let todayPrequalifySubmits = 0;
 
   for (let i = 0; i < daysBack; i++) {
     const d = new Date(endDate.getTime() - i * 86400000);
@@ -128,10 +130,12 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
       const uniques = (daily.uniqueVisitors || []).length;
       const calls = daily.phoneClicks || 0;
       const forms = daily.formSubmits || 0;
+      const prequalify = daily.prequalifySubmits || 0;
 
       totalViews += views;
       totalPhoneClicks += calls;
       totalFormSubmits += forms;
+      totalPrequalifySubmits += prequalify;
       (daily.uniqueVisitors || []).forEach(function (id) { allVisitorIds.add(id); });
 
       // Enhanced field aggregation (backward compatible)
@@ -171,6 +175,7 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
         uniques: uniques,
         calls: calls,
         forms: forms,
+        prequalify: prequalify,
       });
 
       if (i === 0) {
@@ -178,6 +183,7 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
         todayUniques = uniques;
         todayPhoneClicks = calls;
         todayFormSubmits = forms;
+        todayPrequalifySubmits = prequalify;
       }
     } else {
       dailyBreakdown.push({
@@ -186,14 +192,15 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
         uniques: 0,
         calls: 0,
         forms: 0,
+        prequalify: 0,
       });
     }
   }
 
   return {
-    totalViews, totalPhoneClicks, totalFormSubmits,
+    totalViews, totalPhoneClicks, totalFormSubmits, totalPrequalifySubmits,
     uniqueVisitorCount: allVisitorIds.size,
-    todayViews, todayUniques, todayPhoneClicks, todayFormSubmits,
+    todayViews, todayUniques, todayPhoneClicks, todayFormSubmits, todayPrequalifySubmits,
     devices, referrers,
     newVisitorCount: allNewVisitors.size,
     returningVisitorCount: allReturningVisitors.size,
@@ -364,8 +371,8 @@ exports.handler = async (event) => {
       carsInInventory = vehicles.length;
     }
 
-    const totalLeads = current.totalFormSubmits + current.totalPhoneClicks;
-    const prevTotalLeads = prev.totalFormSubmits + prev.totalPhoneClicks;
+    const totalLeads = current.totalFormSubmits + current.totalPhoneClicks + current.totalPrequalifySubmits;
+    const prevTotalLeads = prev.totalFormSubmits + prev.totalPhoneClicks + prev.totalPrequalifySubmits;
 
     // Computed metrics
     const conversionRate = current.uniqueVisitorCount > 0
@@ -473,8 +480,10 @@ exports.handler = async (event) => {
       leadsFromWebsite: current.totalFormSubmits,
       callsFromWebsite: current.totalPhoneClicks,
       formsSubmitted: current.totalFormSubmits,
+      prequalifySubmitted: current.totalPrequalifySubmits,
       todayCalls: current.todayPhoneClicks,
       todayForms: current.todayFormSubmits,
+      todayPrequalify: current.todayPrequalifySubmits,
       period: period,
       daysBack: daysBack,
       dailyBreakdown: current.dailyBreakdown.reverse(), // oldest first for chart
@@ -511,6 +520,7 @@ exports.handler = async (event) => {
         bounceRate: Math.round(prevBounceRate * 10) / 10,
         phoneClicks: prev.totalPhoneClicks,
         formSubmits: prev.totalFormSubmits,
+        prequalifySubmits: prev.totalPrequalifySubmits,
       },
     };
 

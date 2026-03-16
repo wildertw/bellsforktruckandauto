@@ -8,6 +8,7 @@
   'use strict';
 
   var ENDPOINT = '/.netlify/functions/track';
+  var LEADS_ENDPOINT = '/.netlify/functions/leads?source=tracker';
   var VID_KEY = 'bf_visitor_id';
   var FIRST_VISIT_KEY = 'bf_first_visit';
   var SESSION_KEY = 'bf_session_id';
@@ -136,6 +137,57 @@
     }
   }
 
+  // ─── Create Individual Lead Record ─────────────────────────────────────────
+  // Fires on phone_click, form_submit, prequalify_submit to create a trackable lead
+  function createLead(source) {
+    var stockNum = getStockNumber();
+    var path = location.pathname;
+
+    // Classify: VDP page = hot, inventory page = warm, else = cold
+    var status = 'cold';
+    if (stockNum || path.indexOf('/vdp/') !== -1) {
+      status = 'hot';
+    } else if (path.indexOf('/inventory') !== -1) {
+      status = 'warm';
+    }
+
+    // Try to get vehicle name from page title or meta
+    var vehicleName = '';
+    var vehiclePrice = null;
+    if (status === 'hot') {
+      var titleEl = document.querySelector('h1, .vehicle-title, [data-vehicle-name]');
+      if (titleEl) vehicleName = titleEl.textContent.trim().slice(0, 100);
+      var priceEl = document.querySelector('.vehicle-price, [data-vehicle-price], .price');
+      if (priceEl) {
+        var priceText = priceEl.textContent.replace(/[^0-9.]/g, '');
+        if (priceText) vehiclePrice = parseFloat(priceText);
+      }
+    }
+
+    var leadData = JSON.stringify({
+      stockNumber: stockNum || '',
+      vehicleName: vehicleName,
+      vehiclePrice: vehiclePrice,
+      vehicleUrl: status === 'hot' ? location.href : '',
+      source: source,
+      sourcePage: path,
+      status: status,
+      visitorId: visitorId,
+    });
+
+    // Send lead creation via fetch (fire-and-forget)
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(LEADS_ENDPOINT, leadData);
+      } else {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', LEADS_ENDPOINT, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(leadData);
+      }
+    } catch (e) { /* ignore errors — analytics should never break the site */ }
+  }
+
   // ─── Session Start (once per session) ──────────────────────────────────────
   var isFirstPageInSession = false;
   try {
@@ -192,6 +244,7 @@
     }
     if (link) {
       send('phone_click', { number: link.getAttribute('href') });
+      createLead('phone');
     }
   }, true);
 
@@ -202,6 +255,95 @@
     var action = form.getAttribute('action') || '';
     if (action.indexOf('formspree') !== -1 || form.hasAttribute('data-netlify') || action.indexOf('netlify') !== -1) {
       send('form_submit', { action: action });
+      createLead('form');
     }
   }, true);
+
+  // ─── Track Pre-Qualify (QualifyWizard) Submissions ────────────────────────
+  // QualifyWizard runs in an iframe and posts messages on completion.
+  // Also detect via DOM observation for the QW success/thank-you state.
+  var prequalifySent = false; // guard: only count once per page load
+  var isPrequalifyPage = location.pathname.indexOf('pre-qualify') !== -1;
+
+  if (isPrequalifyPage) {
+    // Method 1: Listen for postMessage from QualifyWizard iframe
+    window.addEventListener('message', function (e) {
+      if (prequalifySent) return;
+      var data = e.data;
+      // QW sends various message formats — detect completion signals
+      if (typeof data === 'string') {
+        var lower = data.toLowerCase();
+        if (lower.indexOf('complete') !== -1 || lower.indexOf('submit') !== -1 ||
+            lower.indexOf('success') !== -1 || lower.indexOf('thank') !== -1 ||
+            lower.indexOf('approved') !== -1 || lower.indexOf('qualified') !== -1) {
+          prequalifySent = true;
+          send('prequalify_submit', { source: 'postMessage', page: location.pathname });
+          createLead('prequalify');
+        }
+      } else if (data && typeof data === 'object') {
+        var eventType = (data.event || data.type || data.action || '').toLowerCase();
+        var status = (data.status || data.state || data.result || '').toLowerCase();
+        if (eventType.indexOf('complete') !== -1 || eventType.indexOf('submit') !== -1 ||
+            status.indexOf('success') !== -1 || status.indexOf('complete') !== -1 ||
+            status.indexOf('approved') !== -1 || status.indexOf('qualified') !== -1 ||
+            data.qualified === true || data.submitted === true) {
+          prequalifySent = true;
+          send('prequalify_submit', { source: 'postMessage', page: location.pathname });
+          createLead('prequalify');
+        }
+      }
+    });
+
+    // Method 2: MutationObserver to detect QW success/thank-you DOM state
+    // QualifyWizard typically shows a confirmation screen after form completion
+    if (typeof MutationObserver !== 'undefined') {
+      var qwObserver = new MutationObserver(function (mutations) {
+        if (prequalifySent) return;
+        for (var i = 0; i < mutations.length; i++) {
+          var nodes = mutations[i].addedNodes;
+          for (var j = 0; j < nodes.length; j++) {
+            var node = nodes[j];
+            if (node.nodeType !== 1) continue;
+            var text = (node.textContent || '').toLowerCase();
+            // Detect QW confirmation messages
+            if ((text.indexOf('pre-qualified') !== -1 || text.indexOf('prequalified') !== -1 ||
+                 text.indexOf('you qualify') !== -1 || text.indexOf('congratulations') !== -1 ||
+                 text.indexOf('application submitted') !== -1 || text.indexOf('thank you') !== -1) &&
+                text.length < 500) { // avoid matching large page sections
+              prequalifySent = true;
+              send('prequalify_submit', { source: 'dom_mutation', page: location.pathname });
+              createLead('prequalify');
+              qwObserver.disconnect();
+              return;
+            }
+          }
+        }
+      });
+      // Observe the body for QW widget changes
+      qwObserver.observe(document.body, { childList: true, subtree: true });
+
+      // Auto-disconnect after 30 minutes to prevent memory leaks
+      setTimeout(function () { qwObserver.disconnect(); }, 30 * 60 * 1000);
+    }
+
+    // Method 3: Detect form submissions within QW iframes (cross-origin safe)
+    // Listen for any iframe navigation that signals completion
+    document.addEventListener('click', function (e) {
+      if (prequalifySent) return;
+      var btn = e.target.closest ? e.target.closest('button, [type="submit"], .qw-submit, [data-qw-submit]') : null;
+      if (!btn) return;
+      // Check if this button is inside a QualifyWizard container
+      var container = btn.closest('.qw-container, .qualify-wizard, [id*="qualifywizard"], [class*="qw-"]');
+      if (container) {
+        // Delay slightly to allow form validation
+        setTimeout(function () {
+          if (!prequalifySent) {
+            prequalifySent = true;
+            send('prequalify_submit', { source: 'button_click', page: location.pathname });
+            createLead('prequalify');
+          }
+        }, 2000);
+      }
+    }, true);
+  }
 })();

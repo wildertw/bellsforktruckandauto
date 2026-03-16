@@ -241,9 +241,13 @@ function buildSchema(v) {
       // ImageObject entries for vehicle photos (up to 25) — OEM labels excluded
       ...pubImages.slice(0, 25).map((img, i) => ({
         '@type': 'ImageObject',
+        '@id': `${vdpUrl}#photo-${i + 1}`,
         url: resolveImgAbs(img),
+        contentUrl: resolveImgAbs(img),
         name: `${title} - Photo ${i + 1}`,
-        description: `${title} for sale at ${DEALER_NAME} in ${DEALER_CITY}, ${DEALER_STATE}`
+        description: `${title} for sale at ${DEALER_NAME} in ${DEALER_CITY}, ${DEALER_STATE}`,
+        representativeOfPage: i === 0,
+        ...(i === 0 ? { primaryImageOfPage: { '@id': vdpUrl } } : {})
       }))
     ]
   };

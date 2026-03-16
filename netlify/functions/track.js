@@ -38,7 +38,7 @@ function corsHeaders(event) {
   };
 }
 
-const VALID_TYPES = ['page_view', 'phone_click', 'form_submit', 'session_start', 'session_end'];
+const VALID_TYPES = ['page_view', 'phone_click', 'form_submit', 'prequalify_submit', 'session_start', 'session_end'];
 const MAX_UNIQUE_VISITORS = 10000;
 
 function todayKey() {
@@ -55,6 +55,7 @@ function emptyDay() {
     uniqueVisitors: [],
     phoneClicks: 0,
     formSubmits: 0,
+    prequalifySubmits: 0,
     pages: {},
     // Enhanced tracking fields
     devices: { mobile: 0, desktop: 0, tablet: 0 },
@@ -78,6 +79,7 @@ function ensureFields(daily) {
   if (daily.totalSessions == null) daily.totalSessions = 0;
   if (daily.totalSessionDuration == null) daily.totalSessionDuration = 0;
   if (!daily.vehicleViews) daily.vehicleViews = {};
+  if (daily.prequalifySubmits == null) daily.prequalifySubmits = 0;
   return daily;
 }
 
@@ -147,6 +149,10 @@ exports.handler = async (event) => {
 
       case 'form_submit':
         daily.formSubmits++;
+        break;
+
+      case 'prequalify_submit':
+        daily.prequalifySubmits++;
         break;
 
       case 'session_start':
