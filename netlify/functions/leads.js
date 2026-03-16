@@ -123,9 +123,20 @@ exports.handler = async (event) => {
 
   // Internal lead creation from tracker (no auth required, uses secret token)
   if (event.httpMethod === 'POST' && params.source === 'tracker') {
-    const trackerSecret = process.env.TRACKER_LEAD_SECRET || 'bf-tracker-internal';
+    const trackerSecret = process.env.TRACKER_LEAD_SECRET;
+    if (!trackerSecret) {
+      console.error('[leads] TRACKER_LEAD_SECRET env var not set — tracker endpoint disabled');
+      return { statusCode: 503, headers: corsHeaders(event), body: JSON.stringify({ error: 'Tracker not configured' }) };
+    }
     const providedSecret = (event.headers['x-tracker-secret'] || '');
-    if (providedSecret !== trackerSecret) {
+    // Use timing-safe comparison for the tracker secret
+    let secretValid = false;
+    try {
+      const a = Buffer.from(String(providedSecret));
+      const b = Buffer.from(String(trackerSecret));
+      secretValid = a.length === b.length && crypto.timingSafeEqual(a, b);
+    } catch { secretValid = false; }
+    if (!secretValid) {
       return { statusCode: 403, headers: corsHeaders(event), body: JSON.stringify({ error: 'Forbidden' }) };
     }
   } else {

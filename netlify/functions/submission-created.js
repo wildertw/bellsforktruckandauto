@@ -635,6 +635,16 @@ async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, fil
 
 // ─── Email HTML Builder ─────────────────────────────────────────────────────
 
+/** Escape HTML entities to prevent injection in email templates */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt }) {
   const accent = config.accentColor;
   const phone = config.getContactPhone(data);
@@ -644,31 +654,31 @@ function buildEmailHtml({ config, contactName, data, vehicle, filename, submitte
   const rows = [];
   rows.push(`<tr>
     <td style="padding: 6px 12px; font-weight: bold; color: #555; width: 140px;">Name:</td>
-    <td style="padding: 6px 12px;">${sanitize(contactName)}</td>
+    <td style="padding: 6px 12px;">${escapeHtml(sanitize(contactName))}</td>
   </tr>`);
 
   if (phone) {
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">Phone:</td>
-      <td style="padding: 6px 12px;">${sanitize(phone)}</td>
+      <td style="padding: 6px 12px;">${escapeHtml(sanitize(phone))}</td>
     </tr>`);
   }
   if (email) {
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">Email:</td>
-      <td style="padding: 6px 12px;">${sanitize(email)}</td>
+      <td style="padding: 6px 12px;">${escapeHtml(sanitize(email))}</td>
     </tr>`);
   }
   if (vehicle) {
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">Vehicle:</td>
-      <td style="padding: 6px 12px;">${sanitize(vehicle)}</td>
+      <td style="padding: 6px 12px;">${escapeHtml(sanitize(vehicle))}</td>
     </tr>`);
   }
 
   // Form-specific extra rows
   if (data.vehicle_price || data.monthly_budget) {
-    const priceVal = sanitize(data.vehicle_price || data.monthly_budget);
+    const priceVal = escapeHtml(sanitize(data.vehicle_price || data.monthly_budget));
     const priceLabel = data.vehicle_price ? 'Price' : 'Monthly Budget';
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">${priceLabel}:</td>
@@ -678,13 +688,13 @@ function buildEmailHtml({ config, contactName, data, vehicle, filename, submitte
   if (data.down_payment || data.vehicle_downpayment) {
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">Down Payment:</td>
-      <td style="padding: 6px 12px;">${sanitize(data.down_payment || data.vehicle_downpayment)}</td>
+      <td style="padding: 6px 12px;">${escapeHtml(sanitize(data.down_payment || data.vehicle_downpayment))}</td>
     </tr>`);
   }
   if (data.preferred_date) {
     rows.push(`<tr>
       <td style="padding: 6px 12px; font-weight: bold; color: #555;">Preferred Date:</td>
-      <td style="padding: 6px 12px;">${sanitize(data.preferred_date)}</td>
+      <td style="padding: 6px 12px;">${escapeHtml(sanitize(data.preferred_date))}</td>
     </tr>`);
   }
 
@@ -795,7 +805,7 @@ exports.handler = async (event) => {
   console.log(`[submission-created] PDF generated: ${filename} (${pdfBuffer.length} bytes)`);
 
   // ── Step 3: Send email with attachment ──
-  const recipientEmail = process.env.FINANCE_EMAIL_TO;
+  const recipientEmail = (process.env.FINANCE_EMAIL_TO || '').split(',').map(e => e.trim()).filter(Boolean).join(',');
   if (!recipientEmail) {
     console.error('[submission-created] FINANCE_EMAIL_TO not configured — cannot send email');
     return { statusCode: 500, body: 'Email recipient not configured' };

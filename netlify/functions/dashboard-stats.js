@@ -277,6 +277,21 @@ exports.handler = async (event) => {
     if (event.httpMethod !== 'POST' && event.httpMethod !== 'DELETE') {
       return { statusCode: 405, headers: corsHeaders(event), body: JSON.stringify({ error: 'Use POST or DELETE for reset' }) };
     }
+
+    // Require explicit confirmation to prevent accidental data wipes
+    let resetBody;
+    try { resetBody = JSON.parse(event.body || '{}'); } catch { resetBody = {}; }
+    if (resetBody.confirm !== 'RESET_ALL_ANALYTICS') {
+      return {
+        statusCode: 400,
+        headers: corsHeaders(event),
+        body: JSON.stringify({
+          error: 'Reset requires confirmation. Send { "confirm": "RESET_ALL_ANALYTICS" } in the request body.',
+          warning: 'This will permanently delete all daily analytics data. Goals and inventory are preserved.',
+        }),
+      };
+    }
+
     try {
       const analyticsStore = blobStore({ name: 'site-analytics', consistency: 'strong' });
       const salesStore = blobStore({ name: 'sales-records', consistency: 'strong' });

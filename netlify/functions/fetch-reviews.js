@@ -110,11 +110,16 @@ exports.handler = async (event) => {
   }
 
   try {
+    // Build Google Places API URL
+    // Note: Google Places API requires the key as a query parameter (no header auth available).
+    // This is standard and unavoidable for this API. The key is server-side only,
+    // never exposed to the client browser. Restrict the key in Google Cloud Console
+    // to this server's IP and the Places API only.
     const url = 'https://maps.googleapis.com/maps/api/place/details/json' +
       '?place_id=' + encodeURIComponent(placeId) +
       '&fields=reviews,rating,user_ratings_total,name' +
       '&reviews_sort=newest' +
-      '&key=' + apiKey;
+      '&key=' + encodeURIComponent(apiKey);
 
     const res = await fetch(url);
     if (!res.ok) {
@@ -127,10 +132,12 @@ exports.handler = async (event) => {
 
     const data = await res.json();
     if (data.status !== 'OK') {
+      // Log the full error server-side but don't expose Google API error details to client
+      console.error('[fetch-reviews] Google API error:', data.status, data.error_message);
       return {
         statusCode: 502,
         headers: corsHeaders(event),
-        body: JSON.stringify({ error: 'Google API error: ' + data.status, detail: data.error_message }),
+        body: JSON.stringify({ error: 'Failed to fetch reviews from Google' }),
       };
     }
 

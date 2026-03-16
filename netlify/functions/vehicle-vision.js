@@ -106,11 +106,13 @@ exports.handler = async (event) => {
   if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
     return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'imageUrls must be a non-empty array' }) };
   }
+  // SSRF protection: only allow HTTPS URLs to known safe hosts
+  const SAFE_HOSTS = /^https:\/\/([\w.-]+\.)?(netlify\.app|cloudinary\.com|bellsforktruckandauto\.com|googleapis\.com|blob\.core\.windows\.net)\//i;
   const validUrls = imageUrls
-    .filter(url => typeof url === 'string' && url.startsWith('https://'))
+    .filter(url => typeof url === 'string' && url.startsWith('https://') && SAFE_HOSTS.test(url))
     .slice(0, 5);
   if (validUrls.length === 0) {
-    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'No valid HTTPS image URLs provided' }) };
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'No valid HTTPS image URLs provided. URLs must be from approved hosts.' }) };
   }
 
   // Resolve OpenAI API key: env var → blob settings → Authorization header
@@ -131,17 +133,13 @@ exports.handler = async (event) => {
       }
     } catch { /* blob read failed, try header next */ }
   }
-  if (!openaiKey) {
-    const authHeader = (event.headers['authorization'] || event.headers['Authorization'] || '');
-    if (authHeader.startsWith('Bearer ')) {
-      openaiKey = authHeader.slice(7).trim();
-    }
-  }
+  // NOTE: Client-provided Authorization header fallback removed for security.
+  // OpenAI key must come from server env var or admin settings blob only.
   if (!openaiKey) {
     return {
       statusCode: 500,
       headers: corsHeaders(event),
-      body: JSON.stringify({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY env var or provide key in Settings.' }),
+      body: JSON.stringify({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY env var or provide key in admin Settings.' }),
     };
   }
 
@@ -175,11 +173,12 @@ exports.handler = async (event) => {
 
     if (!res.ok) {
       const errText = await res.text();
+      console.error('[vehicle-vision] OpenAI API error:', res.status, errText);
       const status = res.status === 429 ? 429 : 502;
       return {
         statusCode: status,
         headers: corsHeaders(event),
-        body: JSON.stringify({ error: 'OpenAI API error: ' + res.status, detail: errText }),
+        body: JSON.stringify({ error: res.status === 429 ? 'Rate limit exceeded — please wait and try again' : 'AI analysis service temporarily unavailable' }),
       };
     }
 
@@ -193,10 +192,11 @@ exports.handler = async (event) => {
     try {
       analysis = JSON.parse(content);
     } catch {
+      console.error('[vehicle-vision] Failed to parse AI response:', content.slice(0, 500));
       return {
         statusCode: 502,
         headers: corsHeaders(event),
-        body: JSON.stringify({ error: 'Failed to parse AI response as JSON', raw: content }),
+        body: JSON.stringify({ error: 'AI returned unparseable response — please try again' }),
       };
     }
 
