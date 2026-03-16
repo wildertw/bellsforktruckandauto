@@ -12,6 +12,7 @@
   const VISION_API = '/.netlify/functions/vehicle-vision';
   const SETTINGS_API = '/.netlify/functions/admin-settings';
   const SALES_API = '/.netlify/functions/sales-data';
+  const LEADS_API = '/.netlify/functions/leads';
   const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
 
   let blogToken = '';
@@ -24,6 +25,8 @@
   let parsedPublishInventory = null;
   let currentPeriod = 'week';
   let statsCache = { data: null, time: 0, period: '' };
+  let leadsData = [];
+  let leadsSummary = {};
 
   let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || 'null') || [
     {
@@ -583,7 +586,7 @@
     var labels = dailyBreakdown.map(function (d) { return d.date.slice(5); });
     var viewsData = dailyBreakdown.map(function (d) { return d.views; });
     var uniquesData = dailyBreakdown.map(function (d) { return d.uniques; });
-    var leadsData = dailyBreakdown.map(function (d) { return (d.calls || 0) + (d.forms || 0); });
+    var leadsData = dailyBreakdown.map(function (d) { return (d.calls || 0) + (d.forms || 0) + (d.prequalify || 0); });
 
     trafficChartInstance = new Chart(canvas, {
       type: 'bar',
@@ -649,7 +652,7 @@
       });
       // Render sub-tab content on demand
       if (statsCache.data) {
-        if (currentSubtab === 'leads') renderLeadsPanel(statsCache.data);
+        if (currentSubtab === 'leads') { renderLeadsPanel(statsCache.data); fetchLeads('active'); }
         if (currentSubtab === 'inventory-analytics') renderInventoryAnalytics(statsCache.data);
         if (currentSubtab === 'insights') renderInsightsPanel(statsCache.data);
       }
@@ -702,6 +705,9 @@
       $('kpiCalls').textContent = String(stats.callsFromWebsite);
       $('kpiForms').textContent = String(stats.formsSubmitted);
       $('kpiFormsMeta').textContent = 'this ' + currentPeriod;
+      $('kpiPrequalify').textContent = String(stats.prequalifySubmitted || 0);
+      var pqMeta = $('kpiPrequalifyMeta');
+      if (pqMeta) pqMeta.textContent = 'this ' + currentPeriod;
       $('kpiSold').textContent = String(stats.carsSold);
       $('kpiSoldMeta').textContent = stats.carsPending > 0 ? stats.carsPending + ' pending' : 'all time';
 
@@ -747,6 +753,7 @@
           '<div class="activity-item"><strong>' + (today.uniques || 0) + '</strong> unique visitors today</div>' +
           '<div class="activity-item"><strong>' + (today.calls || 0) + '</strong> phone calls today</div>' +
           '<div class="activity-item"><strong>' + (today.forms || 0) + '</strong> forms submitted today</div>' +
+          '<div class="activity-item"><strong>' + (today.prequalify || 0) + '</strong> pre-qualify apps today</div>' +
           '<div class="activity-item muted" style="margin-top:8px">Data tracked via site analytics</div>';
       }
 
@@ -767,14 +774,14 @@
       }
 
       // Render active sub-tab
-      if (currentSubtab === 'leads') renderLeadsPanel(stats);
+      if (currentSubtab === 'leads') { renderLeadsPanel(stats); fetchLeads('active'); }
       if (currentSubtab === 'inventory-analytics') renderInventoryAnalytics(stats);
       if (currentSubtab === 'insights') renderInsightsPanel(stats);
 
     } catch (err) {
       console.warn('Dashboard stats unavailable:', err.message);
       var zeroIds = ['kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiCalls', 'kpiForms',
-        'kpiConversion', 'kpiDeviceSplit', 'kpiBounce', 'kpiNewReturn', 'kpiSessionDuration'];
+        'kpiPrequalify', 'kpiConversion', 'kpiDeviceSplit', 'kpiBounce', 'kpiNewReturn', 'kpiSessionDuration'];
       zeroIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '-'; });
       var topPagesBody = $('topPagesBody');
       if (topPagesBody) topPagesBody.innerHTML = '<tr><td colspan="2" class="muted">No data available</td></tr>';
@@ -794,6 +801,7 @@
     setVal('kpiColdLeads', ls.cold || 0);
     setVal('kpiPhoneLeads2', stats.callsFromWebsite);
     setVal('kpiFormLeads2', stats.formsSubmitted);
+    setVal('kpiPrequalifyLeads2', stats.prequalifySubmitted || 0);
     setVal('kpiLeadConversion', (stats.conversionRate || 0).toFixed(1) + '%');
 
     // Lead-to-sale estimate
@@ -808,10 +816,10 @@
         leadSourceChartInstance = new Chart(srcCanvas, {
           type: 'doughnut',
           data: {
-            labels: ['Phone Calls', 'Form Submissions'],
+            labels: ['Phone Calls', 'Form Submissions', 'Pre-Qualify (No SSN)'],
             datasets: [{
-              data: [stats.callsFromWebsite || 0, stats.formsSubmitted || 0],
-              backgroundColor: ['#6767f7', '#37bc7b'],
+              data: [stats.callsFromWebsite || 0, stats.formsSubmitted || 0, stats.prequalifySubmitted || 0],
+              backgroundColor: ['#6767f7', '#37bc7b', '#f59e0b'],
               borderWidth: 0,
             }],
           },
@@ -848,6 +856,13 @@
                 tension: 0.3,
                 pointRadius: 3,
               },
+              {
+                label: 'Pre-Qualify (No SSN)',
+                data: stats.dailyBreakdown.map(function (d) { return d.prequalify || 0; }),
+                borderColor: '#f59e0b',
+                tension: 0.3,
+                pointRadius: 3,
+              },
             ],
           },
           options: {
@@ -879,6 +894,319 @@
           return '<tr><td>' + (refLabels[entry[0]] || entry[0]) + '</td><td>' + entry[1] + '</td><td>' + pct + '%</td></tr>';
         }).join('') || '<tr><td colspan="3" class="muted">No data</td></tr>';
     }
+  }
+
+  // ─── Lead Manager ──────────────────────────────────────────────────────────
+
+  async function fetchLeads(outcomeFilter) {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    var url = LEADS_API;
+    if (outcomeFilter && outcomeFilter !== 'all') {
+      url += '?outcome=' + outcomeFilter;
+    }
+    try {
+      var res = await fetch(url, { headers: { 'Authorization': 'Basic ' + authStr } });
+      if (!res.ok) throw new Error('Failed to fetch leads');
+      var data = await res.json();
+      leadsData = data.leads || [];
+      leadsSummary = data.summary || {};
+      renderLeadPipeline();
+      renderLeadDatabase();
+    } catch (err) {
+      console.error('Fetch leads error:', err);
+    }
+  }
+
+  function formatLeadDate(ts) {
+    if (!ts) return '-';
+    var d = new Date(ts);
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    var yr = String(d.getFullYear()).slice(2);
+    return month + '/' + day + '/' + yr;
+  }
+
+  function timeAgo(ts) {
+    if (!ts) return '';
+    var diff = Date.now() - ts;
+    var mins = Math.floor(diff / 60000);
+    if (mins < 60) return mins + 'm ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    var days = Math.floor(hrs / 24);
+    if (days === 1) return '1 day ago';
+    return days + ' days ago';
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function renderLeadCard(lead) {
+    var sourceIcons = { phone: '&#128222;', form: '&#128233;', prequalify: '&#128179;', walkin: '&#128694;', other: '&#128172;' };
+    var sourceIcon = sourceIcons[lead.source] || sourceIcons.other;
+    var title = lead.vehicleName || lead.stockNumber || 'Unknown Vehicle';
+    var contact = lead.contactName || lead.contactPhone || lead.contactEmail || '';
+    var decayBadge = lead.decayedFrom ? '<span class="lead-decay-badge">Decayed from ' + lead.decayedFrom + '</span>' : '';
+
+    return '<div class="lead-card" data-lead-id="' + lead.id + '">' +
+      '<div class="lead-card-top">' +
+        '<span class="lead-source-icon">' + sourceIcon + '</span>' +
+        '<div class="lead-card-info">' +
+          '<strong class="lead-card-title">' + escapeHtml(title) + '</strong>' +
+          (contact ? '<span class="lead-card-contact">' + escapeHtml(contact) + '</span>' : '') +
+          (lead.vehiclePrice ? '<span class="lead-card-price">$' + Number(lead.vehiclePrice).toLocaleString() + '</span>' : '') +
+        '</div>' +
+        '<span class="lead-card-time">' + timeAgo(lead.createdAt) + '</span>' +
+      '</div>' +
+      (decayBadge ? '<div class="lead-card-decay">' + decayBadge + '</div>' : '') +
+      (lead.notes ? '<p class="lead-card-notes">' + escapeHtml(lead.notes).slice(0, 80) + '</p>' : '') +
+      '<div class="lead-card-actions">' +
+        '<button class="lead-action-btn lead-btn-convert" type="button" data-action="convert" data-id="' + lead.id + '" title="Mark as converted">&#10003; Converted</button>' +
+        '<button class="lead-action-btn lead-btn-lost" type="button" data-action="lost" data-id="' + lead.id + '" title="Mark as lost">&#10007; Lost</button>' +
+        '<button class="lead-action-btn lead-btn-edit" type="button" data-action="edit" data-id="' + lead.id + '" title="Edit lead">&#9998;</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function renderLeadPipeline() {
+    var activeLeads = leadsData.filter(function (l) { return l.outcome === 'active'; });
+    var hot = activeLeads.filter(function (l) { return l.status === 'hot'; });
+    var warm = activeLeads.filter(function (l) { return l.status === 'warm'; });
+    var cold = activeLeads.filter(function (l) { return l.status === 'cold'; });
+
+    var hotList = $('leadListHot');
+    var warmList = $('leadListWarm');
+    var coldList = $('leadListCold');
+
+    if (hotList) hotList.innerHTML = hot.length ? hot.map(renderLeadCard).join('') : '<p class="muted lead-empty">No hot leads</p>';
+    if (warmList) warmList.innerHTML = warm.length ? warm.map(renderLeadCard).join('') : '<p class="muted lead-empty">No warm leads</p>';
+    if (coldList) coldList.innerHTML = cold.length ? cold.map(renderLeadCard).join('') : '<p class="muted lead-empty">No cold leads</p>';
+
+    var countHot = $('leadCountHot');
+    var countWarm = $('leadCountWarm');
+    var countCold = $('leadCountCold');
+    if (countHot) countHot.textContent = hot.length;
+    if (countWarm) countWarm.textContent = warm.length;
+    if (countCold) countCold.textContent = cold.length;
+  }
+
+  function renderLeadDatabase() {
+    var body = $('leadDbBody');
+    if (!body) return;
+
+    var searchTerm = ($('leadSearchInput') || {}).value || '';
+    var dbFilter = ($('leadDbFilter') || {}).value || 'all';
+    var filtered = leadsData;
+
+    if (dbFilter !== 'all') {
+      filtered = filtered.filter(function (l) { return l.outcome === dbFilter; });
+    }
+
+    if (searchTerm) {
+      var lower = searchTerm.toLowerCase();
+      filtered = filtered.filter(function (l) {
+        return (l.vehicleName || '').toLowerCase().indexOf(lower) !== -1 ||
+               (l.stockNumber || '').toLowerCase().indexOf(lower) !== -1 ||
+               (l.contactName || '').toLowerCase().indexOf(lower) !== -1 ||
+               (l.contactPhone || '').toLowerCase().indexOf(lower) !== -1 ||
+               (l.contactEmail || '').toLowerCase().indexOf(lower) !== -1;
+      });
+    }
+
+    if (!filtered.length) {
+      body.innerHTML = '<tr><td colspan="6" class="muted">No leads found</td></tr>';
+      return;
+    }
+
+    var statusLabels = { hot: '<span class="lead-status-badge hot">Hot</span>', warm: '<span class="lead-status-badge warm">Warm</span>', cold: '<span class="lead-status-badge cold">Cold</span>' };
+    var sourceLabels = { phone: 'Phone', form: 'Form', prequalify: 'Pre-Qualify', walkin: 'Walk-in', other: 'Other' };
+    var outcomeLabels = { active: '<span class="lead-outcome active">Active</span>', converted: '<span class="lead-outcome converted">Converted</span>', lost: '<span class="lead-outcome lost">Lost</span>' };
+
+    body.innerHTML = filtered.map(function (l) {
+      var title = l.vehicleName || l.stockNumber || 'General Inquiry';
+      var contact = l.contactName || l.contactEmail || l.contactPhone || '';
+      return '<tr>' +
+        '<td><strong>' + escapeHtml(title) + '</strong>' + (contact ? '<br><span class="muted small">' + escapeHtml(contact) + '</span>' : '') + '</td>' +
+        '<td>' + (statusLabels[l.status] || l.status) + '</td>' +
+        '<td>' + (sourceLabels[l.source] || l.source) + '</td>' +
+        '<td>' + formatLeadDate(l.createdAt) + '</td>' +
+        '<td>' + (outcomeLabels[l.outcome] || l.outcome) + '</td>' +
+        '<td class="lead-db-actions">' +
+          (l.outcome === 'active' ?
+            '<button class="lead-action-btn lead-btn-convert small" data-action="convert" data-id="' + l.id + '">&#10003;</button>' +
+            '<button class="lead-action-btn lead-btn-lost small" data-action="lost" data-id="' + l.id + '">&#10007;</button>' : '') +
+          '<button class="lead-action-btn lead-btn-edit small" data-action="edit" data-id="' + l.id + '">&#9998;</button>' +
+          '<button class="lead-action-btn lead-btn-delete small" data-action="delete" data-id="' + l.id + '">&#128465;</button>' +
+        '</td></tr>';
+    }).join('');
+  }
+
+  async function updateLead(id, updates) {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    try {
+      var res = await fetch(LEADS_API + '?id=' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + authStr },
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error('Update failed');
+      await fetchLeads(($('leadFilterOutcome') || {}).value || 'active');
+    } catch (err) {
+      console.error('Update lead error:', err);
+      alert('Failed to update lead: ' + err.message);
+    }
+  }
+
+  async function deleteLead(id) {
+    if (!confirm('Delete this lead permanently?')) return;
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    try {
+      var res = await fetch(LEADS_API + '?id=' + encodeURIComponent(id), {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Basic ' + authStr },
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      await fetchLeads(($('leadFilterOutcome') || {}).value || 'active');
+    } catch (err) {
+      console.error('Delete lead error:', err);
+      alert('Failed to delete lead: ' + err.message);
+    }
+  }
+
+  async function saveLead(leadData) {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    var id = leadData.id;
+    delete leadData.id;
+    try {
+      var url = id ? LEADS_API + '?id=' + encodeURIComponent(id) : LEADS_API;
+      var method = id ? 'PUT' : 'POST';
+      var res = await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + authStr },
+        body: JSON.stringify(leadData),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      closeLeadModal();
+      await fetchLeads(($('leadFilterOutcome') || {}).value || 'active');
+    } catch (err) {
+      console.error('Save lead error:', err);
+      alert('Failed to save lead: ' + err.message);
+    }
+  }
+
+  function openLeadModal(lead) {
+    var modal = $('leadModal');
+    if (!modal) return;
+    var title = $('leadModalTitle');
+    if (title) title.textContent = lead ? 'Edit Lead' : 'Add Lead';
+
+    $('leadFormId').value = lead ? lead.id : '';
+    $('leadFormStatus').value = lead ? lead.status : 'hot';
+    $('leadFormSource').value = lead ? lead.source : 'phone';
+    $('leadFormStock').value = lead ? (lead.stockNumber || '') : '';
+    $('leadFormVehicle').value = lead ? (lead.vehicleName || '') : '';
+    $('leadFormName').value = lead ? (lead.contactName || '') : '';
+    $('leadFormPhone').value = lead ? (lead.contactPhone || '') : '';
+    $('leadFormEmail').value = lead ? (lead.contactEmail || '') : '';
+    $('leadFormPrice').value = lead ? (lead.vehiclePrice || '') : '';
+    $('leadFormNotes').value = lead ? (lead.notes || '') : '';
+
+    modal.classList.add('show');
+  }
+
+  function closeLeadModal() {
+    var modal = $('leadModal');
+    if (modal) modal.classList.remove('show');
+  }
+
+  // Lead action delegation (convert, lost, edit, delete)
+  function handleLeadAction(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.getAttribute('data-action');
+    var id = btn.getAttribute('data-id');
+    if (!action || !id) return;
+
+    if (action === 'convert') {
+      updateLead(id, { outcome: 'converted' });
+    } else if (action === 'lost') {
+      updateLead(id, { outcome: 'lost' });
+    } else if (action === 'delete') {
+      deleteLead(id);
+    } else if (action === 'edit') {
+      var lead = leadsData.find(function (l) { return l.id === id; });
+      if (lead) openLeadModal(lead);
+    }
+  }
+
+  // Initialize lead manager event listeners
+  function initLeadManager() {
+    // Pipeline click delegation
+    var pipeline = $('leadPipeline');
+    if (pipeline) pipeline.addEventListener('click', handleLeadAction);
+
+    // Database click delegation
+    var dbTable = $('leadDbTable');
+    if (dbTable) dbTable.addEventListener('click', handleLeadAction);
+
+    // Add lead button
+    var addBtn = $('addLeadBtn');
+    if (addBtn) addBtn.addEventListener('click', function () { openLeadModal(null); });
+
+    // Refresh button
+    var refreshBtn = $('refreshLeadsBtn');
+    if (refreshBtn) refreshBtn.addEventListener('click', function () {
+      fetchLeads(($('leadFilterOutcome') || {}).value || 'active');
+    });
+
+    // Outcome filter
+    var outcomeFilter = $('leadFilterOutcome');
+    if (outcomeFilter) outcomeFilter.addEventListener('change', function () {
+      fetchLeads(this.value);
+    });
+
+    // Database filter and search
+    var dbFilter = $('leadDbFilter');
+    if (dbFilter) dbFilter.addEventListener('change', renderLeadDatabase);
+    var searchInput = $('leadSearchInput');
+    if (searchInput) searchInput.addEventListener('input', renderLeadDatabase);
+
+    // Lead modal
+    var modalClose = $('leadModalClose');
+    if (modalClose) modalClose.addEventListener('click', closeLeadModal);
+    var modalCancel = $('leadFormCancel');
+    if (modalCancel) modalCancel.addEventListener('click', closeLeadModal);
+
+    var leadForm = $('leadForm');
+    if (leadForm) leadForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var data = {
+        id: $('leadFormId').value || undefined,
+        status: $('leadFormStatus').value,
+        source: $('leadFormSource').value,
+        stockNumber: $('leadFormStock').value,
+        vehicleName: $('leadFormVehicle').value,
+        contactName: $('leadFormName').value,
+        contactPhone: $('leadFormPhone').value,
+        contactEmail: $('leadFormEmail').value,
+        vehiclePrice: $('leadFormPrice').value ? Number($('leadFormPrice').value) : null,
+        notes: $('leadFormNotes').value,
+      };
+      saveLead(data);
+    });
+
+    // Close modal on backdrop click
+    var modal = $('leadModal');
+    if (modal) modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeLeadModal();
+    });
   }
 
   // ─── Inventory Analytics Sub-Tab ───────────────────────────────────────────
@@ -1694,7 +2022,10 @@
         addForm.reset();
         addPhotoFiles = [];
         addPreviewIndex = 0;
+        thumbnailCache.forEach(function (url) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); });
+        thumbnailCache.clear();
         if ($('photoPreview')) $('photoPreview').innerHTML = '';
+        if ($('uploadGalleryHeader')) $('uploadGalleryHeader').classList.add('hide');
       }
 
       // Auto-publish to live site
@@ -2027,89 +2358,316 @@
     if (el) el.textContent = count + ' / ' + MAX_PHOTOS;
   }
 
-  // ─── Photo Handling ─────────────────────────────────────────────────────────
-  function handlePhotoSelect(event) {
-    const files = event.target.files;
-    if (!files || !files.length) return;
+  // ─── Batch Media Upload System ──────────────────────────────────────────────
+  // Replaces old single-select photo handler with drag-and-drop folder support,
+  // real-time progress gallery, and instant thumbnail generation.
+
+  function setupBatchUploadZone() {
+    var dropZone = $('batchDropZone');
+    var fileInput = $('addPhotos');
+    var folderInput = $('addPhotoFolder');
+    var browseFilesBtn = $('batchBrowseFiles');
+    var browseFolderBtn = $('batchBrowseFolder');
+    if (!dropZone) return;
+
+    // Browse buttons
+    if (browseFilesBtn) browseFilesBtn.addEventListener('click', function (e) {
+      e.stopPropagation(); fileInput.click();
+    });
+    if (browseFolderBtn) browseFolderBtn.addEventListener('click', function (e) {
+      e.stopPropagation(); folderInput.click();
+    });
+    dropZone.addEventListener('click', function () { fileInput.click(); });
+
+    // File input change
+    fileInput.addEventListener('change', function (e) {
+      var files = Array.from(e.target.files || []);
+      if (files.length) processBatchFiles(files);
+      fileInput.value = '';
+    });
+    // Folder input change
+    if (folderInput) folderInput.addEventListener('change', function (e) {
+      var files = Array.from(e.target.files || []);
+      if (files.length) processBatchFiles(files);
+      folderInput.value = '';
+    });
+
+    // Drag-and-drop with recursive folder scanning
+    dropZone.addEventListener('dragenter', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', function (e) {
+      if (!dropZone.contains(e.relatedTarget)) dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      var items = Array.from(e.dataTransfer.items || []);
+      var entries = items.map(function (item) {
+        return item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+      }).filter(Boolean);
+
+      if (entries.length > 0 && entries.some(function (en) { return en.isDirectory; })) {
+        // Has folders — do recursive scan
+        var allFiles = [];
+        var pending = entries.length;
+        entries.forEach(function (entry) {
+          scanEntryRecursive(entry, allFiles, function () {
+            pending--;
+            if (pending <= 0) processBatchFiles(allFiles);
+          });
+        });
+      } else {
+        // Plain file drop
+        var files = Array.from(e.dataTransfer.files || []);
+        if (files.length) processBatchFiles(files);
+      }
+    });
+  }
+
+  // Recursively scan a FileSystemEntry (file or directory) for images
+  function scanEntryRecursive(entry, results, done) {
+    if (entry.isFile) {
+      entry.file(function (file) {
+        results.push(file);
+        done();
+      }, function () { done(); });
+    } else if (entry.isDirectory) {
+      var reader = entry.createReader();
+      var readBatch = function () {
+        reader.readEntries(function (batch) {
+          if (!batch || batch.length === 0) {
+            done();
+            return;
+          }
+          var batchPending = batch.length;
+          batch.forEach(function (child) {
+            scanEntryRecursive(child, results, function () {
+              batchPending--;
+              if (batchPending <= 0) readBatch(); // readEntries returns batches of ~100
+            });
+          });
+        }, function () { done(); });
+      };
+      readBatch();
+    } else {
+      done();
+    }
+  }
+
+  // Process collected files: validate, generate thumbnails, add to addPhotoFiles
+  function processBatchFiles(files) {
     var result = validatePhotoFiles(files);
+    var msgs = [];
     if (result.rejected.length) {
-      showPhotoError('addPhotoError', 'Skipped ' + result.rejected.length + ' file(s): only JPG, PNG, WebP allowed.');
+      msgs.push('Skipped ' + result.rejected.length + ' file(s): invalid type');
     }
     if (result.oversized && result.oversized.length) {
-      showPhotoError('addPhotoError', 'Skipped ' + result.oversized.length + ' file(s) over 5MB: ' + result.oversized.join(', '));
+      msgs.push('Skipped ' + result.oversized.length + ' file(s) over 5MB');
     }
-    if (result.valid.length + addPhotoFiles.length > MAX_PHOTOS) {
-      var space = MAX_PHOTOS - addPhotoFiles.length;
+
+    var space = MAX_PHOTOS - addPhotoFiles.length;
+    if (result.valid.length > space) {
       result.valid = result.valid.slice(0, Math.max(0, space));
-      showPhotoError('addPhotoError', 'Max ' + MAX_PHOTOS + ' photos. Only first ' + result.valid.length + ' added.');
+      msgs.push('Only ' + result.valid.length + ' added (25 max reached)');
     }
+    if (msgs.length) {
+      showPhotoError('addPhotoError', msgs.join('. ') + '.');
+    }
+    if (!result.valid.length) return;
+
+    // Sort alphabetically by name for deterministic ordering when dropping folders
+    result.valid.sort(function (a, b) { return (a.name || '').localeCompare(b.name || ''); });
+
     addPhotoFiles = addPhotoFiles.concat(result.valid).slice(0, MAX_PHOTOS);
     if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = 0;
-    renderAddPhotoPreview();
+
+    // Generate thumbnails for new files
+    result.valid.forEach(function (file) {
+      generatePhotoThumbnail(file);
+    });
+
+    renderBatchGallery();
     updatePhotoCount('addPhotoCount', addPhotoFiles.length);
-    // Show AI buttons when photos exist
+    updateAiButtonVisibility();
+  }
+
+  // Generate a fast client-side thumbnail using OffscreenCanvas or regular canvas
+  var thumbnailCache = new Map(); // file -> objectURL
+  function generatePhotoThumbnail(file) {
+    if (thumbnailCache.has(file)) return;
+    // Try OffscreenCanvas first, fallback to regular canvas
+    if (typeof createImageBitmap === 'function') {
+      createImageBitmap(file).then(function (bitmap) {
+        var w = 140, h = 105;
+        var canvas;
+        var ctx;
+        if (typeof OffscreenCanvas !== 'undefined') {
+          canvas = new OffscreenCanvas(w, h);
+          ctx = canvas.getContext('2d');
+        } else {
+          canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          ctx = canvas.getContext('2d');
+        }
+        // Cover-fit crop
+        var scale = Math.max(w / bitmap.width, h / bitmap.height);
+        var sw = bitmap.width * scale;
+        var sh = bitmap.height * scale;
+        ctx.drawImage(bitmap, (w - sw) / 2, (h - sh) / 2, sw, sh);
+        bitmap.close();
+
+        if (canvas.convertToBlob) {
+          canvas.convertToBlob({ type: 'image/jpeg', quality: 0.7 }).then(function (blob) {
+            thumbnailCache.set(file, URL.createObjectURL(blob));
+            renderBatchGallery();
+          });
+        } else {
+          canvas.toBlob(function (blob) {
+            if (blob) thumbnailCache.set(file, URL.createObjectURL(blob));
+            renderBatchGallery();
+          }, 'image/jpeg', 0.7);
+        }
+      }).catch(function () {
+        // Fallback: use FileReader for thumbnail
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          thumbnailCache.set(file, ev.target.result);
+          renderBatchGallery();
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      // No createImageBitmap — use FileReader
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        thumbnailCache.set(file, ev.target.result);
+        renderBatchGallery();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function updateAiButtonVisibility() {
     var scanBtn = $('addScanPhotosBtn');
     if (scanBtn) scanBtn.classList.toggle('hide', !addPhotoFiles.length);
     var autofillBtn = $('addAiAutofillBtn');
-    if (autofillBtn) autofillBtn.classList.toggle('hide', !addPhotoFiles.length && !$('addVin').value.trim());
+    if (autofillBtn) autofillBtn.classList.toggle('hide', !addPhotoFiles.length && !($('addVin') && $('addVin').value.trim()));
   }
 
-  function renderAddPhotoPreview() {
+  // Render the batch upload gallery with status indicators and drag-to-reorder
+  function renderBatchGallery() {
     var preview = $('photoPreview');
+    var headerEl = $('uploadGalleryHeader');
+    var summaryEl = $('uploadProgressSummary');
     if (!preview) return;
     preview.innerHTML = '';
+
+    // Show/hide gallery header
+    if (headerEl) headerEl.classList.toggle('hide', addPhotoFiles.length === 0);
+
+    // Summary text
+    if (summaryEl) {
+      summaryEl.textContent = addPhotoFiles.length + ' of 25';
+    }
+
     addPhotoFiles.forEach(function (file, i) {
-      var div = document.createElement('div');
-      div.className = 'photo-thumb' + (i === addPreviewIndex ? ' is-preview' : '');
-      div.draggable = true;
-      div.dataset.idx = i;
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        var img = div.querySelector('img');
-        if (img) img.src = e.target.result;
-      };
-      div.innerHTML = '<img src="" alt="Photo ' + (i + 1) + '" title="Click to set as featured">' +
-        '<button type="button" class="photo-remove-btn" title="Remove photo">&times;</button>' +
-        (i === addPreviewIndex ? '<div class="photo-preview-badge">Featured</div>' : '') +
-        '<span class="photo-label">' + (i === addPreviewIndex ? 'Featured' : (i + 1) + ' of ' + addPhotoFiles.length) + '</span>';
+      var card = document.createElement('div');
+      card.className = 'upload-card';
+      card.draggable = true;
+      card.dataset.idx = i;
+
+      // Featured badge for first photo
+      if (i === addPreviewIndex) {
+        card.classList.add('is-featured');
+        var badge = document.createElement('div');
+        badge.className = 'featured-badge';
+        badge.textContent = '\u2605 Cover';
+        card.appendChild(badge);
+      }
+
+      // Thumbnail image
+      var img = document.createElement('img');
+      var thumbUrl = thumbnailCache.get(file);
+      if (thumbUrl) {
+        img.src = thumbUrl;
+      } else {
+        // Placeholder while thumbnail generates
+        img.style.background = 'var(--surface2)';
+        img.alt = 'Loading...';
+      }
+      img.alt = 'Photo ' + (i + 1);
+      img.title = 'Click to set as cover photo';
+      card.appendChild(img);
+
+      // Status badge (ready)
+      var status = document.createElement('div');
+      status.className = 'upload-status status-complete';
+      status.innerHTML = '&#10003;';
+      card.appendChild(status);
+
       // Remove button
-      div.querySelector('.photo-remove-btn').addEventListener('click', function (e) {
+      var removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'card-remove';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.title = 'Remove photo';
+      removeBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        addPhotoFiles.splice(i, 1);
+        var removed = addPhotoFiles.splice(i, 1)[0];
+        if (thumbnailCache.has(removed)) {
+          var url = thumbnailCache.get(removed);
+          if (url && url.startsWith('blob:')) URL.revokeObjectURL(url);
+          thumbnailCache.delete(removed);
+        }
         if (addPreviewIndex >= addPhotoFiles.length) addPreviewIndex = Math.max(0, addPhotoFiles.length - 1);
         if (addPreviewIndex > i) addPreviewIndex--;
-        renderAddPhotoPreview();
+        renderBatchGallery();
         updatePhotoCount('addPhotoCount', addPhotoFiles.length);
+        updateAiButtonVisibility();
       });
-      // Click to set as featured
-      div.addEventListener('click', function () {
+      card.appendChild(removeBtn);
+
+      // Click to set as cover
+      card.addEventListener('click', function (e) {
+        if (e.target.closest('.card-remove') || e.target.closest('.retry-btn')) return;
         addPreviewIndex = i;
-        renderAddPhotoPreview();
+        renderBatchGallery();
       });
+
       // Drag-to-reorder
-      div.addEventListener('dragstart', function (e) {
+      card.addEventListener('dragstart', function (e) {
         e.dataTransfer.setData('text/plain', String(i));
-        div.classList.add('dragging');
+        card.classList.add('dragging');
       });
-      div.addEventListener('dragend', function () { div.classList.remove('dragging'); });
-      div.addEventListener('dragover', function (e) { e.preventDefault(); div.classList.add('drag-over'); });
-      div.addEventListener('dragleave', function () { div.classList.remove('drag-over'); });
-      div.addEventListener('drop', function (e) {
+      card.addEventListener('dragend', function () { card.classList.remove('dragging'); });
+      card.addEventListener('dragover', function (e) { e.preventDefault(); card.classList.add('drag-over'); });
+      card.addEventListener('dragleave', function () { card.classList.remove('drag-over'); });
+      card.addEventListener('drop', function (e) {
         e.preventDefault();
-        div.classList.remove('drag-over');
+        card.classList.remove('drag-over');
         var fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
         if (isNaN(fromIdx) || fromIdx === i) return;
         var moved = addPhotoFiles.splice(fromIdx, 1)[0];
         addPhotoFiles.splice(i, 0, moved);
-        // Adjust preview index
         if (addPreviewIndex === fromIdx) addPreviewIndex = i;
         else if (fromIdx < addPreviewIndex && i >= addPreviewIndex) addPreviewIndex--;
         else if (fromIdx > addPreviewIndex && i <= addPreviewIndex) addPreviewIndex++;
-        renderAddPhotoPreview();
+        renderBatchGallery();
       });
-      preview.appendChild(div);
-      reader.readAsDataURL(file);
+
+      preview.appendChild(card);
     });
+  }
+
+  // Legacy compatibility alias
+  function handlePhotoSelect(event) {
+    var files = event.target.files;
+    if (!files || !files.length) return;
+    processBatchFiles(Array.from(files));
+  }
+
+  function renderAddPhotoPreview() {
+    renderBatchGallery();
   }
 
   // ─── Unified AI Autofill ──────────────────────────────────────────────────
@@ -4160,8 +4718,13 @@
     $('clearAdd').addEventListener('click', () => {
       addForm.reset(); hideFeedback(addFeedback); updateLivePreview();
       addPhotoFiles = []; addPreviewIndex = 0;
+      // Clean up thumbnail object URLs
+      thumbnailCache.forEach(function (url) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); });
+      thumbnailCache.clear();
       if ($('photoPreview')) $('photoPreview').innerHTML = '';
+      if ($('uploadGalleryHeader')) $('uploadGalleryHeader').classList.add('hide');
       updatePhotoCount('addPhotoCount', 0);
+      updateAiButtonVisibility();
       if ($('addAiReview')) $('addAiReview').classList.add('hide');
       if ($('addAiStatus')) $('addAiStatus').classList.add('hide');
     });
@@ -4174,6 +4737,7 @@
       if (autofillBtn) autofillBtn.classList.toggle('hide', !this.value.trim() && !addPhotoFiles.length);
     });
     $('generateDescBtn').addEventListener('click', generateAIDescription);
+    setupBatchUploadZone();
     $('addPhotos').addEventListener('change', handlePhotoSelect);
 
     // Live preview updates
@@ -4220,7 +4784,10 @@
     // Escape key — edit modal is locked (must use Cancel button), other modals close normally
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        if (editModal.classList.contains('active')) {
+        var leadModal = $('leadModal');
+        if (leadModal && leadModal.classList.contains('show')) {
+          closeLeadModal();
+        } else if (editModal.classList.contains('active')) {
           // Edit modal is locked — Escape triggers the unsaved-changes guard
           tryCloseEditModal();
         } else {
@@ -4255,6 +4822,9 @@
         if (tab.dataset.tab === 'sales') initSalesTab();
       });
     });
+
+    // Lead manager
+    initLeadManager();
 
     // Initial render
     renderInventoryTable();

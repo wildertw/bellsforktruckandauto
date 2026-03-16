@@ -137,7 +137,7 @@
                 <div class="kpi-icon">&#127919;</div>
                 <div class="kpi-label">Total Leads</div>
                 <div class="kpi-value" id="kpiLeads"><span class="kpi-loading"></span></div>
-                <div class="kpi-meta"><span class="delta" id="kpiLeadsDelta"></span> <span class="muted">calls + forms</span></div>
+                <div class="kpi-meta"><span class="delta" id="kpiLeadsDelta"></span> <span class="muted">calls + forms + pre-qualify</span></div>
               </article>
               <article class="kpi-cell">
                 <div class="kpi-icon">&#128222;</div>
@@ -150,6 +150,12 @@
                 <div class="kpi-label">Forms Submitted</div>
                 <div class="kpi-value" id="kpiForms"><span class="kpi-loading"></span></div>
                 <div class="kpi-meta"><span class="muted" id="kpiFormsMeta">this period</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128179;</div>
+                <div class="kpi-label">Pre-Qualify (No SSN)</div>
+                <div class="kpi-value" id="kpiPrequalify"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted" id="kpiPrequalifyMeta">this period</span></div>
               </article>
               <article class="kpi-cell">
                 <div class="kpi-icon">&#9989;</div>
@@ -277,37 +283,129 @@
               </article>
             </section>
 
-            <!-- Lead Classification Explainer -->
-            <section class="card lead-legend" aria-label="Lead classification guide">
-              <div class="card-head"><h2>How Leads Are Classified</h2></div>
-              <p class="lead-legend-note muted">Leads are estimated proportionally based on where site traffic originated during the same period. Since individual form/call events are not tagged per-page, classification uses page-view ratios as a proxy.</p>
+            <!-- Lead Manager -->
+            <section class="card lead-manager" aria-label="Lead management">
+              <div class="card-head">
+                <h2>Lead Manager</h2>
+                <div class="lead-manager-actions">
+                  <button class="ghost-btn" type="button" id="addLeadBtn">+ Add Lead</button>
+                  <button class="ghost-btn" type="button" id="refreshLeadsBtn">Refresh</button>
+                  <select id="leadFilterOutcome" class="lead-filter-select">
+                    <option value="active">Active Leads</option>
+                    <option value="all">All Leads</option>
+                    <option value="converted">Converted</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </div>
+              </div>
+              <p class="lead-manager-note muted">Leads auto-decay: Hot &rarr; Warm after 7 days, Warm &rarr; Cold after 30 days. Mark as converted or lost at any time.</p>
+
+              <!-- Lead Pipeline Columns -->
+              <div class="lead-pipeline" id="leadPipeline">
+                <!-- Hot Leads Column -->
+                <div class="lead-column lead-col-hot">
+                  <div class="lead-col-header">
+                    <span class="lead-col-icon">&#128293;</span>
+                    <h3>Hot Leads</h3>
+                    <span class="lead-col-count" id="leadCountHot">0</span>
+                  </div>
+                  <p class="lead-col-desc muted">Contacted from a vehicle page. Follow up ASAP.</p>
+                  <div class="lead-col-body" id="leadListHot">
+                    <p class="muted lead-empty">No hot leads</p>
+                  </div>
+                </div>
+
+                <!-- Warm Leads Column -->
+                <div class="lead-column lead-col-warm">
+                  <div class="lead-col-header">
+                    <span class="lead-col-icon">&#9728;</span>
+                    <h3>Warm Leads</h3>
+                    <span class="lead-col-count" id="leadCountWarm">0</span>
+                  </div>
+                  <p class="lead-col-desc muted">Browsing inventory. Ask what they need.</p>
+                  <div class="lead-col-body" id="leadListWarm">
+                    <p class="muted lead-empty">No warm leads</p>
+                  </div>
+                </div>
+
+                <!-- Cold Leads Column -->
+                <div class="lead-column lead-col-cold">
+                  <div class="lead-col-header">
+                    <span class="lead-col-icon">&#10052;</span>
+                    <h3>Cold Leads</h3>
+                    <span class="lead-col-count" id="leadCountCold">0</span>
+                  </div>
+                  <p class="lead-col-desc muted">General inquiry. Nurture &amp; qualify.</p>
+                  <div class="lead-col-body" id="leadListCold">
+                    <p class="muted lead-empty">No cold leads</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Lead Database -->
+            <section class="card" aria-label="Lead database">
+              <div class="card-head">
+                <h2>Lead Database</h2>
+                <div class="lead-manager-actions">
+                  <input type="search" id="leadSearchInput" placeholder="Search leads..." class="lead-search-input">
+                  <select id="leadDbFilter" class="lead-filter-select">
+                    <option value="all">All Outcomes</option>
+                    <option value="active">Active</option>
+                    <option value="converted">Converted</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table" id="leadDbTable">
+                  <thead>
+                    <tr>
+                      <th>Vehicle / Source</th>
+                      <th>Status</th>
+                      <th>Source</th>
+                      <th>Created</th>
+                      <th>Outcome</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="leadDbBody">
+                    <tr><td colspan="6" class="muted">Loading leads...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- Lead Classification Info (collapsed) -->
+            <details class="card lead-legend-details">
+              <summary class="lead-legend-summary">How Leads Are Classified</summary>
               <div class="lead-legend-grid">
                 <div class="lead-legend-item hot">
                   <span class="lead-legend-icon">&#128293;</span>
                   <div>
                     <strong>Hot Lead</strong>
-                    <p>Visitor was on a <em>specific vehicle detail page</em> (VDP) before contacting you — they already found a car they're interested in. Highest purchase intent. <em>Capped at 60% of total leads.</em></p>
-                    <span class="lead-legend-action">&#9654; Follow up immediately — offer a test drive or price quote on that vehicle.</span>
+                    <p>Visitor was on a <em>specific vehicle detail page</em> (VDP) before contacting you. Highest purchase intent. Auto-decays to Warm after <strong>7 days</strong>.</p>
+                    <span class="lead-legend-action">&#9654; Follow up immediately — offer a test drive or price quote.</span>
                   </div>
                 </div>
                 <div class="lead-legend-item warm">
                   <span class="lead-legend-icon">&#9728;</span>
                   <div>
                     <strong>Warm Lead</strong>
-                    <p>Visitor was browsing the <em>inventory list page</em> — actively shopping but hasn't picked a specific vehicle yet. Moderate purchase intent. <em>Capped at 30% of total leads.</em></p>
-                    <span class="lead-legend-action">&#9654; Ask what they're looking for and suggest matching vehicles from your lot.</span>
+                    <p>Visitor was browsing the <em>inventory list page</em>. Moderate purchase intent. Auto-decays to Cold after <strong>30 days</strong>.</p>
+                    <span class="lead-legend-action">&#9654; Ask what they're looking for and suggest matching vehicles.</span>
                   </div>
                 </div>
                 <div class="lead-legend-item cold">
                   <span class="lead-legend-icon">&#10052;</span>
                   <div>
                     <strong>Cold Lead</strong>
-                    <p>Visitor came from the homepage, contact page, blog, financing page, or another general page — early-stage curiosity, not yet vehicle-shopping. <em>Remaining leads after hot &amp; warm are removed.</em></p>
-                    <span class="lead-legend-action">&#9654; Nurture with inventory highlights, financing options, or a follow-up call to qualify interest.</span>
+                    <p>Visitor came from homepage, contact, blog, or financing page — early-stage curiosity.</p>
+                    <span class="lead-legend-action">&#9654; Nurture with inventory highlights or financing options.</span>
                   </div>
                 </div>
               </div>
-            </section>
+            </details>
 
             <section class="card kpi-strip" aria-label="Lead source metrics">
               <article class="kpi-cell">
@@ -321,6 +419,12 @@
                 <div class="kpi-label">Form Leads</div>
                 <div class="kpi-value" id="kpiFormLeads2"><span class="kpi-loading"></span></div>
                 <div class="kpi-meta"><span class="muted">submissions</span></div>
+              </article>
+              <article class="kpi-cell">
+                <div class="kpi-icon">&#128179;</div>
+                <div class="kpi-label">Pre-Qualify Leads</div>
+                <div class="kpi-value" id="kpiPrequalifyLeads2"><span class="kpi-loading"></span></div>
+                <div class="kpi-meta"><span class="muted">no SSN applications</span></div>
               </article>
               <article class="kpi-cell">
                 <div class="kpi-icon">&#128200;</div>
@@ -643,16 +747,39 @@
                 </label>
                 <label class="full-field">Features (comma separated)<input id="addFeatures" type="text" placeholder="4x4, Tow package, Bluetooth"></label>
 
-                <!-- Photo Upload -->
+                <!-- Batch Media Upload -->
                 <div class="photo-section full-field">
                   <div class="photo-upload-header">
-                    <label>Vehicle Photos <span class="photo-count-badge" id="addPhotoCount">0 / 25</span>
-                      <input id="addPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
-                    </label>
-                    <span class="photo-hint">JPG, PNG, or WebP &mdash; up to 25 images. Drag to reorder. First = featured.</span>
+                    <label>Vehicle Photos <span class="photo-count-badge" id="addPhotoCount">0 / 25</span></label>
                   </div>
+
+                  <!-- Batch Drop Zone -->
+                  <div class="batch-drop-zone" id="batchDropZone" role="region" aria-label="Photo upload drop zone">
+                    <div class="drop-icon" aria-hidden="true">&#128247;</div>
+                    <div class="drop-title">Drop files or entire folders here</div>
+                    <div class="drop-subtitle">Recursive folder scanning &mdash; we'll find every image automatically</div>
+                    <div class="drop-cta">
+                      <button type="button" class="ghost-btn small-btn" id="batchBrowseFiles">Browse Files</button>
+                      <button type="button" class="ghost-btn small-btn" id="batchBrowseFolder">Browse Folder</button>
+                    </div>
+                    <div class="drop-specs">
+                      <span>JPG &middot; PNG &middot; WebP</span>
+                      <span>25 max</span>
+                      <span>5MB each</span>
+                    </div>
+                    <input id="addPhotos" type="file" multiple accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style="display:none">
+                    <input id="addPhotoFolder" type="file" webkitdirectory accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style="display:none">
+                  </div>
+
                   <p id="addPhotoError" class="photo-upload-error hide" role="alert"></p>
-                  <div id="photoPreview" class="photo-grid sortable-grid"></div>
+
+                  <!-- Upload Progress Gallery -->
+                  <div id="uploadGalleryHeader" class="upload-gallery-header hide">
+                    <span class="gallery-label">Photos &mdash; drag to reorder &middot; first = cover</span>
+                    <span class="upload-progress-summary" id="uploadProgressSummary"></span>
+                  </div>
+                  <div id="photoPreview" class="upload-gallery"></div>
+
                   <div class="photo-ai-actions">
                     <button id="addScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
                     <button id="addAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
@@ -1308,6 +1435,68 @@
         <div class="form-actions">
           <button type="submit" class="primary-btn" id="soldSubmitBtn">Complete Sale</button>
           <button type="button" class="ghost-btn" data-close>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Lead Modal -->
+  <div id="leadModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="leadModalTitle">
+    <div class="modal-dialog modal-lead">
+      <div class="modal-header">
+        <h2 id="leadModalTitle">Add Lead</h2>
+        <button class="modal-close" type="button" aria-label="Close" id="leadModalClose">&times;</button>
+      </div>
+      <form id="leadForm" class="modal-body">
+        <input type="hidden" id="leadFormId">
+        <div class="panel-grid">
+          <label>Status
+            <select id="leadFormStatus">
+              <option value="hot">Hot</option>
+              <option value="warm">Warm</option>
+              <option value="cold">Cold</option>
+            </select>
+          </label>
+          <label>Source
+            <select id="leadFormSource">
+              <option value="phone">Phone Call</option>
+              <option value="form">Form Submission</option>
+              <option value="prequalify">Pre-Qualify</option>
+              <option value="walkin">Walk-in</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div class="panel-grid">
+          <label>Stock Number
+            <input id="leadFormStock" type="text" placeholder="e.g. 02914BF">
+          </label>
+          <label>Vehicle Name
+            <input id="leadFormVehicle" type="text" placeholder="e.g. 2019 Ford F-150 LARIAT">
+          </label>
+        </div>
+        <div class="panel-grid">
+          <label>Contact Name
+            <input id="leadFormName" type="text" placeholder="Customer name">
+          </label>
+          <label>Contact Phone
+            <input id="leadFormPhone" type="tel" placeholder="(252) 555-1234">
+          </label>
+        </div>
+        <div class="panel-grid">
+          <label>Contact Email
+            <input id="leadFormEmail" type="email" placeholder="customer@email.com">
+          </label>
+          <label>Vehicle Price
+            <input id="leadFormPrice" type="number" placeholder="Price">
+          </label>
+        </div>
+        <label>Notes
+          <textarea id="leadFormNotes" rows="3" placeholder="Additional details about this lead..."></textarea>
+        </label>
+        <div class="modal-footer">
+          <button type="button" class="ghost-btn" id="leadFormCancel">Cancel</button>
+          <button type="submit" class="primary-btn">Save Lead</button>
         </div>
       </form>
     </div>
