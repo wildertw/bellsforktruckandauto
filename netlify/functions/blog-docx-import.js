@@ -12,11 +12,25 @@ function blobStore(name) {
 
 const POSTS_STORE = 'blog-posts';
 
-const BASE_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
-};
+const ALLOWED_ORIGINS = new Set([
+  'https://bellsforktruckandauto.com',
+  'https://www.bellsforktruckandauto.com',
+  'https://bellsforktruckandauto.netlify.app',
+]);
+
+function corsHeaders(event) {
+  const origin = ((event && event.headers) || {}).origin || '';
+  const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
+    'Vary': 'Origin',
+  };
+}
+
+// Legacy alias for inline usage
+const BASE_HEADERS = corsHeaders({});
 
 function json(statusCode, data) {
   return {
@@ -96,26 +110,37 @@ async function maybeTriggerDeploy(reason, payload = {}) {
 }
 
 exports.handler = async (event) => {
+  const headers = corsHeaders(event);
+
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: BASE_HEADERS, body: '' };
+    return { statusCode: 200, headers, body: '' };
   }
 
   if (event.httpMethod !== 'POST') {
-    return json(405, { error: 'Method not allowed' });
+    return { statusCode: 405, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
   // API key auth
   const apiKey = process.env.BLOG_IMPORT_API_KEY;
   if (!apiKey) {
-    return json(500, { error: 'BLOG_IMPORT_API_KEY not configured' });
+    return { statusCode: 500, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'BLOG_IMPORT_API_KEY not configured' }) };
   }
 
   const providedKey =
     event.headers['x-api-key'] ||
     event.headers['X-API-Key'] ||
     event.headers['X-Api-Key'] || '';
-  if (providedKey !== apiKey) {
-    return json(401, { error: 'Invalid API key' });
+
+  // Use timing-safe comparison to prevent key enumeration
+  const crypto = require('crypto');
+  let keyValid = false;
+  try {
+    const a = Buffer.from(String(providedKey));
+    const b = Buffer.from(String(apiKey));
+    keyValid = a.length === b.length && crypto.timingSafeEqual(a, b);
+  } catch { keyValid = false; }
+  if (!keyValid) {
+    return { statusCode: 401, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Invalid API key' }) };
   }
 
   let body;
@@ -132,7 +157,12 @@ exports.handler = async (event) => {
   const authorOverride = String(body.author || '').trim();
 
   if (!fileBase64) {
-    return json(400, { error: 'file (base64 .docx) is required' });
+    return { statusCode: 400, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'file (base64 .docx) is required' }) };
+  }
+
+  // Enforce max file size (10MB base64 ≈ 7.5MB decoded) before decoding
+  if (fileBase64.length > 10 * 1024 * 1024) {
+    return { statusCode: 413, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'File too large (max 10MB)' }) };
   }
 
   // Convert .docx to HTML
@@ -146,8 +176,22 @@ exports.handler = async (event) => {
 
   let html = result.value || '';
   if (!html.trim()) {
-    return json(400, { error: 'Document is empty' });
+    return { statusCode: 400, headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Document is empty' }) };
   }
+
+  // Sanitize HTML: strip dangerous tags/attributes from imported content
+  // Allow safe structural tags only (mammoth typically produces clean HTML, but defense-in-depth)
+  html = html
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe\s*>/gi, '')
+    .replace(/<object[\s\S]*?<\/object\s*>/gi, '')
+    .replace(/<embed[\s\S]*?>/gi, '')
+    .replace(/<link[\s\S]*?>/gi, '')
+    .replace(/<meta[\s\S]*?>/gi, '')
+    .replace(/<style[\s\S]*?<\/style\s*>/gi, '')
+    .replace(/\bon\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, '')
+    .replace(/javascript\s*:/gi, 'blocked:')
+    .replace(/data\s*:\s*text\/html/gi, 'blocked:text/html');
 
   // Determine title: from HTML heading, then from filename
   const { category: fileCategory, title: fileTitle } = parseFilename(filename);

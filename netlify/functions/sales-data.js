@@ -110,7 +110,7 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'POST') {
     let body;
     try {
-      body = JSON.parse(event.body);
+      body = JSON.parse(event.body || '{}');
     } catch {
       return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
     }
@@ -120,15 +120,25 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Missing record or vehicleId' }) };
     }
 
+    // Whitelist allowed fields to prevent arbitrary data injection
+    const ALLOWED_FIELDS = ['vehicleId', 'stockNumber', 'vehicleName', 'year', 'make', 'model',
+      'vin', 'salePrice', 'saleDate', 'buyerName', 'buyerPhone', 'buyerEmail',
+      'salesperson', 'notes', 'status', 'type', 'category', 'price', 'mileage'];
+    const cleanRecord = {};
+    for (const key of ALLOWED_FIELDS) {
+      if (record[key] !== undefined) cleanRecord[key] = record[key];
+    }
+    cleanRecord.vehicleId = record.vehicleId; // ensure required field
+
     try {
       const existing = await store.get(RECORDS_KEY, { type: 'json' }) || [];
-      const idx = existing.findIndex(function (r) { return r.vehicleId === record.vehicleId; });
+      const idx = existing.findIndex(function (r) { return r.vehicleId === cleanRecord.vehicleId; });
       if (idx >= 0) {
-        existing[idx] = { ...existing[idx], ...record, updatedAt: new Date().toISOString() };
+        existing[idx] = { ...existing[idx], ...cleanRecord, updatedAt: new Date().toISOString() };
       } else {
-        record.createdAt = record.createdAt || new Date().toISOString();
-        record.updatedAt = new Date().toISOString();
-        existing.push(record);
+        cleanRecord.createdAt = cleanRecord.createdAt || new Date().toISOString();
+        cleanRecord.updatedAt = new Date().toISOString();
+        existing.push(cleanRecord);
       }
       await store.setJSON(RECORDS_KEY, existing);
       return {

@@ -95,7 +95,7 @@ exports.handler = async (event) => {
 
   let body;
   try {
-    body = JSON.parse(event.body);
+    body = JSON.parse(event.body || '{}');
   } catch {
     return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
@@ -131,15 +131,19 @@ exports.handler = async (event) => {
         if (!daily.uniqueVisitors.includes(visitorId) && daily.uniqueVisitors.length < MAX_UNIQUE_VISITORS) {
           daily.uniqueVisitors.push(visitorId);
         }
-        // Track page breakdown
+        // Track page breakdown (limit keys to prevent unbounded growth)
         if (page && typeof page === 'string') {
           const cleanPage = page.slice(0, 200);
-          daily.pages[cleanPage] = (daily.pages[cleanPage] || 0) + 1;
+          if (daily.pages[cleanPage] != null || Object.keys(daily.pages).length < 500) {
+            daily.pages[cleanPage] = (daily.pages[cleanPage] || 0) + 1;
+          }
         }
-        // Track vehicle detail page views
+        // Track vehicle detail page views (limit keys)
         if (extra.stockNumber && typeof extra.stockNumber === 'string') {
           const stockKey = extra.stockNumber.slice(0, 20);
-          daily.vehicleViews[stockKey] = (daily.vehicleViews[stockKey] || 0) + 1;
+          if (daily.vehicleViews[stockKey] != null || Object.keys(daily.vehicleViews).length < 500) {
+            daily.vehicleViews[stockKey] = (daily.vehicleViews[stockKey] || 0) + 1;
+          }
         }
         break;
 

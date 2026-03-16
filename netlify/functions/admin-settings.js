@@ -34,7 +34,7 @@ function corsHeaders(event) {
   return {
     'Access-Control-Allow-Origin': matched,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Vary': 'Origin',
   };
 }
@@ -71,13 +71,28 @@ exports.handler = async (event) => {
     return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Server configuration error: INVENTORY_ADMIN_USERS invalid' }) };
   }
 
-  // Both GET and POST require auth via query params or body
+  // Both GET and POST require auth via Authorization header or body
   let authUser, authHash;
 
   if (event.httpMethod === 'GET') {
-    const params = event.queryStringParameters || {};
-    authUser = params.user;
-    authHash = params.hash;
+    // Prefer Authorization header over query params for security
+    const authHeader = event.headers.authorization || event.headers.Authorization || '';
+    if (authHeader.startsWith('Basic ')) {
+      try {
+        const decoded = Buffer.from(authHeader.slice(6), 'base64').toString('utf8');
+        const colonIndex = decoded.indexOf(':');
+        if (colonIndex > 0) {
+          authUser = decoded.slice(0, colonIndex);
+          authHash = decoded.slice(colonIndex + 1);
+        }
+      } catch { /* invalid header */ }
+    }
+    // Fallback to query params for backward compatibility
+    if (!authUser || !authHash) {
+      const params = event.queryStringParameters || {};
+      authUser = params.user;
+      authHash = params.hash;
+    }
   } else if (event.httpMethod === 'POST') {
     let body;
     try {

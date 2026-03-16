@@ -117,6 +117,12 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'imageUrl is required (string)' }) };
   }
 
+  // SSRF protection: only allow HTTPS URLs to known safe hosts
+  const SAFE_HOSTS = /^https:\/\/([\w.-]+\.)?(netlify\.app|cloudinary\.com|bellsforktruckandauto\.com|googleapis\.com|blob\.core\.windows\.net)\//i;
+  if (!imageUrl.startsWith('https://') || !SAFE_HOSTS.test(imageUrl)) {
+    return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'imageUrl must be HTTPS from an approved host' }) };
+  }
+
   // Resolve OpenAI API key
   let openaiKey = process.env.OPENAI_API_KEY || '';
   if (!openaiKey) {
@@ -134,17 +140,13 @@ exports.handler = async (event) => {
       }
     } catch { /* continue */ }
   }
-  if (!openaiKey) {
-    const authHeader = (event.headers['authorization'] || event.headers['Authorization'] || '');
-    if (authHeader.startsWith('Bearer ')) {
-      openaiKey = authHeader.slice(7).trim();
-    }
-  }
+  // NOTE: Client-provided Authorization header fallback removed for security.
+  // OpenAI key must come from server env var or admin settings blob only.
   if (!openaiKey) {
     return {
       statusCode: 500,
       headers: corsHeaders(event),
-      body: JSON.stringify({ error: 'No OpenAI API key configured.' }),
+      body: JSON.stringify({ error: 'No OpenAI API key configured. Set OPENAI_API_KEY env var or provide key in admin Settings.' }),
     };
   }
 
@@ -173,10 +175,11 @@ exports.handler = async (event) => {
 
     if (!res.ok) {
       const errText = await res.text();
+      console.error('[oem-label-detect] OpenAI API error:', res.status, errText);
       return {
         statusCode: res.status === 429 ? 429 : 502,
         headers: corsHeaders(event),
-        body: JSON.stringify({ error: 'OpenAI API error: ' + res.status, detail: errText }),
+        body: JSON.stringify({ error: res.status === 429 ? 'Rate limit exceeded — please wait and try again' : 'AI analysis service temporarily unavailable' }),
       };
     }
 
@@ -188,10 +191,11 @@ exports.handler = async (event) => {
     try {
       analysis = JSON.parse(content);
     } catch {
+      console.error('[oem-label-detect] Failed to parse AI response:', content.slice(0, 500));
       return {
         statusCode: 502,
         headers: corsHeaders(event),
-        body: JSON.stringify({ error: 'Failed to parse AI response', raw: content }),
+        body: JSON.stringify({ error: 'AI returned unparseable response — please try again' }),
       };
     }
 
