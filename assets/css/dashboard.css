@@ -182,23 +182,54 @@ tr.draft-row.selected-row { background: #d4ecf9 !important; }
 #inventoryTable th:first-child,
 #inventoryTable td:first-child { text-align: center; width: 40px; }
 
-/* ─── Draft Pill (shown in table for bulk-edited vehicles) ──────────────── */
+/* ─── Draft / Delete Pills (shown in table for staged vehicles) ─────────── */
 .draft-pill {
   display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: .5px; padding: 2px 6px; border-radius: 4px;
   background: #0ea5e9; color: #fff; margin-left: 6px; vertical-align: middle;
 }
+.delete-pill {
+  display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; padding: 2px 6px; border-radius: 4px;
+  background: #ef4444; color: #fff; margin-left: 6px; vertical-align: middle;
+}
 
-/* ─── Draft Banner (shown above inventory table when drafts exist) ──────── */
+/* ─── Pending-delete row styling ────────────────────────────────────────── */
+tr.pending-delete-row { background: #fef2f2 !important; }
+tr.pending-delete-row td { text-decoration: line-through; color: #9ca3af; }
+tr.pending-delete-row td:last-child { text-decoration: none; } /* keep action buttons readable */
+tr.pending-delete-row .delete-pill { text-decoration: none; }
+
+/* ─── Draft Banner (shown above inventory table when staged changes exist) */
 .draft-banner {
-  display: flex; align-items: center; gap: var(--space-sm);
   background: #dbeafe; border: 1px solid #60a5fa; border-radius: 6px;
   padding: .6rem 1rem; margin-bottom: var(--space-sm);
+}
+.draft-banner-top {
+  display: flex; align-items: center; gap: var(--space-sm);
 }
 .draft-banner #draftBannerIcon { font-size: 18px; color: #2563eb; }
 .draft-banner #draftBannerText { font-weight: 500; font-size: 14px; margin-right: auto; color: #1e40af; }
 .draft-banner .primary-btn { height: 32px; font-size: 13px; padding: 0 16px; }
 .draft-banner .ghost-btn { height: 32px; font-size: 13px; }
+
+/* ─── Staged Review List (expandable inside draft banner) ────────────── */
+.staged-review-list {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid #93c5fd;
+  max-height: 200px; overflow-y: auto;
+}
+.staged-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0; font-size: 13px;
+}
+.staged-label {
+  display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; padding: 1px 5px; border-radius: 3px; min-width: 48px; text-align: center;
+}
+.staged-edit .staged-label { background: #0ea5e9; color: #fff; }
+.staged-delete .staged-label { background: #ef4444; color: #fff; }
+.staged-undo { height: 24px !important; font-size: 11px !important; margin-left: auto; }
 
 /* ─── Bulk Edit Modal Grid ──────────────────────────────────────────────── */
 .bulk-edit-grid {

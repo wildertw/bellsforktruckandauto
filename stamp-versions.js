@@ -40,10 +40,10 @@ function stampFile(filePath) {
   const original = fs.readFileSync(filePath, 'utf8');
 
   const stamped = original.replace(ASSET_RE, (match, prefix, assetPath, _group, suffix) => {
-    // Skip if already versioned
-    if (assetPath.includes('v=')) return match;
-    const sep = assetPath.includes('?') ? '&' : '?';
-    return `${prefix}${assetPath}${sep}v=${ASSET_VERSION}${suffix}`;
+    // Strip any existing version query param so we always stamp the current build version
+    const cleanPath = assetPath.replace(/[?&]v=[^&"]*/, '');
+    const sep = cleanPath.includes('?') ? '&' : '?';
+    return `${prefix}${cleanPath}${sep}v=${ASSET_VERSION}${suffix}`;
   });
 
   if (stamped !== original) {
@@ -57,8 +57,10 @@ function stampFile(filePath) {
 const swPath = path.join(__dirname, 'sw.js');
 if (fs.existsSync(swPath)) {
   const swContent = fs.readFileSync(swPath, 'utf8');
-  if (swContent.includes('__SW_VERSION__')) {
-    fs.writeFileSync(swPath, swContent.replace(/__SW_VERSION__/g, ASSET_VERSION), 'utf8');
+  // Replace either the placeholder or any previous version stamp
+  const swUpdated = swContent.replace(/bfat-v[a-z0-9]+|__SW_VERSION__/g, `bfat-v${ASSET_VERSION}`);
+  if (swUpdated !== swContent) {
+    fs.writeFileSync(swPath, swUpdated, 'utf8');
     console.log(`[stamp-versions] Updated sw.js CACHE_NAME to bfat-v${ASSET_VERSION}`);
   }
 }

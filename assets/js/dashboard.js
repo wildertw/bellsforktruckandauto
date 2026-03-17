@@ -1526,14 +1526,10 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
-      var isDraft = item._draft || item._bulkDraft;
       var isPendingDelete = item._pendingDelete;
-      var classes = [];
-      if (isChecked) classes.push('selected-row');
-      if (isDraft && !isPendingDelete) classes.push('draft-row');
-      if (isPendingDelete) classes.push('pending-delete-row');
-      var rowClass = classes.join(' ');
-      return '<tr' + (rowClass ? ' class="' + rowClass + '"' : '') + '>' +
+      var isDraft = item._bulkDraft;
+      var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
+      return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
       '<td>' + item.name + (isPendingDelete ? ' <span class="delete-pill">Pending Delete</span>' : (isDraft ? ' <span class="draft-pill">Draft</span>' : '')) + '</td>' +
@@ -1676,7 +1672,6 @@
         item._pendingDelete = true;
         persistInventory();
         renderInventoryTable();
-        updateDraftBanner();
         showFeedback(editFeedback, item.name + ' staged for deletion (not yet published).');
         showToast('Staged for deletion. Publish to remove from live site.', 'info');
         setTimeout(hideToast, 5000);
@@ -1747,7 +1742,6 @@
     selectedSkus.clear();
     persistInventory();
     renderInventoryTable();
-    updateDraftBanner();
     showFeedback(editFeedback, staged + ' vehicle' + (staged > 1 ? 's' : '') + ' staged for deletion (not yet published).');
     showToast('Staged for deletion. Publish to remove from live site.', 'info');
     setTimeout(hideToast, 5000);
@@ -3402,8 +3396,10 @@
       return;
     }
 
-    $('editGenDescBtn').disabled = true;
-    $('editGenDescBtn').textContent = 'Generating...';
+    if ($('editGenDescBtn')) {
+      $('editGenDescBtn').disabled = true;
+      $('editGenDescBtn').textContent = 'Generating...';
+    }
 
     try {
       var res = await fetch(DESCRIBE_API, {
@@ -3431,8 +3427,10 @@
     } catch (err) {
       showFeedback($('editFeedback'), 'AI generation failed: ' + err.message, true);
     } finally {
-      $('editGenDescBtn').disabled = false;
-      $('editGenDescBtn').textContent = 'Generate with AI';
+      if ($('editGenDescBtn')) {
+        $('editGenDescBtn').disabled = false;
+        $('editGenDescBtn').textContent = 'Generate with AI';
+      }
     }
   }
 
@@ -4908,7 +4906,7 @@
     // Edit modal — VIN, AI, photos
     $('editDecodeVinBtn').addEventListener('click', editDecodeVin);
     $('editApplyVinBtn').addEventListener('click', editApplyVinData);
-    $('editGenDescBtn').addEventListener('click', editGenerateDescription);
+    if ($('editGenDescBtn')) $('editGenDescBtn').addEventListener('click', editGenerateDescription);
     $('editAiMasterBtn').addEventListener('click', editMasterAI);
     $('editPhotos').addEventListener('change', editHandlePhotoSelect);
     $('editVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });

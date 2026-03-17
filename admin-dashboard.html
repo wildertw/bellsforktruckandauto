@@ -590,10 +590,14 @@
               <button id="bulkDeselectBtn" class="ghost-btn" type="button">Deselect All</button>
             </div>
             <div id="draftBanner" class="draft-banner hide">
-              <span id="draftBannerIcon">&#9888;</span>
-              <span id="draftBannerText">0 vehicles have unpublished bulk edits.</span>
-              <button id="draftPublishBtn" class="primary-btn" type="button">Publish to Site</button>
-              <button id="draftDiscardBtn" class="ghost-btn danger-text" type="button">Discard Drafts</button>
+              <div class="draft-banner-top">
+                <span id="draftBannerIcon">&#9888;</span>
+                <span id="draftBannerText">Unpublished changes.</span>
+                <button id="draftReviewToggle" class="ghost-btn" type="button">Review Changes</button>
+                <button id="draftPublishBtn" class="primary-btn" type="button">Publish to Site</button>
+                <button id="draftDiscardBtn" class="ghost-btn danger-text" type="button">Discard All</button>
+              </div>
+              <div id="stagedReviewList" class="staged-review-list hide"></div>
             </div>
             <p id="inventoryStatus" class="muted small-text"></p>
             <p id="featuredStatus" class="muted small-text"></p>
@@ -1324,7 +1328,6 @@
             <label class="full-field">
               <span class="desc-label-row">
                 <span>Description</span>
-                <button id="editGenDescBtn" class="ghost-btn small-btn" type="button">Generate with AI</button>
               </span>
               <textarea id="editDescription" placeholder="Vehicle description..."></textarea>
             </label>
@@ -1367,9 +1370,7 @@
               </div>
               <p id="editPhotoError" class="photo-upload-error hide" role="alert"></p>
               <div id="editPhotoPreview" class="photo-grid sortable-grid"></div>
-              <div class="photo-ai-actions">
-                <button id="editScanPhotosBtn" class="ghost-btn small-btn scan-photos-btn hide" type="button">&#128269; Scan Photos with AI</button>
-                <button id="editAiAutofillBtn" class="ghost-btn small-btn ai-autofill-btn hide" type="button">&#9889; AI Autofill (VIN + Photos)</button>
+              <div class="photo-ai-actions hide">
               </div>
               <div id="editAiStatus" class="ai-status-panel hide" role="status">
                 <div class="ai-status-icon" id="editAiIcon">&#9889;</div>
