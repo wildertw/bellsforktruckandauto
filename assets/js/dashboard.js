@@ -385,6 +385,10 @@
       var pubResult = await pubRes.json().catch(function () { return {}; });
       if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed (HTTP ' + pubRes.status + ')');
 
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
+      persistInventory();
+
       return pubResult;
     } finally {
       autoPublishInProgress = false;
@@ -1521,10 +1525,12 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
-      return '<tr' + (isChecked ? ' class="selected-row"' : '') + '>' +
+      var isDraft = item._bulkDraft;
+      var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
+      return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
-      '<td>' + item.name + '</td>' +
+      '<td>' + item.name + (isDraft ? ' <span class="draft-pill">Draft</span>' : '') + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
       '<td class="featured-toggle-cell">' +
@@ -1549,6 +1555,7 @@
     }).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
     updateBulkBar();
+    updateDraftBanner();
     // Sync select-all checkbox with current page state
     var selectAll = $('selectAllCheckbox');
     if (selectAll) {
@@ -1743,6 +1750,174 @@
     var selectAll = $('selectAllCheckbox');
     if (selectAll) selectAll.checked = false;
     updateBulkBar();
+  }
+
+  // ─── Draft Tracking for Bulk Edits ────────────────────────────────────────
+  // Vehicles edited via bulk edit get _bulkDraft = true.
+  // This flag persists in localStorage and is cleared on successful publish.
+
+  function getDraftCount() {
+    return inventory.filter(function(v) { return v._bulkDraft; }).length;
+  }
+
+  function updateDraftBanner() {
+    var banner = $('draftBanner');
+    if (!banner) return;
+    var count = getDraftCount();
+    if (count > 0) {
+      banner.classList.remove('hide');
+      $('draftBannerText').textContent = count + ' vehicle' + (count > 1 ? 's have' : ' has') + ' unpublished bulk edits.';
+    } else {
+      banner.classList.add('hide');
+    }
+  }
+
+  function clearDraftFlags() {
+    inventory.forEach(function(v) { delete v._bulkDraft; });
+    persistInventory();
+    updateDraftBanner();
+    renderInventoryTable();
+  }
+
+  // ─── Bulk Edit Modal ────────────────────────────────────────────────────────
+
+  function openBulkEditModal() {
+    if (selectedSkus.size === 0) return;
+    var bulkEditModal = $('bulkEditModal');
+    if (!bulkEditModal) return;
+    $('bulkEditCount').textContent = selectedSkus.size;
+    // Reset all toggles and fields
+    bulkEditModal.querySelectorAll('.bulk-field-toggle').forEach(function(cb) {
+      cb.checked = false;
+      var input = cb.closest('.bulk-field').querySelector('input:not([type="checkbox"]), select');
+      if (input) { input.disabled = true; input.value = input.tagName === 'SELECT' ? input.options[0].value : ''; }
+    });
+    hideFeedback($('bulkEditFeedback'));
+    bulkEditModal.classList.add('active');
+  }
+
+  function handleBulkEditSubmit(event) {
+    event.preventDefault();
+    var bulkEditModal = $('bulkEditModal');
+    if (!bulkEditModal) return;
+
+    // Collect enabled fields and their values
+    var changes = {};
+    bulkEditModal.querySelectorAll('.bulk-field-toggle').forEach(function(cb) {
+      if (!cb.checked) return;
+      var field = cb.dataset.field;
+      var input = cb.closest('.bulk-field').querySelector('input:not([type="checkbox"]), select');
+      if (!input) return;
+      var val = input.value;
+      // Convert numeric fields
+      if (field === 'price') val = Number(val) || 0;
+      changes[field] = val;
+    });
+
+    if (Object.keys(changes).length === 0) {
+      showFeedback($('bulkEditFeedback'), 'No fields selected. Check at least one field to apply.', true);
+      return;
+    }
+
+    // Confirmation prompt
+    var fieldNames = Object.keys(changes).join(', ');
+    var count = selectedSkus.size;
+    if (!confirm('Apply changes to ' + fieldNames + ' on ' + count + ' vehicle' + (count > 1 ? 's' : '') + '?\n\nThese changes will be saved as DRAFTS and will NOT go live until you publish.')) {
+      return;
+    }
+
+    // Apply changes to selected vehicles, mark as draft
+    var applied = 0;
+    inventory.forEach(function(v) {
+      if (!selectedSkus.has(v.sku)) return;
+      Object.keys(changes).forEach(function(field) {
+        v[field] = changes[field];
+      });
+      v._bulkDraft = true; // Mark as draft — will NOT auto-publish
+      applied++;
+    });
+
+    persistInventory();
+    renderInventoryTable();
+    updateDraftBanner();
+
+    // Close modal, show feedback
+    bulkEditModal.classList.remove('active');
+    selectedSkus.clear();
+    renderInventoryTable();
+    showFeedback(editFeedback, applied + ' vehicle' + (applied > 1 ? 's' : '') + ' updated (draft only — not yet published).');
+    showToast('Draft saved. Use "Publish to Site" to push changes live.', 'info');
+    setTimeout(hideToast, 6000);
+  }
+
+  function handleDraftPublish() {
+    var count = getDraftCount();
+    if (count === 0) return;
+    if (!confirm('Publish all changes (' + count + ' draft vehicle' + (count > 1 ? 's' : '') + ') to the live site?\n\nThis will update bellsforktruckandauto.com.')) {
+      return;
+    }
+    showToast('Publishing draft changes to live site...');
+    autoPublish().then(function() {
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
+      persistInventory();
+      updateDraftBanner();
+      renderInventoryTable();
+      showToast('\u2713 All drafts published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    }).catch(function(err) {
+      showToast('Publish error: ' + err.message, 'error');
+      setTimeout(hideToast, 8000);
+    });
+  }
+
+  function handleDraftDiscard() {
+    var count = getDraftCount();
+    if (count === 0) return;
+    if (!confirm('Discard all ' + count + ' draft edit' + (count > 1 ? 's' : '') + '?\n\nThis will reload the last published inventory from the live site, undoing all unpublished bulk changes.')) {
+      return;
+    }
+    // Reload from live site to revert drafts
+    showToast('Reverting to published inventory...');
+    fetch('/inventory.json')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var vehicles = data.vehicles || data;
+        if (!Array.isArray(vehicles)) throw new Error('Invalid format');
+        inventory = vehicles.map(function(v, i) {
+          return {
+            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
+            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+            category: v.type || v.category || 'Vehicle',
+            quantity: 1, price: Number(v.price) || 0,
+            description: v.description || '', supplier: '',
+            year: v.year, make: v.make, model: v.model, trim: v.trim,
+            vin: v.vin, stockNumber: v.stockNumber,
+            engine: v.engine, transmission: v.transmission,
+            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
+            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
+            features: v.features || [], status: v.status || 'available',
+            badge: v.badge, featured: v.featured || false,
+            drivetrain: v.drivetrain, fuelType: v.fuelType,
+            condition: v.condition || 'Used', titleState: v.titleState || 'Clean',
+            warranty: v.warranty || 'Extended Warranty Available',
+            cylinders: v.cylinders || '', doors: v.doors || '',
+            images: v.images, dateAdded: v.dateAdded,
+            paintCode: v.paintCode || '', oem_scan: v.oem_scan || null,
+            photo_roles: v.photo_roles || [], color_display: v.color_display || null,
+          };
+        });
+        persistInventory();
+        renderInventoryTable();
+        updateDraftBanner();
+        showToast('\u2713 Reverted to published inventory.', 'success');
+        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from live site. All drafts discarded.');
+        setTimeout(hideToast, 5000);
+      })
+      .catch(function(err) {
+        showToast('Error reverting: ' + err.message, 'error');
+        setTimeout(hideToast, 8000);
+      });
   }
 
   var editSubmitInProgress = false; // double-submit guard
@@ -3646,6 +3821,12 @@
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Publish failed');
 
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
+      persistInventory();
+      updateDraftBanner();
+      renderInventoryTable();
+
       $('publishZone').classList.add('published');
       $('publishBtn').textContent = '\u2713 Published!';
       showFeedback($('publishCommitStatus'),
@@ -4674,6 +4855,22 @@
     if ($('selectAllCheckbox')) $('selectAllCheckbox').addEventListener('change', handleSelectAll);
     if ($('bulkDeleteBtn')) $('bulkDeleteBtn').addEventListener('click', handleBulkDelete);
     if ($('bulkDeselectBtn')) $('bulkDeselectBtn').addEventListener('click', handleBulkDeselect);
+    // Bulk edit
+    if ($('bulkEditBtn')) $('bulkEditBtn').addEventListener('click', openBulkEditModal);
+    if ($('bulkEditForm')) $('bulkEditForm').addEventListener('submit', handleBulkEditSubmit);
+    if ($('cancelBulkEdit')) $('cancelBulkEdit').addEventListener('click', function() { $('bulkEditModal').classList.remove('active'); });
+    // Bulk field toggles — enable/disable corresponding input when checkbox changes
+    document.querySelectorAll('.bulk-field-toggle').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var input = cb.closest('.bulk-field').querySelector('input:not([type="checkbox"]), select');
+        if (input) { input.disabled = !cb.checked; if (cb.checked) input.focus(); }
+      });
+    });
+    // Draft banner actions
+    if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleDraftPublish);
+    if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDraftDiscard);
+    // Close bulk edit modal on backdrop click
+    if ($('bulkEditModal')) $('bulkEditModal').addEventListener('click', function(e) { if (e.target === $('bulkEditModal')) $('bulkEditModal').classList.remove('active'); });
     $('editForm').addEventListener('submit', handleEditSubmit);
     $('cancelEdit').addEventListener('click', () => tryCloseEditModal());
     $('editSearch').addEventListener('input', () => { currentPage = 1; renderInventoryTable(); });
