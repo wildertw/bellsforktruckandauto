@@ -1526,12 +1526,17 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
-      var isDraft = item._bulkDraft;
-      var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
-      return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
+      var isDraft = item._draft || item._bulkDraft;
+      var isPendingDelete = item._pendingDelete;
+      var classes = [];
+      if (isChecked) classes.push('selected-row');
+      if (isDraft && !isPendingDelete) classes.push('draft-row');
+      if (isPendingDelete) classes.push('pending-delete-row');
+      var rowClass = classes.join(' ');
+      return '<tr' + (rowClass ? ' class="' + rowClass + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
-      '<td>' + item.name + (isDraft ? ' <span class="draft-pill">Draft</span>' : '') + '</td>' +
+      '<td>' + item.name + (isPendingDelete ? ' <span class="delete-pill">Pending Delete</span>' : (isDraft ? ' <span class="draft-pill">Draft</span>' : '')) + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
       '<td class="featured-toggle-cell">' +
@@ -1779,10 +1784,20 @@
   }
 
   function clearDraftFlags() {
-    inventory.forEach(function(v) { delete v._bulkDraft; });
+    inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._pendingDelete; });
     persistInventory();
     updateDraftBanner();
     renderInventoryTable();
+  }
+
+  function undoStagedEdit(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (item) { delete item._draft; delete item._bulkDraft; persistInventory(); renderInventoryTable(); }
+  }
+
+  function undoStagedDelete(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (item) { delete item._pendingDelete; persistInventory(); renderInventoryTable(); }
   }
 
   // ─── Bulk Edit Modal ────────────────────────────────────────────────────────
