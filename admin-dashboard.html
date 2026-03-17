@@ -590,10 +590,14 @@
               <button id="bulkDeselectBtn" class="ghost-btn" type="button">Deselect All</button>
             </div>
             <div id="draftBanner" class="draft-banner hide">
-              <span id="draftBannerIcon">&#9888;</span>
-              <span id="draftBannerText">0 vehicles have unpublished bulk edits.</span>
-              <button id="draftPublishBtn" class="primary-btn" type="button">Publish to Site</button>
-              <button id="draftDiscardBtn" class="ghost-btn danger-text" type="button">Discard Drafts</button>
+              <div class="draft-banner-top">
+                <span id="draftBannerIcon">&#9888;</span>
+                <span id="draftBannerText">Unpublished changes.</span>
+                <button id="draftReviewToggle" class="ghost-btn" type="button">Review Changes</button>
+                <button id="draftPublishBtn" class="primary-btn" type="button">Publish to Site</button>
+                <button id="draftDiscardBtn" class="ghost-btn danger-text" type="button">Discard All</button>
+              </div>
+              <div id="stagedReviewList" class="staged-review-list hide"></div>
             </div>
             <p id="inventoryStatus" class="muted small-text"></p>
             <p id="featuredStatus" class="muted small-text"></p>
