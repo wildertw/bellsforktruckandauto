@@ -410,55 +410,100 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
     return null;
   }
 
+  const MAX_RETRIES = 3;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    let leads;
+    try {
+      leads = await store.get('all', { type: 'json' });
+    } catch (e) {
+      // Key might not exist yet
+    }
+    if (!Array.isArray(leads)) leads = [];
+
+    // Deduplicate: skip if identical lead exists within last 60 seconds
+    // Also check phone/email for stronger dedup (name + form + contact match)
+    const now = Date.now();
+    const DEDUP_WINDOW = 60 * 1000;
+    const isDupe = leads.some((l) =>
+      l.formType === formName &&
+      (now - (l.createdAt || 0)) < DEDUP_WINDOW &&
+      (l.contactName === (contactName || '') ||
+       (contactEmail && l.contactEmail === contactEmail) ||
+       (contactPhone && l.contactPhone === contactPhone))
+    );
+    if (isDupe) {
+      console.log(`[submission-created] Duplicate lead suppressed for "${contactName}" (${formName})`);
+      return null;
+    }
+
+    const snapshot = JSON.stringify(leads);
+
+    const lead = {
+      id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
+      stockNumber: String(stockNumber || '').trim().slice(0, 30),
+      vehicleName: String(vehicle || '').trim().slice(0, 200),
+      vehiclePrice: null,
+      vehicleUrl: '',
+      source: String(source || 'form').slice(0, 50),
+      sourcePage: '',
+      formType: String(formName || '').slice(0, 80),
+      formDisplayName: String(displayName || formName || '').slice(0, 100),
+      status: 'hot',  // Form submissions are always high-intent
+      outcome: 'active',
+      contactName: String(contactName || '').trim().slice(0, 200),
+      contactPhone: String(contactPhone || '').trim().slice(0, 30),
+      contactEmail: String(contactEmail || '').trim().slice(0, 254),
+      visitorId: '',
+      notes: String(message || `Auto-created from ${displayName || formName} submission`).slice(0, 2000),
+      createdAt: now,
+      statusChangedAt: now,
+      convertedAt: null,
+      lostAt: null,
+      updatedBy: 'submission-handler',
+    };
+
+    // Re-read to detect concurrent modification
+    let check;
+    try { check = await store.get('all', { type: 'json' }); } catch { /* ok */ }
+    if (!Array.isArray(check)) check = [];
+    if (JSON.stringify(check) !== snapshot) {
+      console.warn(`[submission-created] Concurrent modification detected (attempt ${attempt + 1}/${MAX_RETRIES}), retrying...`);
+      continue;
+    }
+
+    leads.push(lead);
+    await store.setJSON('all', leads);
+
+    console.log(`[submission-created] Lead created: ${lead.id} (${contactName || 'unknown'})`);
+    return lead;
+  }
+
+  // Fallback: force-append if all retries failed (never lose a lead)
+  console.warn('[submission-created] All retries exhausted — force-appending lead');
   let leads;
-  try {
-    leads = await store.get('all', { type: 'json' });
-  } catch (e) {
-    // Key might not exist yet
-  }
+  try { leads = await store.get('all', { type: 'json' }); } catch { /* ok */ }
   if (!Array.isArray(leads)) leads = [];
-
-  // Deduplicate: skip if identical lead exists within last 60 seconds
   const now = Date.now();
-  const DEDUP_WINDOW = 60 * 1000;
-  const isDupe = leads.some((l) =>
-    l.contactName === (contactName || '') &&
-    l.formType === formName &&
-    (now - (l.createdAt || 0)) < DEDUP_WINDOW
-  );
-  if (isDupe) {
-    console.log(`[submission-created] Duplicate lead suppressed for "${contactName}" (${formName})`);
-    return null;
-  }
-
   const lead = {
     id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
-    stockNumber: stockNumber || '',
-    vehicleName: vehicle || '',
-    vehiclePrice: null,
-    vehicleUrl: '',
-    source: source || 'form',
-    sourcePage: '',
-    formType: formName,
-    formDisplayName: displayName || formName,
-    status: 'hot',  // Form submissions are always high-intent
-    outcome: 'active',
-    contactName: contactName || '',
-    contactPhone: contactPhone || '',
-    contactEmail: contactEmail || '',
+    stockNumber: String(stockNumber || '').trim().slice(0, 30),
+    vehicleName: String(vehicle || '').trim().slice(0, 200),
+    vehiclePrice: null, vehicleUrl: '',
+    source: String(source || 'form').slice(0, 50), sourcePage: '',
+    formType: String(formName || '').slice(0, 80),
+    formDisplayName: String(displayName || formName || '').slice(0, 100),
+    status: 'hot', outcome: 'active',
+    contactName: String(contactName || '').trim().slice(0, 200),
+    contactPhone: String(contactPhone || '').trim().slice(0, 30),
+    contactEmail: String(contactEmail || '').trim().slice(0, 254),
     visitorId: '',
-    notes: message || `Auto-created from ${displayName || formName} submission`,
-    createdAt: now,
-    statusChangedAt: now,
-    convertedAt: null,
-    lostAt: null,
-    updatedBy: 'submission-handler',
+    notes: String(message || `Auto-created from ${displayName || formName} submission`).slice(0, 2000),
+    createdAt: now, statusChangedAt: now,
+    convertedAt: null, lostAt: null, updatedBy: 'submission-handler',
   };
-
   leads.push(lead);
   await store.setJSON('all', leads);
-
-  console.log(`[submission-created] Lead created: ${lead.id} (${contactName || 'unknown'})`);
+  console.log(`[submission-created] Lead force-created: ${lead.id}`);
   return lead;
 }
 

@@ -23,9 +23,6 @@ const ALLOWED_ORIGINS = new Set([
   'https://bellsforktruckandauto.netlify.app',
 ]);
 
-// Module-level CORS headers set per-request in handler
-let _cors = {};
-
 function corsHeaders(event) {
   const origin = ((event && event.headers) || {}).origin || '';
   const matched = ALLOWED_ORIGINS.has(origin) ? origin : 'https://bellsforktruckandauto.com';
@@ -36,6 +33,9 @@ function corsHeaders(event) {
     'Vary': 'Origin',
   };
 }
+
+// Per-request CORS reference — set at handler entry, used by json() helper
+let _cors = {};
 
 function json(statusCode, data, extraHeaders = {}) {
   return {
@@ -463,6 +463,16 @@ exports.handler = async (event) => {
 
     const existing = await postStore.get(slug, { type: 'json' }).catch(() => null);
     const now = new Date().toISOString();
+
+    // If updating via an old slug and the new slug differs, clean up the old entry
+    const oldSlug = String(body.oldSlug || '').trim();
+    if (oldSlug && oldSlug !== slug) {
+      const oldPost = await postStore.get(oldSlug, { type: 'json' }).catch(() => null);
+      if (oldPost) {
+        await postStore.delete(oldSlug);
+        console.log(`[blog] Slug changed: "${oldSlug}" → "${slug}", old entry removed`);
+      }
+    }
     const post = {
       id: existing?.id || generateId('p_'),
       slug,

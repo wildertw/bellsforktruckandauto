@@ -115,13 +115,17 @@ exports.handler = async (event) => {
     const store = blobStore({ name: 'site-analytics', consistency: 'strong' });
     const key = todayKey();
 
-    // Read current daily aggregate
-    let daily = await store.get(key, { type: 'json' });
-    if (!daily) {
-      daily = emptyDay();
-    } else {
-      ensureFields(daily);
-    }
+    // Read current daily aggregate (with retry on concurrent modification)
+    const MAX_RETRIES = 2;
+    let daily, snapshot;
+    for (let _attempt = 0; _attempt <= MAX_RETRIES; _attempt++) {
+      daily = await store.get(key, { type: 'json' });
+      if (!daily) {
+        daily = emptyDay();
+      } else {
+        ensureFields(daily);
+      }
+      snapshot = JSON.stringify(daily);
 
     // Update based on event type
     switch (type) {
@@ -193,8 +197,16 @@ exports.handler = async (event) => {
         break;
     }
 
-    // Write back
-    await store.setJSON(key, daily);
+      // Verify no concurrent modification before writing
+      const check = await store.get(key, { type: 'json' });
+      const checkStr = check ? JSON.stringify(ensureFields(check)) : null;
+      if (checkStr && checkStr !== snapshot && _attempt < MAX_RETRIES) {
+        continue; // retry with fresh data
+      }
+
+      await store.setJSON(key, daily);
+      break; // success
+    }
 
     return { statusCode: 204, headers: corsHeaders(event), body: '' };
   } catch (err) {
