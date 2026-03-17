@@ -1532,7 +1532,7 @@
       return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
-      '<td>' + item.name + (isDraft ? ' <span class="draft-pill">Draft</span>' : '') + '</td>' +
+      '<td>' + item.name + (isPendingDelete ? ' <span class="delete-pill">Pending Delete</span>' : (isDraft ? ' <span class="draft-pill">Draft</span>' : '')) + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
       '<td class="featured-toggle-cell">' +
@@ -1764,26 +1764,41 @@
   // This flag persists in localStorage and is cleared on successful publish.
 
   function getDraftCount() {
-    return inventory.filter(function(v) { return v._bulkDraft; }).length;
+    return inventory.filter(function(v) { return v._bulkDraft || v._draft || v._pendingDelete; }).length;
   }
 
   function updateDraftBanner() {
     var banner = $('draftBanner');
     if (!banner) return;
-    var count = getDraftCount();
+    var editCount = inventory.filter(function(v) { return v._bulkDraft || v._draft; }).length;
+    var deleteCount = inventory.filter(function(v) { return v._pendingDelete; }).length;
+    var count = editCount + deleteCount;
     if (count > 0) {
       banner.classList.remove('hide');
-      $('draftBannerText').textContent = count + ' vehicle' + (count > 1 ? 's have' : ' has') + ' unpublished bulk edits.';
+      var parts = [];
+      if (editCount > 0) parts.push(editCount + ' unpublished edit' + (editCount > 1 ? 's' : ''));
+      if (deleteCount > 0) parts.push(deleteCount + ' pending deletion' + (deleteCount > 1 ? 's' : ''));
+      $('draftBannerText').textContent = parts.join(', ') + '.';
     } else {
       banner.classList.add('hide');
     }
   }
 
   function clearDraftFlags() {
-    inventory.forEach(function(v) { delete v._bulkDraft; });
+    inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._pendingDelete; });
     persistInventory();
     updateDraftBanner();
     renderInventoryTable();
+  }
+
+  function undoStagedEdit(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (item) { delete item._draft; delete item._bulkDraft; persistInventory(); renderInventoryTable(); updateDraftBanner(); }
+  }
+
+  function undoStagedDelete(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (item) { delete item._pendingDelete; persistInventory(); renderInventoryTable(); updateDraftBanner(); }
   }
 
   // ─── Bulk Edit Modal ────────────────────────────────────────────────────────
@@ -1860,13 +1875,13 @@
   function handleDraftPublish() {
     var count = getDraftCount();
     if (count === 0) return;
-    if (!confirm('Publish all changes (' + count + ' draft vehicle' + (count > 1 ? 's' : '') + ') to the live site?\n\nThis will update bellsforktruckandauto.com.')) {
+    if (!confirm('Publish all changes (' + count + ' vehicle' + (count > 1 ? 's' : '') + ') to the live site?\n\nThis will update bellsforktruckandauto.com.')) {
       return;
     }
     showToast('Publishing draft changes to live site...');
     autoPublish().then(function() {
-      // Clear draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; });
+      // Clear all draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._draftSnapshot; delete v._pendingDelete; });
       persistInventory();
       updateDraftBanner();
       renderInventoryTable();

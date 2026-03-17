@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-17T13:28:36.929Z",
+  "lastUpdated": "2026-03-17T17:01:35.428Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -17,10 +17,17 @@
       "mileage": 186683,
       "price": 29995,
       "type": "Truck",
-      "exteriorColor": "red",
+      "exteriorColor": "Red",
       "interiorColor": "tan",
-      "description": "",
-      "features": [],
+      "description": "Experience power and style in this 2015 Chevrolet Silverado LTZ, equipped with a robust 6.6L V8 engine and featuring premium aftermarket wheels, a chrome package, and a functional tow hitch. With 186,683 miles, this well-maintained Crew Cab truck also boasts tinted windows and running boards, making it the perfect blend of capability and comfort for both work and play.",
+      "features": [
+        "aftermarket wheels",
+        "chrome package",
+        "tow hitch",
+        "tinted windows",
+        "running boards",
+        "Crew Cab"
+      ],
       "status": "available",
       "badge": "",
       "featured": false,
@@ -29,7 +36,23 @@
       "warranty": "Extended Warranty Available",
       "cylinders": "8",
       "doors": "4D",
-      "images": [],
+      "images": [
+        "blob:03051-01.jpg",
+        "blob:03051-02.jpg",
+        "blob:03051-03.jpg",
+        "blob:03051-04.jpg",
+        "blob:03051-05.jpg",
+        "blob:03051-06.jpg",
+        "blob:03051-07.jpg",
+        "blob:03051-08.jpg",
+        "blob:03051-09.jpg",
+        "blob:03051-10.jpg",
+        "blob:03051-11.jpg",
+        "blob:03051-12.jpg",
+        "blob:03051-13.jpg",
+        "blob:03051-14.jpg",
+        "blob:03051-15.jpg"
+      ],
       "dateAdded": "2026-03-17",
       "paintCode": "",
       "oem_scan": null,
