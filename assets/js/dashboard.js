@@ -1770,13 +1770,13 @@
   // This flag persists in localStorage and is cleared on successful publish.
 
   function getDraftCount() {
-    return inventory.filter(function(v) { return v._bulkDraft || v._pendingDelete; }).length;
+    return inventory.filter(function(v) { return v._bulkDraft || v._draft || v._pendingDelete; }).length;
   }
 
   function updateDraftBanner() {
     var banner = $('draftBanner');
     if (!banner) return;
-    var editCount = inventory.filter(function(v) { return v._bulkDraft; }).length;
+    var editCount = inventory.filter(function(v) { return v._bulkDraft || v._draft; }).length;
     var deleteCount = inventory.filter(function(v) { return v._pendingDelete; }).length;
     var count = editCount + deleteCount;
     if (count > 0) {
@@ -1887,7 +1887,7 @@
     showToast('Publishing draft changes to live site...');
     autoPublish().then(function() {
       // Clear all draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; delete v._pendingDelete; });
+      inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._draftSnapshot; delete v._pendingDelete; });
       persistInventory();
       updateDraftBanner();
       renderInventoryTable();
