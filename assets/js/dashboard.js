@@ -484,6 +484,8 @@
     }
     tabs.forEach((t) => t.classList.toggle('active', t === tab));
     panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === tab.dataset.tab));
+    // Quill needs a visible container — init on first blog tab visit
+    if (tab.dataset.tab === 'blog') initQuillEditor();
   }
 
   tabs.forEach((tab) => {
@@ -4794,8 +4796,7 @@
     $('stageBtn').addEventListener('click', stageInventory);
     $('publishBtn').addEventListener('click', publishInventory);
 
-    // Blog
-    initQuillEditor();
+    // Blog (Quill init deferred to switchTab — needs visible container)
     $('blogSave').addEventListener('click', saveBlogPost);
     $('newPostBtn').addEventListener('click', resetBlogForm);
     $('deletePostBtn').addEventListener('click', deleteBlogPost);
