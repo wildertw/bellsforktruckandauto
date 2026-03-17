@@ -2297,3 +2297,24 @@ button:hover {
   padding-top: 12px;
   border-top: 1px solid var(--border, #e2e8f0);
 }
+
+/* ── MPG Lookup ─────────────────────────────────────────────────────────────── */
+.mpg-lookup-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.mpg-lookup-btn {
+  white-space: nowrap;
+  font-size: 12px;
+}
+.mpg-status {
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 100%;
+}
+.mpg-status.mpg-loading { color: var(--text-secondary); }
+.mpg-status.mpg-success { color: #16a34a; }
+.mpg-status.mpg-approx  { color: #d97706; }
+.mpg-status.mpg-error   { color: #dc2626; }
