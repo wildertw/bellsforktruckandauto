@@ -235,7 +235,10 @@ function buildCard(v) {
              class="card-img-top"
              width="400" height="220"
              style="height:220px; object-fit:cover;"
-             loading="lazy" decoding="async">
+             loading="lazy" decoding="async"
+             onload="this.classList.add('loaded')"
+             onerror="this.classList.add('loaded')"
+>
       </a>`
     : `<div class="inventory-placeholder d-flex align-items-center justify-content-center bg-light" style="height:220px;">
         <svg width="64" height="64" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
