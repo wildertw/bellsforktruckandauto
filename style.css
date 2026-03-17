@@ -1102,6 +1102,8 @@ html {
 .inv-btn-inquiry:hover { background: #bb2d3b; color: #fff; }
 .inv-btn-financing{ background: #fff; color: #dc3545; border-color: #dc3545; }
 .inv-btn-financing:hover { background: #dc3545; color: #fff; }
+.inv-btn-carfax   { background: #fff; color: #1a5276; border-color: #1a5276; font-size: .78rem; }
+.inv-btn-carfax:hover { background: #1a5276; color: #fff; }
 
 /* Filter bar count strip */
 .inv-filter-bar {

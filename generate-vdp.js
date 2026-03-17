@@ -1024,6 +1024,10 @@ ${v.interior.map(i => `                <li class="py-1">${escapeHtml(i)}</li>`).
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/></svg>
                 Trade-In Value
               </a>
+              ${vin ? `<a href="https://secure.carfax.com/creditCard.cfx?partner=GXB_1&vin=${encodeURIComponent(vin)}" class="vdp-cta-btn outline" style="color:#1a5276;border-color:#1a5276;" target="_blank" rel="noopener noreferrer" aria-label="View CARFAX Vehicle History Report">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 0 0 11 4.5h2v.5H9.5V3zM4.5 7a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7zm0 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4z"/></svg>
+                CARFAX Vehicle History
+              </a>` : ''}
             </div>
           </div>
 

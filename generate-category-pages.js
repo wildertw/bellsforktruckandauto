@@ -269,6 +269,7 @@ function buildCard(v) {
           <a href="${applyHref}" class="btn btn-sm btn-outline-secondary w-50">Apply</a>
           <a href="${inquireHref}" class="btn btn-sm btn-outline-secondary w-50">Inquire</a>
         </div>
+        ${v.vin ? `<a href="https://secure.carfax.com/creditCard.cfx?partner=GXB_1&vin=${encodeURIComponent(v.vin)}" class="btn btn-sm btn-outline-dark w-100 mt-1" target="_blank" rel="noopener noreferrer" aria-label="View CARFAX report for ${escapeAttr(vehicleLabel)}">CARFAX Report</a>` : ''}
       </div>
     </div>
   </article>
