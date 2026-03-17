@@ -15,6 +15,7 @@
   const LEADS_API = '/.netlify/functions/leads';
   const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
   const DESCRIBE_API = '/.netlify/functions/ai-describe';
+  const MPG_LOOKUP_API = '/.netlify/functions/ai-mpg-lookup';
 
   let blogToken = '';
   let blogUser = '';
@@ -2563,6 +2564,162 @@
     }
   }
 
+  // ─── AI MPG Lookup ─────────────────────────────────────────────────────────
+
+  /**
+   * Core MPG lookup — calls the ai-mpg-lookup serverless function.
+   * @param {object} opts  { year, make, model, trim, engine, drivetrain }
+   * @returns {Promise<object>}  { ok, found, mpgCity, mpgHighway, exact, source, note, message }
+   */
+  async function fetchMpgLookup(opts) {
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      throw new Error('Not authenticated. Please log in again.');
+    }
+    var res = await fetch(MPG_LOOKUP_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        auth: { user: session.username, passwordHash: session.passwordHash },
+        vehicle: opts,
+      }),
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'MPG lookup failed');
+    return data;
+  }
+
+  /**
+   * Show MPG status message next to the lookup button.
+   */
+  function showMpgStatus(statusEl, text, type) {
+    statusEl.textContent = text;
+    statusEl.className = 'mpg-status mpg-' + type; // loading | success | approx | error
+    statusEl.classList.remove('hide');
+  }
+  function hideMpgStatus(statusEl) {
+    statusEl.classList.add('hide');
+    statusEl.className = 'mpg-status hide';
+  }
+
+  /**
+   * MPG Lookup for Add Vehicle form.
+   * @param {boolean} force  If true, overwrite existing MPG values.
+   */
+  async function addMpgLookup(force) {
+    var make = $('addMake').value.trim();
+    var model = $('addModel').value.trim();
+    var statusEl = $('addMpgStatus');
+    var btn = $('addMpgLookupBtn');
+
+    if (!make || !model) {
+      showMpgStatus(statusEl, 'Enter at least Make and Model first.', 'error');
+      return;
+    }
+
+    // Don't overwrite existing values unless forced
+    var cityEl = $('addMpgCity');
+    var hwyEl = $('addMpgHighway');
+    if (!force && cityEl.value && hwyEl.value) {
+      showMpgStatus(statusEl, 'MPG already filled. Click again to replace.', 'approx');
+      // Set a one-time flag so next click forces
+      btn._mpgForceNext = true;
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Looking up MPG...';
+    showMpgStatus(statusEl, 'Searching web for EPA data...', 'loading');
+
+    try {
+      var result = await fetchMpgLookup({
+        year: $('addYear').value,
+        make: make,
+        model: model,
+        trim: $('addTrim').value,
+        engine: $('addEngine').value,
+        drivetrain: $('addDrivetrain').value,
+      });
+
+      if (result.found && result.mpgCity && result.mpgHighway) {
+        cityEl.value = result.mpgCity;
+        hwyEl.value = result.mpgHighway;
+        updateLivePreview();
+
+        var statusMsg = 'City: ' + result.mpgCity + ' / Hwy: ' + result.mpgHighway;
+        if (!result.exact) statusMsg += ' (approx. match)';
+        if (result.source) statusMsg += ' — ' + result.source;
+        showMpgStatus(statusEl, statusMsg, result.exact ? 'success' : 'approx');
+      } else {
+        showMpgStatus(statusEl, result.message || 'MPG data not found. Please enter manually.', 'error');
+      }
+    } catch (err) {
+      showMpgStatus(statusEl, 'MPG lookup failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '\uD83D\uDD0D Look Up MPG';
+      btn._mpgForceNext = false;
+    }
+  }
+
+  /**
+   * MPG Lookup for Edit Vehicle form.
+   * @param {boolean} force  If true, overwrite existing MPG values.
+   */
+  async function editMpgLookup(force) {
+    var make = $('editMake').value.trim();
+    var model = $('editModel').value.trim();
+    var statusEl = $('editMpgStatus');
+    var btn = $('editMpgLookupBtn');
+
+    if (!make || !model) {
+      showMpgStatus(statusEl, 'Enter at least Make and Model first.', 'error');
+      return;
+    }
+
+    // Don't overwrite existing values unless forced
+    var cityEl = $('editMpgCity');
+    var hwyEl = $('editMpgHighway');
+    if (!force && cityEl.value && hwyEl.value) {
+      showMpgStatus(statusEl, 'MPG already filled. Click again to replace.', 'approx');
+      btn._mpgForceNext = true;
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Looking up MPG...';
+    showMpgStatus(statusEl, 'Searching web for EPA data...', 'loading');
+
+    try {
+      var result = await fetchMpgLookup({
+        year: $('editYear').value,
+        make: make,
+        model: model,
+        trim: $('editTrim').value,
+        engine: $('editEngine').value,
+        drivetrain: $('editDrivetrain').value,
+      });
+
+      if (result.found && result.mpgCity && result.mpgHighway) {
+        cityEl.value = result.mpgCity;
+        hwyEl.value = result.mpgHighway;
+
+        var statusMsg = 'City: ' + result.mpgCity + ' / Hwy: ' + result.mpgHighway;
+        if (!result.exact) statusMsg += ' (approx. match)';
+        if (result.source) statusMsg += ' — ' + result.source;
+        showMpgStatus(statusEl, statusMsg, result.exact ? 'success' : 'approx');
+      } else {
+        showMpgStatus(statusEl, result.message || 'MPG data not found. Please enter manually.', 'error');
+      }
+    } catch (err) {
+      showMpgStatus(statusEl, 'MPG lookup failed: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '\uD83D\uDD0D Look Up MPG';
+      btn._mpgForceNext = false;
+    }
+  }
+
   // ─── Photo Validation ──────────────────────────────────────────────────────
   const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   const ALLOWED_PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
@@ -2996,7 +3153,32 @@
         } catch (e) { /* Photo scan failed, continue with VIN data */ }
       }
 
-      // Step 3: Show review panel
+      // Step 3: MPG Lookup (if we have enough vehicle info)
+      var mpgMake = merged.make || ($(prefix + 'Make') ? $(prefix + 'Make').value.trim() : '');
+      var mpgModel = merged.model || ($(prefix + 'Model') ? $(prefix + 'Model').value.trim() : '');
+      if (mpgMake && mpgModel) {
+        var mpgCityEl = $(prefix + 'MpgCity');
+        var mpgHwyEl = $(prefix + 'MpgHighway');
+        if (!mpgCityEl || !mpgCityEl.value || !mpgHwyEl || !mpgHwyEl.value) {
+          if (statusText) statusText.textContent = 'Looking up MPG data\u2026';
+          try {
+            var mpgResult = await fetchMpgLookup({
+              year: merged.year || ($(prefix + 'Year') ? $(prefix + 'Year').value : ''),
+              make: mpgMake,
+              model: mpgModel,
+              trim: merged.trim || ($(prefix + 'Trim') ? $(prefix + 'Trim').value : ''),
+              engine: merged.engine || ($(prefix + 'Engine') ? $(prefix + 'Engine').value : ''),
+              drivetrain: merged.drivetrain || ($(prefix + 'Drivetrain') ? $(prefix + 'Drivetrain').value : ''),
+            });
+            if (mpgResult.found && mpgResult.mpgCity && mpgResult.mpgHighway) {
+              merged.mpgCity = String(mpgResult.mpgCity);
+              merged.mpgHighway = String(mpgResult.mpgHighway);
+            }
+          } catch (e) { /* MPG lookup failed, continue */ }
+        }
+      }
+
+      // Step 4: Show review panel
       if (statusPanel) statusPanel.classList.add('hide');
       var keys = Object.keys(merged);
       if (keys.length === 0) {
@@ -3012,7 +3194,8 @@
         engine: 'Engine', cylinders: 'Cylinders', transmission: 'Transmission',
         drivetrain: 'Drivetrain', doors: 'Doors',
         fuelType: 'Fuel Type', bodyStyle: 'Body Style',
-        exteriorColor: 'Exterior Color', interiorColor: 'Interior Color'
+        exteriorColor: 'Exterior Color', interiorColor: 'Interior Color',
+        mpgCity: 'MPG City', mpgHighway: 'MPG Hwy'
       };
 
       // Check which fields already have values (manual = don't overwrite)
@@ -3020,12 +3203,14 @@
         year: 'editYear', make: 'editMake', model: 'editModel', trim: 'editTrim',
         engine: 'editEngine', cylinders: 'editCylinders', transmission: 'editTransmission',
         drivetrain: 'editDrivetrain', doors: 'editDoors',
-        fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor'
+        fuelType: 'editFuelType', exteriorColor: 'editExteriorColor', interiorColor: 'editInteriorColor',
+        mpgCity: 'editMpgCity', mpgHighway: 'editMpgHighway'
       } : {
         year: 'addYear', make: 'addMake', model: 'addModel', trim: 'addTrim',
         engine: 'addEngine', cylinders: 'addCylinders', transmission: 'addTransmission',
         drivetrain: 'addDrivetrain', doors: 'addDoors',
-        fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor'
+        fuelType: 'addFuelType', exteriorColor: 'addExteriorColor', interiorColor: 'addInteriorColor',
+        mpgCity: 'addMpgCity', mpgHighway: 'addMpgHighway'
       };
 
       var reviewHtml = '';
@@ -3476,7 +3661,20 @@
         await editGenerateDescription();
       }
 
-      showFeedback($('editFeedback'), 'AI analysis complete: VIN + Photos + Description.');
+      // Step 4: Look up MPG if fields are empty
+      var cityVal = $('editMpgCity').value;
+      var hwyVal = $('editMpgHighway').value;
+      if (make && model && (!cityVal || !hwyVal)) {
+        btn.textContent = '⏳ MPG Lookup...';
+        try {
+          await editMpgLookup(false);
+        } catch (mpgErr) {
+          // Non-fatal — just log and continue
+          console.warn('[editMasterAI] MPG lookup failed:', mpgErr.message);
+        }
+      }
+
+      showFeedback($('editFeedback'), 'AI analysis complete: VIN + Photos + Description + MPG.');
     } catch (err) {
       showFeedback($('editFeedback'), 'AI generate error: ' + err.message, true);
     } finally {
@@ -4910,6 +5108,9 @@
     $('editApplyVinBtn').addEventListener('click', editApplyVinData);
     if ($('editGenDescBtn')) $('editGenDescBtn').addEventListener('click', editGenerateDescription);
     $('editAiMasterBtn').addEventListener('click', editMasterAI);
+    $('editMpgLookupBtn').addEventListener('click', function () {
+      editMpgLookup(this._mpgForceNext || false);
+    });
     $('editPhotos').addEventListener('change', editHandlePhotoSelect);
     $('editVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
     setupEditPhotoDrop();
@@ -4994,6 +5195,9 @@
       if (autofillBtn) autofillBtn.classList.toggle('hide', !this.value.trim() && !addPhotoFiles.length);
     });
     $('generateDescBtn').addEventListener('click', generateAIDescription);
+    $('addMpgLookupBtn').addEventListener('click', function () {
+      addMpgLookup(this._mpgForceNext || false);
+    });
     setupBatchUploadZone();
     $('addPhotos').addEventListener('change', handlePhotoSelect);
 
