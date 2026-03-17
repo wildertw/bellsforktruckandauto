@@ -177,8 +177,40 @@ body {
 .bulk-action-bar .ghost-btn { height: 32px; font-size: 13px; }
 .bulk-action-bar #bulkCount { font-weight: 600; font-size: 14px; margin-right: auto; }
 tr.selected-row { background: #fff8e1 !important; }
+tr.draft-row { background: #e8f4fd !important; }
+tr.draft-row.selected-row { background: #d4ecf9 !important; }
 #inventoryTable th:first-child,
 #inventoryTable td:first-child { text-align: center; width: 40px; }
+
+/* ─── Draft Pill (shown in table for bulk-edited vehicles) ──────────────── */
+.draft-pill {
+  display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .5px; padding: 2px 6px; border-radius: 4px;
+  background: #0ea5e9; color: #fff; margin-left: 6px; vertical-align: middle;
+}
+
+/* ─── Draft Banner (shown above inventory table when drafts exist) ──────── */
+.draft-banner {
+  display: flex; align-items: center; gap: var(--space-sm);
+  background: #dbeafe; border: 1px solid #60a5fa; border-radius: 6px;
+  padding: .6rem 1rem; margin-bottom: var(--space-sm);
+}
+.draft-banner #draftBannerIcon { font-size: 18px; color: #2563eb; }
+.draft-banner #draftBannerText { font-weight: 500; font-size: 14px; margin-right: auto; color: #1e40af; }
+.draft-banner .primary-btn { height: 32px; font-size: 13px; padding: 0 16px; }
+.draft-banner .ghost-btn { height: 32px; font-size: 13px; }
+
+/* ─── Bulk Edit Modal Grid ──────────────────────────────────────────────── */
+.bulk-edit-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.bulk-field {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px; border-radius: 6px; border: 1px solid var(--border, #e5e7eb);
+  background: var(--surface2, #f9fafb); cursor: pointer;
+}
+.bulk-field input[type="checkbox"] { align-self: flex-start; margin: 2px 4px 4px 0; }
+.bulk-field input:disabled, .bulk-field select:disabled { opacity: .5; }
 
 .full-width { width: 100%; }
 
