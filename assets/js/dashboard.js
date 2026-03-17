@@ -385,9 +385,16 @@
       var pubResult = await pubRes.json().catch(function () { return {}; });
       if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed (HTTP ' + pubRes.status + ')');
 
-      // Clear draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; });
+      // Clear all staged flags after successful publish
+      inventory.forEach(function(v) {
+        delete v._draft;
+        delete v._draftSnapshot;
+        delete v._pendingDelete;
+        delete v._bulkDraft; // legacy cleanup
+      });
       persistInventory();
+      updateDraftBanner();
+      renderInventoryTable();
 
       return pubResult;
     } finally {
@@ -1525,12 +1532,21 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
-      var isDraft = item._bulkDraft;
-      var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
-      return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
+      var isDraft = item._draft && !item._pendingDelete;
+      var isPendingDelete = item._pendingDelete;
+      var classes = [];
+      if (isChecked) classes.push('selected-row');
+      if (isDraft) classes.push('draft-row');
+      if (isPendingDelete) classes.push('pending-delete-row');
+      // Status pill for draft/delete indicator
+      var stagePill = '';
+      if (isPendingDelete) stagePill = ' <span class="delete-pill">Pending Delete</span>';
+      else if (isDraft) stagePill = ' <span class="draft-pill">Draft</span>';
+
+      return '<tr' + (classes.length ? ' class="' + classes.join(' ') + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
-      '<td>' + item.name + (isDraft ? ' <span class="draft-pill">Draft</span>' : '') + '</td>' +
+      '<td>' + item.name + stagePill + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
       '<td class="featured-toggle-cell">' +
@@ -1545,12 +1561,16 @@
       '</td>' +
       '<td>' + formatMoney(item.price) + '</td>' +
       '<td class="table-actions">' +
-        '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
-        '<button class="ghost-btn sold-btn" data-action="mark-sold" data-sku="' + item.sku + '"' +
-          (item.status === 'sold' ? ' title="Edit sale details"' : '') + '>' +
-          (item.status === 'sold' ? 'Edit Sale' : 'Mark Sold') +
-        '</button>' +
-        '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>' +
+        (isPendingDelete
+          ? '<button class="ghost-btn" data-action="undo-delete" data-sku="' + item.sku + '">Undo Delete</button>'
+          : '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
+            '<button class="ghost-btn sold-btn" data-action="mark-sold" data-sku="' + item.sku + '"' +
+              (item.status === 'sold' ? ' title="Edit sale details"' : '') + '>' +
+              (item.status === 'sold' ? 'Edit Sale' : 'Mark Sold') +
+            '</button>' +
+            '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>'
+        ) +
+        (isDraft ? ' <button class="ghost-btn" data-action="undo-edit" data-sku="' + item.sku + '" title="Revert to pre-edit state">Undo Edit</button>' : '') +
       '</td></tr>';
     }).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
@@ -1569,6 +1589,9 @@
     if (!event.target.matches('button')) return;
     const action = event.target.dataset.action;
     const sku = event.target.dataset.sku;
+    // Handle undo actions (these may not have an inventory item if something went wrong)
+    if (action === 'undo-edit') { undoStagedEdit(sku); return; }
+    if (action === 'undo-delete') { undoStagedDelete(sku); return; }
     const item = inventory.find((row) => row.sku === sku);
     if (!item) return;
     if (action === 'toggle-featured') {
@@ -1654,20 +1677,18 @@
       editModal.classList.add('active');
       editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
-      if (confirm('Delete ' + item.name + ' (' + item.sku + ')? This cannot be undone.')) {
-        inventory = inventory.filter((entry) => entry.sku !== sku);
+      if (item._pendingDelete) {
+        // Already pending — offer to undo
+        undoStagedDelete(sku);
+        return;
+      }
+      if (confirm('Stage ' + item.name + ' (' + item.sku + ') for deletion?\n\nIt will NOT be removed from the live site until you click "Publish to Site."')) {
+        item._pendingDelete = true;
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Item permanently removed.');
-        // Auto-publish deletion to live site
-        showToast('Publishing deletion to live site...');
-        autoPublish().then(function () {
-          showToast('\u2713 Deleted & published! Live in ~30 seconds.', 'success');
-          setTimeout(hideToast, 5000);
-        }).catch(function (err) {
-          showToast('Error publishing: ' + err.message, 'error');
-          setTimeout(hideToast, 8000);
-        });
+        showFeedback(editFeedback, item.name + ' staged for deletion (not yet published).');
+        showToast('Staged for deletion. Publish to remove from live site.', 'info');
+        setTimeout(hideToast, 5000);
       }
     }
   }
@@ -1724,20 +1745,20 @@
   function handleBulkDelete() {
     if (selectedSkus.size === 0) return;
     var count = selectedSkus.size;
-    if (!confirm('Permanently delete ' + count + ' vehicle' + (count > 1 ? 's' : '') + '? This cannot be undone.')) return;
-    inventory = inventory.filter(function(v) { return !selectedSkus.has(v.sku); });
+    if (!confirm('Stage ' + count + ' vehicle' + (count > 1 ? 's' : '') + ' for deletion?\n\nThey will NOT be removed from the live site until you click "Publish to Site."')) return;
+    var staged = 0;
+    inventory.forEach(function(v) {
+      if (selectedSkus.has(v.sku) && !v._pendingDelete) {
+        v._pendingDelete = true;
+        staged++;
+      }
+    });
     selectedSkus.clear();
     persistInventory();
     renderInventoryTable();
-    showFeedback(editFeedback, count + ' vehicle' + (count > 1 ? 's' : '') + ' permanently deleted.');
-    showToast('Publishing deletions to live site...');
-    autoPublish().then(function () {
-      showToast('\u2713 ' + count + ' deleted & published! Live in ~30 seconds.', 'success');
-      setTimeout(hideToast, 5000);
-    }).catch(function (err) {
-      showToast('Error publishing: ' + err.message, 'error');
-      setTimeout(hideToast, 8000);
-    });
+    showFeedback(editFeedback, staged + ' vehicle' + (staged > 1 ? 's' : '') + ' staged for deletion (not yet published).');
+    showToast('Staged for deletion. Publish to remove from live site.', 'info');
+    setTimeout(hideToast, 5000);
   }
 
   function handleBulkDeselect() {
@@ -1752,34 +1773,189 @@
     updateBulkBar();
   }
 
-  // ─── Draft Tracking for Bulk Edits ────────────────────────────────────────
-  // Vehicles edited via bulk edit get _bulkDraft = true.
-  // This flag persists in localStorage and is cleared on successful publish.
+  // ─── Staged Changes Tracking ──────────────────────────────────────────────
+  // All edits (single or bulk) set _draft = true on the vehicle.
+  // _draftSnapshot stores the vehicle's pre-edit state so edits can be undone.
+  // Deletions set _pendingDelete = true instead of removing the vehicle.
+  // None of these flags reach the live site — autoPublish uses an explicit
+  // field whitelist that excludes them, and _pendingDelete vehicles are
+  // filtered out of the publish payload entirely.
+  // All flags are cleared after a successful publish.
 
-  function getDraftCount() {
-    return inventory.filter(function(v) { return v._bulkDraft; }).length;
+  function getStagedCounts() {
+    var edits = 0, deletes = 0;
+    inventory.forEach(function(v) {
+      if (v._pendingDelete) deletes++;
+      else if (v._draft) edits++;
+    });
+    return { edits: edits, deletes: deletes, total: edits + deletes };
   }
 
   function updateDraftBanner() {
     var banner = $('draftBanner');
     if (!banner) return;
-    var count = getDraftCount();
-    if (count > 0) {
+    var counts = getStagedCounts();
+    if (counts.total > 0) {
       banner.classList.remove('hide');
-      $('draftBannerText').textContent = count + ' vehicle' + (count > 1 ? 's have' : ' has') + ' unpublished bulk edits.';
+      var parts = [];
+      if (counts.edits > 0) parts.push(counts.edits + ' draft edit' + (counts.edits > 1 ? 's' : ''));
+      if (counts.deletes > 0) parts.push(counts.deletes + ' pending delete' + (counts.deletes > 1 ? 's' : ''));
+      $('draftBannerText').textContent = parts.join(', ') + ' — not yet published.';
+      // Update the review list
+      renderStagedReview();
     } else {
       banner.classList.add('hide');
+      var reviewEl = $('stagedReviewList');
+      if (reviewEl) reviewEl.classList.add('hide');
     }
   }
 
-  function clearDraftFlags() {
-    inventory.forEach(function(v) { delete v._bulkDraft; });
-    persistInventory();
-    updateDraftBanner();
-    renderInventoryTable();
+  /** Build the staged-changes review list inside the draft banner */
+  function renderStagedReview() {
+    var container = $('stagedReviewList');
+    if (!container) return;
+    var counts = getStagedCounts();
+    if (counts.total === 0) { container.classList.add('hide'); return; }
+
+    var html = '';
+    inventory.forEach(function(v) {
+      if (v._pendingDelete) {
+        html += '<div class="staged-item staged-delete">' +
+          '<span class="staged-label">DELETE</span> ' +
+          '<strong>' + (v.name || v.sku) + '</strong> (' + v.sku + ')' +
+          ' <button class="ghost-btn staged-undo" data-sku="' + v.sku + '" data-action="undo-delete" type="button">Undo</button>' +
+          '</div>';
+      } else if (v._draft) {
+        html += '<div class="staged-item staged-edit">' +
+          '<span class="staged-label">EDIT</span> ' +
+          '<strong>' + (v.name || v.sku) + '</strong> (' + v.sku + ')' +
+          ' <button class="ghost-btn staged-undo" data-sku="' + v.sku + '" data-action="undo-edit" type="button">Undo</button>' +
+          '</div>';
+      }
+    });
+    container.innerHTML = html;
+    // Keep visibility in sync with the toggle
+    if (!container.classList.contains('hide') || counts.total > 0) {
+      // Visibility is controlled by the toggle button; don't force show
+    }
   }
 
-  // ─── Bulk Edit Modal ────────────────────────────────────────────────────────
+  function toggleStagedReview() {
+    var el = $('stagedReviewList');
+    if (el) el.classList.toggle('hide');
+  }
+
+  /** Undo a staged edit — restore pre-edit snapshot */
+  function undoStagedEdit(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (!item || !item._draft) return;
+    if (item._draftSnapshot) {
+      // Restore all snapshotted fields
+      Object.keys(item._draftSnapshot).forEach(function(key) {
+        item[key] = item._draftSnapshot[key];
+      });
+    }
+    delete item._draft;
+    delete item._draftSnapshot;
+    persistInventory();
+    renderInventoryTable();
+    showToast('Edit reverted for ' + (item.name || sku) + '.', 'info');
+    setTimeout(hideToast, 4000);
+  }
+
+  /** Undo a staged delete — just remove the flag */
+  function undoStagedDelete(sku) {
+    var item = inventory.find(function(v) { return v.sku === sku; });
+    if (!item || !item._pendingDelete) return;
+    delete item._pendingDelete;
+    persistInventory();
+    renderInventoryTable();
+    showToast('Delete cancelled for ' + (item.name || sku) + '.', 'info');
+    setTimeout(hideToast, 4000);
+  }
+
+  /** Handle clicks on undo buttons inside the staged review list / table */
+  function handleStagedUndo(event) {
+    var btn = event.target.closest('[data-action="undo-edit"], [data-action="undo-delete"]');
+    if (!btn) return;
+    var sku = btn.dataset.sku;
+    if (btn.dataset.action === 'undo-edit') undoStagedEdit(sku);
+    else if (btn.dataset.action === 'undo-delete') undoStagedDelete(sku);
+  }
+
+  /** Discard ALL staged changes — reload from live site */
+  function handleDiscardAllStaged() {
+    var counts = getStagedCounts();
+    if (counts.total === 0) return;
+    if (!confirm('Discard all staged changes (' + counts.edits + ' edit(s), ' + counts.deletes + ' delete(s))?\n\nThis will reload inventory from the live site, undoing ALL unpublished changes.')) {
+      return;
+    }
+    showToast('Reverting to published inventory...');
+    fetch('/inventory.json')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var vehicles = data.vehicles || data;
+        if (!Array.isArray(vehicles)) throw new Error('Invalid format');
+        inventory = vehicles.map(function(v, i) {
+          return {
+            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
+            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+            category: v.type || v.category || 'Vehicle',
+            quantity: 1, price: Number(v.price) || 0,
+            description: v.description || '', supplier: '',
+            year: v.year, make: v.make, model: v.model, trim: v.trim,
+            vin: v.vin, stockNumber: v.stockNumber,
+            engine: v.engine, transmission: v.transmission,
+            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
+            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
+            features: v.features || [], status: v.status || 'available',
+            badge: v.badge, featured: v.featured || false,
+            drivetrain: v.drivetrain, fuelType: v.fuelType,
+            condition: v.condition || 'Used', titleState: v.titleState || 'Clean',
+            warranty: v.warranty || 'Extended Warranty Available',
+            cylinders: v.cylinders || '', doors: v.doors || '',
+            images: v.images, dateAdded: v.dateAdded,
+            paintCode: v.paintCode || '', oem_scan: v.oem_scan || null,
+            photo_roles: v.photo_roles || [], color_display: v.color_display || null,
+          };
+        });
+        persistInventory();
+        renderInventoryTable();
+        showToast('\u2713 Reverted to published inventory.', 'success');
+        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from live site. All staged changes discarded.');
+        setTimeout(hideToast, 5000);
+      })
+      .catch(function(err) {
+        showToast('Error reverting: ' + err.message, 'error');
+        setTimeout(hideToast, 8000);
+      });
+  }
+
+  /** Publish all staged changes — edits go live, pending deletes are removed */
+  function handleStagedPublish() {
+    var counts = getStagedCounts();
+    if (counts.total === 0) return;
+    var msg = 'Publish all staged changes to the live site?\n\n';
+    if (counts.edits > 0) msg += '\u2022 ' + counts.edits + ' edited vehicle(s) will be updated\n';
+    if (counts.deletes > 0) msg += '\u2022 ' + counts.deletes + ' vehicle(s) will be permanently removed\n';
+    msg += '\nThis will update bellsforktruckandauto.com.';
+    if (!confirm(msg)) return;
+
+    showToast('Publishing staged changes to live site...');
+    // Remove pending-delete vehicles from inventory BEFORE building publish payload
+    inventory = inventory.filter(function(v) { return !v._pendingDelete; });
+    persistInventory();
+
+    autoPublish().then(function() {
+      showToast('\u2713 All changes published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    }).catch(function(err) {
+      showToast('Publish error: ' + err.message, 'error');
+      setTimeout(hideToast, 8000);
+    });
+  }
+
+  // ─── Bulk Edit Modal ─────────────────────────────────────────────────────
 
   function openBulkEditModal() {
     if (selectedSkus.size === 0) return;
@@ -1826,14 +2002,24 @@
       return;
     }
 
-    // Apply changes to selected vehicles, mark as draft
+    // Apply changes to selected vehicles, mark as draft with snapshot for undo
     var applied = 0;
     inventory.forEach(function(v) {
       if (!selectedSkus.has(v.sku)) return;
+      // Snapshot original state before first edit (for undo support)
+      if (!v._draft && !v._draftSnapshot) {
+        var snap = {};
+        Object.keys(v).forEach(function(k) {
+          if (k !== '_draft' && k !== '_draftSnapshot' && k !== '_pendingDelete') {
+            snap[k] = Array.isArray(v[k]) ? v[k].slice() : v[k];
+          }
+        });
+        v._draftSnapshot = snap;
+      }
       Object.keys(changes).forEach(function(field) {
         v[field] = changes[field];
       });
-      v._bulkDraft = true; // Mark as draft — will NOT auto-publish
+      v._draft = true; // Mark as staged draft — will NOT auto-publish
       applied++;
     });
 
@@ -1848,76 +2034,6 @@
     showFeedback(editFeedback, applied + ' vehicle' + (applied > 1 ? 's' : '') + ' updated (draft only — not yet published).');
     showToast('Draft saved. Use "Publish to Site" to push changes live.', 'info');
     setTimeout(hideToast, 6000);
-  }
-
-  function handleDraftPublish() {
-    var count = getDraftCount();
-    if (count === 0) return;
-    if (!confirm('Publish all changes (' + count + ' draft vehicle' + (count > 1 ? 's' : '') + ') to the live site?\n\nThis will update bellsforktruckandauto.com.')) {
-      return;
-    }
-    showToast('Publishing draft changes to live site...');
-    autoPublish().then(function() {
-      // Clear draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; });
-      persistInventory();
-      updateDraftBanner();
-      renderInventoryTable();
-      showToast('\u2713 All drafts published! Live in ~30 seconds.', 'success');
-      setTimeout(hideToast, 5000);
-    }).catch(function(err) {
-      showToast('Publish error: ' + err.message, 'error');
-      setTimeout(hideToast, 8000);
-    });
-  }
-
-  function handleDraftDiscard() {
-    var count = getDraftCount();
-    if (count === 0) return;
-    if (!confirm('Discard all ' + count + ' draft edit' + (count > 1 ? 's' : '') + '?\n\nThis will reload the last published inventory from the live site, undoing all unpublished bulk changes.')) {
-      return;
-    }
-    // Reload from live site to revert drafts
-    showToast('Reverting to published inventory...');
-    fetch('/inventory.json')
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        var vehicles = data.vehicles || data;
-        if (!Array.isArray(vehicles)) throw new Error('Invalid format');
-        inventory = vehicles.map(function(v, i) {
-          return {
-            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
-            category: v.type || v.category || 'Vehicle',
-            quantity: 1, price: Number(v.price) || 0,
-            description: v.description || '', supplier: '',
-            year: v.year, make: v.make, model: v.model, trim: v.trim,
-            vin: v.vin, stockNumber: v.stockNumber,
-            engine: v.engine, transmission: v.transmission,
-            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
-            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
-            features: v.features || [], status: v.status || 'available',
-            badge: v.badge, featured: v.featured || false,
-            drivetrain: v.drivetrain, fuelType: v.fuelType,
-            condition: v.condition || 'Used', titleState: v.titleState || 'Clean',
-            warranty: v.warranty || 'Extended Warranty Available',
-            cylinders: v.cylinders || '', doors: v.doors || '',
-            images: v.images, dateAdded: v.dateAdded,
-            paintCode: v.paintCode || '', oem_scan: v.oem_scan || null,
-            photo_roles: v.photo_roles || [], color_display: v.color_display || null,
-          };
-        });
-        persistInventory();
-        renderInventoryTable();
-        updateDraftBanner();
-        showToast('\u2713 Reverted to published inventory.', 'success');
-        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from live site. All drafts discarded.');
-        setTimeout(hideToast, 5000);
-      })
-      .catch(function(err) {
-        showToast('Error reverting: ' + err.message, 'error');
-        setTimeout(hideToast, 8000);
-      });
   }
 
   var editSubmitInProgress = false; // double-submit guard
@@ -1935,6 +2051,17 @@
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
 
     try {
+      // Snapshot the original state before first draft edit (for undo support)
+      if (!editingItem._draft && !editingItem._draftSnapshot) {
+        var snap = {};
+        Object.keys(editingItem).forEach(function(k) {
+          if (k !== '_draft' && k !== '_draftSnapshot' && k !== '_pendingDelete') {
+            snap[k] = Array.isArray(editingItem[k]) ? editingItem[k].slice() : editingItem[k];
+          }
+        });
+        editingItem._draftSnapshot = snap;
+      }
+
       // Basic fields
       editingItem.name = $('editName').value.trim();
       editingItem.category = $('editCategory').value.trim();
@@ -1992,6 +2119,8 @@
       }
       editingItem.images = mergedImages;
 
+      editingItem._draft = true; // Mark as staged draft — will NOT auto-publish
+
       // Save to localStorage
       persistInventory();
       renderInventoryTable();
@@ -2000,10 +2129,7 @@
       editFormSnapshot = null;
       editModal.classList.remove('active');
 
-      // Auto-publish to live site
-      showToast('Publishing to live site...');
-      await autoPublish();
-      showToast('\u2713 Saved & published! Live in ~30 seconds.', 'success');
+      showToast('Saved as draft. Use "Publish to Site" to push live.', 'info');
       setTimeout(hideToast, 5000);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
@@ -3821,8 +3947,13 @@
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Publish failed');
 
-      // Clear draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; });
+      // Clear all staged flags after successful publish
+      inventory.forEach(function(v) {
+        delete v._draft;
+        delete v._draftSnapshot;
+        delete v._pendingDelete;
+        delete v._bulkDraft; // legacy cleanup
+      });
       persistInventory();
       updateDraftBanner();
       renderInventoryTable();
@@ -4867,8 +4998,11 @@
       });
     });
     // Draft banner actions
-    if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleDraftPublish);
-    if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDraftDiscard);
+    if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleStagedPublish);
+    if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDiscardAllStaged);
+    if ($('draftReviewToggle')) $('draftReviewToggle').addEventListener('click', toggleStagedReview);
+    // Undo buttons in staged review list (event delegation)
+    if ($('stagedReviewList')) $('stagedReviewList').addEventListener('click', handleStagedUndo);
     // Close bulk edit modal on backdrop click
     if ($('bulkEditModal')) $('bulkEditModal').addEventListener('click', function(e) { if (e.target === $('bulkEditModal')) $('bulkEditModal').classList.remove('active'); });
     $('editForm').addEventListener('submit', handleEditSubmit);
