@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-17T14:27:52.928Z",
+  "lastUpdated": "2026-03-17T14:34:42.897Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -17,10 +17,17 @@
       "mileage": 186683,
       "price": 29995,
       "type": "Truck",
-      "exteriorColor": "red",
+      "exteriorColor": "Red",
       "interiorColor": "tan",
       "description": "",
-      "features": [],
+      "features": [
+        "aftermarket wheels",
+        "chrome package",
+        "tow hitch",
+        "tinted windows",
+        "running boards",
+        "Crew Cab"
+      ],
       "status": "available",
       "badge": "",
       "featured": false,
