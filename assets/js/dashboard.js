@@ -1545,12 +1545,16 @@
       '</td>' +
       '<td>' + formatMoney(item.price) + '</td>' +
       '<td class="table-actions">' +
-        '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
-        '<button class="ghost-btn sold-btn" data-action="mark-sold" data-sku="' + item.sku + '"' +
-          (item.status === 'sold' ? ' title="Edit sale details"' : '') + '>' +
-          (item.status === 'sold' ? 'Edit Sale' : 'Mark Sold') +
-        '</button>' +
-        '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>' +
+        (isPendingDelete
+          ? '<button class="ghost-btn" data-action="undo-delete" data-sku="' + item.sku + '">Undo Delete</button>'
+          : '<button class="ghost-btn" data-action="edit" data-sku="' + item.sku + '">Edit</button>' +
+            '<button class="ghost-btn sold-btn" data-action="mark-sold" data-sku="' + item.sku + '"' +
+              (item.status === 'sold' ? ' title="Edit sale details"' : '') + '>' +
+              (item.status === 'sold' ? 'Edit Sale' : 'Mark Sold') +
+            '</button>' +
+            '<button class="ghost-btn danger-text" data-action="delete" data-sku="' + item.sku + '">Delete</button>'
+        ) +
+        (isDraft ? ' <button class="ghost-btn" data-action="undo-edit" data-sku="' + item.sku + '" title="Revert to pre-edit state">Undo Edit</button>' : '') +
       '</td></tr>';
     }).join('');
     $('pageInfo').textContent = 'Page ' + currentPage + ' / ' + totalPages;
@@ -1569,6 +1573,9 @@
     if (!event.target.matches('button')) return;
     const action = event.target.dataset.action;
     const sku = event.target.dataset.sku;
+    // Handle undo actions (these may not have an inventory item if something went wrong)
+    if (action === 'undo-edit') { undoStagedEdit(sku); return; }
+    if (action === 'undo-delete') { undoStagedDelete(sku); return; }
     const item = inventory.find((row) => row.sku === sku);
     if (!item) return;
     if (action === 'toggle-featured') {
@@ -1654,20 +1661,18 @@
       editModal.classList.add('active');
       editFormSnapshot = snapshotEditForm();
     } else if (action === 'delete') {
-      if (confirm('Delete ' + item.name + ' (' + item.sku + ')? This cannot be undone.')) {
-        inventory = inventory.filter((entry) => entry.sku !== sku);
+      if (item._pendingDelete) {
+        // Already pending — offer to undo
+        undoStagedDelete(sku);
+        return;
+      }
+      if (confirm('Stage ' + item.name + ' (' + item.sku + ') for deletion?\n\nIt will NOT be removed from the live site until you click "Publish to Site."')) {
+        item._pendingDelete = true;
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Item permanently removed.');
-        // Auto-publish deletion to live site
-        showToast('Publishing deletion to live site...');
-        autoPublish().then(function () {
-          showToast('\u2713 Deleted & published! Live in ~30 seconds.', 'success');
-          setTimeout(hideToast, 5000);
-        }).catch(function (err) {
-          showToast('Error publishing: ' + err.message, 'error');
-          setTimeout(hideToast, 8000);
-        });
+        showFeedback(editFeedback, item.name + ' staged for deletion (not yet published).');
+        showToast('Staged for deletion. Publish to remove from live site.', 'info');
+        setTimeout(hideToast, 5000);
       }
     }
   }
@@ -1724,20 +1729,20 @@
   function handleBulkDelete() {
     if (selectedSkus.size === 0) return;
     var count = selectedSkus.size;
-    if (!confirm('Permanently delete ' + count + ' vehicle' + (count > 1 ? 's' : '') + '? This cannot be undone.')) return;
-    inventory = inventory.filter(function(v) { return !selectedSkus.has(v.sku); });
+    if (!confirm('Stage ' + count + ' vehicle' + (count > 1 ? 's' : '') + ' for deletion?\n\nThey will NOT be removed from the live site until you click "Publish to Site."')) return;
+    var staged = 0;
+    inventory.forEach(function(v) {
+      if (selectedSkus.has(v.sku) && !v._pendingDelete) {
+        v._pendingDelete = true;
+        staged++;
+      }
+    });
     selectedSkus.clear();
     persistInventory();
     renderInventoryTable();
-    showFeedback(editFeedback, count + ' vehicle' + (count > 1 ? 's' : '') + ' permanently deleted.');
-    showToast('Publishing deletions to live site...');
-    autoPublish().then(function () {
-      showToast('\u2713 ' + count + ' deleted & published! Live in ~30 seconds.', 'success');
-      setTimeout(hideToast, 5000);
-    }).catch(function (err) {
-      showToast('Error publishing: ' + err.message, 'error');
-      setTimeout(hideToast, 8000);
-    });
+    showFeedback(editFeedback, staged + ' vehicle' + (staged > 1 ? 's' : '') + ' staged for deletion (not yet published).');
+    showToast('Staged for deletion. Publish to remove from live site.', 'info');
+    setTimeout(hideToast, 5000);
   }
 
   function handleBulkDeselect() {
@@ -1935,6 +1940,17 @@
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
 
     try {
+      // Snapshot the original state before first draft edit (for undo support)
+      if (!editingItem._draft && !editingItem._draftSnapshot) {
+        var snap = {};
+        Object.keys(editingItem).forEach(function(k) {
+          if (k !== '_draft' && k !== '_draftSnapshot' && k !== '_pendingDelete') {
+            snap[k] = Array.isArray(editingItem[k]) ? editingItem[k].slice() : editingItem[k];
+          }
+        });
+        editingItem._draftSnapshot = snap;
+      }
+
       // Basic fields
       editingItem.name = $('editName').value.trim();
       editingItem.category = $('editCategory').value.trim();
@@ -1992,6 +2008,8 @@
       }
       editingItem.images = mergedImages;
 
+      editingItem._draft = true; // Mark as staged draft — will NOT auto-publish
+
       // Save to localStorage
       persistInventory();
       renderInventoryTable();
@@ -2000,10 +2018,7 @@
       editFormSnapshot = null;
       editModal.classList.remove('active');
 
-      // Auto-publish to live site
-      showToast('Publishing to live site...');
-      await autoPublish();
-      showToast('\u2713 Saved & published! Live in ~30 seconds.', 'success');
+      showToast('Saved as draft. Use "Publish to Site" to push live.', 'info');
       setTimeout(hideToast, 5000);
     } catch (err) {
       showToast('Error: ' + err.message, 'error');
