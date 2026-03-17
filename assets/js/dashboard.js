@@ -14,6 +14,7 @@
   const SALES_API = '/.netlify/functions/sales-data';
   const LEADS_API = '/.netlify/functions/leads';
   const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
+  const DESCRIBE_API = '/.netlify/functions/ai-describe';
 
   let blogToken = '';
   let blogUser = '';
@@ -385,16 +386,9 @@
       var pubResult = await pubRes.json().catch(function () { return {}; });
       if (!pubRes.ok) throw new Error(pubResult.error || 'Publish failed (HTTP ' + pubRes.status + ')');
 
-      // Clear all staged flags after successful publish
-      inventory.forEach(function(v) {
-        delete v._draft;
-        delete v._draftSnapshot;
-        delete v._pendingDelete;
-        delete v._bulkDraft; // legacy cleanup
-      });
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
       persistInventory();
-      updateDraftBanner();
-      renderInventoryTable();
 
       return pubResult;
     } finally {
@@ -1532,21 +1526,12 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
-      var isDraft = item._draft && !item._pendingDelete;
-      var isPendingDelete = item._pendingDelete;
-      var classes = [];
-      if (isChecked) classes.push('selected-row');
-      if (isDraft) classes.push('draft-row');
-      if (isPendingDelete) classes.push('pending-delete-row');
-      // Status pill for draft/delete indicator
-      var stagePill = '';
-      if (isPendingDelete) stagePill = ' <span class="delete-pill">Pending Delete</span>';
-      else if (isDraft) stagePill = ' <span class="draft-pill">Draft</span>';
-
-      return '<tr' + (classes.length ? ' class="' + classes.join(' ') + '"' : '') + '>' +
+      var isDraft = item._bulkDraft;
+      var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
+      return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
       '<td><input type="checkbox" class="row-select" data-sku="' + item.sku + '"' + (isChecked ? ' checked' : '') + '></td>' +
       '<td>' + item.sku + '</td>' +
-      '<td>' + item.name + stagePill + '</td>' +
+      '<td>' + item.name + (isDraft ? ' <span class="draft-pill">Draft</span>' : '') + '</td>' +
       '<td>' + item.category + '</td>' +
       '<td><span class="status-pill status-' + (item.status || 'available') + '">' + (item.status || 'available') + '</span></td>' +
       '<td class="featured-toggle-cell">' +
@@ -1773,189 +1758,34 @@
     updateBulkBar();
   }
 
-  // ─── Staged Changes Tracking ──────────────────────────────────────────────
-  // All edits (single or bulk) set _draft = true on the vehicle.
-  // _draftSnapshot stores the vehicle's pre-edit state so edits can be undone.
-  // Deletions set _pendingDelete = true instead of removing the vehicle.
-  // None of these flags reach the live site — autoPublish uses an explicit
-  // field whitelist that excludes them, and _pendingDelete vehicles are
-  // filtered out of the publish payload entirely.
-  // All flags are cleared after a successful publish.
+  // ─── Draft Tracking for Bulk Edits ────────────────────────────────────────
+  // Vehicles edited via bulk edit get _bulkDraft = true.
+  // This flag persists in localStorage and is cleared on successful publish.
 
-  function getStagedCounts() {
-    var edits = 0, deletes = 0;
-    inventory.forEach(function(v) {
-      if (v._pendingDelete) deletes++;
-      else if (v._draft) edits++;
-    });
-    return { edits: edits, deletes: deletes, total: edits + deletes };
+  function getDraftCount() {
+    return inventory.filter(function(v) { return v._bulkDraft; }).length;
   }
 
   function updateDraftBanner() {
     var banner = $('draftBanner');
     if (!banner) return;
-    var counts = getStagedCounts();
-    if (counts.total > 0) {
+    var count = getDraftCount();
+    if (count > 0) {
       banner.classList.remove('hide');
-      var parts = [];
-      if (counts.edits > 0) parts.push(counts.edits + ' draft edit' + (counts.edits > 1 ? 's' : ''));
-      if (counts.deletes > 0) parts.push(counts.deletes + ' pending delete' + (counts.deletes > 1 ? 's' : ''));
-      $('draftBannerText').textContent = parts.join(', ') + ' — not yet published.';
-      // Update the review list
-      renderStagedReview();
+      $('draftBannerText').textContent = count + ' vehicle' + (count > 1 ? 's have' : ' has') + ' unpublished bulk edits.';
     } else {
       banner.classList.add('hide');
-      var reviewEl = $('stagedReviewList');
-      if (reviewEl) reviewEl.classList.add('hide');
     }
   }
 
-  /** Build the staged-changes review list inside the draft banner */
-  function renderStagedReview() {
-    var container = $('stagedReviewList');
-    if (!container) return;
-    var counts = getStagedCounts();
-    if (counts.total === 0) { container.classList.add('hide'); return; }
-
-    var html = '';
-    inventory.forEach(function(v) {
-      if (v._pendingDelete) {
-        html += '<div class="staged-item staged-delete">' +
-          '<span class="staged-label">DELETE</span> ' +
-          '<strong>' + (v.name || v.sku) + '</strong> (' + v.sku + ')' +
-          ' <button class="ghost-btn staged-undo" data-sku="' + v.sku + '" data-action="undo-delete" type="button">Undo</button>' +
-          '</div>';
-      } else if (v._draft) {
-        html += '<div class="staged-item staged-edit">' +
-          '<span class="staged-label">EDIT</span> ' +
-          '<strong>' + (v.name || v.sku) + '</strong> (' + v.sku + ')' +
-          ' <button class="ghost-btn staged-undo" data-sku="' + v.sku + '" data-action="undo-edit" type="button">Undo</button>' +
-          '</div>';
-      }
-    });
-    container.innerHTML = html;
-    // Keep visibility in sync with the toggle
-    if (!container.classList.contains('hide') || counts.total > 0) {
-      // Visibility is controlled by the toggle button; don't force show
-    }
-  }
-
-  function toggleStagedReview() {
-    var el = $('stagedReviewList');
-    if (el) el.classList.toggle('hide');
-  }
-
-  /** Undo a staged edit — restore pre-edit snapshot */
-  function undoStagedEdit(sku) {
-    var item = inventory.find(function(v) { return v.sku === sku; });
-    if (!item || !item._draft) return;
-    if (item._draftSnapshot) {
-      // Restore all snapshotted fields
-      Object.keys(item._draftSnapshot).forEach(function(key) {
-        item[key] = item._draftSnapshot[key];
-      });
-    }
-    delete item._draft;
-    delete item._draftSnapshot;
+  function clearDraftFlags() {
+    inventory.forEach(function(v) { delete v._bulkDraft; });
     persistInventory();
+    updateDraftBanner();
     renderInventoryTable();
-    showToast('Edit reverted for ' + (item.name || sku) + '.', 'info');
-    setTimeout(hideToast, 4000);
   }
 
-  /** Undo a staged delete — just remove the flag */
-  function undoStagedDelete(sku) {
-    var item = inventory.find(function(v) { return v.sku === sku; });
-    if (!item || !item._pendingDelete) return;
-    delete item._pendingDelete;
-    persistInventory();
-    renderInventoryTable();
-    showToast('Delete cancelled for ' + (item.name || sku) + '.', 'info');
-    setTimeout(hideToast, 4000);
-  }
-
-  /** Handle clicks on undo buttons inside the staged review list / table */
-  function handleStagedUndo(event) {
-    var btn = event.target.closest('[data-action="undo-edit"], [data-action="undo-delete"]');
-    if (!btn) return;
-    var sku = btn.dataset.sku;
-    if (btn.dataset.action === 'undo-edit') undoStagedEdit(sku);
-    else if (btn.dataset.action === 'undo-delete') undoStagedDelete(sku);
-  }
-
-  /** Discard ALL staged changes — reload from live site */
-  function handleDiscardAllStaged() {
-    var counts = getStagedCounts();
-    if (counts.total === 0) return;
-    if (!confirm('Discard all staged changes (' + counts.edits + ' edit(s), ' + counts.deletes + ' delete(s))?\n\nThis will reload inventory from the live site, undoing ALL unpublished changes.')) {
-      return;
-    }
-    showToast('Reverting to published inventory...');
-    fetch('/inventory.json')
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        var vehicles = data.vehicles || data;
-        if (!Array.isArray(vehicles)) throw new Error('Invalid format');
-        inventory = vehicles.map(function(v, i) {
-          return {
-            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
-            category: v.type || v.category || 'Vehicle',
-            quantity: 1, price: Number(v.price) || 0,
-            description: v.description || '', supplier: '',
-            year: v.year, make: v.make, model: v.model, trim: v.trim,
-            vin: v.vin, stockNumber: v.stockNumber,
-            engine: v.engine, transmission: v.transmission,
-            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
-            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
-            features: v.features || [], status: v.status || 'available',
-            badge: v.badge, featured: v.featured || false,
-            drivetrain: v.drivetrain, fuelType: v.fuelType,
-            condition: v.condition || 'Used', titleState: v.titleState || 'Clean',
-            warranty: v.warranty || 'Extended Warranty Available',
-            cylinders: v.cylinders || '', doors: v.doors || '',
-            images: v.images, dateAdded: v.dateAdded,
-            paintCode: v.paintCode || '', oem_scan: v.oem_scan || null,
-            photo_roles: v.photo_roles || [], color_display: v.color_display || null,
-          };
-        });
-        persistInventory();
-        renderInventoryTable();
-        showToast('\u2713 Reverted to published inventory.', 'success');
-        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from live site. All staged changes discarded.');
-        setTimeout(hideToast, 5000);
-      })
-      .catch(function(err) {
-        showToast('Error reverting: ' + err.message, 'error');
-        setTimeout(hideToast, 8000);
-      });
-  }
-
-  /** Publish all staged changes — edits go live, pending deletes are removed */
-  function handleStagedPublish() {
-    var counts = getStagedCounts();
-    if (counts.total === 0) return;
-    var msg = 'Publish all staged changes to the live site?\n\n';
-    if (counts.edits > 0) msg += '\u2022 ' + counts.edits + ' edited vehicle(s) will be updated\n';
-    if (counts.deletes > 0) msg += '\u2022 ' + counts.deletes + ' vehicle(s) will be permanently removed\n';
-    msg += '\nThis will update bellsforktruckandauto.com.';
-    if (!confirm(msg)) return;
-
-    showToast('Publishing staged changes to live site...');
-    // Remove pending-delete vehicles from inventory BEFORE building publish payload
-    inventory = inventory.filter(function(v) { return !v._pendingDelete; });
-    persistInventory();
-
-    autoPublish().then(function() {
-      showToast('\u2713 All changes published! Live in ~30 seconds.', 'success');
-      setTimeout(hideToast, 5000);
-    }).catch(function(err) {
-      showToast('Publish error: ' + err.message, 'error');
-      setTimeout(hideToast, 8000);
-    });
-  }
-
-  // ─── Bulk Edit Modal ─────────────────────────────────────────────────────
+  // ─── Bulk Edit Modal ────────────────────────────────────────────────────────
 
   function openBulkEditModal() {
     if (selectedSkus.size === 0) return;
@@ -2002,24 +1832,14 @@
       return;
     }
 
-    // Apply changes to selected vehicles, mark as draft with snapshot for undo
+    // Apply changes to selected vehicles, mark as draft
     var applied = 0;
     inventory.forEach(function(v) {
       if (!selectedSkus.has(v.sku)) return;
-      // Snapshot original state before first edit (for undo support)
-      if (!v._draft && !v._draftSnapshot) {
-        var snap = {};
-        Object.keys(v).forEach(function(k) {
-          if (k !== '_draft' && k !== '_draftSnapshot' && k !== '_pendingDelete') {
-            snap[k] = Array.isArray(v[k]) ? v[k].slice() : v[k];
-          }
-        });
-        v._draftSnapshot = snap;
-      }
       Object.keys(changes).forEach(function(field) {
         v[field] = changes[field];
       });
-      v._draft = true; // Mark as staged draft — will NOT auto-publish
+      v._bulkDraft = true; // Mark as draft — will NOT auto-publish
       applied++;
     });
 
@@ -2034,6 +1854,76 @@
     showFeedback(editFeedback, applied + ' vehicle' + (applied > 1 ? 's' : '') + ' updated (draft only — not yet published).');
     showToast('Draft saved. Use "Publish to Site" to push changes live.', 'info');
     setTimeout(hideToast, 6000);
+  }
+
+  function handleDraftPublish() {
+    var count = getDraftCount();
+    if (count === 0) return;
+    if (!confirm('Publish all changes (' + count + ' draft vehicle' + (count > 1 ? 's' : '') + ') to the live site?\n\nThis will update bellsforktruckandauto.com.')) {
+      return;
+    }
+    showToast('Publishing draft changes to live site...');
+    autoPublish().then(function() {
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
+      persistInventory();
+      updateDraftBanner();
+      renderInventoryTable();
+      showToast('\u2713 All drafts published! Live in ~30 seconds.', 'success');
+      setTimeout(hideToast, 5000);
+    }).catch(function(err) {
+      showToast('Publish error: ' + err.message, 'error');
+      setTimeout(hideToast, 8000);
+    });
+  }
+
+  function handleDraftDiscard() {
+    var count = getDraftCount();
+    if (count === 0) return;
+    if (!confirm('Discard all ' + count + ' draft edit' + (count > 1 ? 's' : '') + '?\n\nThis will reload the last published inventory from the live site, undoing all unpublished bulk changes.')) {
+      return;
+    }
+    // Reload from live site to revert drafts
+    showToast('Reverting to published inventory...');
+    fetch('/inventory.json')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var vehicles = data.vehicles || data;
+        if (!Array.isArray(vehicles)) throw new Error('Invalid format');
+        inventory = vehicles.map(function(v, i) {
+          return {
+            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
+            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+            category: v.type || v.category || 'Vehicle',
+            quantity: 1, price: Number(v.price) || 0,
+            description: v.description || '', supplier: '',
+            year: v.year, make: v.make, model: v.model, trim: v.trim,
+            vin: v.vin, stockNumber: v.stockNumber,
+            engine: v.engine, transmission: v.transmission,
+            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
+            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
+            features: v.features || [], status: v.status || 'available',
+            badge: v.badge, featured: v.featured || false,
+            drivetrain: v.drivetrain, fuelType: v.fuelType,
+            condition: v.condition || 'Used', titleState: v.titleState || 'Clean',
+            warranty: v.warranty || 'Extended Warranty Available',
+            cylinders: v.cylinders || '', doors: v.doors || '',
+            images: v.images, dateAdded: v.dateAdded,
+            paintCode: v.paintCode || '', oem_scan: v.oem_scan || null,
+            photo_roles: v.photo_roles || [], color_display: v.color_display || null,
+          };
+        });
+        persistInventory();
+        renderInventoryTable();
+        updateDraftBanner();
+        showToast('\u2713 Reverted to published inventory.', 'success');
+        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from live site. All drafts discarded.');
+        setTimeout(hideToast, 5000);
+      })
+      .catch(function(err) {
+        showToast('Error reverting: ' + err.message, 'error');
+        setTimeout(hideToast, 8000);
+      });
   }
 
   var editSubmitInProgress = false; // double-submit guard
@@ -2608,21 +2498,16 @@
 
   // ─── AI Description ─────────────────────────────────────────────────────────
   async function generateAIDescription() {
-    const apiKey = localStorage.getItem('bf_openai_key');
-    if (!apiKey) {
-      showFeedback(addFeedback, 'Set your OpenAI API key in Settings first.', true);
-      return;
-    }
-    const year = $('addYear').value;
     const make = $('addMake').value;
     const model = $('addModel').value;
-    const trim = $('addTrim').value;
-    const engine = $('addEngine').value;
-    const mileage = $('addMileage').value;
-    const features = $('addFeatures').value;
-
     if (!make || !model) {
       showFeedback(addFeedback, 'Enter at least Make and Model first.', true);
+      return;
+    }
+
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      showFeedback(addFeedback, 'Not authenticated. Please log in again.', true);
       return;
     }
 
@@ -2630,24 +2515,26 @@
     $('generateDescBtn').textContent = 'Generating...';
 
     try {
-      const prompt = 'Write a brief 2-sentence used car listing description for a ' +
-        [year, make, model, trim].filter(Boolean).join(' ') +
-        (engine ? ' with ' + engine + ' engine' : '') +
-        (mileage ? ', ' + Number(mileage).toLocaleString() + ' miles' : '') +
-        (features ? '. Features: ' + features : '') +
-        '. Keep it professional and appealing for a dealership website.';
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch(DESCRIBE_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo', max_tokens: 120,
-          messages: [{ role: 'user', content: prompt }],
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          vehicle: {
+            year: $('addYear').value,
+            make: make,
+            model: model,
+            trim: $('addTrim').value,
+            engine: $('addEngine').value,
+            mileage: $('addMileage').value,
+            features: $('addFeatures').value,
+          },
         }),
       });
       const data = await res.json();
-      if (data.choices && data.choices[0]) {
-        $('addDescription').value = data.choices[0].message.content.trim();
+      if (!res.ok) throw new Error(data.error || 'AI generation failed');
+      if (data.description) {
+        $('addDescription').value = data.description;
         updateLivePreview();
       }
     } catch (err) {
@@ -3066,8 +2953,6 @@
         try {
           var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
           var headers = { 'Content-Type': 'application/json' };
-          var apiKey = localStorage.getItem('bf_openai_key');
-          if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
           var validUrls = imageUrls.map(function (u) {
             if (typeof u !== 'string') return null;
             if (u.startsWith('https://')) return u;
@@ -3240,8 +3125,6 @@
 
     try {
       var headers = { 'Content-Type': 'application/json' };
-      var apiKey = localStorage.getItem('bf_openai_key');
-      if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
 
       var res = await fetch(VISION_API, {
         method: 'POST',
@@ -3484,53 +3367,54 @@
 
   // ─── Edit Modal: AI Description ───────────────────────────────────────────
   async function editGenerateDescription() {
-    var apiKey = localStorage.getItem('bf_openai_key');
-    if (!apiKey) {
-      showFeedback($('editFeedback'), 'Set your OpenAI API key in Settings first.', true);
-      return;
-    }
-    var year = $('editYear').value;
     var make = $('editMake').value;
     var model = $('editModel').value;
-    var trim2 = $('editTrim').value;
-    var engine = $('editEngine').value;
-    var mileage = $('editMileage').value;
-    var features = $('editFeatures').value;
-
     if (!make || !model) {
       showFeedback($('editFeedback'), 'Enter at least Make and Model first.', true);
       return;
     }
 
-    $('editGenDescBtn').disabled = true;
-    $('editGenDescBtn').textContent = 'Generating...';
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      showFeedback($('editFeedback'), 'Not authenticated. Please log in again.', true);
+      return;
+    }
+
+    if ($('editGenDescBtn')) {
+      $('editGenDescBtn').disabled = true;
+      $('editGenDescBtn').textContent = 'Generating...';
+    }
 
     try {
-      var prompt = 'Write a brief 2-sentence used car listing description for a ' +
-        [year, make, model, trim2].filter(Boolean).join(' ') +
-        (engine ? ' with ' + engine + ' engine' : '') +
-        (mileage ? ', ' + Number(mileage).toLocaleString() + ' miles' : '') +
-        (features ? '. Features: ' + features : '') +
-        '. Keep it professional and appealing for a dealership website.';
-
-      var res = await fetch('https://api.openai.com/v1/chat/completions', {
+      var res = await fetch(DESCRIBE_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo', max_tokens: 120,
-          messages: [{ role: 'user', content: prompt }],
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          vehicle: {
+            year: $('editYear').value,
+            make: make,
+            model: model,
+            trim: $('editTrim').value,
+            engine: $('editEngine').value,
+            mileage: $('editMileage').value,
+            features: $('editFeatures').value,
+          },
         }),
       });
       var data = await res.json();
-      if (data.choices && data.choices[0]) {
-        $('editDescription').value = data.choices[0].message.content.trim();
+      if (!res.ok) throw new Error(data.error || 'AI generation failed');
+      if (data.description) {
+        $('editDescription').value = data.description;
         showFeedback($('editFeedback'), 'AI description generated.');
       }
     } catch (err) {
       showFeedback($('editFeedback'), 'AI generation failed: ' + err.message, true);
     } finally {
-      $('editGenDescBtn').disabled = false;
-      $('editGenDescBtn').textContent = 'Generate with AI';
+      if ($('editGenDescBtn')) {
+        $('editGenDescBtn').disabled = false;
+        $('editGenDescBtn').textContent = 'Generate with AI';
+      }
     }
   }
 
@@ -3568,13 +3452,10 @@
 
       // Step 3: Generate AI description
       btn.textContent = '⏳ AI Description...';
-      var apiKey = localStorage.getItem('bf_openai_key');
       var make = $('editMake').value;
       var model = $('editModel').value;
-      if (apiKey && make && model) {
+      if (make && model) {
         await editGenerateDescription();
-      } else if (!apiKey) {
-        showFeedback($('editFeedback'), 'Set OpenAI key in Settings to generate descriptions.', false);
       }
 
       showFeedback($('editFeedback'), 'AI analysis complete: VIN + Photos + Description.');
@@ -3947,13 +3828,8 @@
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Publish failed');
 
-      // Clear all staged flags after successful publish
-      inventory.forEach(function(v) {
-        delete v._draft;
-        delete v._draftSnapshot;
-        delete v._pendingDelete;
-        delete v._bulkDraft; // legacy cleanup
-      });
+      // Clear draft flags after successful publish
+      inventory.forEach(function(v) { delete v._bulkDraft; });
       persistInventory();
       updateDraftBanner();
       renderInventoryTable();
@@ -4225,15 +4101,13 @@
 
   // ─── Settings ───────────────────────────────────────────────────────────────
   async function loadSettings() {
-    // Load from localStorage first (instant)
-    var openaiKey = localStorage.getItem('bf_openai_key') || '';
+    // Load display state from server (authoritative)
     var googleKey = localStorage.getItem('bf_google_key') || '';
     var placeId = localStorage.getItem('bf_place_id') || '';
-    if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = openaiKey ? '********' : '';
+    if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '';
     if ($('settingsGoogleKey')) $('settingsGoogleKey').value = googleKey ? '********' : '';
     if ($('settingsPlaceId')) $('settingsPlaceId').value = placeId;
 
-    // Then try to load from server (authoritative, survives browser changes)
     try {
       var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
       if (!session.username || !session.passwordHash) return;
@@ -4242,12 +4116,8 @@
       var data = await res.json();
       if (!data.ok || !data.settings) return;
       var s = data.settings;
-      // Sync server settings into localStorage
       if (s.openaiKeySet) {
         if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '********';
-        if (!localStorage.getItem('bf_openai_key')) {
-          localStorage.setItem('bf_openai_key', '__server__');
-        }
       }
       if (s.placeId) {
         localStorage.setItem('bf_place_id', s.placeId);
@@ -4255,36 +4125,41 @@
       }
       if (s.googleKeySet) {
         if ($('settingsGoogleKey')) $('settingsGoogleKey').value = '********';
-        if (!localStorage.getItem('bf_google_key')) {
-          localStorage.setItem('bf_google_key', '__server__');
-        }
       }
+      // Clean up any old client-side key storage
+      localStorage.removeItem('bf_openai_key');
     } catch (e) {
-      // Server load failed — localStorage values still apply
+      // Server load failed — display fields remain as-is
     }
   }
 
   async function saveOpenaiKey() {
     const key = $('settingsOpenaiKey').value.trim();
     if (!key || key.startsWith('*')) return;
-    // Save to localStorage
-    localStorage.setItem('bf_openai_key', key);
-    $('settingsOpenaiKey').value = '********';
-    // Save to server
+    // Save to server only — never store the key client-side
     try {
       var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
-      if (session.username && session.passwordHash) {
-        await fetch(SETTINGS_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            auth: { user: session.username, passwordHash: session.passwordHash },
-            settings: { openaiKey: key },
-          }),
-        });
+      if (!session.username || !session.passwordHash) {
+        alert('Not authenticated. Please log in again.');
+        return;
       }
-    } catch (e) { /* server save failed, localStorage still has it */ }
-    alert('OpenAI key saved.');
+      var res = await fetch(SETTINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          settings: { openaiKey: key },
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+      // Clear any old localStorage key
+      localStorage.removeItem('bf_openai_key');
+      $('settingsOpenaiKey').value = '********';
+      alert('OpenAI key saved securely on the server.');
+    } catch (e) {
+      alert('Failed to save OpenAI key: ' + e.message);
+    }
   }
 
   async function saveGoogleReviewsSettings() {
@@ -4998,11 +4873,8 @@
       });
     });
     // Draft banner actions
-    if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleStagedPublish);
-    if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDiscardAllStaged);
-    if ($('draftReviewToggle')) $('draftReviewToggle').addEventListener('click', toggleStagedReview);
-    // Undo buttons in staged review list (event delegation)
-    if ($('stagedReviewList')) $('stagedReviewList').addEventListener('click', handleStagedUndo);
+    if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleDraftPublish);
+    if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDraftDiscard);
     // Close bulk edit modal on backdrop click
     if ($('bulkEditModal')) $('bulkEditModal').addEventListener('click', function(e) { if (e.target === $('bulkEditModal')) $('bulkEditModal').classList.remove('active'); });
     $('editForm').addEventListener('submit', handleEditSubmit);
@@ -5018,7 +4890,7 @@
     // Edit modal — VIN, AI, photos
     $('editDecodeVinBtn').addEventListener('click', editDecodeVin);
     $('editApplyVinBtn').addEventListener('click', editApplyVinData);
-    $('editGenDescBtn').addEventListener('click', editGenerateDescription);
+    if ($('editGenDescBtn')) $('editGenDescBtn').addEventListener('click', editGenerateDescription);
     $('editAiMasterBtn').addEventListener('click', editMasterAI);
     $('editPhotos').addEventListener('change', editHandlePhotoSelect);
     $('editVin').addEventListener('input', function () { this.value = this.value.toUpperCase(); });
