@@ -1526,6 +1526,7 @@
     inventoryTableBody.innerHTML = pageSlice.map(function(item) {
       var canFeature = item.featured || featuredCount < 5;
       var isChecked = selectedSkus.has(item.sku);
+      var isPendingDelete = item._pendingDelete;
       var isDraft = item._bulkDraft;
       var rowClass = (isChecked ? 'selected-row' : '') + (isDraft ? (isChecked ? ' draft-row' : 'draft-row') : '');
       return '<tr' + (rowClass ? ' class="' + rowClass.trim() + '"' : '') + '>' +
