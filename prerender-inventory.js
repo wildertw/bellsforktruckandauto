@@ -66,6 +66,7 @@ function buildRow(v) {
 <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
 <a href="financing.html?vehicle=${vehicleParam}&stock=${stockParam}&price=${priceParam}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
 <a href="contact.html?vehicle=${vehicleParam}&stock=${stockParam}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>
+${v.vin ? `<a href="https://secure.carfax.com/creditCard.cfx?partner=GXB_1&vin=${encodeURIComponent(v.vin)}" class="inv-btn inv-btn-carfax" target="_blank" rel="noopener noreferrer" aria-label="View CARFAX report for ${escapeAttr(title)}">CARFAX Report</a>` : ''}
 </div>
 </div>
 </div>`;
