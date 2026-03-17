@@ -78,6 +78,27 @@ function parseAuth(headers) {
   return { user, hash };
 }
 
+// Optimistic concurrency: re-read before write to detect concurrent changes
+const MAX_RETRIES = 3;
+async function withRecordsLock(store, key, mutate) {
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    let records = await store.get(key, { type: 'json' }) || [];
+    const snapshot = JSON.stringify(records);
+
+    const result = await mutate(records);
+
+    let check = await store.get(key, { type: 'json' }) || [];
+    if (JSON.stringify(check) !== snapshot) {
+      console.warn(`[sales-data] Concurrent modification detected (attempt ${attempt + 1}/${MAX_RETRIES}), retrying...`);
+      continue;
+    }
+
+    await store.setJSON(key, records);
+    return result;
+  }
+  throw new Error('Failed to save after ' + MAX_RETRIES + ' retries due to concurrent modifications');
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: corsHeaders(event), body: '' };
@@ -131,20 +152,23 @@ exports.handler = async (event) => {
     cleanRecord.vehicleId = record.vehicleId; // ensure required field
 
     try {
-      const existing = await store.get(RECORDS_KEY, { type: 'json' }) || [];
-      const idx = existing.findIndex(function (r) { return r.vehicleId === cleanRecord.vehicleId; });
-      if (idx >= 0) {
-        existing[idx] = { ...existing[idx], ...cleanRecord, updatedAt: new Date().toISOString() };
-      } else {
-        cleanRecord.createdAt = cleanRecord.createdAt || new Date().toISOString();
-        cleanRecord.updatedAt = new Date().toISOString();
-        existing.push(cleanRecord);
-      }
-      await store.setJSON(RECORDS_KEY, existing);
+      let finalCount = 0;
+      await withRecordsLock(store, RECORDS_KEY, function (existing) {
+        const idx = existing.findIndex(function (r) { return r.vehicleId === cleanRecord.vehicleId; });
+        if (idx >= 0) {
+          existing[idx] = { ...existing[idx], ...cleanRecord, updatedAt: new Date().toISOString() };
+        } else {
+          cleanRecord.createdAt = cleanRecord.createdAt || new Date().toISOString();
+          cleanRecord.updatedAt = new Date().toISOString();
+          existing.push(cleanRecord);
+        }
+        finalCount = existing.length;
+      });
+      console.log('[sales-data] Upserted:', cleanRecord.vehicleId);
       return {
         statusCode: 200,
         headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ok: true, count: existing.length }),
+        body: JSON.stringify({ ok: true, count: finalCount }),
       };
     } catch (err) {
       console.error('Sales POST error:', err);
