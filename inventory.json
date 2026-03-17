@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-17T13:28:36.929Z",
+  "lastUpdated": "2026-03-17T14:27:52.928Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -29,7 +29,23 @@
       "warranty": "Extended Warranty Available",
       "cylinders": "8",
       "doors": "4D",
-      "images": [],
+      "images": [
+        "blob:03051-01.jpg",
+        "blob:03051-02.jpg",
+        "blob:03051-03.jpg",
+        "blob:03051-04.jpg",
+        "blob:03051-05.jpg",
+        "blob:03051-06.jpg",
+        "blob:03051-07.jpg",
+        "blob:03051-08.jpg",
+        "blob:03051-09.jpg",
+        "blob:03051-10.jpg",
+        "blob:03051-11.jpg",
+        "blob:03051-12.jpg",
+        "blob:03051-13.jpg",
+        "blob:03051-14.jpg",
+        "blob:03051-15.jpg"
+      ],
       "dateAdded": "2026-03-17",
       "paintCode": "",
       "oem_scan": null,
