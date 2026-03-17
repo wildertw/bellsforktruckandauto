@@ -14,8 +14,9 @@
     "build:inventory": "node prerender-inventory.js",
     "build:sitemap": "node generate-sitemap.js",
     "build:purge": "node purge-bootstrap.js",
+    "build:stamp": "node stamp-versions.js",
     "watch:vdp": "node watch-vdp.js",
-    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory && npm run build:purge && npm run build:sitemap"
+    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory && npm run build:purge && npm run build:sitemap && npm run build:stamp"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.0",

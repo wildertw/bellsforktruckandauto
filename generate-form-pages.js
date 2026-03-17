@@ -7,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
+  ASSET_VERSION, versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_FB,
@@ -114,8 +115,8 @@ function generateFormPage(page, formContent) {
   <meta property="og:image" content="${SITE_URL}/assets/hero/shop-front-og.jpg">
   <meta property="og:site_name" content="${DEALER_NAME}">
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
-  <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
-  <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
+  <link href="${versioned(ASSET_PREFIX + 'assets/vendor/bootstrap.min.css')}" rel="stylesheet">
+  <link href="${versioned(ASSET_PREFIX + 'style.min.css')}" rel="stylesheet">
   <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
 </head>
 <body>
@@ -298,11 +299,11 @@ function generateFormPage(page, formContent) {
     </a>
   </nav>
 
-  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
+  <script src="${versioned(ASSET_PREFIX + 'assets/vendor/bootstrap.bundle.min.js')}" defer></script>
   <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
-  <script src="/assets/js/sms-limiter.js" defer></script>
-  <script src="/assets/js/submit-lock.js" defer></script>
-  <script src="/assets/js/tracker.js" defer></script>
+  <script src="${versioned('/assets/js/sms-limiter.js')}" defer></script>
+  <script src="${versioned('/assets/js/submit-lock.js')}" defer></script>
+  <script src="${versioned('/assets/js/tracker.js')}" defer></script>
   <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>`;
