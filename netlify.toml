@@ -52,17 +52,40 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
 
-# Minified JS bundle — long cache
+# JS assets — long cache (cache-busted via ?v= query string)
 [[headers]]
-  for = "/assets/js/bundle.min.js"
+  for = "/assets/js/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Minified CSS
+# Vendor assets — long cache (cache-busted via ?v= query string)
+[[headers]]
+  for = "/assets/vendor/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/vendor/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Minified CSS — long cache (cache-busted via ?v= query string)
 [[headers]]
   for = "/style.min.css"
   [headers.values]
-    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Dashboard CSS — long cache (cache-busted via ?v= query string)
+[[headers]]
+  for = "/assets/css/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Service worker — never cache (must always be fresh for update detection)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 # HTML pages — short cache with revalidation
 [[headers]]

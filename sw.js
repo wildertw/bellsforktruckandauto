@@ -1,7 +1,8 @@
 // Service Worker — Bells Fork Truck & Auto
 // Stale-while-revalidate for static assets, network-first for API calls
+// Cache version is updated automatically by the build pipeline (stamp-versions.js)
 
-const CACHE_NAME = 'bfat-v2';
+const CACHE_NAME = 'bfat-v__SW_VERSION__';
 const PRECACHE = [
   '/',
   '/style.min.css',
@@ -14,6 +15,13 @@ const PRECACHE = [
   '/assets/hero/shop-front-tablet.webp',
   '/assets/hero/shop-front-desktop.webp',
 ];
+
+// Strip query params from a URL for cache matching (so ?v=xxx still matches)
+function stripQuery(url) {
+  const u = new URL(url);
+  u.search = '';
+  return u.href;
+}
 
 // Install — precache core assets
 self.addEventListener('install', (event) => {
@@ -57,19 +65,23 @@ self.addEventListener('fetch', (event) => {
   }
 
   // For static assets: stale-while-revalidate
+  // Use stripped-query URL for cache matching so versioned requests hit cache
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => cached);
+    caches.open(CACHE_NAME).then((cache) => {
+      const cacheKey = stripQuery(event.request.url);
+      return cache.match(cacheKey).then((cached) => {
+        const networkFetch = fetch(event.request)
+          .then((response) => {
+            if (response.ok) {
+              // Store under the query-stripped key so future versions still get a cache hit
+              cache.put(cacheKey, response.clone());
+            }
+            return response;
+          })
+          .catch(() => cached);
 
-      return cached || networkFetch;
+        return cached || networkFetch;
+      });
     })
   );
 });

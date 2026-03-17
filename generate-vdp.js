@@ -7,6 +7,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
+  ASSET_VERSION, versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
@@ -396,13 +397,13 @@ function generateVDPHtml(v, allVehicles) {
   <link rel="icon" type="image/png" href="${ASSET_PREFIX}assets/favicon.png">
 
   <!-- Bootstrap 5 CSS (self-hosted) -->
-  <link href="${ASSET_PREFIX}assets/vendor/bootstrap.min.css" rel="stylesheet">
+  <link href="${versioned(ASSET_PREFIX + 'assets/vendor/bootstrap.min.css')}" rel="stylesheet">
   <!-- Swiper CSS: load async, swap once ready (gallery is below fold on mobile) -->
-  <link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.css"></noscript>
+  <link rel="stylesheet" href="${versioned(ASSET_PREFIX + 'assets/vendor/swiper-bundle.min.css')}" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="${versioned(ASSET_PREFIX + 'assets/vendor/swiper-bundle.min.css')}"></noscript>
 
   <!-- Custom Styles -->
-  <link href="${ASSET_PREFIX}style.min.css" rel="stylesheet">
+  <link href="${versioned(ASSET_PREFIX + 'style.min.css')}" rel="stylesheet">
   <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
 
   <!-- Schema.org Structured Data -->
@@ -1192,7 +1193,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   </div>
 
   <!-- Bootstrap JS (self-hosted) -->
-  <script src="${ASSET_PREFIX}assets/vendor/bootstrap.bundle.min.js" defer></script>
+  <script src="${versioned(ASSET_PREFIX + 'assets/vendor/bootstrap.bundle.min.js')}" defer></script>
 
   <script>
   // Year in footer
@@ -1207,7 +1208,7 @@ ${svMiles ? `                <div class="vdp-similar-miles">${escapeHtml(svMiles
   }
 
   </script>
-  <script src="${ASSET_PREFIX}assets/vendor/swiper-bundle.min.js" defer></script>
+  <script src="${versioned(ASSET_PREFIX + 'assets/vendor/swiper-bundle.min.js')}" defer></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}
@@ -1216,8 +1217,8 @@ function initSwiper(){
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initSwiper);}else{initSwiper();}
   </script>
-  <script src="/assets/js/sms-limiter.js" defer></script>
-  <script src="/assets/js/tracker.js" defer></script>
+  <script src="${versioned('/assets/js/sms-limiter.js')}" defer></script>
+  <script src="${versioned('/assets/js/tracker.js')}" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>`;

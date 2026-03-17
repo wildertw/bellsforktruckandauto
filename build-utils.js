@@ -2,6 +2,16 @@
 const fs = require('fs');
 const path = require('path');
 
+// ── Asset cache-busting version (build timestamp) ──
+const ASSET_VERSION = Date.now().toString(36);
+
+/** Append ?v=<version> to a local asset path for cache busting */
+function versioned(assetPath) {
+  if (!assetPath || assetPath.startsWith('http') || assetPath.startsWith('data:')) return assetPath;
+  const sep = assetPath.includes('?') ? '&' : '?';
+  return `${assetPath}${sep}v=${ASSET_VERSION}`;
+}
+
 // ── Dealer constants ──
 const SITE_URL = 'https://bellsforkautoandtruck.com';
 const DEALER_NAME = 'Bells Fork Truck & Auto';
@@ -219,6 +229,7 @@ function loadAvailableVehicles() {
 }
 
 module.exports = {
+  ASSET_VERSION, versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
