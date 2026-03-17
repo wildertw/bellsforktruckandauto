@@ -322,8 +322,8 @@
 
     autoPublishInProgress = true;
     try {
-      // Build publish-ready inventory — exclude sold vehicles from live site
-      var vehicles = inventory.filter(function (v) { return v.status !== 'sold'; }).map(function (item) {
+      // Build publish-ready inventory — exclude sold and pending-delete vehicles from live site
+      var vehicles = inventory.filter(function (v) { return v.status !== 'sold' && !v._pendingDelete; }).map(function (item) {
         return {
           vin: item.vin, stockNumber: item.stockNumber || item.sku,
           year: item.year, make: item.make, model: item.model, trim: item.trim,
@@ -1880,8 +1880,10 @@
     }
     showToast('Publishing draft changes to live site...');
     autoPublish().then(function() {
+      // Remove vehicles that were staged for deletion
+      inventory = inventory.filter(function(v) { return !v._pendingDelete; });
       // Clear all draft flags after successful publish
-      inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._draftSnapshot; delete v._pendingDelete; });
+      inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._draftSnapshot; });
       persistInventory();
       updateDraftBanner();
       renderInventoryTable();
