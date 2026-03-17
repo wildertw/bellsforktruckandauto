@@ -14,6 +14,7 @@
   const SALES_API = '/.netlify/functions/sales-data';
   const LEADS_API = '/.netlify/functions/leads';
   const OEM_DETECT_API = '/.netlify/functions/oem-label-detect';
+  const DESCRIBE_API = '/.netlify/functions/ai-describe';
 
   let blogToken = '';
   let blogUser = '';
@@ -2497,21 +2498,16 @@
 
   // ─── AI Description ─────────────────────────────────────────────────────────
   async function generateAIDescription() {
-    const apiKey = localStorage.getItem('bf_openai_key');
-    if (!apiKey) {
-      showFeedback(addFeedback, 'Set your OpenAI API key in Settings first.', true);
-      return;
-    }
-    const year = $('addYear').value;
     const make = $('addMake').value;
     const model = $('addModel').value;
-    const trim = $('addTrim').value;
-    const engine = $('addEngine').value;
-    const mileage = $('addMileage').value;
-    const features = $('addFeatures').value;
-
     if (!make || !model) {
       showFeedback(addFeedback, 'Enter at least Make and Model first.', true);
+      return;
+    }
+
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      showFeedback(addFeedback, 'Not authenticated. Please log in again.', true);
       return;
     }
 
@@ -2519,24 +2515,26 @@
     $('generateDescBtn').textContent = 'Generating...';
 
     try {
-      const prompt = 'Write a brief 2-sentence used car listing description for a ' +
-        [year, make, model, trim].filter(Boolean).join(' ') +
-        (engine ? ' with ' + engine + ' engine' : '') +
-        (mileage ? ', ' + Number(mileage).toLocaleString() + ' miles' : '') +
-        (features ? '. Features: ' + features : '') +
-        '. Keep it professional and appealing for a dealership website.';
-
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch(DESCRIBE_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo', max_tokens: 120,
-          messages: [{ role: 'user', content: prompt }],
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          vehicle: {
+            year: $('addYear').value,
+            make: make,
+            model: model,
+            trim: $('addTrim').value,
+            engine: $('addEngine').value,
+            mileage: $('addMileage').value,
+            features: $('addFeatures').value,
+          },
         }),
       });
       const data = await res.json();
-      if (data.choices && data.choices[0]) {
-        $('addDescription').value = data.choices[0].message.content.trim();
+      if (!res.ok) throw new Error(data.error || 'AI generation failed');
+      if (data.description) {
+        $('addDescription').value = data.description;
         updateLivePreview();
       }
     } catch (err) {
@@ -2955,8 +2953,6 @@
         try {
           var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
           var headers = { 'Content-Type': 'application/json' };
-          var apiKey = localStorage.getItem('bf_openai_key');
-          if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
           var validUrls = imageUrls.map(function (u) {
             if (typeof u !== 'string') return null;
             if (u.startsWith('https://')) return u;
@@ -3129,8 +3125,6 @@
 
     try {
       var headers = { 'Content-Type': 'application/json' };
-      var apiKey = localStorage.getItem('bf_openai_key');
-      if (apiKey) headers['Authorization'] = 'Bearer ' + apiKey;
 
       var res = await fetch(VISION_API, {
         method: 'POST',
@@ -3373,21 +3367,16 @@
 
   // ─── Edit Modal: AI Description ───────────────────────────────────────────
   async function editGenerateDescription() {
-    var apiKey = localStorage.getItem('bf_openai_key');
-    if (!apiKey) {
-      showFeedback($('editFeedback'), 'Set your OpenAI API key in Settings first.', true);
-      return;
-    }
-    var year = $('editYear').value;
     var make = $('editMake').value;
     var model = $('editModel').value;
-    var trim2 = $('editTrim').value;
-    var engine = $('editEngine').value;
-    var mileage = $('editMileage').value;
-    var features = $('editFeatures').value;
-
     if (!make || !model) {
       showFeedback($('editFeedback'), 'Enter at least Make and Model first.', true);
+      return;
+    }
+
+    var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
+    if (!session.username || !session.passwordHash) {
+      showFeedback($('editFeedback'), 'Not authenticated. Please log in again.', true);
       return;
     }
 
@@ -3395,24 +3384,26 @@
     $('editGenDescBtn').textContent = 'Generating...';
 
     try {
-      var prompt = 'Write a brief 2-sentence used car listing description for a ' +
-        [year, make, model, trim2].filter(Boolean).join(' ') +
-        (engine ? ' with ' + engine + ' engine' : '') +
-        (mileage ? ', ' + Number(mileage).toLocaleString() + ' miles' : '') +
-        (features ? '. Features: ' + features : '') +
-        '. Keep it professional and appealing for a dealership website.';
-
-      var res = await fetch('https://api.openai.com/v1/chat/completions', {
+      var res = await fetch(DESCRIBE_API, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + apiKey },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo', max_tokens: 120,
-          messages: [{ role: 'user', content: prompt }],
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          vehicle: {
+            year: $('editYear').value,
+            make: make,
+            model: model,
+            trim: $('editTrim').value,
+            engine: $('editEngine').value,
+            mileage: $('editMileage').value,
+            features: $('editFeatures').value,
+          },
         }),
       });
       var data = await res.json();
-      if (data.choices && data.choices[0]) {
-        $('editDescription').value = data.choices[0].message.content.trim();
+      if (!res.ok) throw new Error(data.error || 'AI generation failed');
+      if (data.description) {
+        $('editDescription').value = data.description;
         showFeedback($('editFeedback'), 'AI description generated.');
       }
     } catch (err) {
@@ -3457,13 +3448,10 @@
 
       // Step 3: Generate AI description
       btn.textContent = '⏳ AI Description...';
-      var apiKey = localStorage.getItem('bf_openai_key');
       var make = $('editMake').value;
       var model = $('editModel').value;
-      if (apiKey && make && model) {
+      if (make && model) {
         await editGenerateDescription();
-      } else if (!apiKey) {
-        showFeedback($('editFeedback'), 'Set OpenAI key in Settings to generate descriptions.', false);
       }
 
       showFeedback($('editFeedback'), 'AI analysis complete: VIN + Photos + Description.');
@@ -4109,15 +4097,13 @@
 
   // ─── Settings ───────────────────────────────────────────────────────────────
   async function loadSettings() {
-    // Load from localStorage first (instant)
-    var openaiKey = localStorage.getItem('bf_openai_key') || '';
+    // Load display state from server (authoritative)
     var googleKey = localStorage.getItem('bf_google_key') || '';
     var placeId = localStorage.getItem('bf_place_id') || '';
-    if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = openaiKey ? '********' : '';
+    if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '';
     if ($('settingsGoogleKey')) $('settingsGoogleKey').value = googleKey ? '********' : '';
     if ($('settingsPlaceId')) $('settingsPlaceId').value = placeId;
 
-    // Then try to load from server (authoritative, survives browser changes)
     try {
       var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
       if (!session.username || !session.passwordHash) return;
@@ -4126,12 +4112,8 @@
       var data = await res.json();
       if (!data.ok || !data.settings) return;
       var s = data.settings;
-      // Sync server settings into localStorage
       if (s.openaiKeySet) {
         if ($('settingsOpenaiKey')) $('settingsOpenaiKey').value = '********';
-        if (!localStorage.getItem('bf_openai_key')) {
-          localStorage.setItem('bf_openai_key', '__server__');
-        }
       }
       if (s.placeId) {
         localStorage.setItem('bf_place_id', s.placeId);
@@ -4139,36 +4121,41 @@
       }
       if (s.googleKeySet) {
         if ($('settingsGoogleKey')) $('settingsGoogleKey').value = '********';
-        if (!localStorage.getItem('bf_google_key')) {
-          localStorage.setItem('bf_google_key', '__server__');
-        }
       }
+      // Clean up any old client-side key storage
+      localStorage.removeItem('bf_openai_key');
     } catch (e) {
-      // Server load failed — localStorage values still apply
+      // Server load failed — display fields remain as-is
     }
   }
 
   async function saveOpenaiKey() {
     const key = $('settingsOpenaiKey').value.trim();
     if (!key || key.startsWith('*')) return;
-    // Save to localStorage
-    localStorage.setItem('bf_openai_key', key);
-    $('settingsOpenaiKey').value = '********';
-    // Save to server
+    // Save to server only — never store the key client-side
     try {
       var session = JSON.parse(sessionStorage.getItem('bf_admin_session') || '{}');
-      if (session.username && session.passwordHash) {
-        await fetch(SETTINGS_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            auth: { user: session.username, passwordHash: session.passwordHash },
-            settings: { openaiKey: key },
-          }),
-        });
+      if (!session.username || !session.passwordHash) {
+        alert('Not authenticated. Please log in again.');
+        return;
       }
-    } catch (e) { /* server save failed, localStorage still has it */ }
-    alert('OpenAI key saved.');
+      var res = await fetch(SETTINGS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth: { user: session.username, passwordHash: session.passwordHash },
+          settings: { openaiKey: key },
+        }),
+      });
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Save failed');
+      // Clear any old localStorage key
+      localStorage.removeItem('bf_openai_key');
+      $('settingsOpenaiKey').value = '********';
+      alert('OpenAI key saved securely on the server.');
+    } catch (e) {
+      alert('Failed to save OpenAI key: ' + e.message);
+    }
   }
 
   async function saveGoogleReviewsSettings() {
