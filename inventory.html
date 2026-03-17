@@ -62,15 +62,15 @@
   <meta property="place:location:longitude" content="-77.349267" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mmurl95s">
+  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mmv29hi6">
 
   <!-- Preconnect -->
 
   <!-- Bootstrap 5 CSS -->
-  <link href="/assets/vendor/bootstrap.min.css?v=mmurl95s" rel="stylesheet">
+  <link href="/assets/vendor/bootstrap.min.css?v=mmv29hi6" rel="stylesheet">
 
   <!-- Custom Styles -->
-  <link href="/style.min.css?v=mmurl95s" rel="stylesheet">
+  <link href="/style.min.css?v=mmv29hi6" rel="stylesheet">
 
   <!-- Schema.org — Expanded Structured Data for SEO & Generative Engine Optimization -->
   <script type="application/ld+json">
@@ -629,7 +629,7 @@
 <div class="inv-row mb-2">
 <div class="inv-row-header"></div>
 <div class="inv-row-body">
-<a href="/vdp/03051/Used-2015-CHEVROLET-Silverado-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><div class="inv-img-placeholder"><svg width="48" height="48" fill="#bbb" viewBox="0 0 16 16"><rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.5" cy="14.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="14.5" r="1.5" fill="currentColor"/></svg><span style="font-size:.75rem;">Photo Coming Soon</span></div></a>
+<a href="/vdp/03051/Used-2015-CHEVROLET-Silverado-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-img-col" style="text-decoration:none;"><img src="photos/03051-01.jpg" alt="2015 CHEVROLET Silverado" width="260" height="200" loading="lazy" decoding="async" data-local-image="blob:03051-01.jpg"></a>
 <div class="inv-info-col" style="position:relative;">
 <a href="/vdp/03051/Used-2015-CHEVROLET-Silverado-LTZ-for-sale-in-Greenville-NC-27858/" class="inv-vehicle-title">2015 CHEVROLET Silverado <span class="inv-trim-label">LTZ</span></a>
 <div class="inv-stock-vin">Stock #: 03051</div>
@@ -638,7 +638,7 @@
 <div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">6.6L V8</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">Automatic</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">4WD</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#CC0000;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>red</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#CC0000;border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>Red</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">Diesel</span></div>
 </div>
 </div>
@@ -1718,15 +1718,36 @@
   </footer>
 
   <!-- Bootstrap JS -->
-  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mmurl95s" defer></script>
+  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mmv29hi6" defer></script>
   <!-- Vehicle type icons -->
-  <script src="/assets/js/vehicle-icons.js?v=mmurl95s" defer></script>
+  <script src="/assets/js/vehicle-icons.js?v=mmv29hi6" defer></script>
 
   <script>
   // ═══════════════════════════════════════════════════════
   //  INVENTORY ENGINE
   // ═══════════════════════════════════════════════════════
   let ALL_VEHICLES = [];
+
+  // Color family → hex map (mirrors build-time color-lookup.js)
+  const COLOR_SWATCHES = {
+    white:'#FFFFFF',black:'#1A1A1A',silver:'#C0C0C0',gray:'#808080',grey:'#808080',
+    red:'#CC0000',blue:'#1E3A8A',green:'#1B5E20',brown:'#5D4037',tan:'#D2B48C',
+    beige:'#C8B88A',gold:'#B8860B',orange:'#E65100',yellow:'#F9A825',purple:'#6A1B9A',
+    maroon:'#800000',burgundy:'#6B0020',charcoal:'#333333',pearl:'#F5F0E8',
+    ivory:'#FFFFF0',champagne:'#F7E7CE',bronze:'#8C6B3D'
+  };
+  function getSwatchHex(v) {
+    // Use pre-resolved color_display if available
+    const cd = v.color_display;
+    if (cd && cd.web_swatch_hex) return cd.web_swatch_hex;
+    // Fallback: match exteriorColor against color families
+    const name = (v.exteriorColor || '').toLowerCase().trim();
+    if (!name) return '';
+    for (const [family, hex] of Object.entries(COLOR_SWATCHES)) {
+      if (name === family || name.startsWith(family + ' ') || name.includes(family)) return hex;
+    }
+    return '';
+  }
 
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -2067,6 +2088,7 @@
     const trans    = v.transmission || '—';
     const drive    = cleanDrivetrain(v.drivetrain);
     const extColor = v.exteriorColor || '—';
+    const swatchHex = getSwatchHex(v);
     const fuel     = v.fuelType || '—';
 
     // Build real VDP URL
@@ -2103,7 +2125,7 @@
             <div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">${engine}</span></div>
             <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">${trans}</span></div>
             <div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">${drive}</span></div>
-            <div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${extColor}</span></div>
+            <div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
             <div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">${fuel}</span></div>
           </div>
         </div>
@@ -2139,8 +2161,8 @@
     btn.replaceWith(s);
   }
   </script>
-  <script src="/assets/js/tracker.js?v=mmurl95s" defer></script>
-  <script src="/assets/js/sms-limiter.js?v=mmurl95s" defer></script>
+  <script src="/assets/js/tracker.js?v=mmv29hi6" defer></script>
+  <script src="/assets/js/sms-limiter.js?v=mmv29hi6" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 
   <nav class="mobile-action-bar d-md-none" aria-label="Quick actions">
