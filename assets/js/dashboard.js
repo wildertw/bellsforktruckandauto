@@ -146,6 +146,24 @@
   }
 
 
+  // Automotive-aware title case normalization
+  var DB_UPPER_WORDS = new Set([
+    'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+    'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+  ]);
+  function normalizeVehicleText(str) {
+    var s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
+    if (!s) return '';
+    return s.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+      var bare = word.replace(/-/g, '').toUpperCase();
+      if (DB_UPPER_WORDS.has(bare)) return bare;
+      return word.split('-').map(function (seg) {
+        if (!seg) return seg;
+        return seg.charAt(0).toUpperCase() + seg.slice(1);
+      }).join('-');
+    }).join(' ');
+  }
+
   // ─── Toast Notifications ──────────────────────────────────────────────────
   function showToast(message, type) {
     var toast = document.getElementById('autoSaveToast');
@@ -1471,7 +1489,7 @@
     var latestPrice = $('latestPrice');
     var latestFeatures = $('latestFeatures');
     if (latest && latestModel && latestPrice && latestFeatures) {
-      var modelLabel = [latest.year, latest.make, latest.model, latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
+      var modelLabel = [latest.year, normalizeVehicleText(latest.make), normalizeVehicleText(latest.model), latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
       latestModel.textContent = modelLabel;
       latestPrice.textContent = formatMoney(latest.price);
       var featureList = Array.isArray(latest.features) && latest.features.length
@@ -1912,7 +1930,7 @@
         inventory = vehicles.map(function(v, i) {
           return {
             sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+            name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
             category: v.type || v.category || 'Vehicle',
             quantity: 1, price: Number(v.price) || 0,
             description: v.description || '', supplier: '',
@@ -1975,8 +1993,8 @@
       editingItem.name = $('editName').value.trim();
       editingItem.category = $('editCategory').value.trim();
       editingItem.year = Number($('editYear').value) || editingItem.year;
-      editingItem.make = $('editMake').value.trim() || editingItem.make;
-      editingItem.model = $('editModel').value.trim() || editingItem.model;
+      editingItem.make = normalizeVehicleText($('editMake').value) || editingItem.make;
+      editingItem.model = normalizeVehicleText($('editModel').value) || editingItem.model;
       editingItem.trim = $('editTrim').value.trim() || editingItem.trim;
       editingItem.vin = $('editVin').value.trim() || editingItem.vin;
       editingItem.quantity = Number($('editQuantity').value);
@@ -2065,7 +2083,7 @@
         // Convert site format to dashboard format
         inventory = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-          name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+          name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
           quantity: 1,
           price: Number(v.price) || 0,
@@ -2104,7 +2122,7 @@
         if (!Array.isArray(vehicles)) throw new Error('Invalid format');
         var mapped = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.sku || v.vin || ('IMP-' + String(i + 1).padStart(3, '0')),
-          name: v.name || [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+          name: v.name || [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
           quantity: v.quantity || 1,
           price: Number(v.price) || 0,
@@ -2299,8 +2317,8 @@
       description: $('addDescription').value.trim(),
       supplier: $('addSupplier').value.trim(),
       year: Number($('addYear').value) || null,
-      make: $('addMake').value.trim(),
-      model: $('addModel').value.trim(),
+      make: normalizeVehicleText($('addMake').value),
+      model: normalizeVehicleText($('addModel').value),
       trim: $('addTrim').value.trim(),
       vin: $('addVin').value.trim(),
       stockNumber: $('addStock').value.trim(),
@@ -2441,8 +2459,8 @@
   function applyVinData() {
     if (!vinDecodeData) return;
     if (vinDecodeData.year) $('addYear').value = vinDecodeData.year;
-    if (vinDecodeData.make) $('addMake').value = vinDecodeData.make;
-    if (vinDecodeData.model) $('addModel').value = vinDecodeData.model;
+    if (vinDecodeData.make) $('addMake').value = normalizeVehicleText(vinDecodeData.make);
+    if (vinDecodeData.model) $('addModel').value = normalizeVehicleText(vinDecodeData.model);
     if (vinDecodeData.trim) $('addTrim').value = vinDecodeData.trim;
     if (vinDecodeData.engine) {
       $('addEngine').value = vinDecodeData.engine;
@@ -2468,7 +2486,7 @@
       if (match) $('addDrivetrain').value = driveMap[match];
     }
     // Auto-generate name and SKU
-    const autoName = [vinDecodeData.year, vinDecodeData.make, vinDecodeData.model].filter(Boolean).join(' ');
+    const autoName = [vinDecodeData.year, normalizeVehicleText(vinDecodeData.make), normalizeVehicleText(vinDecodeData.model)].filter(Boolean).join(' ');
     if (autoName && !$('addName').value) $('addName').value = autoName;
     if (!$('addSku').value) {
       const stock = $('addStock').value.trim();
@@ -3099,8 +3117,8 @@
           var r = (vinJson.Results && vinJson.Results[0]) || {};
           var clean = function (v) { return (v && v !== 'Not Applicable' && v !== 'N/A') ? v.trim() : ''; };
           if (clean(r.ModelYear)) merged.year = clean(r.ModelYear);
-          if (clean(r.Make)) merged.make = clean(r.Make);
-          if (clean(r.Model)) merged.model = clean(r.Model);
+          if (clean(r.Make)) merged.make = normalizeVehicleText(clean(r.Make));
+          if (clean(r.Model)) merged.model = normalizeVehicleText(clean(r.Model));
           if (clean(r.Trim)) merged.trim = clean(r.Trim);
           if (clean(r.DisplacementL)) merged.engine = clean(r.DisplacementL) + 'L' + (clean(r.EngineCylinders) ? ' ' + clean(r.EngineCylinders) + '-cyl' : '');
           if (clean(r.TransmissionStyle)) merged.transmission = clean(r.TransmissionStyle);
@@ -3411,8 +3429,8 @@
     }
 
     // Only fill make/model/year/trim if form fields are currently empty (VIN priority)
-    if (analysis.make && !$('editMake').value) $('editMake').value = analysis.make;
-    if (analysis.model && !$('editModel').value) $('editModel').value = analysis.model;
+    if (analysis.make && !$('editMake').value) $('editMake').value = normalizeVehicleText(analysis.make);
+    if (analysis.model && !$('editModel').value) $('editModel').value = normalizeVehicleText(analysis.model);
     if (analysis.trimLevel && !$('editTrim').value) $('editTrim').value = analysis.trimLevel;
     if (analysis.approximateYear && !$('editYear').value) {
       var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
@@ -3458,8 +3476,8 @@
     }
 
     // Only fill if empty (VIN priority)
-    if (analysis.make && !$('addMake').value) $('addMake').value = analysis.make;
-    if (analysis.model && !$('addModel').value) $('addModel').value = analysis.model;
+    if (analysis.make && !$('addMake').value) $('addMake').value = normalizeVehicleText(analysis.make);
+    if (analysis.model && !$('addModel').value) $('addModel').value = normalizeVehicleText(analysis.model);
     if (analysis.trimLevel && !$('addTrim').value) $('addTrim').value = analysis.trimLevel;
     if (analysis.approximateYear && !$('addYear').value) {
       var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
