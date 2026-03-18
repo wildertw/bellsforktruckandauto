@@ -2,7 +2,7 @@
 // Stale-while-revalidate for static assets, network-first for API calls
 // Cache version is updated automatically by the build pipeline (stamp-versions.js)
 
-const CACHE_NAME = 'bfat-vmmve9wj2';
+const CACHE_NAME = 'bfat-vmmvg7opo';
 const PRECACHE = [
   '/',
   '/style.min.css',
