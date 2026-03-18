@@ -13,7 +13,7 @@ const {
 // ── Build a single vehicle card (mirrors client-side buildRow) ──
 
 function buildRow(v) {
-  const title = `${v.year} ${v.make} ${v.model}`;
+  const title = `${v.year} ${titleCase(v.make)} ${titleCase(v.model)}`;
   const trim = v.trim || '';
   const price = v.price ? `$${Number(v.price).toLocaleString('en-US')}` : 'Call for Price';
   const miles = v.mileage ? `${Number(v.mileage).toLocaleString('en-US')} mi` : '\u2014';

@@ -83,7 +83,7 @@ function slugify(str) {
 }
 
 function buildVDPSlug(v) {
-  const parts = ['Used', v.year, v.make, v.model, v.trim, 'for-sale-in-Greenville-NC-27858']
+  const parts = ['Used', v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model), v.trim, 'for-sale-in-Greenville-NC-27858']
     .filter(Boolean)
     .map(p => slugify(String(p)))
     .filter(Boolean);

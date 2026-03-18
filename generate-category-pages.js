@@ -205,7 +205,7 @@ const CATEGORIES = [
 // ── Build a vehicle card (matches inventory page card format) ──
 
 function buildCard(v) {
-  const title = `${v.year} ${v.make} ${v.model}`;
+  const title = `${v.year} ${titleCase(v.make)} ${titleCase(v.model)}`;
   const trim = v.trim || '';
   const vehicleLabel = `${title}${trim ? ' ' + trim : ''}`.trim();
   const price = v.price ? `$${Number(v.price).toLocaleString('en-US')}` : 'Call for Price';

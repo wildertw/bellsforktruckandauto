@@ -45,8 +45,8 @@ class InventoryLoader {
 
   // Build SEO-friendly VDP URL matching generate_vdp_pages.py format
   buildVDPUrl(v) {
-    const make  = (v.make  || '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
-    const model = (v.model || '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const make  = this.titleCase(v.make).replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const model = this.titleCase(v.model).replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
     const trim  = (v.trim  || '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
     const slug  = `Used-${v.year}-${make}-${model}${trim ? '-' + trim : ''}-for-sale-in-Greenville-NC-27858`;
     const id    = (v.stockNumber || v.vin || v.id || '').toString().replace(/[^a-z0-9]/gi, '');
@@ -161,7 +161,7 @@ class InventoryLoader {
     const badgeClass = this.getBadgeClass(v.badge);
     const features = v.features || [];
 
-    const vehicleLabel = `${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}`.trim();
+    const vehicleLabel = `${v.year} ${this.titleCase(v.make)} ${this.titleCase(v.model)}${v.trim ? ' ' + v.trim : ''}`.trim();
     const applyHref = `financing.html?tab=financing&vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}&price=${encodeURIComponent(String(v.price ?? ''))}#applications`;
     const inquireHref = `contact.html?vehicle=${encodeURIComponent(vehicleLabel)}&stock=${encodeURIComponent(v.stockNumber || '')}#appointment`;
 
@@ -184,9 +184,9 @@ class InventoryLoader {
           <div class="inventory-img-wrap">
             ${v.badge ? `<span class="inventory-badge ${badgeClass}">${v.badge}</span>` : ''}
             ${mainImage ? `
-              <a href="${this.buildVDPUrl(v)}" aria-label="View ${v.year} ${v.make} ${v.model} details">
+              <a href="${this.buildVDPUrl(v)}" aria-label="View ${v.year} ${this.titleCase(v.make)} ${this.titleCase(v.model)} details">
                 <img src="${this.resolveImageUrl(mainImage)}"
-                     alt="${v.year} ${v.make} ${v.model}"
+                     alt="${v.year} ${this.titleCase(v.make)} ${this.titleCase(v.model)}"
                      class="card-img-top"
                      width="400" height="220"
                      style="height:220px; object-fit:cover;"
@@ -205,7 +205,7 @@ class InventoryLoader {
           </div>
           <div class="card-body d-flex flex-column">
             <div class="d-flex justify-content-between align-items-start mb-1">
-              <h3 class="h6 fw-bold mb-0"><a href="${this.buildVDPUrl(v)}" class="text-dark text-decoration-none">${v.year} ${v.make} ${v.model}${v.trim ? ' ' + v.trim : ''}</a></h3>
+              <h3 class="h6 fw-bold mb-0"><a href="${this.buildVDPUrl(v)}" class="text-dark text-decoration-none">${v.year} ${this.titleCase(v.make)} ${this.titleCase(v.model)}${v.trim ? ' ' + v.trim : ''}</a></h3>
               <span class="badge bg-danger ms-2 flex-shrink-0">${this.formatMoney(v.price).replace('$', '$')}</span>
             </div>
             <p class="text-muted small mb-2">${v.description || ''}</p>
