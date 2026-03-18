@@ -572,16 +572,20 @@ function generatePDF(data, submittedAt, config) {
         if (!sectionHasData) continue;
 
         // Section header — light gray background with dark text
-        doc.fillColor('#E8E8E8').rect(doc.x, doc.y, pageWidth, 20).fill('#E8E8E8');
+        const headerY = doc.y;
+        doc.save();
+        doc.rect(doc.page.margins.left, headerY, pageWidth, 22).fill('#E8E8E8');
+        doc.restore();
         doc.fillColor('#222222').fontSize(11).font('Helvetica-Bold')
-          .text(section.title.toUpperCase(), doc.page.margins.left + 6, doc.y - 15, { width: pageWidth - 12 });
-        doc.moveDown(0.5);
+          .text(section.title.toUpperCase(), doc.page.margins.left + 6, headerY + 5, { width: pageWidth - 12 });
+        doc.y = headerY + 28; // Move below header with padding
 
         // Fields in two-column layout
         doc.fillColor('#000000').font('Helvetica');
         const colWidth = (pageWidth - 20) / 2;
         let col = 0;
         let rowY = doc.y;
+        const ROW_HEIGHT = 28;
 
         for (const key of section.fields) {
           const val = sanitize(data[key]);
@@ -589,7 +593,7 @@ function generatePDF(data, submittedAt, config) {
           if (!val) continue;
 
           // Check if we need a new page
-          if (rowY + 30 > doc.page.height - doc.page.margins.bottom) {
+          if (rowY + ROW_HEIGHT > doc.page.height - doc.page.margins.bottom) {
             doc.addPage();
             rowY = doc.y;
             col = 0;
@@ -597,23 +601,23 @@ function generatePDF(data, submittedAt, config) {
 
           const xPos = doc.page.margins.left + (col * (colWidth + 20));
 
-          doc.fontSize(7).fillColor('#666666').font('Helvetica-Bold')
+          doc.fontSize(7).fillColor('#888888').font('Helvetica-Bold')
             .text(fieldLabel(key), xPos, rowY, { width: colWidth, lineBreak: false });
           doc.fontSize(10).fillColor('#000000').font('Helvetica')
-            .text(val, xPos, rowY + 9, { width: colWidth });
+            .text(val, xPos, rowY + 10, { width: colWidth });
 
           col++;
           if (col >= 2) {
             col = 0;
-            rowY = doc.y + 6;
+            rowY += ROW_HEIGHT;
           }
         }
 
-        // Reset position after section
+        // Reset position after section — ensure proper gap before next header
         if (col !== 0) {
-          doc.y = rowY + 20;
+          rowY += ROW_HEIGHT;
         }
-        doc.moveDown(0.5);
+        doc.y = rowY + 10;
       }
 
       // ── Catch-all: render any fields not in defined sections ──
@@ -622,21 +626,24 @@ function generatePDF(data, submittedAt, config) {
       );
 
       if (extraFields.length > 0) {
-        doc.fillColor('#E8E8E8').rect(doc.x, doc.y, pageWidth, 20).fill('#E8E8E8');
+        const extraHeaderY = doc.y;
+        doc.save();
+        doc.rect(doc.page.margins.left, extraHeaderY, pageWidth, 22).fill('#E8E8E8');
+        doc.restore();
         doc.fillColor('#222222').fontSize(11).font('Helvetica-Bold')
-          .text('ADDITIONAL INFORMATION', doc.page.margins.left + 6, doc.y - 15, { width: pageWidth - 12 });
-        doc.moveDown(0.5);
+          .text('ADDITIONAL INFORMATION', doc.page.margins.left + 6, extraHeaderY + 5, { width: pageWidth - 12 });
+        doc.y = extraHeaderY + 28;
         doc.fillColor('#000000').font('Helvetica');
 
         for (const key of extraFields) {
           if (doc.y + 30 > doc.page.height - doc.page.margins.bottom) {
             doc.addPage();
           }
-          doc.fontSize(7).fillColor('#666666').font('Helvetica-Bold')
+          doc.fontSize(7).fillColor('#888888').font('Helvetica-Bold')
             .text(fieldLabel(key), doc.page.margins.left);
           doc.fontSize(10).fillColor('#000000').font('Helvetica')
             .text(sanitize(data[key]), doc.page.margins.left);
-          doc.moveDown(0.3);
+          doc.moveDown(0.4);
         }
       }
 
