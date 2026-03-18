@@ -69,16 +69,22 @@ function safeSlug(str) {
     .toLowerCase();
 }
 
-// Conservative Title Case: only normalize ALL-CAPS strings.
+// Automotive-aware title case normalization
+var VM_UPPER_WORDS = new Set([
+  'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+  'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+]);
 function toTitleCase(str) {
-  const s = (str || '').toString().trim();
+  var s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
   if (!s) return '';
-  const hasLower = /[a-z]/.test(s);
-  const hasUpper = /[A-Z]/.test(s);
-  if (hasUpper && !hasLower) {
-    return s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-  }
-  return s;
+  return s.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+    var bare = word.replace(/-/g, '').toUpperCase();
+    if (VM_UPPER_WORDS.has(bare)) return bare;
+    return word.split('-').map(function (seg) {
+      if (!seg) return seg;
+      return seg.charAt(0).toUpperCase() + seg.slice(1);
+    }).join('-');
+  }).join(' ');
 }
 
 function uniqueKeepOrder(arr) {

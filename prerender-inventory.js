@@ -13,7 +13,7 @@ const {
 // ── Build a single vehicle card (mirrors client-side buildRow) ──
 
 function buildRow(v) {
-  const title = `${v.year} ${v.make} ${v.model}`;
+  const title = `${v.year} ${titleCase(v.make)} ${titleCase(v.model)}`;
   const trim = v.trim || '';
   const price = v.price ? `$${Number(v.price).toLocaleString('en-US')}` : 'Call for Price';
   const miles = v.mileage ? `${Number(v.mileage).toLocaleString('en-US')} mi` : '\u2014';
@@ -56,7 +56,7 @@ function buildRow(v) {
 <div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">${engine}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">${trans}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">${drive}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">${fuel}</span></div>
 </div>
 </div>

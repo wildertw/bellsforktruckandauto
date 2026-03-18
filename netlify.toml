@@ -3,6 +3,10 @@
   publish = "."
   functions = "netlify/functions"
 
+# Include the PDF template in function bundles so fs.readFileSync works at runtime
+[functions]
+  included_files = ["netlify/functions/templates/**"]
+
 # ── Edge Functions (server-side auth gate for admin pages) ──
 [[edge_functions]]
   function = "admin-auth"

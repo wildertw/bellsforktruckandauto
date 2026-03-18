@@ -44,11 +44,32 @@ function escapeAttr(str) {
   return escapeHtml(str).replace(/`/g, '&#96;');
 }
 
-function titleCase(s) {
-  const str = String(s || '').trim();
-  if (!str) return '';
-  return str.toLowerCase().split(' ').filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+const UPPER_WORDS = new Set([
+  'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+  'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+]);
+
+function normalizeVehicleText(str) {
+  const s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
+  if (!s) return '';
+  return s.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+    // Check uppercase exception (ignore hyphens for matching)
+    var bare = word.replace(/-/g, '').toUpperCase();
+    if (UPPER_WORDS.has(bare)) return bare;
+    // Capitalize each hyphen-segment
+    return word.split('-').map(function (seg) {
+      if (!seg) return seg;
+      return seg.charAt(0).toUpperCase() + seg.slice(1);
+    }).join('-');
+  }).join(' ');
+}
+
+// Keep backward-compatible alias
+var titleCase = normalizeVehicleText;
+
+function normalizeVehicleTitle(v) {
+  var parts = [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)];
+  return parts.filter(Boolean).join(' ').trim();
 }
 
 function formatMoney(n) {
@@ -62,7 +83,7 @@ function slugify(str) {
 }
 
 function buildVDPSlug(v) {
-  const parts = ['Used', v.year, v.make, v.model, v.trim, 'for-sale-in-Greenville-NC-27858']
+  const parts = ['Used', v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model), v.trim, 'for-sale-in-Greenville-NC-27858']
     .filter(Boolean)
     .map(p => slugify(String(p)))
     .filter(Boolean);
@@ -233,7 +254,7 @@ module.exports = {
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
-  escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
+  escapeHtml, escapeAttr, titleCase, normalizeVehicleText, normalizeVehicleTitle, formatMoney, slugify,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   buildLocalImageCandidates, resolveInventoryImageName, resolveImg, resolveImgAbs,
   inferVehicleType, loadAvailableVehicles,

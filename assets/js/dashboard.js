@@ -146,6 +146,24 @@
   }
 
 
+  // Automotive-aware title case normalization
+  var DB_UPPER_WORDS = new Set([
+    'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+    'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+  ]);
+  function normalizeVehicleText(str) {
+    var s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
+    if (!s) return '';
+    return s.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+      var bare = word.replace(/-/g, '').toUpperCase();
+      if (DB_UPPER_WORDS.has(bare)) return bare;
+      return word.split('-').map(function (seg) {
+        if (!seg) return seg;
+        return seg.charAt(0).toUpperCase() + seg.slice(1);
+      }).join('-');
+    }).join(' ');
+  }
+
   // ─── Toast Notifications ──────────────────────────────────────────────────
   function showToast(message, type) {
     var toast = document.getElementById('autoSaveToast');
@@ -284,7 +302,7 @@
     var swatchHtml = '';
     var cd = vehicle.color_display;
     if (cd && cd.web_swatch_hex) {
-      swatchHtml = '<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:' + cd.web_swatch_hex + ';border:1px solid #ccc;vertical-align:middle;margin-right:6px;"></span>';
+      swatchHtml = '<span style="display:inline-block;width:16px;height:16px;border-radius:3px;background:' + cd.web_swatch_hex + ';border:1px solid #ccc;vertical-align:middle;margin-right:6px;"></span>';
     }
     var confPct = Math.round((scan.confidence || 0) * 100);
     var confColor = confPct >= 80 ? '#28a745' : confPct >= 50 ? '#ffc107' : '#dc3545';
@@ -987,6 +1005,10 @@
     var decayBadge = lead.decayedFrom ? '<span class="lead-decay-badge">Decayed from ' + lead.decayedFrom + '</span>' : '';
     var ftBadge = formTypeBadge(lead);
 
+    var pdfBtn = lead.dealershipPdfKey
+      ? '<button class="lead-action-btn lead-btn-pdf" type="button" data-action="download-pdf" data-id="' + lead.id + '" title="Download Financing PDF">&#128196; PDF</button>'
+      : '';
+
     return '<div class="lead-card" data-lead-id="' + lead.id + '">' +
       '<div class="lead-card-top">' +
         '<span class="lead-source-icon">' + sourceIcon + '</span>' +
@@ -1004,6 +1026,7 @@
         '<button class="lead-action-btn lead-btn-convert" type="button" data-action="convert" data-id="' + lead.id + '" title="Mark as converted">&#10003; Converted</button>' +
         '<button class="lead-action-btn lead-btn-lost" type="button" data-action="lost" data-id="' + lead.id + '" title="Mark as lost">&#10007; Lost</button>' +
         '<button class="lead-action-btn lead-btn-edit" type="button" data-action="edit" data-id="' + lead.id + '" title="Edit lead">&#9998;</button>' +
+        pdfBtn +
       '</div>' +
     '</div>';
   }
@@ -1121,6 +1144,32 @@
     }
   }
 
+  async function downloadDealershipPdf(leadId) {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    try {
+      var res = await fetch(LEADS_API + '?action=download-pdf&id=' + encodeURIComponent(leadId), {
+        headers: { 'Authorization': 'Basic ' + authStr },
+      });
+      if (!res.ok) {
+        var errBody = await res.json().catch(function () { return {}; });
+        throw new Error(errBody.error || 'Download failed');
+      }
+      var blob = await res.blob();
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'bellsfork-financing-application.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('Failed to download PDF: ' + err.message);
+    }
+  }
+
   async function saveLead(leadData) {
     var authStr = getAuthStr();
     if (!authStr) return;
@@ -1185,6 +1234,8 @@
     } else if (action === 'edit') {
       var lead = leadsData.find(function (l) { return l.id === id; });
       if (lead) openLeadModal(lead);
+    } else if (action === 'download-pdf') {
+      downloadDealershipPdf(id);
     }
   }
 
@@ -1471,7 +1522,7 @@
     var latestPrice = $('latestPrice');
     var latestFeatures = $('latestFeatures');
     if (latest && latestModel && latestPrice && latestFeatures) {
-      var modelLabel = [latest.year, latest.make, latest.model, latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
+      var modelLabel = [latest.year, normalizeVehicleText(latest.make), normalizeVehicleText(latest.model), latest.trim].filter(Boolean).join(' ') || latest.name || 'Unknown';
       latestModel.textContent = modelLabel;
       latestPrice.textContent = formatMoney(latest.price);
       var featureList = Array.isArray(latest.features) && latest.features.length
@@ -1912,7 +1963,7 @@
         inventory = vehicles.map(function(v, i) {
           return {
             sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-            name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+            name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
             category: v.type || v.category || 'Vehicle',
             quantity: 1, price: Number(v.price) || 0,
             description: v.description || '', supplier: '',
@@ -1945,6 +1996,105 @@
       });
   }
 
+  // ─── Review Changes Modal ──────────────────────────────────────────────────
+  var REVIEW_LABELS = {
+    price: 'Price', mileage: 'Mileage', exteriorColor: 'Ext. Color',
+    interiorColor: 'Int. Color', engine: 'Engine', transmission: 'Transmission',
+    drivetrain: 'Drivetrain', fuelType: 'Fuel Type', mpgCity: 'MPG City',
+    mpgHighway: 'MPG Hwy', trim: 'Trim', description: 'Description',
+    features: 'Features', status: 'Status', badge: 'Badge', featured: 'Featured',
+    condition: 'Condition', titleState: 'Title', warranty: 'Warranty',
+    cylinders: 'Cylinders', doors: 'Doors', paintCode: 'Paint Code',
+    year: 'Year', make: 'Make', model: 'Model',
+  };
+
+  function openReviewChanges() {
+    var modal = $('reviewChangesModal');
+    var list = $('reviewChangesList');
+    if (!modal || !list) return;
+
+    var drafts = inventory.filter(function(v) { return v._draft || v._bulkDraft; });
+    var deletes = inventory.filter(function(v) { return v._pendingDelete; });
+
+    if (drafts.length === 0 && deletes.length === 0) {
+      list.innerHTML = '<p class="muted">No unpublished changes.</p>';
+      modal.classList.add('active');
+      return;
+    }
+
+    var html = '';
+
+    drafts.forEach(function(v) {
+      var snap = v._draftSnapshot;
+      html += '<div style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;margin-bottom:12px;">';
+      html += '<strong>' + (v.name || [v.year, v.make, v.model].filter(Boolean).join(' ')) + '</strong>';
+      html += ' <span class="muted">(' + (v.stockNumber || v.sku) + ')</span>';
+
+      if (snap) {
+        var changes = [];
+        Object.keys(REVIEW_LABELS).forEach(function(key) {
+          var oldVal = snap[key];
+          var newVal = v[key];
+          // Normalize for comparison
+          var oldStr = Array.isArray(oldVal) ? oldVal.join(', ') : String(oldVal || '');
+          var newStr = Array.isArray(newVal) ? newVal.join(', ') : String(newVal || '');
+          if (oldStr !== newStr) {
+            changes.push({ label: REVIEW_LABELS[key], from: oldStr || '(empty)', to: newStr || '(empty)' });
+          }
+        });
+        if (changes.length > 0) {
+          html += '<table style="width:100%;margin-top:8px;font-size:13px;border-collapse:collapse;">';
+          html += '<tr style="text-align:left;border-bottom:1px solid #eee;"><th style="padding:4px 8px;">Field</th><th style="padding:4px 8px;">Was</th><th style="padding:4px 8px;">Now</th></tr>';
+          changes.forEach(function(c) {
+            html += '<tr style="border-bottom:1px solid #f5f5f5;">';
+            html += '<td style="padding:4px 8px;font-weight:500;">' + c.label + '</td>';
+            html += '<td style="padding:4px 8px;color:#999;text-decoration:line-through;">' + escHtml(truncate(c.from, 60)) + '</td>';
+            html += '<td style="padding:4px 8px;color:#2563eb;">' + escHtml(truncate(c.to, 60)) + '</td>';
+            html += '</tr>';
+          });
+          html += '</table>';
+        } else {
+          html += '<p class="muted" style="margin:4px 0 0;">Marked as edited (no field-level diff available)</p>';
+        }
+      } else {
+        html += '<p class="muted" style="margin:4px 0 0;">Edited (no snapshot — bulk edit or new vehicle)</p>';
+      }
+
+      html += '<button class="ghost-btn" style="margin-top:6px;font-size:12px;" data-undo-sku="' + (v.sku || '') + '">Undo</button>';
+      html += '</div>';
+    });
+
+    deletes.forEach(function(v) {
+      html += '<div style="border:1px solid #fee2e2;border-radius:8px;padding:12px 16px;margin-bottom:12px;background:#fff5f5;">';
+      html += '<strong style="color:#dc2626;">\u2717 Pending Deletion:</strong> ';
+      html += (v.name || [v.year, v.make, v.model].filter(Boolean).join(' '));
+      html += ' <span class="muted">(' + (v.stockNumber || v.sku) + ')</span>';
+      html += '<button class="ghost-btn" style="margin-top:6px;font-size:12px;" data-undo-delete-sku="' + (v.sku || '') + '">Undo Delete</button>';
+      html += '</div>';
+    });
+
+    list.innerHTML = html;
+
+    // Wire undo buttons
+    list.querySelectorAll('[data-undo-sku]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        undoStagedEdit(btn.getAttribute('data-undo-sku'));
+        openReviewChanges(); // re-render
+      });
+    });
+    list.querySelectorAll('[data-undo-delete-sku]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        undoStagedDelete(btn.getAttribute('data-undo-delete-sku'));
+        openReviewChanges(); // re-render
+      });
+    });
+
+    modal.classList.add('active');
+  }
+
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function truncate(s, n) { return s.length > n ? s.slice(0, n) + '\u2026' : s; }
+
   var editSubmitInProgress = false; // double-submit guard
 
   async function handleEditSubmit(event) {
@@ -1975,8 +2125,8 @@
       editingItem.name = $('editName').value.trim();
       editingItem.category = $('editCategory').value.trim();
       editingItem.year = Number($('editYear').value) || editingItem.year;
-      editingItem.make = $('editMake').value.trim() || editingItem.make;
-      editingItem.model = $('editModel').value.trim() || editingItem.model;
+      editingItem.make = normalizeVehicleText($('editMake').value) || editingItem.make;
+      editingItem.model = normalizeVehicleText($('editModel').value) || editingItem.model;
       editingItem.trim = $('editTrim').value.trim() || editingItem.trim;
       editingItem.vin = $('editVin').value.trim() || editingItem.vin;
       editingItem.quantity = Number($('editQuantity').value);
@@ -2065,7 +2215,7 @@
         // Convert site format to dashboard format
         inventory = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-          name: [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+          name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
           quantity: 1,
           price: Number(v.price) || 0,
@@ -2104,7 +2254,7 @@
         if (!Array.isArray(vehicles)) throw new Error('Invalid format');
         var mapped = vehicles.map((v, i) => ({
           sku: v.stockNumber || v.sku || v.vin || ('IMP-' + String(i + 1).padStart(3, '0')),
-          name: v.name || [v.year, v.make, v.model].filter(Boolean).join(' ') || 'Vehicle',
+          name: v.name || [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
           category: v.type || v.category || 'Vehicle',
           quantity: v.quantity || 1,
           price: Number(v.price) || 0,
@@ -2299,8 +2449,8 @@
       description: $('addDescription').value.trim(),
       supplier: $('addSupplier').value.trim(),
       year: Number($('addYear').value) || null,
-      make: $('addMake').value.trim(),
-      model: $('addModel').value.trim(),
+      make: normalizeVehicleText($('addMake').value),
+      model: normalizeVehicleText($('addModel').value),
       trim: $('addTrim').value.trim(),
       vin: $('addVin').value.trim(),
       stockNumber: $('addStock').value.trim(),
@@ -2441,8 +2591,8 @@
   function applyVinData() {
     if (!vinDecodeData) return;
     if (vinDecodeData.year) $('addYear').value = vinDecodeData.year;
-    if (vinDecodeData.make) $('addMake').value = vinDecodeData.make;
-    if (vinDecodeData.model) $('addModel').value = vinDecodeData.model;
+    if (vinDecodeData.make) $('addMake').value = normalizeVehicleText(vinDecodeData.make);
+    if (vinDecodeData.model) $('addModel').value = normalizeVehicleText(vinDecodeData.model);
     if (vinDecodeData.trim) $('addTrim').value = vinDecodeData.trim;
     if (vinDecodeData.engine) {
       $('addEngine').value = vinDecodeData.engine;
@@ -2468,7 +2618,7 @@
       if (match) $('addDrivetrain').value = driveMap[match];
     }
     // Auto-generate name and SKU
-    const autoName = [vinDecodeData.year, vinDecodeData.make, vinDecodeData.model].filter(Boolean).join(' ');
+    const autoName = [vinDecodeData.year, normalizeVehicleText(vinDecodeData.make), normalizeVehicleText(vinDecodeData.model)].filter(Boolean).join(' ');
     if (autoName && !$('addName').value) $('addName').value = autoName;
     if (!$('addSku').value) {
       const stock = $('addStock').value.trim();
@@ -3099,8 +3249,8 @@
           var r = (vinJson.Results && vinJson.Results[0]) || {};
           var clean = function (v) { return (v && v !== 'Not Applicable' && v !== 'N/A') ? v.trim() : ''; };
           if (clean(r.ModelYear)) merged.year = clean(r.ModelYear);
-          if (clean(r.Make)) merged.make = clean(r.Make);
-          if (clean(r.Model)) merged.model = clean(r.Model);
+          if (clean(r.Make)) merged.make = normalizeVehicleText(clean(r.Make));
+          if (clean(r.Model)) merged.model = normalizeVehicleText(clean(r.Model));
           if (clean(r.Trim)) merged.trim = clean(r.Trim);
           if (clean(r.DisplacementL)) merged.engine = clean(r.DisplacementL) + 'L' + (clean(r.EngineCylinders) ? ' ' + clean(r.EngineCylinders) + '-cyl' : '');
           if (clean(r.TransmissionStyle)) merged.transmission = clean(r.TransmissionStyle);
@@ -3411,8 +3561,8 @@
     }
 
     // Only fill make/model/year/trim if form fields are currently empty (VIN priority)
-    if (analysis.make && !$('editMake').value) $('editMake').value = analysis.make;
-    if (analysis.model && !$('editModel').value) $('editModel').value = analysis.model;
+    if (analysis.make && !$('editMake').value) $('editMake').value = normalizeVehicleText(analysis.make);
+    if (analysis.model && !$('editModel').value) $('editModel').value = normalizeVehicleText(analysis.model);
     if (analysis.trimLevel && !$('editTrim').value) $('editTrim').value = analysis.trimLevel;
     if (analysis.approximateYear && !$('editYear').value) {
       var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
@@ -3458,8 +3608,8 @@
     }
 
     // Only fill if empty (VIN priority)
-    if (analysis.make && !$('addMake').value) $('addMake').value = analysis.make;
-    if (analysis.model && !$('addModel').value) $('addModel').value = analysis.model;
+    if (analysis.make && !$('addMake').value) $('addMake').value = normalizeVehicleText(analysis.make);
+    if (analysis.model && !$('addModel').value) $('addModel').value = normalizeVehicleText(analysis.model);
     if (analysis.trimLevel && !$('addTrim').value) $('addTrim').value = analysis.trimLevel;
     if (analysis.approximateYear && !$('addYear').value) {
       var yearMatch = String(analysis.approximateYear).match(/(\d{4})/);
@@ -5091,6 +5241,10 @@
     // Draft banner actions
     if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleDraftPublish);
     if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDraftDiscard);
+    if ($('draftReviewToggle')) $('draftReviewToggle').addEventListener('click', openReviewChanges);
+    if ($('reviewCloseBtn')) $('reviewCloseBtn').addEventListener('click', function() { $('reviewChangesModal').classList.remove('active'); });
+    if ($('reviewPublishBtn')) $('reviewPublishBtn').addEventListener('click', function() { $('reviewChangesModal').classList.remove('active'); handleDraftPublish(); });
+    if ($('reviewChangesModal')) $('reviewChangesModal').addEventListener('click', function(e) { if (e.target === $('reviewChangesModal')) $('reviewChangesModal').classList.remove('active'); });
     // Close bulk edit modal on backdrop click
     if ($('bulkEditModal')) $('bulkEditModal').addEventListener('click', function(e) { if (e.target === $('bulkEditModal')) $('bulkEditModal').classList.remove('active'); });
     $('editForm').addEventListener('submit', handleEditSubmit);

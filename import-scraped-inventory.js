@@ -108,7 +108,7 @@ async function decodeVin(vin) {
     return {
       year: parseInt(get('Model Year'), 10) || 0,
       make: toTitleCase(get('Make')),
-      model: get('Model'),
+      model: toTitleCase(get('Model')),
       trim: get('Trim') || get('Trim2') || '',
       engine: engineStr,
       transmission: transmissionRaw || '',
@@ -124,10 +124,21 @@ async function decodeVin(vin) {
 
 // ── Helpers ──
 
-function toTitleCase(s) {
+const UPPER_WORDS = new Set([
+  'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+  'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+]);
+function toTitleCase(str) {
+  const s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
   if (!s) return '';
-  return s.toLowerCase().split(' ').filter(Boolean)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  return s.toLowerCase().split(' ').filter(Boolean).map(word => {
+    const bare = word.replace(/-/g, '').toUpperCase();
+    if (UPPER_WORDS.has(bare)) return bare;
+    return word.split('-').map(seg => {
+      if (!seg) return seg;
+      return seg.charAt(0).toUpperCase() + seg.slice(1);
+    }).join('-');
+  }).join(' ');
 }
 
 function parsePrice(priceStr) {

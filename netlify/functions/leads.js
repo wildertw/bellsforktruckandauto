@@ -178,6 +178,39 @@ exports.handler = async (event) => {
     let leads = await store.get('all', { type: 'json' });
     if (!Array.isArray(leads)) leads = [];
 
+    // ─── GET — Download dealership PDF for a lead ──────────────────────────────
+    // GET /.netlify/functions/leads?action=download-pdf&id=lead-xxx
+    if (event.httpMethod === 'GET' && params.action === 'download-pdf' && params.id) {
+      const lead = leads.find(function (l) { return l.id === params.id; });
+      if (!lead) {
+        return { statusCode: 404, headers: corsHeaders(event), body: JSON.stringify({ error: 'Lead not found' }) };
+      }
+      if (!lead.dealershipPdfKey) {
+        return { statusCode: 404, headers: corsHeaders(event), body: JSON.stringify({ error: 'No dealership PDF for this lead' }) };
+      }
+      try {
+        const pdfStore = blobStore({ name: 'lead-pdfs', consistency: 'strong' });
+        const pdfBuffer = await pdfStore.get(lead.dealershipPdfKey, { type: 'arrayBuffer' });
+        if (!pdfBuffer) {
+          return { statusCode: 404, headers: corsHeaders(event), body: JSON.stringify({ error: 'PDF file not found in storage' }) };
+        }
+        const safeName = (lead.contactName || 'application').replace(/[^a-zA-Z0-9-_ ]/g, '').trim().replace(/\s+/g, '-') || 'application';
+        return {
+          statusCode: 200,
+          headers: {
+            ...corsHeaders(event),
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="bellsfork-financing-${safeName}.pdf"`,
+          },
+          body: Buffer.from(pdfBuffer).toString('base64'),
+          isBase64Encoded: true,
+        };
+      } catch (err) {
+        console.error('[leads] PDF download error:', err.message);
+        return { statusCode: 500, headers: corsHeaders(event), body: JSON.stringify({ error: 'Failed to retrieve PDF' }) };
+      }
+    }
+
     // ─── GET — List leads ─────────────────────────────────────────────────────
     if (event.httpMethod === 'GET') {
       // Apply auto-decay

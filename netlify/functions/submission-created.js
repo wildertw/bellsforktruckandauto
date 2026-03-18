@@ -30,6 +30,14 @@ const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const { getStore } = require('@netlify/blobs');
 
+// Defensive import: dealership PDF generation must never crash the main handler
+let generateDealershipPDF = null;
+try {
+  generateDealershipPDF = require('./generate-dealership-pdf').generateDealershipPDF;
+} catch (err) {
+  console.error('[submission-created] Failed to load dealership PDF generator (non-fatal):', err.message);
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Sanitize a value for safe rendering in the PDF */
@@ -403,7 +411,7 @@ const EXCLUDE_FIELDS = new Set([
  * Create a lead record in the leads-db Blob store.
  * Returns the created lead object, or null if storage is unavailable.
  */
-async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message }) {
+async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message, sourcePage, vehiclePrice, vehicleVin, dealershipPdfKey }) {
   const store = blobStore('leads-db');
   if (!store) {
     console.warn('[submission-created] Blob store unavailable — skipping lead creation');
@@ -442,10 +450,11 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
       id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
       stockNumber: String(stockNumber || '').trim().slice(0, 30),
       vehicleName: String(vehicle || '').trim().slice(0, 200),
-      vehiclePrice: null,
+      vehiclePrice: String(vehiclePrice || '').trim().slice(0, 30) || null,
+      vehicleVin: String(vehicleVin || '').trim().slice(0, 17),
       vehicleUrl: '',
       source: String(source || 'form').slice(0, 50),
-      sourcePage: '',
+      sourcePage: String(sourcePage || '').slice(0, 500),
       formType: String(formName || '').slice(0, 80),
       formDisplayName: String(displayName || formName || '').slice(0, 100),
       status: 'hot',  // Form submissions are always high-intent
@@ -455,6 +464,7 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
       contactEmail: String(contactEmail || '').trim().slice(0, 254),
       visitorId: '',
       notes: String(message || `Auto-created from ${displayName || formName} submission`).slice(0, 2000),
+      dealershipPdfKey: dealershipPdfKey || null,
       createdAt: now,
       statusChangedAt: now,
       convertedAt: null,
@@ -488,8 +498,11 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
     id: 'lead-' + now.toString(36) + '-' + Math.random().toString(36).slice(2, 7),
     stockNumber: String(stockNumber || '').trim().slice(0, 30),
     vehicleName: String(vehicle || '').trim().slice(0, 200),
-    vehiclePrice: null, vehicleUrl: '',
-    source: String(source || 'form').slice(0, 50), sourcePage: '',
+    vehiclePrice: String(vehiclePrice || '').trim().slice(0, 30) || null,
+    vehicleVin: String(vehicleVin || '').trim().slice(0, 17),
+    vehicleUrl: '',
+    source: String(source || 'form').slice(0, 50),
+    sourcePage: String(sourcePage || '').slice(0, 500),
     formType: String(formName || '').slice(0, 80),
     formDisplayName: String(displayName || formName || '').slice(0, 100),
     status: 'hot', outcome: 'active',
@@ -642,7 +655,7 @@ function generatePDF(data, submittedAt, config) {
 
 // ─── Email Sending ──────────────────────────────────────────────────────────
 
-async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, filename }) {
+async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, filename, extraAttachments }) {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
   const user = process.env.SMTP_USER;
@@ -659,18 +672,33 @@ async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, fil
     auth: { user, pass },
   });
 
+  const attachments = [
+    {
+      filename,
+      content: pdfBuffer,
+      contentType: 'application/pdf',
+    },
+  ];
+
+  // Append any extra attachments (e.g. filled dealership PDF)
+  if (Array.isArray(extraAttachments)) {
+    for (const att of extraAttachments) {
+      if (att && att.content && att.filename) {
+        attachments.push({
+          filename: att.filename,
+          content: att.content,
+          contentType: att.contentType || 'application/pdf',
+        });
+      }
+    }
+  }
+
   const mailOptions = {
     from: from || user,
     to,
     subject,
     html,
-    attachments: [
-      {
-        filename,
-        content: pdfBuffer,
-        contentType: 'application/pdf',
-      },
-    ],
+    attachments,
   };
 
   const info = await transporter.sendMail(mailOptions);
@@ -690,80 +718,207 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-function buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt }) {
+function buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt, leadId }) {
   const accent = config.accentColor;
-  const phone = config.getContactPhone(data);
-  const email = config.getContactEmail(data);
 
-  // Build summary rows from the most relevant fields
-  const rows = [];
-  rows.push(`<tr>
-    <td style="padding: 6px 12px; font-weight: bold; color: #555; width: 140px;">Name:</td>
-    <td style="padding: 6px 12px;">${escapeHtml(sanitize(contactName))}</td>
-  </tr>`);
-
-  if (phone) {
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Phone:</td>
-      <td style="padding: 6px 12px;">${escapeHtml(sanitize(phone))}</td>
-    </tr>`);
-  }
-  if (email) {
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Email:</td>
-      <td style="padding: 6px 12px;">${escapeHtml(sanitize(email))}</td>
-    </tr>`);
-  }
-  if (vehicle) {
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Vehicle:</td>
-      <td style="padding: 6px 12px;">${escapeHtml(sanitize(vehicle))}</td>
-    </tr>`);
+  /**
+   * Render a table row if the value is non-empty.
+   * Returns empty string for blank/undefined/null values so they never appear.
+   */
+  function row(label, val) {
+    const clean = sanitize(val);
+    if (!clean) return '';
+    return `<tr>
+      <td style="padding: 5px 12px; font-weight: bold; color: #555; width: 180px; vertical-align: top; white-space: nowrap;">${escapeHtml(label)}</td>
+      <td style="padding: 5px 12px;">${escapeHtml(clean)}</td>
+    </tr>`;
   }
 
-  // Form-specific extra rows
-  if (data.vehicle_price || data.monthly_budget) {
-    const priceVal = escapeHtml(sanitize(data.vehicle_price || data.monthly_budget));
-    const priceLabel = data.vehicle_price ? 'Price' : 'Monthly Budget';
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">${priceLabel}:</td>
-      <td style="padding: 6px 12px;">${priceVal}</td>
-    </tr>`);
-  }
-  if (data.down_payment || data.vehicle_downpayment) {
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Down Payment:</td>
-      <td style="padding: 6px 12px;">${escapeHtml(sanitize(data.down_payment || data.vehicle_downpayment))}</td>
-    </tr>`);
-  }
-  if (data.preferred_date) {
-    rows.push(`<tr>
-      <td style="padding: 6px 12px; font-weight: bold; color: #555;">Preferred Date:</td>
-      <td style="padding: 6px 12px;">${escapeHtml(sanitize(data.preferred_date))}</td>
-    </tr>`);
+  /**
+   * Render a section with a header and rows. Omits the entire section
+   * if every row is empty (no data to show).
+   */
+  function section(title, rowsHtml) {
+    const filtered = rowsHtml.filter(Boolean);
+    if (filtered.length === 0) return '';
+    return `
+      <tr><td colspan="2" style="padding: 12px 0 4px 0;">
+        <h3 style="margin: 0; font-size: 14px; color: #fff; background: #333; padding: 6px 12px; border-left: 4px solid ${accent};">${escapeHtml(title)}</h3>
+      </td></tr>
+      ${filtered.join('\n')}`;
   }
 
-  rows.push(`<tr>
-    <td style="padding: 6px 12px; font-weight: bold; color: #555;">Submitted:</td>
-    <td style="padding: 6px 12px;">${submittedAt.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'long', timeStyle: 'short' })}</td>
-  </tr>`);
+  // ── Customer Information ──
+  const customerRows = [
+    row('Name', contactName),
+    row('Email', config.getContactEmail(data)),
+    row('Phone', config.getContactPhone(data)),
+    row('Date of Birth', data.applicant_dob),
+    row('Driver\'s License', data.applicant_drivers_license),
+    row('DL State', data.applicant_dl_state),
+    row('SSN Provided', data.applicant_ssn ? 'Yes (on file)' : ''),
+    // Generic form fields (offer, test-drive, etc.)
+    row('Preferred Contact', data.preferred_contact),
+    row('Best Time to Call', data.best_time),
+  ];
+
+  // ── Applicant Address & Housing ──
+  const addressParts = [data.applicant_address, data.applicant_apt, data.applicant_city, data.applicant_state, data.applicant_zip].map(v => sanitize(v)).filter(Boolean);
+  const housingRows = [
+    row('Address', addressParts.join(', ') || ''),
+    row('Time at Address', data.applicant_time_at_address),
+    row('Residence Type', data.applicant_residence_type),
+    row('Monthly Payment', data.applicant_monthly_payment),
+    row('Mortgage Company', data.applicant_mortgage_company),
+    // Generic address fields
+    row('Street', data.street),
+    row('City', data.city),
+    row('State', data.state),
+    row('ZIP', data.zip),
+  ];
+
+  // ── Vehicle Information ──
+  const vehicleRows = [
+    row('Vehicle', vehicle),
+    row('Year', data.vehicle_year),
+    row('Make', data.vehicle_make),
+    row('Model', data.vehicle_model),
+    row('VIN', data.vehicle_vin),
+    row('Stock / VIN', data.stock_vin),
+    row('Mileage', data.vehicle_mileage),
+    row('Color', data.vehicle_color),
+    row('Price', data.vehicle_price),
+    row('Down Payment', data.vehicle_downpayment || data.down_payment),
+    row('Loan Term', data.vehicle_term),
+    // Generic form
+    row('Vehicle of Interest', data.interest_vehicle),
+    row('Preferred Date', data.preferred_date),
+    row('Preferred Time', data.preferred_time),
+  ];
+
+  // ── Financial Information ──
+  const financeRows = [
+    row('Gross Monthly Income', data.applicant_gross_monthly_income),
+    row('Additional Income', data.applicant_additional_income),
+    row('Additional Income Source', data.applicant_additional_income_source),
+    row('Monthly Budget', data.monthly_budget),
+    row('Credit Range', data.credit_range),
+    // Generic form
+    row('Employment Status', data.employment_status || data.applicant_employment_type),
+    row('Monthly Income', data.monthly_income),
+  ];
+
+  // ── Employment ──
+  const employmentRows = [
+    row('Employer', data.applicant_employer),
+    row('Title', data.applicant_title),
+    row('Employment Type', data.applicant_employment_type),
+    row('Time at Company', data.applicant_time_at_company),
+    row('Work Phone', data.applicant_work_phone),
+  ];
+
+  // ── Trade-In Information ──
+  const tradeinVehicle = [data.tradein_year, data.tradein_make, data.tradein_model].map(v => sanitize(v)).filter(Boolean).join(' ');
+  const tradeinRows = [
+    row('Trade-In Vehicle', tradeinVehicle),
+    row('Trade-In VIN', data.tradein_vin),
+    row('Mileage', data.tradein_mileage),
+    row('Color', data.tradein_color),
+    row('Lien on Vehicle', data.tradein_lien),
+    row('Payoff Amount', data.tradein_payoff_amount || data.payoff_amount),
+    row('Title Status', data.tradein_title_status),
+    // Generic form trade-in
+    row('Current Vehicle', data.current_vehicle),
+    row('Current VIN', data.current_vin),
+    row('Current Mileage', data.mileage),
+    row('Condition', data.condition),
+  ];
+
+  // ── Co-Applicant Information ──
+  const coName = [data.co_applicant_first_name, data.co_applicant_middle_name, data.co_applicant_last_name, data.co_applicant_suffix].map(v => sanitize(v)).filter(Boolean).join(' ');
+  const coAddressParts = [data.co_applicant_address, data.co_applicant_apt, data.co_applicant_city, data.co_applicant_state, data.co_applicant_zip].map(v => sanitize(v)).filter(Boolean);
+  const coApplicantRows = [
+    row('Co-Applicant Name', coName),
+    row('Date of Birth', data.co_applicant_dob),
+    row('Phone', data.co_applicant_phone),
+    row('Email', data.co_applicant_email),
+    row('Driver\'s License', data.co_applicant_drivers_license),
+    row('DL State', data.co_applicant_dl_state),
+    row('Address', coAddressParts.join(', ') || ''),
+    row('Time at Address', data.co_applicant_time_at_address),
+    row('Residence Type', data.co_applicant_residence_type),
+    row('Monthly Payment', data.co_applicant_monthly_payment),
+    row('Mortgage Company', data.co_applicant_mortgage_company),
+    row('Employer', data.co_applicant_employer),
+    row('Title', data.co_applicant_title),
+    row('Employment Type', data.co_applicant_employment_type),
+    row('Gross Monthly Income', data.co_applicant_gross_monthly_income),
+    row('Time at Company', data.co_applicant_time_at_company),
+    row('Work Phone', data.co_applicant_work_phone),
+    row('Additional Income', data.co_applicant_additional_income),
+    row('Additional Income Source', data.co_applicant_additional_income_source),
+  ];
+
+  // ── Additional Notes ──
+  const notesRows = [
+    row('Notes', data.notes),
+    row('Message', data.message),
+    row('Details', data.details),
+    row('Service Inquiry', data.service),
+  ];
+
+  // ── Authorization ──
+  const authRows = [
+    row('Accuracy Confirmed', data.confirm_accuracy === 'on' || data.confirm_accuracy === 'true' || data.confirm_accuracy === true ? 'Yes' : data.confirm_accuracy),
+    row('Contact Consent', data.contact_consent === 'on' || data.contact_consent === 'true' || data.contact_consent === true ? 'Yes' : data.contact_consent),
+    row('Applicant Signature', data.applicant_signature),
+    row('Signature Date', data.applicant_signature_date),
+    row('Co-Applicant Signature', data.co_applicant_signature),
+    row('Co-Applicant Sig. Date', data.co_applicant_signature_date),
+  ];
+
+  // ── Submission Metadata ──
+  const submittedStr = submittedAt.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'long', timeStyle: 'short' });
+  const metaRows = [
+    row('Submitted', submittedStr),
+    row('Form Type', config.displayName),
+    row('Lead ID', leadId || ''),
+    row('PDF Attachment', filename),
+  ];
+
+  // Assemble all sections — empty sections are auto-omitted
+  const allSections = [
+    section('Customer Information', customerRows),
+    section('Address & Housing', housingRows),
+    section('Vehicle Information', vehicleRows),
+    section('Financial Information', financeRows),
+    section('Employment', employmentRows),
+    section('Trade-In Information', tradeinRows),
+    section('Co-Applicant', coApplicantRows),
+    section('Additional Notes', notesRows),
+    section('Authorization', authRows),
+    section('Submission Metadata', metaRows),
+  ].filter(Boolean);
 
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #333; border-bottom: 2px solid ${accent}; padding-bottom: 8px;">
-        New ${config.displayName} Received
+    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto;">
+      <h2 style="color: #333; border-bottom: 3px solid ${accent}; padding-bottom: 8px; margin-bottom: 4px;">
+        New ${escapeHtml(config.displayName)} Received
       </h2>
-      <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
-        ${rows.join('\n        ')}
+      <p style="color: #666; font-size: 13px; margin-top: 0;">
+        ${escapeHtml(sanitize(contactName))}${vehicle ? ` &mdash; ${escapeHtml(sanitize(vehicle))}` : ''} &mdash; ${submittedStr}
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px;">
+        ${allSections.join('\n')}
       </table>
-      <p style="background: #f8f9fa; padding: 12px; border-radius: 4px; border-left: 4px solid ${accent}; color: #333;">
-        <strong>The complete ${config.displayName.toLowerCase()} is attached as a PDF.</strong><br>
-        <span style="font-size: 13px; color: #666;">Filename: ${filename}</span>
+      <p style="background: #f8f9fa; padding: 12px; border-radius: 4px; border-left: 4px solid ${accent}; color: #333; font-size: 13px;">
+        <strong>The complete ${escapeHtml(config.displayName.toLowerCase())} is also attached as a PDF.</strong><br>
+        <span style="font-size: 12px; color: #666;">Filename: ${escapeHtml(filename)}</span>
       </p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-      <p style="font-size: 12px; color: #999;">
+      <p style="font-size: 11px; color: #999;">
         This email was sent automatically by the Bells Fork Truck &amp; Auto website
-        when a ${config.displayName.toLowerCase()} was submitted at bellsforktruckandauto.com.
+        when a ${escapeHtml(config.displayName.toLowerCase())} was submitted at bellsforktruckandauto.com.
       </p>
     </div>
   `;
@@ -808,8 +963,13 @@ exports.handler = async (event) => {
   // Build a short notes summary from the form data
   const leadMessage = sanitize(data.details || data.notes || data.message || '');
   const stockNum = sanitize(data.stock_vin || data.vehicle_vin || '');
+  const vehiclePrice = sanitize(data.vehicle_price || data.monthly_budget || '');
+  const vehicleVin = sanitize(data.vehicle_vin || data.stock_vin || '');
+  // Netlify includes the referring page in the payload when available
+  const sourcePage = sanitize(payload.site_url || payload.form_url || '');
+  let leadId = null;
   try {
-    await createLead({
+    const lead = await createLead({
       contactName,
       contactPhone,
       contactEmail,
@@ -819,7 +979,11 @@ exports.handler = async (event) => {
       source: config.leadSource,
       stockNumber: stockNum,
       message: leadMessage,
+      sourcePage,
+      vehiclePrice,
+      vehicleVin,
     });
+    if (lead) leadId = lead.id;
   } catch (err) {
     // Lead creation failure should not block PDF/email — log and continue
     console.error('[submission-created] Lead creation failed (non-fatal):', err.message);
@@ -849,6 +1013,63 @@ exports.handler = async (event) => {
 
   console.log(`[submission-created] PDF generated: ${filename} (${pdfBuffer.length} bytes)`);
 
+  // ── Step 2b: Generate filled dealership PDF (financing-application only) ──
+  let dealershipPdfBuffer = null;
+  let dealershipPdfFilename = null;
+  let dealershipPdfKey = null;
+
+  if (formName === 'financing-application' && generateDealershipPDF) {
+    try {
+      dealershipPdfBuffer = await generateDealershipPDF(data);
+      dealershipPdfFilename = `bellsfork-financing-${nameSlug}-${timestamp}.pdf`;
+
+      // Validate the generated dealership PDF
+      if (dealershipPdfBuffer && dealershipPdfBuffer.length > 0) {
+        const header = dealershipPdfBuffer.slice(0, 5).toString('ascii');
+        if (header !== '%PDF-') {
+          console.error('[submission-created] Dealership PDF has invalid header:', header);
+          dealershipPdfBuffer = null;
+        } else {
+          console.log(`[submission-created] Dealership PDF generated: ${dealershipPdfFilename} (${dealershipPdfBuffer.length} bytes)`);
+
+          // Store in Netlify Blobs for admin dashboard access
+          const pdfStore = blobStore('lead-pdfs');
+          if (pdfStore && leadId) {
+            dealershipPdfKey = `dealership-pdf:${leadId}`;
+            await pdfStore.set(dealershipPdfKey, dealershipPdfBuffer, { metadata: {
+              filename: dealershipPdfFilename,
+              leadId,
+              formName,
+              contactName,
+              createdAt: submittedAt.toISOString(),
+            }});
+            console.log(`[submission-created] Dealership PDF stored in blobs: ${dealershipPdfKey}`);
+
+            // Update the lead record with the PDF key
+            try {
+              const leadsStore = blobStore('leads-db');
+              if (leadsStore) {
+                let leads = await leadsStore.get('all', { type: 'json' }).catch(() => []);
+                if (Array.isArray(leads)) {
+                  const idx = leads.findIndex(l => l.id === leadId);
+                  if (idx !== -1) {
+                    leads[idx].dealershipPdfKey = dealershipPdfKey;
+                    await leadsStore.setJSON('all', leads);
+                  }
+                }
+              }
+            } catch (updateErr) {
+              console.error('[submission-created] Failed to update lead with PDF key (non-fatal):', updateErr.message);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // Dealership PDF failure should NOT block the existing workflow
+      console.error('[submission-created] Dealership PDF generation failed (non-fatal):', err.message, err.stack);
+    }
+  }
+
   // ── Step 3: Send email with attachment ──
   const recipientEmail = (process.env.FINANCE_EMAIL_TO || '').split(',').map(e => e.trim()).filter(Boolean).join(',');
   if (!recipientEmail) {
@@ -858,7 +1079,17 @@ exports.handler = async (event) => {
 
   const fromEmail = process.env.FINANCE_EMAIL_FROM || process.env.SMTP_USER;
   const subject = `New ${config.displayName} — ${contactName}${vehicle ? ` | ${vehicle}` : ''}`;
-  const emailHtml = buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt });
+  const emailHtml = buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt, leadId });
+
+  // Build extra attachments list (dealership PDF if available)
+  const extraAttachments = [];
+  if (dealershipPdfBuffer && dealershipPdfFilename) {
+    extraAttachments.push({
+      filename: dealershipPdfFilename,
+      content: dealershipPdfBuffer,
+      contentType: 'application/pdf',
+    });
+  }
 
   try {
     await sendEmailWithAttachment({
@@ -868,6 +1099,7 @@ exports.handler = async (event) => {
       html: emailHtml,
       pdfBuffer,
       filename,
+      extraAttachments,
     });
   } catch (err) {
     console.error('[submission-created] Email send failed:', err.message, err.stack);
@@ -875,5 +1107,46 @@ exports.handler = async (event) => {
   }
 
   console.log(`[submission-created] ${config.displayName} email sent successfully to ${recipientEmail}`);
+
+  // ── Step 4: Increment formSubmits in site-analytics ──
+  // This ensures the dashboard "Forms Submitted" KPI is accurate even when
+  // the client-side tracker fails (ad blockers, JS errors, race conditions).
+  try {
+    const analyticsStore = blobStore('site-analytics');
+    if (analyticsStore) {
+      const now = new Date();
+      const yyyy = now.getUTCFullYear();
+      const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(now.getUTCDate()).padStart(2, '0');
+      const dayKey = 'daily:' + yyyy + '-' + mm + '-' + dd;
+
+      let daily = await analyticsStore.get(dayKey, { type: 'json' }).catch(() => null);
+      if (!daily) {
+        daily = {
+          pageViews: 0,
+          uniqueVisitors: [],
+          phoneClicks: 0,
+          formSubmits: 0,
+          prequalifySubmits: 0,
+          pages: {},
+          devices: { mobile: 0, desktop: 0, tablet: 0 },
+          referrers: { direct: 0, google: 0, facebook: 0, social: 0, other: 0 },
+          newVisitors: [],
+          returningVisitors: [],
+          bounces: 0,
+          totalSessions: 0,
+          totalSessionDuration: 0,
+          vehicleViews: {},
+        };
+      }
+      daily.formSubmits = (daily.formSubmits || 0) + 1;
+      await analyticsStore.setJSON(dayKey, daily);
+      console.log(`[submission-created] Analytics formSubmits incremented for ${dayKey}`);
+    }
+  } catch (err) {
+    // Analytics increment failure should not affect the response
+    console.error('[submission-created] Analytics increment failed (non-fatal):', err.message);
+  }
+
   return { statusCode: 200, body: `${config.displayName} processed: lead created, PDF emailed` };
 };

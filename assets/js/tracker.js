@@ -249,12 +249,15 @@
   }, true);
 
   // ─── Track Form Submissions ──────────────────────────────────────────────────
+  // Note: The formSubmits analytics counter is incremented server-side by
+  // submission-created.js (Netlify event function) to avoid missed counts
+  // from ad blockers or JS errors. The client-side only creates a lead record
+  // with visitor context (page, device, referrer).
   document.addEventListener('submit', function (e) {
     var form = e.target;
     if (!form || !form.tagName || form.tagName !== 'FORM') return;
     var action = form.getAttribute('action') || '';
     if (action.indexOf('formspree') !== -1 || form.hasAttribute('data-netlify') || action.indexOf('netlify') !== -1) {
-      send('form_submit', { action: action });
       createLead('form');
     }
   }, true);
