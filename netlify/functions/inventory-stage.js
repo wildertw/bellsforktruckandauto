@@ -42,6 +42,24 @@ function corsHeaders(event) {
   };
 }
 
+// Automotive-aware title case normalization
+var UPPER_WORDS = new Set([
+  'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+  'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+]);
+function normalizeVehicleText(str) {
+  var s = String(str == null ? '' : str).trim().replace(/\s+/g, ' ');
+  if (!s) return '';
+  return s.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+    var bare = word.replace(/-/g, '').toUpperCase();
+    if (UPPER_WORDS.has(bare)) return bare;
+    return word.split('-').map(function (seg) {
+      if (!seg) return seg;
+      return seg.charAt(0).toUpperCase() + seg.slice(1);
+    }).join('-');
+  }).join(' ');
+}
+
 function validateAuth(user, passwordHash, usersConfig) {
   const normalized = (user || '').trim().toLowerCase();
   const expected = usersConfig[normalized];
@@ -147,6 +165,12 @@ exports.handler = async (event) => {
       }),
     };
   }
+
+  // Normalize make/model casing
+  inventory.vehicles.forEach(function (v) {
+    if (v.make) v.make = normalizeVehicleText(v.make);
+    if (v.model) v.model = normalizeVehicleText(v.model);
+  });
 
   // Load current production inventory from Blobs for diff comparison
   let currentVehicles = [];
