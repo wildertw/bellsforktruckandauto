@@ -56,13 +56,13 @@
   <link rel="icon" type="image/png" href="/assets/favicon.png">
 
   <!-- Bootstrap 5 CSS (self-hosted) -->
-  <link href="/assets/vendor/bootstrap.min.css?v=mmv292g7" rel="stylesheet">
+  <link href="/assets/vendor/bootstrap.min.css?v=mmv99c4m" rel="stylesheet">
   <!-- Swiper CSS: load async, swap once ready (gallery is below fold on mobile) -->
-  <link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css?v=mmv292g7" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css?v=mmv292g7"></noscript>
+  <link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css?v=mmv99c4m" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/assets/vendor/swiper-bundle.min.css?v=mmv99c4m"></noscript>
 
   <!-- Custom Styles -->
-  <link href="/style.min.css?v=mmv292g7" rel="stylesheet">
+  <link href="/style.min.css?v=mmv99c4m" rel="stylesheet">
   <script type="text/javascript" src="https://plugin.qualifywizard.com/lib/qw-plugin.js?dealerId=18468&autoInstall"></script>
 
   <!-- Schema.org Structured Data -->
@@ -430,6 +430,20 @@
 
     /* Photo gallery */
     .vdp-gallery { position: relative; background: #000; }
+    .vdp-gallery .swiper-button-prev::after,
+    .vdp-gallery .swiper-button-next::after { display: none; }
+    .vdp-gallery .swiper-button-prev,
+    .vdp-gallery .swiper-button-next {
+      width: 44px; height: 44px;
+      background: rgba(0,0,0,.45);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .vdp-gallery .swiper-button-prev:hover,
+    .vdp-gallery .swiper-button-next:hover { background: rgba(0,0,0,.7); }
+    .vdp-gallery .swiper-button-prev { left: 12px; }
+    .vdp-gallery .swiper-button-next { right: 12px; }
     .vdp-main-img {
       width: 100%;
       max-height: 520px;
@@ -762,8 +776,8 @@
           <div class="swiper-slide"><img src="/assets/vehicles/VEHICLE-3GTU2WEC1EG333280-13.jpg" alt="2014 Gmc Sierra 1500 Denali" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>
         </div>
         <div class="swiper-pagination"></div>
-        <div class="swiper-button-prev d-none d-md-flex"></div>
-        <div class="swiper-button-next d-none d-md-flex"></div>
+        <div class="swiper-button-prev d-none d-md-flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" width="32" height="32"><path d="M3.446,10.052 C2.866,9.471 2.866,8.53 3.446,7.948 L9.89,1.506 C10.471,0.924 11.993,0.667 11.993,2.506 L11.993,15.494 C11.993,17.395 10.472,17.076 9.89,16.495 L3.446,10.052 L3.446,10.052 Z" fill="#fff"/></svg></div>
+        <div class="swiper-button-next d-none d-md-flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 16" width="32" height="32"><path d="M6.113,15.495 C5.531,16.076 4.01,16.395 4.01,14.494 L4.01,1.506 C4.01,-0.333 5.531,-0.076 6.113,0.506 L12.557,6.948 C13.137,7.529 13.137,8.47 12.557,9.052 L6.113,15.495 L6.113,15.495 Z" fill="#fff"/></svg></div>
       </div>
       <div class="swiper vdp-thumbs mt-2" style="height:80px;">
         <div class="swiper-wrapper">
@@ -1176,7 +1190,7 @@
   </div>
 
   <!-- Bootstrap JS (self-hosted) -->
-  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mmv292g7" defer></script>
+  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mmv99c4m" defer></script>
 
   <script>
   // Year in footer
@@ -1191,7 +1205,7 @@
   }
 
   </script>
-  <script src="/assets/vendor/swiper-bundle.min.js?v=mmv292g7" defer></script>
+  <script src="/assets/vendor/swiper-bundle.min.js?v=mmv99c4m" defer></script>
   <script>
 function initSwiper(){
   if(typeof Swiper==='undefined'){setTimeout(initSwiper,50);return;}
@@ -1200,8 +1214,8 @@ function initSwiper(){
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initSwiper);}else{initSwiper();}
   </script>
-  <script src="/assets/js/sms-limiter.js?v=mmv292g7" defer></script>
-  <script src="/assets/js/tracker.js?v=mmv292g7" defer></script>
+  <script src="/assets/js/sms-limiter.js?v=mmv99c4m" defer></script>
+  <script src="/assets/js/tracker.js?v=mmv99c4m" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
