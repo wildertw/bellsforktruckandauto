@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-18T02:59:18.714Z",
+  "lastUpdated": "2026-03-18T03:09:03.230Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -190,15 +190,17 @@
       "make": "Ford",
       "model": "F-150",
       "trim": "XLT",
-      "engine": "5.0L 4V",
+      "engine": "5L V8",
       "transmission": "Automatic",
-      "drivetrain": "4x2",
+      "drivetrain": "RWD",
       "fuelType": "Gasoline",
+      "mpgCity": 16,
+      "mpgHighway": 22,
       "mileage": 59655,
       "price": 26500,
       "type": "Truck",
-      "exteriorColor": "",
-      "interiorColor": "",
+      "exteriorColor": "Stone Gray Metallic",
+      "interiorColor": "Medium Earth Gray",
       "description": "This 2019 FORD F-150 XLT is a well-maintained pre-owned vehicle featuring 4x2, 5.0L 4V, Automatic transmission. With 59,655 miles on the odometer, this vehicle has plenty of life left. Equipped with Back-Up Camera, Bluetooth Connection, Navigation, Keyless Entry, Cruise Control. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
       "features": [
         "Back-Up Camera",
@@ -217,8 +219,8 @@
       "condition": "Used",
       "titleState": "Clean",
       "warranty": "Extended Warranty Available",
-      "cylinders": "",
-      "doors": "",
+      "cylinders": "8",
+      "doors": "4D",
       "images": [
         "VEHICLE-1FTEW1C59KFA20135-01.jpg",
         "VEHICLE-1FTEW1C59KFA20135-02.jpg",
