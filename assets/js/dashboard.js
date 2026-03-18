@@ -1005,6 +1005,10 @@
     var decayBadge = lead.decayedFrom ? '<span class="lead-decay-badge">Decayed from ' + lead.decayedFrom + '</span>' : '';
     var ftBadge = formTypeBadge(lead);
 
+    var pdfBtn = lead.dealershipPdfKey
+      ? '<button class="lead-action-btn lead-btn-pdf" type="button" data-action="download-pdf" data-id="' + lead.id + '" title="Download Financing PDF">&#128196; PDF</button>'
+      : '';
+
     return '<div class="lead-card" data-lead-id="' + lead.id + '">' +
       '<div class="lead-card-top">' +
         '<span class="lead-source-icon">' + sourceIcon + '</span>' +
@@ -1022,6 +1026,7 @@
         '<button class="lead-action-btn lead-btn-convert" type="button" data-action="convert" data-id="' + lead.id + '" title="Mark as converted">&#10003; Converted</button>' +
         '<button class="lead-action-btn lead-btn-lost" type="button" data-action="lost" data-id="' + lead.id + '" title="Mark as lost">&#10007; Lost</button>' +
         '<button class="lead-action-btn lead-btn-edit" type="button" data-action="edit" data-id="' + lead.id + '" title="Edit lead">&#9998;</button>' +
+        pdfBtn +
       '</div>' +
     '</div>';
   }
@@ -1139,6 +1144,32 @@
     }
   }
 
+  async function downloadDealershipPdf(leadId) {
+    var authStr = getAuthStr();
+    if (!authStr) return;
+    try {
+      var res = await fetch(LEADS_API + '?action=download-pdf&id=' + encodeURIComponent(leadId), {
+        headers: { 'Authorization': 'Basic ' + authStr },
+      });
+      if (!res.ok) {
+        var errBody = await res.json().catch(function () { return {}; });
+        throw new Error(errBody.error || 'Download failed');
+      }
+      var blob = await res.blob();
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'bellsfork-financing-application.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('Failed to download PDF: ' + err.message);
+    }
+  }
+
   async function saveLead(leadData) {
     var authStr = getAuthStr();
     if (!authStr) return;
@@ -1203,6 +1234,8 @@
     } else if (action === 'edit') {
       var lead = leadsData.find(function (l) { return l.id === id; });
       if (lead) openLeadModal(lead);
+    } else if (action === 'download-pdf') {
+      downloadDealershipPdf(id);
     }
   }
 

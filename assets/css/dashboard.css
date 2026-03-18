@@ -2165,6 +2165,15 @@ button:hover {
   border-color: #ef4444;
   color: #ef4444;
 }
+.lead-btn-pdf {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+.lead-btn-pdf:hover {
+  border-color: #1d4ed8;
+  color: #fff;
+  background: #2563eb;
+}
 .lead-action-btn.small {
   padding: 3px 6px;
   font-size: 12px;

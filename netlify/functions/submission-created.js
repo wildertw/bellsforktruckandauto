@@ -29,6 +29,7 @@
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const { getStore } = require('@netlify/blobs');
+const { generateDealershipPDF } = require('./generate-dealership-pdf');
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -403,7 +404,7 @@ const EXCLUDE_FIELDS = new Set([
  * Create a lead record in the leads-db Blob store.
  * Returns the created lead object, or null if storage is unavailable.
  */
-async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message, sourcePage, vehiclePrice, vehicleVin }) {
+async function createLead({ contactName, contactPhone, contactEmail, vehicle, formName, displayName, source, stockNumber, message, sourcePage, vehiclePrice, vehicleVin, dealershipPdfKey }) {
   const store = blobStore('leads-db');
   if (!store) {
     console.warn('[submission-created] Blob store unavailable — skipping lead creation');
@@ -456,6 +457,7 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
       contactEmail: String(contactEmail || '').trim().slice(0, 254),
       visitorId: '',
       notes: String(message || `Auto-created from ${displayName || formName} submission`).slice(0, 2000),
+      dealershipPdfKey: dealershipPdfKey || null,
       createdAt: now,
       statusChangedAt: now,
       convertedAt: null,
@@ -646,7 +648,7 @@ function generatePDF(data, submittedAt, config) {
 
 // ─── Email Sending ──────────────────────────────────────────────────────────
 
-async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, filename }) {
+async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, filename, extraAttachments }) {
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
   const user = process.env.SMTP_USER;
@@ -663,18 +665,33 @@ async function sendEmailWithAttachment({ to, from, subject, html, pdfBuffer, fil
     auth: { user, pass },
   });
 
+  const attachments = [
+    {
+      filename,
+      content: pdfBuffer,
+      contentType: 'application/pdf',
+    },
+  ];
+
+  // Append any extra attachments (e.g. filled dealership PDF)
+  if (Array.isArray(extraAttachments)) {
+    for (const att of extraAttachments) {
+      if (att && att.content && att.filename) {
+        attachments.push({
+          filename: att.filename,
+          content: att.content,
+          contentType: att.contentType || 'application/pdf',
+        });
+      }
+    }
+  }
+
   const mailOptions = {
     from: from || user,
     to,
     subject,
     html,
-    attachments: [
-      {
-        filename,
-        content: pdfBuffer,
-        contentType: 'application/pdf',
-      },
-    ],
+    attachments,
   };
 
   const info = await transporter.sendMail(mailOptions);
@@ -989,6 +1006,63 @@ exports.handler = async (event) => {
 
   console.log(`[submission-created] PDF generated: ${filename} (${pdfBuffer.length} bytes)`);
 
+  // ── Step 2b: Generate filled dealership PDF (financing-application only) ──
+  let dealershipPdfBuffer = null;
+  let dealershipPdfFilename = null;
+  let dealershipPdfKey = null;
+
+  if (formName === 'financing-application') {
+    try {
+      dealershipPdfBuffer = await generateDealershipPDF(data);
+      dealershipPdfFilename = `bellsfork-financing-${nameSlug}-${timestamp}.pdf`;
+
+      // Validate the generated dealership PDF
+      if (dealershipPdfBuffer && dealershipPdfBuffer.length > 0) {
+        const header = dealershipPdfBuffer.slice(0, 5).toString('ascii');
+        if (header !== '%PDF-') {
+          console.error('[submission-created] Dealership PDF has invalid header:', header);
+          dealershipPdfBuffer = null;
+        } else {
+          console.log(`[submission-created] Dealership PDF generated: ${dealershipPdfFilename} (${dealershipPdfBuffer.length} bytes)`);
+
+          // Store in Netlify Blobs for admin dashboard access
+          const pdfStore = blobStore('lead-pdfs');
+          if (pdfStore && leadId) {
+            dealershipPdfKey = `dealership-pdf:${leadId}`;
+            await pdfStore.set(dealershipPdfKey, dealershipPdfBuffer, { metadata: {
+              filename: dealershipPdfFilename,
+              leadId,
+              formName,
+              contactName,
+              createdAt: submittedAt.toISOString(),
+            }});
+            console.log(`[submission-created] Dealership PDF stored in blobs: ${dealershipPdfKey}`);
+
+            // Update the lead record with the PDF key
+            try {
+              const leadsStore = blobStore('leads-db');
+              if (leadsStore) {
+                let leads = await leadsStore.get('all', { type: 'json' }).catch(() => []);
+                if (Array.isArray(leads)) {
+                  const idx = leads.findIndex(l => l.id === leadId);
+                  if (idx !== -1) {
+                    leads[idx].dealershipPdfKey = dealershipPdfKey;
+                    await leadsStore.setJSON('all', leads);
+                  }
+                }
+              }
+            } catch (updateErr) {
+              console.error('[submission-created] Failed to update lead with PDF key (non-fatal):', updateErr.message);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      // Dealership PDF failure should NOT block the existing workflow
+      console.error('[submission-created] Dealership PDF generation failed (non-fatal):', err.message, err.stack);
+    }
+  }
+
   // ── Step 3: Send email with attachment ──
   const recipientEmail = (process.env.FINANCE_EMAIL_TO || '').split(',').map(e => e.trim()).filter(Boolean).join(',');
   if (!recipientEmail) {
@@ -1000,6 +1074,16 @@ exports.handler = async (event) => {
   const subject = `New ${config.displayName} — ${contactName}${vehicle ? ` | ${vehicle}` : ''}`;
   const emailHtml = buildEmailHtml({ config, contactName, data, vehicle, filename, submittedAt, leadId });
 
+  // Build extra attachments list (dealership PDF if available)
+  const extraAttachments = [];
+  if (dealershipPdfBuffer && dealershipPdfFilename) {
+    extraAttachments.push({
+      filename: dealershipPdfFilename,
+      content: dealershipPdfBuffer,
+      contentType: 'application/pdf',
+    });
+  }
+
   try {
     await sendEmailWithAttachment({
       to: recipientEmail,
@@ -1008,6 +1092,7 @@ exports.handler = async (event) => {
       html: emailHtml,
       pdfBuffer,
       filename,
+      extraAttachments,
     });
   } catch (err) {
     console.error('[submission-created] Email send failed:', err.message, err.stack);
@@ -1015,5 +1100,46 @@ exports.handler = async (event) => {
   }
 
   console.log(`[submission-created] ${config.displayName} email sent successfully to ${recipientEmail}`);
+
+  // ── Step 4: Increment formSubmits in site-analytics ──
+  // This ensures the dashboard "Forms Submitted" KPI is accurate even when
+  // the client-side tracker fails (ad blockers, JS errors, race conditions).
+  try {
+    const analyticsStore = blobStore('site-analytics');
+    if (analyticsStore) {
+      const now = new Date();
+      const yyyy = now.getUTCFullYear();
+      const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(now.getUTCDate()).padStart(2, '0');
+      const dayKey = 'daily:' + yyyy + '-' + mm + '-' + dd;
+
+      let daily = await analyticsStore.get(dayKey, { type: 'json' }).catch(() => null);
+      if (!daily) {
+        daily = {
+          pageViews: 0,
+          uniqueVisitors: [],
+          phoneClicks: 0,
+          formSubmits: 0,
+          prequalifySubmits: 0,
+          pages: {},
+          devices: { mobile: 0, desktop: 0, tablet: 0 },
+          referrers: { direct: 0, google: 0, facebook: 0, social: 0, other: 0 },
+          newVisitors: [],
+          returningVisitors: [],
+          bounces: 0,
+          totalSessions: 0,
+          totalSessionDuration: 0,
+          vehicleViews: {},
+        };
+      }
+      daily.formSubmits = (daily.formSubmits || 0) + 1;
+      await analyticsStore.setJSON(dayKey, daily);
+      console.log(`[submission-created] Analytics formSubmits incremented for ${dayKey}`);
+    }
+  } catch (err) {
+    // Analytics increment failure should not affect the response
+    console.error('[submission-created] Analytics increment failed (non-fatal):', err.message);
+  }
+
   return { statusCode: 200, body: `${config.displayName} processed: lead created, PDF emailed` };
 };
