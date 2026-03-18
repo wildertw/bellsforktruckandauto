@@ -927,13 +927,27 @@ function buildEmailHtml({ config, contactName, data, vehicle, filename, submitte
 // ─── Main Handler ───────────────────────────────────────────────────────────
 
 exports.handler = async (event) => {
+  console.log('[submission-created] ===== HANDLER START =====', new Date().toISOString());
+  try {
+  return await _handleSubmission(event);
+  } catch (topLevelErr) {
+    console.error('[submission-created] ===== TOP-LEVEL CRASH =====', topLevelErr.message, topLevelErr.stack);
+    return { statusCode: 500, body: `Handler crashed: ${topLevelErr.message}` };
+  }
+};
+
+async function _handleSubmission(event) {
+  console.log('[submission-created] Event body length:', event.body?.length || 0);
+
   let payload;
   try {
     const parsed = JSON.parse(event.body);
     // Netlify wraps the form submission inside a "payload" property
     payload = parsed.payload || parsed;
+    console.log('[submission-created] Parsed OK, form_name:', payload.form_name, 'data keys:', Object.keys(payload.data || {}).length);
   } catch (err) {
     console.error('[submission-created] Failed to parse event body:', err.message);
+    console.error('[submission-created] Raw body (first 200):', String(event.body).slice(0, 200));
     return { statusCode: 400, body: 'Invalid payload' };
   }
 
@@ -1151,4 +1165,4 @@ exports.handler = async (event) => {
   }
 
   return { statusCode: 200, body: `${config.displayName} processed: lead created, PDF emailed` };
-};
+}
