@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-18T03:09:03.230Z",
+  "lastUpdated": "2026-03-18T03:48:58.530Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -259,7 +259,11 @@
       "interiorColor": "Black",
       "description": "Introducing this robust 2017 Chevrolet 2500 High Country, designed for both power and luxury. Equipped with a Vortec 6.0L V8 engine and a dependable 4WD drivetrain, this truck is ready for any challenge. With a stylish black exterior and a comfortable matching interior, it combines performance and aesthetics seamlessly. Perfect for those who demand versatility and capability, this vehicle is an excellent choice for work or play.",
       "features": [
-        "4WD"
+        "4WD",
+        "lift kit",
+        "aftermarket wheels",
+        "tow hitch",
+        "fog lights"
       ],
       "status": "available",
       "badge": "",
@@ -1221,7 +1225,7 @@
       "type": "Diesel",
       "exteriorColor": "Black",
       "interiorColor": "Jet Black",
-      "description": "Experience robust performance and luxury in this 2017 Chevrolet Silverado LTZ, featuring a powerful 6.6L V8 engine and just 151,828 miles. Equipped with premium amenities like a back-up camera, leather seating, Bluetooth connection, navigation, heated front seats, and a tow hitch, this truck is ready to tackle any job while providing unmatched comfort.",
+      "description": "Experience the perfect blend of power and luxury with this 2017 Chevrolet Silverado LTZ, featuring a robust 6.6L V8 engine and 151,828 miles. Loaded with premium amenities like leather seating, navigation, heated front seats, and a comprehensive suite of technology and safety features, this truck is ready for both work and play.",
       "features": [
         "Back-Up Camera",
         "Leather Seat",
