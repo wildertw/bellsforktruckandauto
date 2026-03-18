@@ -302,7 +302,7 @@
     var swatchHtml = '';
     var cd = vehicle.color_display;
     if (cd && cd.web_swatch_hex) {
-      swatchHtml = '<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:' + cd.web_swatch_hex + ';border:1px solid #ccc;vertical-align:middle;margin-right:6px;"></span>';
+      swatchHtml = '<span style="display:inline-block;width:16px;height:16px;border-radius:2px;background:' + cd.web_swatch_hex + ';border:1px solid #ccc;vertical-align:middle;margin-right:6px;"></span>';
     }
     var confPct = Math.round((scan.confidence || 0) * 100);
     var confColor = confPct >= 80 ? '#28a745' : confPct >= 50 ? '#ffc107' : '#dc3545';
