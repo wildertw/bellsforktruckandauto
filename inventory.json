@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-18T02:57:32.975Z",
+  "lastUpdated": "2026-03-18T02:59:18.714Z",
   "vehicles": [
     {
       "vin": "1GC1KWE83FF554610",
@@ -458,9 +458,9 @@
       "mileage": 90844,
       "price": 60000,
       "type": "Truck",
-      "exteriorColor": "Abyss Gray",
+      "exteriorColor": "Gray",
       "interiorColor": "Black",
-      "description": "Introducing this impressive 2019 Ford F-150 Lariat, featuring a powerful 5L V8 engine and just 90,844 miles. Equipped with luxurious leather seating, a state-of-the-art navigation system, heated and cooled front seats, and a robust towing capacity, this truck combines comfort and capability for all your adventures.",
+      "description": "Discover the perfect blend of power and luxury with this 2019 Ford F-150 Lariat, featuring a robust 5L V8 engine and just 90,844 miles. Equipped with premium amenities such as heated and cooled leather seats, navigation, a back-up camera, and a tow hitch, this truck is designed for both comfort and capability on and off the road.",
       "features": [
         "Back-Up Camera",
         "Leather Seat",
