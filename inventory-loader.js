@@ -149,7 +149,7 @@ class InventoryLoader {
     const swatchHex = v.swatchHex || cd.web_swatch_hex || '';
     if (!colorName && !swatchHex) return '';
     const chip = /^#[0-9A-Fa-f]{6}$/.test(swatchHex)
-      ? `<span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;" title="Approximate color swatch"></span>`
+      ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;" title="Approximate color swatch"></span>`
       : '';
     return `<p class="text-muted small mb-2">${chip}${this.escapeHtml(colorName)}</p>`;
   }

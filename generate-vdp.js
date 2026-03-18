@@ -911,7 +911,7 @@ ${techSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-s
               Appearance
             </div>
             <div class="vdp-spec-grid">
-${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${s.swatch ? `<span style="display:inline-block;width:14px;height:14px;border-radius:2px;background:${s.swatch};border:1px solid #ccc;vertical-align:middle;margin-right:5px;" title="Approximate color swatch"></span>` : ''}${escapeHtml(s.value)}</div></div>`).join('\n')}
+${appearSpecs.map(s => `              <div class="vdp-spec-item"><div class="vdp-spec-label">${escapeHtml(s.label)}</div><div class="vdp-spec-value${s.value === '—' ? ' missing' : ''}">${s.swatch ? `<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${s.swatch};border:1px solid #ccc;vertical-align:middle;margin-right:5px;" title="Approximate color swatch"></span>` : ''}${escapeHtml(s.value)}</div></div>`).join('\n')}
             </div>
           </div>
 

@@ -56,7 +56,7 @@ function buildRow(v) {
 <div class="inv-spec-row"><span class="inv-spec-label">Engine:</span><span class="inv-spec-value">${engine}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Trans:</span><span class="inv-spec-value">${trans}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Drive:</span><span class="inv-spec-value">${drive}</span></div>
-<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
+<div class="inv-spec-row"><span class="inv-spec-label">Color:</span><span class="inv-spec-value">${swatchHex ? `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${swatchHex};border:1px solid #ccc;vertical-align:middle;margin-right:4px;"></span>` : ''}${extColor}</span></div>
 <div class="inv-spec-row"><span class="inv-spec-label">Fuel:</span><span class="inv-spec-value">${fuel}</span></div>
 </div>
 </div>
