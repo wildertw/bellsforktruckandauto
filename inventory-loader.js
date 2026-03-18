@@ -78,14 +78,20 @@ class InventoryLoader {
 
   // Helpers
   titleCase(s) {
-    const str = String(s || '').trim();
+    var UPPER_WORDS = new Set([
+      'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
+      'XLE', 'XSE', 'SE', 'LE', 'LT', 'LTZ', 'AWD', 'FWD', 'RWD', 'SUV',
+    ]);
+    var str = String(s == null ? '' : s).trim().replace(/\s+/g, ' ');
     if (!str) return '';
-    return str
-      .toLowerCase()
-      .split(' ')
-      .filter(Boolean)
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
+    return str.toLowerCase().split(' ').filter(Boolean).map(function (word) {
+      var bare = word.replace(/-/g, '').toUpperCase();
+      if (UPPER_WORDS.has(bare)) return bare;
+      return word.split('-').map(function (seg) {
+        if (!seg) return seg;
+        return seg.charAt(0).toUpperCase() + seg.slice(1);
+      }).join('-');
+    }).join(' ');
   }
 
   formatMoney(n) {
