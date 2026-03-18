@@ -1963,6 +1963,105 @@
       });
   }
 
+  // ─── Review Changes Modal ──────────────────────────────────────────────────
+  var REVIEW_LABELS = {
+    price: 'Price', mileage: 'Mileage', exteriorColor: 'Ext. Color',
+    interiorColor: 'Int. Color', engine: 'Engine', transmission: 'Transmission',
+    drivetrain: 'Drivetrain', fuelType: 'Fuel Type', mpgCity: 'MPG City',
+    mpgHighway: 'MPG Hwy', trim: 'Trim', description: 'Description',
+    features: 'Features', status: 'Status', badge: 'Badge', featured: 'Featured',
+    condition: 'Condition', titleState: 'Title', warranty: 'Warranty',
+    cylinders: 'Cylinders', doors: 'Doors', paintCode: 'Paint Code',
+    year: 'Year', make: 'Make', model: 'Model',
+  };
+
+  function openReviewChanges() {
+    var modal = $('reviewChangesModal');
+    var list = $('reviewChangesList');
+    if (!modal || !list) return;
+
+    var drafts = inventory.filter(function(v) { return v._draft || v._bulkDraft; });
+    var deletes = inventory.filter(function(v) { return v._pendingDelete; });
+
+    if (drafts.length === 0 && deletes.length === 0) {
+      list.innerHTML = '<p class="muted">No unpublished changes.</p>';
+      modal.classList.add('active');
+      return;
+    }
+
+    var html = '';
+
+    drafts.forEach(function(v) {
+      var snap = v._draftSnapshot;
+      html += '<div style="border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;margin-bottom:12px;">';
+      html += '<strong>' + (v.name || [v.year, v.make, v.model].filter(Boolean).join(' ')) + '</strong>';
+      html += ' <span class="muted">(' + (v.stockNumber || v.sku) + ')</span>';
+
+      if (snap) {
+        var changes = [];
+        Object.keys(REVIEW_LABELS).forEach(function(key) {
+          var oldVal = snap[key];
+          var newVal = v[key];
+          // Normalize for comparison
+          var oldStr = Array.isArray(oldVal) ? oldVal.join(', ') : String(oldVal || '');
+          var newStr = Array.isArray(newVal) ? newVal.join(', ') : String(newVal || '');
+          if (oldStr !== newStr) {
+            changes.push({ label: REVIEW_LABELS[key], from: oldStr || '(empty)', to: newStr || '(empty)' });
+          }
+        });
+        if (changes.length > 0) {
+          html += '<table style="width:100%;margin-top:8px;font-size:13px;border-collapse:collapse;">';
+          html += '<tr style="text-align:left;border-bottom:1px solid #eee;"><th style="padding:4px 8px;">Field</th><th style="padding:4px 8px;">Was</th><th style="padding:4px 8px;">Now</th></tr>';
+          changes.forEach(function(c) {
+            html += '<tr style="border-bottom:1px solid #f5f5f5;">';
+            html += '<td style="padding:4px 8px;font-weight:500;">' + c.label + '</td>';
+            html += '<td style="padding:4px 8px;color:#999;text-decoration:line-through;">' + escHtml(truncate(c.from, 60)) + '</td>';
+            html += '<td style="padding:4px 8px;color:#2563eb;">' + escHtml(truncate(c.to, 60)) + '</td>';
+            html += '</tr>';
+          });
+          html += '</table>';
+        } else {
+          html += '<p class="muted" style="margin:4px 0 0;">Marked as edited (no field-level diff available)</p>';
+        }
+      } else {
+        html += '<p class="muted" style="margin:4px 0 0;">Edited (no snapshot — bulk edit or new vehicle)</p>';
+      }
+
+      html += '<button class="ghost-btn" style="margin-top:6px;font-size:12px;" data-undo-sku="' + (v.sku || '') + '">Undo</button>';
+      html += '</div>';
+    });
+
+    deletes.forEach(function(v) {
+      html += '<div style="border:1px solid #fee2e2;border-radius:8px;padding:12px 16px;margin-bottom:12px;background:#fff5f5;">';
+      html += '<strong style="color:#dc2626;">\u2717 Pending Deletion:</strong> ';
+      html += (v.name || [v.year, v.make, v.model].filter(Boolean).join(' '));
+      html += ' <span class="muted">(' + (v.stockNumber || v.sku) + ')</span>';
+      html += '<button class="ghost-btn" style="margin-top:6px;font-size:12px;" data-undo-delete-sku="' + (v.sku || '') + '">Undo Delete</button>';
+      html += '</div>';
+    });
+
+    list.innerHTML = html;
+
+    // Wire undo buttons
+    list.querySelectorAll('[data-undo-sku]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        undoStagedEdit(btn.getAttribute('data-undo-sku'));
+        openReviewChanges(); // re-render
+      });
+    });
+    list.querySelectorAll('[data-undo-delete-sku]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        undoStagedDelete(btn.getAttribute('data-undo-delete-sku'));
+        openReviewChanges(); // re-render
+      });
+    });
+
+    modal.classList.add('active');
+  }
+
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function truncate(s, n) { return s.length > n ? s.slice(0, n) + '\u2026' : s; }
+
   var editSubmitInProgress = false; // double-submit guard
 
   async function handleEditSubmit(event) {
@@ -5109,6 +5208,10 @@
     // Draft banner actions
     if ($('draftPublishBtn')) $('draftPublishBtn').addEventListener('click', handleDraftPublish);
     if ($('draftDiscardBtn')) $('draftDiscardBtn').addEventListener('click', handleDraftDiscard);
+    if ($('draftReviewToggle')) $('draftReviewToggle').addEventListener('click', openReviewChanges);
+    if ($('reviewCloseBtn')) $('reviewCloseBtn').addEventListener('click', function() { $('reviewChangesModal').classList.remove('active'); });
+    if ($('reviewPublishBtn')) $('reviewPublishBtn').addEventListener('click', function() { $('reviewChangesModal').classList.remove('active'); handleDraftPublish(); });
+    if ($('reviewChangesModal')) $('reviewChangesModal').addEventListener('click', function(e) { if (e.target === $('reviewChangesModal')) $('reviewChangesModal').classList.remove('active'); });
     // Close bulk edit modal on backdrop click
     if ($('bulkEditModal')) $('bulkEditModal').addEventListener('click', function(e) { if (e.target === $('bulkEditModal')) $('bulkEditModal').classList.remove('active'); });
     $('editForm').addEventListener('submit', handleEditSubmit);
