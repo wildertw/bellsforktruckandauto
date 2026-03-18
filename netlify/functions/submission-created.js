@@ -929,7 +929,9 @@ function buildEmailHtml({ config, contactName, data, vehicle, filename, submitte
 exports.handler = async (event) => {
   let payload;
   try {
-    payload = JSON.parse(event.body);
+    const parsed = JSON.parse(event.body);
+    // Netlify wraps the form submission inside a "payload" property
+    payload = parsed.payload || parsed;
   } catch (err) {
     console.error('[submission-created] Failed to parse event body:', err.message);
     return { statusCode: 400, body: 'Invalid payload' };
