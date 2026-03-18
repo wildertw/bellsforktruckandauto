@@ -571,9 +571,9 @@ function generatePDF(data, submittedAt, config) {
         });
         if (!sectionHasData) continue;
 
-        // Section header
-        doc.fillColor('#FFFFFF').rect(doc.x, doc.y, pageWidth, 20).fill('#333333');
-        doc.fillColor('#FFFFFF').fontSize(11).font('Helvetica-Bold')
+        // Section header — light gray background with dark text
+        doc.fillColor('#E8E8E8').rect(doc.x, doc.y, pageWidth, 20).fill('#E8E8E8');
+        doc.fillColor('#222222').fontSize(11).font('Helvetica-Bold')
           .text(section.title.toUpperCase(), doc.page.margins.left + 6, doc.y - 15, { width: pageWidth - 12 });
         doc.moveDown(0.5);
 
@@ -622,8 +622,8 @@ function generatePDF(data, submittedAt, config) {
       );
 
       if (extraFields.length > 0) {
-        doc.fillColor('#FFFFFF').rect(doc.x, doc.y, pageWidth, 20).fill('#333333');
-        doc.fillColor('#FFFFFF').fontSize(11).font('Helvetica-Bold')
+        doc.fillColor('#E8E8E8').rect(doc.x, doc.y, pageWidth, 20).fill('#E8E8E8');
+        doc.fillColor('#222222').fontSize(11).font('Helvetica-Bold')
           .text('ADDITIONAL INFORMATION', doc.page.margins.left + 6, doc.y - 15, { width: pageWidth - 12 });
         doc.moveDown(0.5);
         doc.fillColor('#000000').font('Helvetica');
