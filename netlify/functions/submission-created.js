@@ -29,7 +29,14 @@
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 const { getStore } = require('@netlify/blobs');
-const { generateDealershipPDF } = require('./generate-dealership-pdf');
+
+// Defensive import: dealership PDF generation must never crash the main handler
+let generateDealershipPDF = null;
+try {
+  generateDealershipPDF = require('./generate-dealership-pdf').generateDealershipPDF;
+} catch (err) {
+  console.error('[submission-created] Failed to load dealership PDF generator (non-fatal):', err.message);
+}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -1011,7 +1018,7 @@ exports.handler = async (event) => {
   let dealershipPdfFilename = null;
   let dealershipPdfKey = null;
 
-  if (formName === 'financing-application') {
+  if (formName === 'financing-application' && generateDealershipPDF) {
     try {
       dealershipPdfBuffer = await generateDealershipPDF(data);
       dealershipPdfFilename = `bellsfork-financing-${nameSlug}-${timestamp}.pdf`;
