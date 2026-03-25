@@ -440,11 +440,16 @@ class InventoryLoader {
            </svg>
          </div>`;
 
+    const daysAgo = v.dateAdded ? Math.floor((Date.now() - new Date(v.dateAdded).getTime()) / 86400000) : 999;
+    const isNew = daysAgo <= 7;
+    const badgeText = isNew ? 'Just Added' : 'Shop Online';
+    const badgeStyle = isNew ? ' style="background:#ffc107;color:#111;"' : '';
+
     return `
       <a class="featured-card" href="${href}">
         <div class="featured-img">
           ${imgHtml}
-          <span class="featured-badge">Shop Online</span>
+          <span class="featured-badge"${badgeStyle}>${badgeText}</span>
         </div>
         <div class="featured-body">
           <p class="featured-ymm">${this.escapeHtml(yearMake)}</p>
@@ -544,6 +549,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Always attempt to load inventory; modules activate only if their DOM exists
   await loader.loadInventory();
   loader.initHomeModules();
+
+  // Update hero inventory count
+  var heroCount = document.getElementById('heroCount');
+  if (heroCount && loader.vehicles.length) heroCount.textContent = loader.vehicles.length;
 
   // ===== Optional legacy filter controls (only if present) =====
   const filterMake  = document.getElementById('filterMake');

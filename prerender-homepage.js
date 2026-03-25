@@ -6,7 +6,8 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  escapeHtml, titleCase, loadAvailableVehicles,
+  escapeHtml, escapeAttr, titleCase, formatMoney, loadAvailableVehicles,
+  buildVDPPath,
 } = require('./build-utils');
 
 // ── Helpers ──
@@ -127,6 +128,70 @@ function buildPopularHTML(vehicles) {
   return { bodyStylesHTML, makesHTML, makeModelsHTML };
 }
 
+// ── Build featured vehicle cards HTML ──
+
+function resolveImageUrl(img) {
+  if (!img) return '';
+  if (img.startsWith('http')) return img;
+  if (img.startsWith('blob:')) return 'photos/' + img.slice(5);
+  return 'assets/vehicles/' + img;
+}
+
+function buildFeaturedHTML(vehicles) {
+  // Priority 1: vehicles marked as featured
+  let featured = vehicles.filter(v => v.featured === true);
+
+  // Priority 2: fallback to last 5 by dateAdded
+  if (featured.length === 0) {
+    featured = [...vehicles].sort((a, b) => {
+      const dateA = a.dateAdded ? new Date(a.dateAdded) : new Date(0);
+      const dateB = b.dateAdded ? new Date(b.dateAdded) : new Date(0);
+      return dateB - dateA;
+    });
+  }
+
+  featured = featured.slice(0, 5);
+  if (featured.length === 0) return '';
+
+  const now = Date.now();
+  return featured.map(v => {
+    const make = titleCase(v.make);
+    const model = titleCase(v.model);
+    const yearMake = `${v.year || ''} ${make}`.trim();
+    const href = buildVDPPath(v);
+    const pubImages = v._publicImages || v.images || [];
+    const mainImage = pubImages.length > 0 ? pubImages[0] : '';
+    const imgSrc = resolveImageUrl(mainImage);
+
+    const daysAgo = v.dateAdded ? Math.floor((now - new Date(v.dateAdded).getTime()) / 86400000) : 999;
+    const isNew = daysAgo <= 7;
+    const badgeText = isNew ? 'Just Added' : 'Shop Online';
+    const badgeStyle = isNew ? ' style="background:#ffc107;color:#111;"' : '';
+
+    const imgHtml = imgSrc
+      ? `<img src="${escapeAttr(imgSrc)}" alt="${escapeAttr(yearMake + ' ' + model)}" width="280" height="180" loading="lazy">`
+      : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;background:#e9e9e9;">
+           <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+             <rect x="3" y="7" width="18" height="10" rx="2"></rect>
+             <circle cx="7.5" cy="17.5" r="1.3"></circle>
+             <circle cx="16.5" cy="17.5" r="1.3"></circle>
+           </svg>
+         </div>`;
+
+    return `<a class="featured-card" href="${href}">
+        <div class="featured-img">
+          ${imgHtml}
+          <span class="featured-badge"${badgeStyle}>${badgeText}</span>
+        </div>
+        <div class="featured-body">
+          <p class="featured-ymm">${escapeHtml(yearMake)}</p>
+          <p class="featured-model">${escapeHtml(model)}</p>
+          ${v.price ? `<p class="featured-price">${formatMoney(v.price)}</p>` : ''}
+        </div>
+      </a>`;
+  }).join('\n');
+}
+
 // ── Build reviews fallback HTML ──
 // No placeholder reviews — show a loading spinner that JS will replace with real Google reviews
 
@@ -165,6 +230,18 @@ function main() {
     (_m, open, _c, close) => `${open}${makeModelsHTML}${close}`
   );
 
+  // Inject featured vehicle cards (client-side JS will overwrite for freshness)
+  const featuredHTML = buildFeaturedHTML(vehicles);
+  if (featuredHTML) {
+    html = replaceContainerContent(html, 'featuredGrid', featuredHTML);
+  }
+
+  // Inject hero vehicle count
+  html = html.replace(
+    /(<strong\s+id="heroCount">)\d+(<\/strong>)/,
+    `$1${vehicles.length}$2`
+  );
+
   // Inject reviews fallback HTML (client-side JS will overwrite with live data)
   const reviewsHTML = buildReviewsHTML();
   html = replaceContainerContent(html, 'homeReviews', reviewsHTML);
@@ -174,6 +251,8 @@ function main() {
   console.log(`  - Popular Body Styles: ${bodyStylesHTML ? 'injected' : 'empty'}`);
   console.log(`  - Popular Makes: ${makesHTML ? 'injected' : 'empty'}`);
   console.log(`  - Popular Make Models: ${makeModelsHTML ? 'injected' : 'empty'}`);
+  console.log(`  - Featured Vehicles: ${featuredHTML ? 'injected' : 'empty'}`);
+  console.log(`  - Hero Count: ${vehicles.length}`);
   console.log(`  - Reviews fallback: injected`);
 }
 

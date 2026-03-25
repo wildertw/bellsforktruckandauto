@@ -17,6 +17,7 @@
         "npm:eslint@8",
         "npm:mammoth@^1.11.0",
         "npm:nodemailer@^6.9.0",
+        "npm:pdf-lib@^1.17.1",
         "npm:pdfkit@0.16",
         "npm:prettier@2",
         "npm:purgecss@8",
