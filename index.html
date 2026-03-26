@@ -1023,7 +1023,7 @@
 
     <div class="featured-grid" id="featuredGrid"><a class="featured-card" href="/vdp/02914BF/Used-2016-Chevrolet-Corvette-Preferred-2LT-w-Z51-for-sale-in-Greenville-NC-27858/">
         <div class="featured-img">
-          <img src="photos/02914BF-08.jpg" alt="2016 Chevrolet Corvette" width="280" height="180" loading="lazy">
+          <img src="photos/02914BF-08.jpg" alt="2016 Chevrolet Corvette" width="280" height="180" loading="lazy" decoding="async">
           <span class="featured-badge" style="background:#ffc107;color:#111;">Just Added</span>
         </div>
         <div class="featured-body">
@@ -1034,7 +1034,7 @@
       </a>
 <a class="featured-card" href="/vdp/02926BF/Used-2017-Chevrolet-2500-High-Country-for-sale-in-Greenville-NC-27858/">
         <div class="featured-img">
-          <img src="photos/02926BF-01.jpg" alt="2017 Chevrolet 2500" width="280" height="180" loading="lazy">
+          <img src="photos/02926BF-01.jpg" alt="2017 Chevrolet 2500" width="280" height="180" loading="lazy" decoding="async">
           <span class="featured-badge" style="background:#ffc107;color:#111;">Just Added</span>
         </div>
         <div class="featured-body">
@@ -1045,7 +1045,7 @@
       </a>
 <a class="featured-card" href="/vdp/02955BF/Used-2018-Chevrolet-Silverado-1500-LTZ-for-sale-in-Greenville-NC-27858/">
         <div class="featured-img">
-          <img src="photos/02955BF-01.jpg" alt="2018 Chevrolet Silverado 1500" width="280" height="180" loading="lazy">
+          <img src="photos/02955BF-01.jpg" alt="2018 Chevrolet Silverado 1500" width="280" height="180" loading="lazy" decoding="async">
           <span class="featured-badge" style="background:#ffc107;color:#111;">Just Added</span>
         </div>
         <div class="featured-body">
@@ -1056,7 +1056,7 @@
       </a>
 <a class="featured-card" href="/vdp/02915BFA/Used-2019-Ford-F-150-LARIAT-for-sale-in-Greenville-NC-27858/">
         <div class="featured-img">
-          <img src="assets/vehicles/VEHICLE-1FTEW1E53KFB96224-01.jpg" alt="2019 Ford F-150" width="280" height="180" loading="lazy">
+          <img src="assets/vehicles/VEHICLE-1FTEW1E53KFB96224-01.jpg" alt="2019 Ford F-150" width="280" height="180" loading="lazy" decoding="async">
           <span class="featured-badge" style="background:#ffc107;color:#111;">Just Added</span>
         </div>
         <div class="featured-body">
@@ -1067,7 +1067,7 @@
       </a>
 <a class="featured-card" href="/vdp/B02234BF/Used-2016-Ford-F-250-PLATINUM-for-sale-in-Greenville-NC-27858/">
         <div class="featured-img">
-          <img src="assets/vehicles/VEHICLE-1FT7W2BT0GEB02234-01.jpg" alt="2016 Ford F-250" width="280" height="180" loading="lazy">
+          <img src="assets/vehicles/VEHICLE-1FT7W2BT0GEB02234-01.jpg" alt="2016 Ford F-250" width="280" height="180" loading="lazy" decoding="async">
           <span class="featured-badge" style="background:#ffc107;color:#111;">Just Added</span>
         </div>
         <div class="featured-body">
@@ -1549,5 +1549,85 @@
       href="https://www.google.com/maps/place/Bells+Fork+Truck+and+Auto/@35.5641622,-77.367721,15z/data=!3m1!4b1!4m6!3m5!1s0x89aeddacc00176bf:0x2e8db9e8d1d56161!8m2!3d35.5641462!4d-77.349267!16s%2Fg%2F11yxj2p8q_?hl=en&entry=ttu&g_ep=EgoyMDI2MDIyNS4wIKXMDSoASAFQAw%3D%3D"
        target="_blank" rel="noopener">Directions</a>
   </nav>
+
+  <!-- Back-to-top button -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z"/></svg>
+  </button>
+
+  <!-- Desktop sticky CTA bar (shown after scrolling past hero) -->
+  <div class="desktop-cta-bar" id="desktopCta" role="complementary" aria-label="Quick actions">
+    <div class="container">
+      <span class="cta-text"><strong>Bells Fork Truck &amp; Auto</strong> &mdash; Quality used vehicles in Greenville, NC</span>
+      <div class="cta-actions">
+        <a class="btn btn-outline-light btn-sm" href="tel:+12524960005">Call (252) 496-0005</a>
+        <a class="btn btn-danger btn-sm" href="/inventory">Browse Inventory</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement prompt (appears once after user scrolls 60% of page) -->
+  <div class="engage-prompt" id="engagePrompt" role="dialog" aria-label="Quick question">
+    <button class="engage-prompt-close" id="engageClose" aria-label="Dismiss">&times;</button>
+    <h4>Looking for something specific?</h4>
+    <p>Tell us what you need &mdash; make, model, or budget &mdash; and we'll find it for you.</p>
+    <div class="d-flex gap-2">
+      <a class="btn btn-danger btn-sm" href="/inventory">Browse Inventory</a>
+      <a class="btn btn-outline-dark btn-sm" href="sms:+12529170551">Text Us</a>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var backBtn = document.getElementById('backToTop');
+    var ctaBar = document.getElementById('desktopCta');
+    var engagePrompt = document.getElementById('engagePrompt');
+    var engageClosed = false;
+    var engageShown = false;
+
+    /* Back-to-top + desktop CTA bar: show after scrolling past 600px */
+    function onScroll(){
+      var y = window.scrollY || window.pageYOffset;
+      if(y > 600){
+        backBtn.classList.add('visible');
+        ctaBar.classList.add('visible');
+      } else {
+        backBtn.classList.remove('visible');
+        ctaBar.classList.remove('visible');
+      }
+
+      /* Engagement prompt: show once after 60% scroll depth */
+      if(!engageClosed && !engageShown){
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        if(docHeight > 0 && (y / docHeight) > 0.6){
+          engagePrompt.classList.add('visible');
+          engageShown = true;
+        }
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, {passive: true});
+
+    backBtn.addEventListener('click', function(){
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+
+    document.getElementById('engageClose').addEventListener('click', function(){
+      engagePrompt.classList.remove('visible');
+      engageClosed = true;
+    });
+
+    /* Auto-dismiss engagement prompt after 12 seconds */
+    var dismissTimer;
+    var observer = new MutationObserver(function(){
+      if(engagePrompt.classList.contains('visible')){
+        dismissTimer = setTimeout(function(){
+          if(!engageClosed){ engagePrompt.classList.remove('visible'); engageClosed = true; }
+        }, 12000);
+      }
+    });
+    observer.observe(engagePrompt, {attributes: true, attributeFilter: ['class']});
+  })();
+  </script>
 </body>
 </html>
