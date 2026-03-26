@@ -431,7 +431,7 @@ class InventoryLoader {
 
     const isLocal = mainImage && !mainImage.startsWith('http') && !mainImage.startsWith('blob:');
     const imgHtml = mainImage
-      ? `<img src="${this.escapeAttr(this.resolveImageUrl(mainImage))}" alt="${this.escapeAttr(yearMake + ' ' + model)}" width="280" height="180" loading="lazy"${isLocal ? ` data-local-image="${this.escapeAttr(mainImage)}"` : ''}>`
+      ? `<img src="${this.escapeAttr(this.resolveImageUrl(mainImage))}" alt="${this.escapeAttr(yearMake + ' ' + model)}" width="280" height="180" loading="lazy" decoding="async"${isLocal ? ` data-local-image="${this.escapeAttr(mainImage)}"` : ''}>`
       : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;background:#e9e9e9;">
            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
              <rect x="3" y="7" width="18" height="10" rx="2"></rect>

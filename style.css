@@ -1813,3 +1813,142 @@ html {
   max-width: 400px;
   margin: 0 auto;
 }
+
+/* ── Back-to-top button ── */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  z-index: 1030;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--brand-red, #dc3545);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity .25s ease, visibility .25s ease, transform .25s ease, background-color .15s ease;
+}
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.back-to-top:hover {
+  background: #c82333;
+}
+@media (max-width: 767.98px) {
+  .back-to-top { bottom: 5rem; right: 1rem; }
+}
+
+/* ── Desktop sticky CTA bar ── */
+.desktop-cta-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
+  background: #111;
+  color: #fff;
+  padding: .6rem 0;
+  transform: translateY(100%);
+  transition: transform .3s ease;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.2);
+}
+.desktop-cta-bar.visible {
+  transform: translateY(0);
+}
+.desktop-cta-bar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.desktop-cta-bar .cta-text {
+  font-size: .92rem;
+  font-weight: 500;
+}
+.desktop-cta-bar .cta-text strong {
+  color: #ffc107;
+}
+.desktop-cta-bar .cta-actions {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+.desktop-cta-bar .cta-actions .btn {
+  white-space: nowrap;
+  font-size: .88rem;
+  padding: .4rem 1.25rem;
+}
+@media (max-width: 767.98px) {
+  .desktop-cta-bar { display: none !important; }
+}
+
+/* ── Engagement prompt (scroll-triggered) ── */
+.engage-prompt {
+  position: fixed;
+  bottom: 4.5rem;
+  right: 1.5rem;
+  z-index: 1025;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  padding: 1.25rem 1.5rem;
+  max-width: 320px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(.96);
+  transition: opacity .3s ease, visibility .3s ease, transform .3s ease;
+}
+.engage-prompt.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+.engage-prompt-close {
+  position: absolute;
+  top: .5rem;
+  right: .75rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  padding: .25rem;
+}
+.engage-prompt-close:hover { color: #333; }
+.engage-prompt h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  margin: 0 0 .4rem;
+  color: #111;
+}
+.engage-prompt p {
+  font-size: .85rem;
+  color: #555;
+  margin: 0 0 .75rem;
+  line-height: 1.5;
+}
+.engage-prompt .btn {
+  font-size: .85rem;
+  padding: .4rem 1.1rem;
+  border-radius: 8px;
+}
+@media (max-width: 767.98px) {
+  .engage-prompt { bottom: 5.5rem; right: 1rem; left: 1rem; max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .back-to-top,
+  .desktop-cta-bar,
+  .engage-prompt { transition: none; }
+}

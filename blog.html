@@ -32,11 +32,11 @@
 
   <!-- Preconnect -->
 
-  <!-- Bootstrap 5 -->
-  <link href="/assets/vendor/bootstrap.min.css?v=mn6luxuq" rel="stylesheet">
-
-  <!-- Custom Styles -->
-  <link href="/style.min.css?v=mn6luxuq" rel="stylesheet">
+  <!-- Bootstrap + custom styles (async, non-render-blocking) -->
+  <link rel="preload" href="/assets/vendor/bootstrap.min.css?v=mn6luxuq" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/assets/vendor/bootstrap.min.css?v=mn6luxuq"></noscript>
+  <link rel="preload" href="/style.min.css?v=mn6luxuq" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/style.min.css?v=mn6luxuq"></noscript>
 
   <style>
     /* Blog-specific styles */
