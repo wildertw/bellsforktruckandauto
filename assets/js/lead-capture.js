@@ -1,8 +1,7 @@
 /**
  * Bells Fork Truck & Auto — Lead Capture Enhancements
  * 1. VDP sticky lead bar (scrolls into view on vehicle detail pages)
- * 2. Social proof toast notifications
- * 3. Click-to-text SMS CTA (floating button)
+ * 2. Click-to-text SMS CTA (floating button)
  */
 (function () {
   'use strict';
@@ -10,8 +9,6 @@
   var DEALER_PHONE_TEL = '+12524960005';
   var DEALER_SMS_TEL = '+12529170551';
   var DEALER_PHONE = '(252) 496-0005';
-  var SOCIAL_PROOF_KEY = 'bf_social_proof_ts';
-  var SOCIAL_PROOF_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
 
   // ─── Helpers ───
   function qs(sel) { return document.querySelector(sel); }
@@ -68,102 +65,7 @@
   }
 
   // ═══════════════════════════════════════════════════════
-  // 3. SOCIAL PROOF TOAST NOTIFICATIONS
-  // ═══════════════════════════════════════════════════════
-  function initSocialProof() {
-    // Cooldown: don't spam toasts too frequently
-    try {
-      var lastShown = localStorage.getItem(SOCIAL_PROOF_KEY);
-      if (lastShown && (Date.now() - Number(lastShown)) < SOCIAL_PROOF_COOLDOWN_MS) return;
-    } catch (e) { /* ignore */ }
-
-    var actions = [
-      'just applied for financing',
-      'just scheduled a test drive',
-      'just requested a trade-in value',
-      'just sent an inquiry',
-      'just got pre-qualified',
-      'just made an offer'
-    ];
-
-    var firstNames = [
-      'James', 'Robert', 'John', 'Michael', 'David', 'William', 'Chris',
-      'Sarah', 'Jessica', 'Ashley', 'Amanda', 'Emily', 'Jennifer', 'Lisa',
-      'Brandon', 'Tyler', 'Kevin', 'Brian', 'Daniel', 'Matthew', 'Andrew',
-      'Megan', 'Lauren', 'Rachel', 'Nicole', 'Stephanie', 'Amber', 'Heather'
-    ];
-
-    var cities = [
-      'Greenville', 'Winterville', 'Ayden', 'Farmville', 'Simpson',
-      'Bethel', 'Grimesland', 'Stokes', 'Pactolus', 'Washington'
-    ];
-
-    var timeAgo = [
-      '2 minutes ago', '5 minutes ago', '8 minutes ago', '12 minutes ago',
-      '15 minutes ago', '22 minutes ago', '30 minutes ago', '1 hour ago'
-    ];
-
-    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-    var container = ce('div', 'bf-social-proof-container');
-    container.setAttribute('aria-live', 'polite');
-    document.body.appendChild(container);
-
-    var shownCount = 0;
-    var maxToasts = 3;
-
-    function showToast() {
-      if (shownCount >= maxToasts) return;
-      shownCount++;
-
-      var toast = ce('div', 'bf-social-toast');
-      toast.innerHTML =
-        '<div class="bf-social-toast-icon">&#9989;</div>' +
-        '<div class="bf-social-toast-content">' +
-          '<strong>' + pick(firstNames) + ' from ' + pick(cities) + '</strong> ' +
-          pick(actions) +
-          '<div class="bf-social-toast-time">' + pick(timeAgo) + '</div>' +
-        '</div>' +
-        '<button class="bf-social-toast-close" aria-label="Dismiss">&times;</button>';
-
-      container.appendChild(toast);
-      requestAnimationFrame(function () {
-        toast.classList.add('visible');
-      });
-
-      toast.querySelector('.bf-social-toast-close').addEventListener('click', function () {
-        dismissToast(toast);
-      });
-
-      // Auto-dismiss after 6 seconds
-      setTimeout(function () { dismissToast(toast); }, 6000);
-    }
-
-    function dismissToast(toast) {
-      if (!toast.parentNode) return;
-      toast.classList.remove('visible');
-      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
-    }
-
-    // First toast after 15 seconds, then every 30-50 seconds
-    setTimeout(function () {
-      showToast();
-      try { localStorage.setItem(SOCIAL_PROOF_KEY, String(Date.now())); } catch (e) { /* ignore */ }
-
-      function scheduleNext() {
-        if (shownCount >= maxToasts) return;
-        var delay = 30000 + Math.random() * 20000;
-        setTimeout(function () {
-          showToast();
-          scheduleNext();
-        }, delay);
-      }
-      scheduleNext();
-    }, 15000);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // 4. FLOATING SMS / TEXT CTA BUTTON
+  // FLOATING SMS / TEXT CTA BUTTON
   // ═══════════════════════════════════════════════════════
   function initFloatingSms() {
     // Only on desktop — mobile already has the action bar
@@ -200,7 +102,6 @@
   // ═══════════════════════════════════════════════════════
   function init() {
     initVdpStickyBar();
-    initSocialProof();
     initFloatingSms();
   }
 

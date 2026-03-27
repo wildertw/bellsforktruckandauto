@@ -2006,61 +2006,7 @@ html {
   .bf-vdp-sticky { display: none; }
 }
 
-/* ── 3. Social Proof Toasts ── */
-.bf-social-proof-container {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  z-index: 1030;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-  pointer-events: none;
-}
-.bf-social-toast {
-  pointer-events: auto;
-  display: flex;
-  align-items: flex-start;
-  gap: .6rem;
-  background: #fff;
-  border-radius: 10px;
-  padding: .75rem 1rem;
-  box-shadow: 0 6px 24px rgba(0,0,0,.15);
-  max-width: 320px;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity .4s ease, transform .4s ease;
-}
-.bf-social-toast.visible { opacity: 1; transform: translateX(0); }
-.bf-social-toast-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
-.bf-social-toast-content {
-  font-size: .82rem;
-  color: #333;
-  line-height: 1.45;
-}
-.bf-social-toast-content strong { color: #111; }
-.bf-social-toast-time {
-  font-size: .72rem;
-  color: #999;
-  margin-top: .15rem;
-}
-.bf-social-toast-close {
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: #bbb;
-  cursor: pointer;
-  padding: 0 .15rem;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.bf-social-toast-close:hover { color: #666; }
-@media (max-width: 767.98px) {
-  .bf-social-proof-container { left: .75rem; right: .75rem; bottom: 5.5rem; }
-  .bf-social-toast { max-width: none; }
-}
-
-/* ── 4. Floating SMS Button (desktop) ── */
+/* ── Floating SMS Button (desktop) ── */
 .bf-floating-sms {
   position: fixed;
   bottom: 6rem;
@@ -2090,6 +2036,5 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   .bf-vdp-sticky,
-  .bf-social-toast,
   .bf-floating-sms { transition: none; }
 }
