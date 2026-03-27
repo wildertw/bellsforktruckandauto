@@ -1,9 +1,7 @@
 /**
  * Bells Fork Truck & Auto — Lead Capture Enhancements
- * 1. Exit-intent popup (desktop: mouse leave; mobile: back-button/scroll-up)
- * 2. VDP sticky lead bar (scrolls into view on vehicle detail pages)
- * 3. Social proof toast notifications
- * 4. Click-to-text SMS CTA (floating button)
+ * 1. VDP sticky lead bar (scrolls into view on vehicle detail pages)
+ * 2. Click-to-text SMS CTA (floating button)
  */
 (function () {
   'use strict';
@@ -11,10 +9,6 @@
   var DEALER_PHONE_TEL = '+12524960005';
   var DEALER_SMS_TEL = '+12529170551';
   var DEALER_PHONE = '(252) 496-0005';
-  var POPUP_COOLDOWN_KEY = 'bf_exit_popup_ts';
-  var POPUP_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
-  var SOCIAL_PROOF_KEY = 'bf_social_proof_ts';
-  var SOCIAL_PROOF_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
 
   // ─── Helpers ───
   function qs(sel) { return document.querySelector(sel); }
@@ -23,121 +17,6 @@
     if (cls) el.className = cls;
     if (html) el.innerHTML = html;
     return el;
-  }
-
-  function shouldShowPopup() {
-    try {
-      var ts = localStorage.getItem(POPUP_COOLDOWN_KEY);
-      if (ts && (Date.now() - Number(ts)) < POPUP_COOLDOWN_MS) return false;
-    } catch (e) { /* ignore */ }
-    return true;
-  }
-
-  function markPopupShown() {
-    try { localStorage.setItem(POPUP_COOLDOWN_KEY, String(Date.now())); } catch (e) { /* ignore */ }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // 1. EXIT-INTENT POPUP
-  // ═══════════════════════════════════════════════════════
-  function initExitIntent() {
-    if (!shouldShowPopup()) return;
-
-    // Build overlay
-    var overlay = ce('div', 'bf-exit-overlay');
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-label', 'Special offer before you go');
-    overlay.innerHTML =
-      '<div class="bf-exit-popup">' +
-        '<button class="bf-exit-close" aria-label="Close">&times;</button>' +
-        '<div class="bf-exit-badge">BEFORE YOU GO</div>' +
-        '<h2 class="bf-exit-title">Get Pre-Qualified in 60 Seconds</h2>' +
-        '<p class="bf-exit-desc">No SSN required. No impact to your credit score. See what you qualify for today.</p>' +
-        '<form class="bf-exit-form" data-netlify="true" name="exit-intent-lead" netlify-honeypot="bf-hp">' +
-          '<input type="hidden" name="form-name" value="exit-intent-lead">' +
-          '<p style="display:none"><input name="bf-hp" tabindex="-1" autocomplete="off"></p>' +
-          '<input type="text" name="name" placeholder="Your Name" required class="bf-exit-input">' +
-          '<input type="tel" name="phone" placeholder="Phone Number" required class="bf-exit-input">' +
-          '<input type="email" name="email" placeholder="Email (optional)" class="bf-exit-input">' +
-          '<button type="submit" class="bf-exit-submit">Get Pre-Qualified Now</button>' +
-        '</form>' +
-        '<p class="bf-exit-note">Or call us at <a href="tel:' + DEALER_PHONE_TEL + '">' + DEALER_PHONE + '</a></p>' +
-      '</div>';
-
-    document.body.appendChild(overlay);
-
-    var shown = false;
-
-    function showPopup() {
-      if (shown) return;
-      shown = true;
-      overlay.classList.add('visible');
-      markPopupShown();
-    }
-
-    function hidePopup() {
-      overlay.classList.remove('visible');
-    }
-
-    // Close button
-    overlay.querySelector('.bf-exit-close').addEventListener('click', hidePopup);
-    // Click outside
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) hidePopup();
-    });
-    // Escape key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && overlay.classList.contains('visible')) hidePopup();
-    });
-
-    // Desktop: mouse leaves viewport top
-    if (window.innerWidth >= 768) {
-      document.addEventListener('mouseout', function (e) {
-        if (!e.relatedTarget && e.clientY < 10) showPopup();
-      });
-    }
-
-    // Mobile: rapid scroll-up (intent to leave)
-    var lastY = window.scrollY || 0;
-    var rapidUp = 0;
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY || 0;
-      if (y < lastY && (lastY - y) > 80) {
-        rapidUp++;
-        if (rapidUp >= 3 && y < 200) showPopup();
-      } else {
-        rapidUp = 0;
-      }
-      lastY = y;
-    }, { passive: true });
-
-    // Also trigger after 45 seconds of inactivity (idle users)
-    var idleTimer;
-    function resetIdle() {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(showPopup, 45000);
-    }
-    ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach(function (evt) {
-      document.addEventListener(evt, resetIdle, { passive: true, once: false });
-    });
-    resetIdle();
-
-    // Form submission
-    var form = overlay.querySelector('.bf-exit-form');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var data = new FormData(form);
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data).toString()
-      }).then(function () {
-        form.innerHTML = '<div class="bf-exit-success">Thanks! We\'ll be in touch shortly.</div>';
-        setTimeout(hidePopup, 3000);
-      }).catch(function () {
-        form.innerHTML = '<div class="bf-exit-success">Thanks! Call us at <a href="tel:' + DEALER_PHONE_TEL + '">' + DEALER_PHONE + '</a> for faster service.</div>';
-      });
-    });
   }
 
   // ═══════════════════════════════════════════════════════
@@ -186,102 +65,7 @@
   }
 
   // ═══════════════════════════════════════════════════════
-  // 3. SOCIAL PROOF TOAST NOTIFICATIONS
-  // ═══════════════════════════════════════════════════════
-  function initSocialProof() {
-    // Cooldown: don't spam toasts too frequently
-    try {
-      var lastShown = localStorage.getItem(SOCIAL_PROOF_KEY);
-      if (lastShown && (Date.now() - Number(lastShown)) < SOCIAL_PROOF_COOLDOWN_MS) return;
-    } catch (e) { /* ignore */ }
-
-    var actions = [
-      'just applied for financing',
-      'just scheduled a test drive',
-      'just requested a trade-in value',
-      'just sent an inquiry',
-      'just got pre-qualified',
-      'just made an offer'
-    ];
-
-    var firstNames = [
-      'James', 'Robert', 'John', 'Michael', 'David', 'William', 'Chris',
-      'Sarah', 'Jessica', 'Ashley', 'Amanda', 'Emily', 'Jennifer', 'Lisa',
-      'Brandon', 'Tyler', 'Kevin', 'Brian', 'Daniel', 'Matthew', 'Andrew',
-      'Megan', 'Lauren', 'Rachel', 'Nicole', 'Stephanie', 'Amber', 'Heather'
-    ];
-
-    var cities = [
-      'Greenville', 'Winterville', 'Ayden', 'Farmville', 'Simpson',
-      'Bethel', 'Grimesland', 'Stokes', 'Pactolus', 'Washington'
-    ];
-
-    var timeAgo = [
-      '2 minutes ago', '5 minutes ago', '8 minutes ago', '12 minutes ago',
-      '15 minutes ago', '22 minutes ago', '30 minutes ago', '1 hour ago'
-    ];
-
-    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-    var container = ce('div', 'bf-social-proof-container');
-    container.setAttribute('aria-live', 'polite');
-    document.body.appendChild(container);
-
-    var shownCount = 0;
-    var maxToasts = 3;
-
-    function showToast() {
-      if (shownCount >= maxToasts) return;
-      shownCount++;
-
-      var toast = ce('div', 'bf-social-toast');
-      toast.innerHTML =
-        '<div class="bf-social-toast-icon">&#9989;</div>' +
-        '<div class="bf-social-toast-content">' +
-          '<strong>' + pick(firstNames) + ' from ' + pick(cities) + '</strong> ' +
-          pick(actions) +
-          '<div class="bf-social-toast-time">' + pick(timeAgo) + '</div>' +
-        '</div>' +
-        '<button class="bf-social-toast-close" aria-label="Dismiss">&times;</button>';
-
-      container.appendChild(toast);
-      requestAnimationFrame(function () {
-        toast.classList.add('visible');
-      });
-
-      toast.querySelector('.bf-social-toast-close').addEventListener('click', function () {
-        dismissToast(toast);
-      });
-
-      // Auto-dismiss after 6 seconds
-      setTimeout(function () { dismissToast(toast); }, 6000);
-    }
-
-    function dismissToast(toast) {
-      if (!toast.parentNode) return;
-      toast.classList.remove('visible');
-      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
-    }
-
-    // First toast after 15 seconds, then every 30-50 seconds
-    setTimeout(function () {
-      showToast();
-      try { localStorage.setItem(SOCIAL_PROOF_KEY, String(Date.now())); } catch (e) { /* ignore */ }
-
-      function scheduleNext() {
-        if (shownCount >= maxToasts) return;
-        var delay = 30000 + Math.random() * 20000;
-        setTimeout(function () {
-          showToast();
-          scheduleNext();
-        }, delay);
-      }
-      scheduleNext();
-    }, 15000);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // 4. FLOATING SMS / TEXT CTA BUTTON
+  // FLOATING SMS / TEXT CTA BUTTON
   // ═══════════════════════════════════════════════════════
   function initFloatingSms() {
     // Only on desktop — mobile already has the action bar
@@ -317,9 +101,7 @@
   // INIT — run after DOM ready
   // ═══════════════════════════════════════════════════════
   function init() {
-    initExitIntent();
     initVdpStickyBar();
-    initSocialProof();
     initFloatingSms();
   }
 
