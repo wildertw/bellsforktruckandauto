@@ -1,9 +1,8 @@
 /**
  * Bells Fork Truck & Auto — Lead Capture Enhancements
- * 1. Exit-intent popup (desktop: mouse leave; mobile: back-button/scroll-up)
- * 2. VDP sticky lead bar (scrolls into view on vehicle detail pages)
- * 3. Social proof toast notifications
- * 4. Click-to-text SMS CTA (floating button)
+ * 1. VDP sticky lead bar (scrolls into view on vehicle detail pages)
+ * 2. Social proof toast notifications
+ * 3. Click-to-text SMS CTA (floating button)
  */
 (function () {
   'use strict';
@@ -11,8 +10,6 @@
   var DEALER_PHONE_TEL = '+12524960005';
   var DEALER_SMS_TEL = '+12529170551';
   var DEALER_PHONE = '(252) 496-0005';
-  var POPUP_COOLDOWN_KEY = 'bf_exit_popup_ts';
-  var POPUP_COOLDOWN_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
   var SOCIAL_PROOF_KEY = 'bf_social_proof_ts';
   var SOCIAL_PROOF_COOLDOWN_MS = 30 * 60 * 1000; // 30 minutes
 
@@ -23,121 +20,6 @@
     if (cls) el.className = cls;
     if (html) el.innerHTML = html;
     return el;
-  }
-
-  function shouldShowPopup() {
-    try {
-      var ts = localStorage.getItem(POPUP_COOLDOWN_KEY);
-      if (ts && (Date.now() - Number(ts)) < POPUP_COOLDOWN_MS) return false;
-    } catch (e) { /* ignore */ }
-    return true;
-  }
-
-  function markPopupShown() {
-    try { localStorage.setItem(POPUP_COOLDOWN_KEY, String(Date.now())); } catch (e) { /* ignore */ }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // 1. EXIT-INTENT POPUP
-  // ═══════════════════════════════════════════════════════
-  function initExitIntent() {
-    if (!shouldShowPopup()) return;
-
-    // Build overlay
-    var overlay = ce('div', 'bf-exit-overlay');
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-label', 'Special offer before you go');
-    overlay.innerHTML =
-      '<div class="bf-exit-popup">' +
-        '<button class="bf-exit-close" aria-label="Close">&times;</button>' +
-        '<div class="bf-exit-badge">BEFORE YOU GO</div>' +
-        '<h2 class="bf-exit-title">Get Pre-Qualified in 60 Seconds</h2>' +
-        '<p class="bf-exit-desc">No SSN required. No impact to your credit score. See what you qualify for today.</p>' +
-        '<form class="bf-exit-form" data-netlify="true" name="exit-intent-lead" netlify-honeypot="bf-hp">' +
-          '<input type="hidden" name="form-name" value="exit-intent-lead">' +
-          '<p style="display:none"><input name="bf-hp" tabindex="-1" autocomplete="off"></p>' +
-          '<input type="text" name="name" placeholder="Your Name" required class="bf-exit-input">' +
-          '<input type="tel" name="phone" placeholder="Phone Number" required class="bf-exit-input">' +
-          '<input type="email" name="email" placeholder="Email (optional)" class="bf-exit-input">' +
-          '<button type="submit" class="bf-exit-submit">Get Pre-Qualified Now</button>' +
-        '</form>' +
-        '<p class="bf-exit-note">Or call us at <a href="tel:' + DEALER_PHONE_TEL + '">' + DEALER_PHONE + '</a></p>' +
-      '</div>';
-
-    document.body.appendChild(overlay);
-
-    var shown = false;
-
-    function showPopup() {
-      if (shown) return;
-      shown = true;
-      overlay.classList.add('visible');
-      markPopupShown();
-    }
-
-    function hidePopup() {
-      overlay.classList.remove('visible');
-    }
-
-    // Close button
-    overlay.querySelector('.bf-exit-close').addEventListener('click', hidePopup);
-    // Click outside
-    overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) hidePopup();
-    });
-    // Escape key
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && overlay.classList.contains('visible')) hidePopup();
-    });
-
-    // Desktop: mouse leaves viewport top
-    if (window.innerWidth >= 768) {
-      document.addEventListener('mouseout', function (e) {
-        if (!e.relatedTarget && e.clientY < 10) showPopup();
-      });
-    }
-
-    // Mobile: rapid scroll-up (intent to leave)
-    var lastY = window.scrollY || 0;
-    var rapidUp = 0;
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY || 0;
-      if (y < lastY && (lastY - y) > 80) {
-        rapidUp++;
-        if (rapidUp >= 3 && y < 200) showPopup();
-      } else {
-        rapidUp = 0;
-      }
-      lastY = y;
-    }, { passive: true });
-
-    // Also trigger after 45 seconds of inactivity (idle users)
-    var idleTimer;
-    function resetIdle() {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(showPopup, 45000);
-    }
-    ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach(function (evt) {
-      document.addEventListener(evt, resetIdle, { passive: true, once: false });
-    });
-    resetIdle();
-
-    // Form submission
-    var form = overlay.querySelector('.bf-exit-form');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var data = new FormData(form);
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(data).toString()
-      }).then(function () {
-        form.innerHTML = '<div class="bf-exit-success">Thanks! We\'ll be in touch shortly.</div>';
-        setTimeout(hidePopup, 3000);
-      }).catch(function () {
-        form.innerHTML = '<div class="bf-exit-success">Thanks! Call us at <a href="tel:' + DEALER_PHONE_TEL + '">' + DEALER_PHONE + '</a> for faster service.</div>';
-      });
-    });
   }
 
   // ═══════════════════════════════════════════════════════
@@ -317,7 +199,6 @@
   // INIT — run after DOM ready
   // ═══════════════════════════════════════════════════════
   function init() {
-    initExitIntent();
     initVdpStickyBar();
     initSocialProof();
     initFloatingSms();
