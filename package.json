@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Bells Fork Truck & Auto - site tooling",
   "scripts": {
-    "lint": "eslint . --ext .js --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,css,html,md}\"",
     "build:js": "esbuild assets/js/utils.js inventory-loader.js vehicle-manager.js --bundle --minify --outdir=assets/js/dist",
     "build:css": "cleancss -o style.min.css style.css",
@@ -16,7 +18,11 @@
     "build:purge": "node purge-bootstrap.js",
     "build:stamp": "node stamp-versions.js",
     "watch:vdp": "node watch-vdp.js",
-    "build": "node optimize-images.js && npm run build:js && npm run build:css && npm run build:vdp && npm run build:categories && npm run build:forms && npm run build:homepage && npm run build:inventory && npm run build:purge && npm run build:sitemap && npm run build:stamp"
+    "build:phase1": "run-p build:js build:css \"build:images\"",
+    "build:images": "node optimize-images.js",
+    "build:phase2": "run-p build:vdp build:categories build:forms build:homepage build:inventory build:purge",
+    "build:phase3": "run-s build:sitemap build:stamp",
+    "build": "run-s build:phase1 build:phase2 build:phase3"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.0",
@@ -26,11 +32,17 @@
     "pdfkit": "^0.16.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^25.5.0",
     "clean-css-cli": "^5.6.3",
     "esbuild": "^0.27.3",
-    "eslint": "^8.0.0",
-    "prettier": "^2.0.0",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.8.1",
     "purgecss": "^8.0.0",
-    "sharp": "^0.34.5"
+    "sharp": "^0.34.5",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }
