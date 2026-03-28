@@ -28,13 +28,13 @@
   <meta name="twitter:image" content="https://bellsforktruckandauto.com/assets/hero/shop-front-og.jpg" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mn6luxuq">
+  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mnapzjih">
 
   <!-- Bootstrap + custom styles (async, non-render-blocking) -->
-  <link rel="preload" href="/assets/vendor/bootstrap.min.css?v=mn6luxuq" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/assets/vendor/bootstrap.min.css?v=mn6luxuq"></noscript>
-  <link rel="preload" href="/style.min.css?v=mn6luxuq" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/style.min.css?v=mn6luxuq"></noscript>
+  <link rel="preload" href="/assets/vendor/bootstrap.min.css?v=mnapzjih" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/assets/vendor/bootstrap.min.css?v=mnapzjih"></noscript>
+  <link rel="preload" href="/style.min.css?v=mnapzjih" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/style.min.css?v=mnapzjih"></noscript>
 
   <style>
     /* Page-specific polish (safe defaults if assets/style.css is missing) */
@@ -292,6 +292,139 @@
           }
         }
       ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://bellsforktruckandauto.com/financing.html#howto-finance",
+      "name": "How to Finance a Vehicle at Bells Fork Truck & Auto",
+      "description": "Follow these steps to finance a pre-owned vehicle at Bells Fork Truck & Auto in Greenville, NC.",
+      "totalTime": "PT30M",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Browse our inventory",
+          "text": "Visit bellsforktruckandauto.com/inventory or come to our lot at 3840 Charles Blvd, Greenville, NC 27858 to find the vehicle you want.",
+          "url": "https://bellsforktruckandauto.com/inventory"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Choose your vehicle",
+          "text": "Select the car, truck, or SUV that fits your needs and budget. Schedule a test drive to make sure it is the right fit."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Submit a financing application",
+          "text": "Fill out the financing application on our website or in person at the dealership. Bring a valid driver's license, proof of income, and proof of residence.",
+          "url": "https://bellsforktruckandauto.com/financing.html"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Get approved",
+          "text": "We work with multiple lenders to find financing that fits your credit situation. Approval decisions are typically fast."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 5,
+          "name": "Drive away",
+          "text": "Sign the paperwork, complete your purchase, and drive home in your new vehicle."
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://bellsforktruckandauto.com/financing.html#howto-tradein",
+      "name": "How to Trade In Your Vehicle at Bells Fork Truck & Auto",
+      "description": "Steps to trade in your current vehicle toward a purchase at Bells Fork Truck & Auto.",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Submit a trade-in request",
+          "text": "Use our online trade-in appraisal form or bring your vehicle to the lot for an in-person evaluation.",
+          "url": "https://bellsforktruckandauto.com/trade-in-value/"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Get your appraisal",
+          "text": "We will assess the condition, mileage, and market value of your vehicle and give you a fair trade-in offer."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Apply the value to your purchase",
+          "text": "Your trade-in value is applied directly to reduce the price or down payment on your next vehicle."
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://bellsforktruckandauto.com/financing.html#service-financing",
+      "serviceType": "Vehicle Financing",
+      "name": "Used Vehicle Financing",
+      "description": "Financing for pre-owned cars, trucks, SUVs, and diesel vehicles at Bells Fork Truck & Auto in Greenville, NC. We work with buyers in every credit situation.",
+      "provider": { "@id": "https://bellsforktruckandauto.com/#business" },
+      "areaServed": {
+        "@type": "State",
+        "name": "North Carolina"
+      },
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://bellsforktruckandauto.com/financing.html",
+        "servicePhone": "+1-252-496-0005",
+        "serviceLocation": {
+          "@type": "Place",
+          "name": "Bells Fork Truck & Auto",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "3840 Charles Blvd",
+            "addressLocality": "Greenville",
+            "addressRegion": "NC",
+            "postalCode": "27858"
+          }
+        }
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://bellsforktruckandauto.com/#service-tradein",
+      "serviceType": "Trade-In Appraisal",
+      "name": "Vehicle Trade-In Appraisal",
+      "description": "Get a fair market value appraisal for your current vehicle and apply the trade-in value toward your next purchase at Bells Fork Truck & Auto.",
+      "provider": { "@id": "https://bellsforktruckandauto.com/#business" },
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://bellsforktruckandauto.com/trade-in-value/"
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://bellsforktruckandauto.com/#service-testdrive",
+      "serviceType": "Test Drive",
+      "name": "Schedule a Test Drive",
+      "description": "Schedule a test drive on any vehicle in our inventory. Call (252) 496-0005 or use our online scheduling form.",
+      "provider": { "@id": "https://bellsforktruckandauto.com/#business" },
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://bellsforktruckandauto.com/schedule-test-drive/",
+        "servicePhone": "+1-252-496-0005"
+      }
+    },
+    {
+      "@type": "Service",
+      "@id": "https://bellsforktruckandauto.com/#service-consignment",
+      "serviceType": "Vehicle Consignment",
+      "name": "Vehicle Consignment",
+      "description": "Sell your vehicle through Bells Fork Truck & Auto on consignment. We handle the marketing, showings, and sale while you get a fair price.",
+      "provider": { "@id": "https://bellsforktruckandauto.com/#business" },
+      "availableChannel": {
+        "@type": "ServiceChannel",
+        "serviceUrl": "https://bellsforktruckandauto.com/consignment/"
+      }
     },
     {
       "@type": "BreadcrumbList",
@@ -2013,7 +2146,7 @@
   </footer>
 
   <!-- Bootstrap JS -->
-  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mn6luxuq" defer></script>
+  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mnapzjih" defer></script>
 
   <script>
     // Set copyright year
@@ -2130,11 +2263,11 @@
        href="https://www.google.com/maps?q=3840+Charles+Blvd+Greenville+NC+27858"
        target="_blank" rel="noopener">Directions</a>
   </nav>
-  <script src="/assets/js/sms-limiter.js?v=mn6luxuq" defer></script>
-<script src="/assets/js/submit-lock.js?v=mn6luxuq" defer></script>
-<script src="/assets/js/tracker.js?v=mn6luxuq" defer></script>
-  <script src="/assets/js/lead-capture.js" defer></script>
-  <script src="/assets/js/analytics-pixels.js" defer></script>
+  <script src="/assets/js/sms-limiter.js?v=mnapzjih" defer></script>
+<script src="/assets/js/submit-lock.js?v=mnapzjih" defer></script>
+<script src="/assets/js/tracker.js?v=mnapzjih" defer></script>
+  <script src="/assets/js/lead-capture.js?v=mnapzjih" defer></script>
+  <script src="/assets/js/analytics-pixels.js?v=mnapzjih" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </body>
 </html>
