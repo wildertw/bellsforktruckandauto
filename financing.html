@@ -195,7 +195,23 @@
         transform: none;
       }
       .app-field { flex: 1 1 100%; border-right: none; }
-      .app-field.narrow, .app-field.xs { flex: 1 1 48%; max-width: none; }
+      .app-field.narrow, .app-field.xs { flex: 1 1 100%; max-width: none; }
+      .app-field input,
+      .app-field select {
+        font-size: 1rem;
+        padding: 8px 4px;
+        min-height: 44px;
+      }
+      .app-field label {
+        font-size: 0.75rem;
+      }
+      .app-field input::placeholder { font-size: .9rem; }
+      .sig-field label { font-size: 0.75rem; }
+      .co-applicant-toggle {
+        min-height: 44px;
+        font-size: 1rem;
+        padding: 10px 20px;
+      }
     }
   </style>
 

@@ -532,6 +532,17 @@ ${buildSchema(v)}
       overflow-x: auto;
       padding: 6px 0;
       background: #111;
+      height: 80px;
+    }
+    .vdp-thumb-slide {
+      width: 100px;
+      cursor: pointer;
+    }
+    .vdp-thumb-slide img {
+      width: 100%;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 6px;
     }
     .vdp-thumb {
       width: 90px;
@@ -555,6 +566,27 @@ ${buildSchema(v)}
       border-radius: 4px;
       font-size: .82rem;
       font-weight: 600;
+    }
+    /* Mobile swipe affordance */
+    .vdp-swipe-hint {
+      display: none;
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,.65);
+      color: #fff;
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      z-index: 10;
+      pointer-events: none;
+      animation: swipeHintFade 3s ease forwards;
+    }
+    @keyframes swipeHintFade {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     /* Title row */
@@ -660,10 +692,12 @@ ${buildSchema(v)}
     }
     .vdp-cta-card .vdp-cta-body { padding: 1rem 1.25rem; }
     .vdp-cta-btn {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
+      min-height: 44px;
       padding: .75rem 1rem;
-      text-align: center;
       font-weight: 700;
       text-decoration: none;
       border-radius: 4px;
@@ -726,10 +760,24 @@ ${buildSchema(v)}
       .vdp-features-grid { grid-template-columns: 1fr 1fr !important; }
     }
     @media (max-width: 767px) {
-      .vdp-main-img { max-height: 300px; }
+      .vdp-main-img { max-height: 56vw; }
       .vdp-features-grid { grid-template-columns: 1fr !important; }
       .vdp-title-row .container { text-align: center; }
       .vdp-price-tag { margin-top: .5rem; }
+      /* Swipe hint visible on mobile */
+      .vdp-swipe-hint { display: block; }
+      /* Compact thumbnails on mobile */
+      .vdp-thumbs { height: 60px !important; }
+      .vdp-thumb-slide { width: 75px; }
+      .vdp-thumb-slide img { height: 52px; }
+      /* CTA 2-col grid on mobile */
+      .vdp-cta-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .5rem;
+      }
+      .vdp-cta-btn { margin-bottom: 0; font-size: .85rem; }
+      .vdp-cta-btn:first-child { grid-column: 1 / -1; }
     }
   </style>
 </head>
@@ -837,15 +885,16 @@ ${buildSchema(v)}
     <section aria-label="Vehicle photos">
 ${vdpPubImages.length > 0 ? `      <div class="swiper vdp-gallery" style="border-radius:12px;overflow:hidden;">
         <div class="swiper-wrapper">
-          ${vdpPubImages.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" width="800" height="520" style="width:100%;max-height:520px;object-fit:contain;background:#f0f0f0;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="${escapeAttr(title)}" class="vdp-main-img" width="800" height="520" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
         <div class="swiper-pagination"></div>
+        <div class="vdp-swipe-hint" aria-hidden="true">&#8592; Swipe for more photos &#8594;</div>
         <div class="swiper-button-prev d-none d-md-flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" width="32" height="32"><path d="M3.446,10.052 C2.866,9.471 2.866,8.53 3.446,7.948 L9.89,1.506 C10.471,0.924 11.993,0.667 11.993,2.506 L11.993,15.494 C11.993,17.395 10.472,17.076 9.89,16.495 L3.446,10.052 L3.446,10.052 Z" fill="#fff"/></svg></div>
         <div class="swiper-button-next d-none d-md-flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 16" width="32" height="32"><path d="M6.113,15.495 C5.531,16.076 4.01,16.395 4.01,14.494 L4.01,1.506 C4.01,-0.333 5.531,-0.076 6.113,0.506 L12.557,6.948 C13.137,7.529 13.137,8.47 12.557,9.052 L6.113,15.495 L6.113,15.495 Z" fill="#fff"/></svg></div>
       </div>
-      <div class="swiper vdp-thumbs mt-2" style="height:80px;">
+      <div class="swiper vdp-thumbs mt-2">
         <div class="swiper-wrapper">
-          ${vdpPubImages.map(img => `<div class="swiper-slide" style="width:100px;cursor:pointer;"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" width="100" height="72" style="width:100%;height:72px;object-fit:cover;border-radius:6px;" loading="lazy" decoding="async"></div>`).join('\n          ')}
+          ${vdpPubImages.map(img => `<div class="swiper-slide vdp-thumb-slide"><img src="${resolveImg(img, ASSET_PREFIX)}" alt="Thumbnail" width="100" height="72" loading="lazy" decoding="async"></div>`).join('\n          ')}
         </div>
       </div>` : `      <div class="d-flex align-items-center justify-content-center" style="height:300px;background:#e9e9e9;color:#999;">
         <div class="text-center">
