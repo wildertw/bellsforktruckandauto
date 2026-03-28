@@ -5,3 +5,9 @@ node_modules/
 
 # Vehicle images (managed externally)
 assets/vehicles/
+
+# CSV data files (imported locally, not tracked)
+*.csv
+
+# TypeScript build output
+netlify/functions/dist/

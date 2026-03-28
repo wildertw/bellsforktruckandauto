@@ -1239,6 +1239,7 @@ function initSwiper(){
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initSwiper);}else{initSwiper();}
   </script>
   <script src="${versioned('/assets/js/sms-limiter.js')}" defer></script>
+  <script src="${versioned('/assets/js/error-monitor.js')}" defer></script>
   <script src="${versioned('/assets/js/tracker.js')}" defer></script>
   <script src="${versioned('/assets/js/lead-capture.js')}" defer></script>
   <script src="${versioned('/assets/js/analytics-pixels.js')}" defer></script>
