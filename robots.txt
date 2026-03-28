@@ -79,4 +79,8 @@ Allow: /
 Crawl-delay: 2
 
 # Sitemap location
-Sitemap: https://bellsforkautoandtruck.com/sitemap.xml
+Sitemap: https://bellsforktruckandauto.com/sitemap.xml
+
+# LLM-readable content
+# llms.txt: https://bellsforktruckandauto.com/llms.txt
+# llms-full.txt: https://bellsforktruckandauto.com/llms-full.txt

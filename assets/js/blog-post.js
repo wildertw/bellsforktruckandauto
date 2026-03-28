@@ -168,6 +168,25 @@
     } else {
       heroWrap.style.display = 'none';
     }
+
+    // Update BlogPosting JSON-LD schema
+    const schemaEl = document.getElementById('blogPostingSchema');
+    if (schemaEl) {
+      try {
+        const schema = JSON.parse(schemaEl.textContent);
+        schema.headline = post.title || 'Blog Post';
+        schema.description = desc;
+        schema.url = pageUrl;
+        schema.datePublished = post.publishedAt || post.createdAt || '';
+        schema.dateModified = post.updatedAt || post.publishedAt || '';
+        schema.image = image;
+        schema.mainEntityOfPage['@id'] = pageUrl;
+        if (post.author) {
+          schema.author = { '@type': 'Person', 'name': post.author };
+        }
+        schemaEl.textContent = JSON.stringify(schema);
+      } catch (_) { /* schema update failed silently */ }
+    }
   }
 
   async function init() {

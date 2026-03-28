@@ -13,7 +13,7 @@ function versioned(assetPath) {
 }
 
 // ── Dealer constants ──
-const SITE_URL = 'https://bellsforkautoandtruck.com';
+const SITE_URL = 'https://bellsforktruckandauto.com';
 const DEALER_NAME = 'Bells Fork Truck & Auto';
 const DEALER_PHONE = '(252) 496-0005';
 const DEALER_PHONE_TEL = '+12524960005';
