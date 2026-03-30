@@ -14,7 +14,7 @@ const {
   escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
-  filterPublicImages,
+  filterPublicImages, resolveVehicleColorDisplay,
 } = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
@@ -1361,7 +1361,8 @@ function main() {
     .filter(v => v && (v.status === 'available' || !v.status))
     .map(v => ({
       ...v,
-      images: Array.isArray(v.images) ? v.images.map(resolveInventoryImageName) : []
+      images: Array.isArray(v.images) ? v.images.map(resolveInventoryImageName) : [],
+      _colorDisplay: resolveVehicleColorDisplay(v),
     }));
   const soldVehicles = allInventory.filter(v => v && v.status === 'sold');
 
