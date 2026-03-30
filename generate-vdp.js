@@ -67,14 +67,11 @@ function generateDescription(v) {
     parts.push(`It's equipped with a ${powerParts.join(', paired with a ')}.`);
   }
 
-  // Appearance — exterior + interior with optional interior type
+  // Appearance — exterior + interior
   // Use resolved color display name if available
   const descExtColor = (v._colorDisplay && v._colorDisplay.exterior_color_name) || v.exteriorColor || '';
   if (descExtColor && v.interiorColor) {
-    const intDetail = v.interiorType
-      ? `${v.interiorColor} ${v.interiorType}`
-      : `${v.interiorColor} interior`;
-    parts.push(`Finished in ${descExtColor} on the outside with a comfortable ${intDetail}.`);
+    parts.push(`Finished in ${descExtColor} on the outside with a comfortable ${v.interiorColor} interior.`);
   } else if (descExtColor) {
     parts.push(`Finished in ${descExtColor}.`);
   }
@@ -90,8 +87,9 @@ function generateDescription(v) {
   }
 
   // Title status (skip generic/N/A values)
-  if (v.titleStatus && !['n/a', 'na', '—'].includes(String(v.titleStatus).toLowerCase())) {
-    parts.push(`${v.titleStatus} title.`);
+  const titleVal = v.titleState || 'Clean';
+  if (!['n/a', 'na', '—'].includes(titleVal.toLowerCase())) {
+    parts.push(`${titleVal} title.`);
   }
 
   // Closing CTA
@@ -319,7 +317,6 @@ function generateVDPHtml(v, allVehicles) {
     { label: 'Exterior Color', value: extColorDisplay, swatch: swatchHex },
     ...(paintCodeDisplay ? [{ label: 'Paint Code', value: paintCodeDisplay }] : []),
     { label: 'Interior Color', value: v.interiorColor  || '—' },
-    { label: 'Interior Type',  value: v.interiorType   || '—' },
   ];
 
   // ── Section 4: Performance & Efficiency ──
@@ -335,7 +332,7 @@ function generateVDPHtml(v, allVehicles) {
     { label: 'VIN',          value: vin               || '—' },
     { label: 'Stock #',      value: v.stockNumber     || '—' },
     { label: 'Condition',    value: v.condition       || '—' },
-    { label: 'Title Status', value: v.titleStatus     || '—' },
+    { label: 'Title Status', value: v.titleState       || 'Clean' },
     { label: 'Warranty',     value: v.warranty        || '—' },
   ];
 
