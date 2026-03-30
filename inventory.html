@@ -623,7 +623,7 @@
               <div class="col-12 col-md-4">
                 <label for="searchVehicle" class="form-label fw-bold small text-uppercase mb-1">Search</label>
                 <input type="text" class="form-control form-control-sm" id="searchVehicle"
-                       placeholder="Make, model, keyword…">
+                       placeholder="Search make, model, color, stock #…">
               </div>
               <div class="col-md-3 d-none d-md-block">
                 <label for="filterType" class="form-label fw-bold small text-uppercase mb-1">Type</label>
@@ -1766,6 +1766,12 @@
     // Filters
     document.getElementById('searchBtn').addEventListener('click', applyFilters);
     document.getElementById('searchVehicle').addEventListener('keyup', e => { if (e.key === 'Enter') applyFilters(); });
+    // Live search: filter as the user types (debounced)
+    let searchTimeout;
+    document.getElementById('searchVehicle').addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(applyFilters, 250);
+    });
     document.getElementById('filterType').addEventListener('change', applyFilters);
     document.getElementById('filterPrice').addEventListener('change', applyFilters);
 
@@ -1872,7 +1878,7 @@
     const sortMode = sortDD ? sortDD.value : (sortChip ? sortChip.dataset.sort : 'newest');
 
     const filtered = ALL_VEHICLES.filter(v => {
-      const searchable = `${v.year} ${v.make} ${v.model} ${v.trim||''} ${v.description||''} ${v.vin||''} ${v.engine||''} ${v.drivetrain||''} ${v.exteriorColor||''} ${v.fuelType||''}`.toLowerCase();
+      const searchable = `${v.year} ${v.make} ${v.model} ${v.trim||''} ${v.description||''} ${v.vin||''} ${v.engine||''} ${v.drivetrain||''} ${v.exteriorColor||''} ${v.interiorColor||''} ${v.fuelType||''} ${v.stockNumber||''} ${v.type||''}`.toLowerCase();
       const matchQ     = !q || searchable.includes(q);
       const vType = normalizeType(v.type, v);
       const matchType  = type === 'all' || vType === type || (type === 'diesel' && isDiesel(v));
