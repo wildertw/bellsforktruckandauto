@@ -45,9 +45,11 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET and Netlify function calls
+  // Skip non-GET, cross-origin, and Netlify internal paths
   if (event.request.method !== 'GET') return;
+  if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/.netlify/functions')) return;
+  if (url.pathname.startsWith('/.netlify/scripts')) return;
   if (url.pathname.startsWith('/admin')) return;
 
   // For HTML pages: network-first with cache fallback
@@ -78,7 +80,7 @@ self.addEventListener('fetch', (event) => {
             }
             return response;
           })
-          .catch(() => cached);
+          .catch(() => cached || new Response('Not found', { status: 404 }));
 
         return cached || networkFetch;
       });
