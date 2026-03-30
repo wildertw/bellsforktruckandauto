@@ -1004,6 +1004,7 @@ html {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
+  padding-right: 70px;
 }
 .inv-vehicle-title:hover { color: #dc3545; text-decoration: underline; }
 .inv-trim-label {
@@ -1131,6 +1132,8 @@ html {
   .inv-action-col { width: 100%; min-width: 0; flex-direction: row; flex-wrap: wrap; }
   .inv-price-retail, .inv-price-main { flex: 0 0 100%; }
   .inv-btn { flex: 1; min-width: 120px; font-size: .88rem; }
+  .inv-type-icon svg { width: 48px; height: auto; }
+  .inv-vehicle-title { padding-right: 54px; }
 }
 
 /* ── Filter section ── */
