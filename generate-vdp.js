@@ -315,7 +315,6 @@ function generateVDPHtml(v, allVehicles) {
   const swatchHex = cd.web_swatch_hex || '';
   const appearSpecs = [
     { label: 'Exterior Color', value: extColorDisplay, swatch: swatchHex },
-    ...(paintCodeDisplay ? [{ label: 'Paint Code', value: paintCodeDisplay }] : []),
     { label: 'Interior Color', value: v.interiorColor  || '—' },
   ];
 
