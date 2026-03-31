@@ -164,6 +164,39 @@
     }).join(' ');
   }
 
+  // ─── Custom Confirm Dialog ────────────────────────────────────────────────
+  // showConfirm(title, message, { okLabel?, danger? }) → Promise<boolean>
+  function showConfirm(title, message, opts) {
+    return new Promise(function (resolve) {
+      var overlay = $('confirmOverlay');
+      var titleEl = $('confirmTitle');
+      var msgEl = $('confirmMessage');
+      var okBtn = $('confirmOkBtn');
+      var cancelBtn = $('confirmCancelBtn');
+      if (!overlay || !titleEl || !msgEl || !okBtn || !cancelBtn) {
+        resolve(window.confirm(message)); // fallback to native
+        return;
+      }
+      titleEl.textContent = title;
+      msgEl.textContent = message;
+      okBtn.textContent = (opts && opts.okLabel) ? opts.okLabel : 'Confirm';
+      okBtn.className = (opts && opts.danger) ? 'primary-btn danger-btn' : 'primary-btn';
+      overlay.classList.remove('hide');
+      function cleanup() {
+        overlay.classList.add('hide');
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
+        overlay.removeEventListener('click', onBackdrop);
+      }
+      function onOk() { cleanup(); resolve(true); }
+      function onCancel() { cleanup(); resolve(false); }
+      function onBackdrop(e) { if (e.target === overlay) { cleanup(); resolve(false); } }
+      okBtn.addEventListener('click', onOk);
+      cancelBtn.addEventListener('click', onCancel);
+      overlay.addEventListener('click', onBackdrop);
+    });
+  }
+
   // ─── Toast Notifications ──────────────────────────────────────────────────
   function showToast(message, type) {
     var toast = document.getElementById('autoSaveToast');
@@ -516,13 +549,13 @@
     tab.addEventListener('click', () => switchTab(tab));
   });
 
-  // Wire up "View All" / data-goto buttons
-  document.querySelectorAll('[data-goto]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const target = btn.dataset.goto;
-      const tab = document.querySelector('.tab[data-tab="' + target + '"]');
-      if (tab) switchTab(tab);
-    });
+  // Wire up "View All" / data-goto buttons — use delegation so dynamic buttons work too
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-goto]');
+    if (!btn) return;
+    var target = btn.dataset.goto;
+    var tab = document.querySelector('.tab[data-tab="' + target + '"]');
+    if (tab) switchTab(tab);
   });
 
   // ─── Overview ───────────────────────────────────────────────────────────────
@@ -668,6 +701,21 @@
 
   // ─── Sub-tab Navigation ────────────────────────────────────────────────────
   var currentSubtab = 'performance';
+  var statsLoadFailed = false; // set true in renderOverview catch, false on success
+
+  function clearSubtabLoadingStates(subtab) {
+    if (subtab === 'inventory-analytics') {
+      var catBody = $('categoryTableBody');
+      if (catBody && catBody.textContent.includes('Loading')) catBody.innerHTML = '<tr><td colspan="5" class="muted">No data available</td></tr>';
+      var tvBody = $('topVehiclesBody');
+      if (tvBody && tvBody.textContent.includes('Loading')) tvBody.innerHTML = '<tr><td colspan="5" class="muted">No data available</td></tr>';
+    }
+    if (subtab === 'leads') {
+      var refBody = $('referrerTableBody');
+      if (refBody && refBody.textContent.includes('Loading')) refBody.innerHTML = '<tr><td colspan="3" class="muted">No data available</td></tr>';
+    }
+  }
+
   document.querySelectorAll('.subtab').forEach(function (btn) {
     btn.addEventListener('click', function () {
       document.querySelectorAll('.subtab').forEach(function (b) { b.classList.remove('active'); });
@@ -681,6 +729,8 @@
         if (currentSubtab === 'leads') { renderLeadsPanel(statsCache.data); fetchLeads('active'); }
         if (currentSubtab === 'inventory-analytics') renderInventoryAnalytics(statsCache.data);
         if (currentSubtab === 'insights') renderInsightsPanel(statsCache.data);
+      } else if (statsLoadFailed) {
+        clearSubtabLoadingStates(currentSubtab);
       }
     });
   });
@@ -704,8 +754,14 @@
 
     renderLatestInventory();
 
+    var statsLoadTimeout = new Promise(function (_, reject) {
+      setTimeout(function () { reject(new Error('timeout')); }, 5000);
+    });
     try {
-      var stats = await fetchDashboardStats(currentPeriod);
+      var stats = await Promise.race([fetchDashboardStats(currentPeriod), statsLoadTimeout]);
+      statsLoadFailed = false;
+      var errBanner = $('statsErrorBanner');
+      if (errBanner) errBanner.classList.add('hide');
       var prev = stats.previousPeriod || {};
 
       // Row 1: Traffic & Inventory
@@ -806,13 +862,38 @@
 
     } catch (err) {
       console.warn('Dashboard stats unavailable:', err.message);
-      var zeroIds = ['kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiCalls', 'kpiForms',
-        'kpiPrequalify', 'kpiConversion', 'kpiDeviceSplit', 'kpiBounce', 'kpiNewReturn', 'kpiSessionDuration'];
-      zeroIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '-'; });
+      statsLoadFailed = true;
+      var errBanner2 = $('statsErrorBanner');
+      if (errBanner2) errBanner2.classList.remove('hide');
+      // Numeric KPIs: show 0 rather than blank
+      var numericKpiIds = [
+        'kpiVisitors', 'kpiUniques', 'kpiInventory', 'kpiSold', 'kpiLeads', 'kpiCalls', 'kpiForms',
+        'kpiPrequalify', 'kpiLeadsTotal2', 'kpiHotLeads', 'kpiWarmLeads', 'kpiColdLeads',
+        'kpiPhoneLeads2', 'kpiFormLeads2', 'kpiPrequalifyLeads2', 'kpiTotalVehicles',
+      ];
+      numericKpiIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '0'; });
+      // Text/ratio KPIs: show dash
+      var dashKpiIds = [
+        'kpiConversion', 'kpiDeviceSplit', 'kpiBounce', 'kpiNewReturn', 'kpiSessionDuration',
+        'kpiDaysOnLot', 'kpiInventoryValue', 'kpiMostViewed', 'kpiLeadConversion', 'kpiLeadToSale',
+      ];
+      dashKpiIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '-'; });
       var topPagesBody = $('topPagesBody');
       if (topPagesBody) topPagesBody.innerHTML = '<tr><td colspan="2" class="muted">No data available</td></tr>';
       var actEl = $('recentActivity');
       if (actEl) actEl.innerHTML = '<p class="muted">Analytics will appear after deployment.</p>';
+      var refBody = $('referrerTableBody');
+      if (refBody) refBody.innerHTML = '<tr><td colspan="3" class="muted">No data available</td></tr>';
+      // Clear inventory-analytics loading states
+      var catBody = $('categoryTableBody');
+      if (catBody) catBody.innerHTML = '<tr><td colspan="5" class="muted">No data available</td></tr>';
+      var tvBody = $('topVehiclesBody');
+      if (tvBody) tvBody.innerHTML = '<tr><td colspan="5" class="muted">No data available</td></tr>';
+      // Clear leads DB loading state so it doesn't show "Loading leads..." forever
+      var leadDbBody = $('leadDbBody');
+      if (leadDbBody && leadDbBody.textContent.includes('Loading')) {
+        leadDbBody.innerHTML = '<tr><td colspan="7" class="muted">Could not load leads. <button class="ghost-btn" id="leadRetryBtn" type="button">Retry</button></td></tr>';
+      }
     }
   }
 
@@ -1720,14 +1801,19 @@
         undoStagedDelete(sku);
         return;
       }
-      if (confirm('Stage ' + item.name + ' (' + item.sku + ') for deletion?\n\nIt will NOT be removed from the live site until you click "Publish to Site."')) {
+      showConfirm(
+        'Delete ' + item.name + '?',
+        'Stage this vehicle for deletion? It will NOT be removed from the live site until you click "Publish to Site."',
+        { okLabel: 'Stage for Deletion', danger: true }
+      ).then(function (confirmed) {
+        if (!confirmed) return;
         item._pendingDelete = true;
         persistInventory();
         renderInventoryTable();
         showFeedback(editFeedback, item.name + ' staged for deletion (not yet published).');
         showToast('Staged for deletion. Publish to remove from live site.', 'info');
         setTimeout(hideToast, 5000);
-      }
+      });
     }
   }
 
@@ -1736,11 +1822,20 @@
     var bar = $('bulkBar');
     var countEl = $('bulkCount');
     if (!bar || !countEl) return;
-    if (selectedSkus.size > 0) {
-      bar.classList.remove('hide');
-      countEl.textContent = selectedSkus.size + ' selected';
-    } else {
-      bar.classList.add('hide');
+    var hasSelection = selectedSkus.size > 0;
+    bar.classList.toggle('hide', !hasSelection);
+    countEl.textContent = selectedSkus.size + ' selected';
+    // Keep buttons disabled when nothing is selected (defense-in-depth)
+    var noSelectionTooltip = 'Select at least one vehicle to use this action';
+    var editBtn = $('bulkEditBtn');
+    var delBtn = $('bulkDeleteBtn');
+    if (editBtn) {
+      editBtn.disabled = !hasSelection;
+      editBtn.title = hasSelection ? '' : noSelectionTooltip;
+    }
+    if (delBtn) {
+      delBtn.disabled = !hasSelection;
+      delBtn.title = hasSelection ? '' : noSelectionTooltip;
     }
   }
 
@@ -1783,20 +1878,26 @@
   function handleBulkDelete() {
     if (selectedSkus.size === 0) return;
     var count = selectedSkus.size;
-    if (!confirm('Stage ' + count + ' vehicle' + (count > 1 ? 's' : '') + ' for deletion?\n\nThey will NOT be removed from the live site until you click "Publish to Site."')) return;
-    var staged = 0;
-    inventory.forEach(function(v) {
-      if (selectedSkus.has(v.sku) && !v._pendingDelete) {
-        v._pendingDelete = true;
-        staged++;
-      }
+    showConfirm(
+      'Stage ' + count + ' vehicle' + (count > 1 ? 's' : '') + ' for deletion?',
+      'They will NOT be removed from the live site until you click "Publish to Site."',
+      { okLabel: 'Stage for Deletion', danger: true }
+    ).then(function (confirmed) {
+      if (!confirmed) return;
+      var staged = 0;
+      inventory.forEach(function(v) {
+        if (selectedSkus.has(v.sku) && !v._pendingDelete) {
+          v._pendingDelete = true;
+          staged++;
+        }
+      });
+      selectedSkus.clear();
+      persistInventory();
+      renderInventoryTable();
+      showFeedback(editFeedback, staged + ' vehicle' + (staged > 1 ? 's' : '') + ' staged for deletion (not yet published).');
+      showToast('Staged for deletion. Publish to remove from live site.', 'info');
+      setTimeout(hideToast, 5000);
     });
-    selectedSkus.clear();
-    persistInventory();
-    renderInventoryTable();
-    showFeedback(editFeedback, staged + ' vehicle' + (staged > 1 ? 's' : '') + ' staged for deletion (not yet published).');
-    showToast('Staged for deletion. Publish to remove from live site.', 'info');
-    setTimeout(hideToast, 5000);
   }
 
   function handleBulkDeselect() {
@@ -1950,9 +2051,17 @@
   function handleDraftDiscard() {
     var count = getDraftCount();
     if (count === 0) return;
-    if (!confirm('Discard all ' + count + ' draft edit' + (count > 1 ? 's' : '') + '?\n\nThis will reload the last published inventory from the live site, undoing all unpublished bulk changes.')) {
-      return;
-    }
+    showConfirm(
+      'Discard all unpublished changes?',
+      'This will discard all ' + count + ' unpublished change' + (count > 1 ? 's' : '') + ' and reload the last published inventory from the live site. This cannot be undone.',
+      { okLabel: 'Discard All', danger: true }
+    ).then(function (confirmed) {
+      if (!confirmed) return;
+      doDiscardDrafts();
+    });
+  }
+
+  function doDiscardDrafts() {
     // Reload from live site to revert drafts
     showToast('Reverting to published inventory...');
     fetch('/inventory.json')
@@ -5149,7 +5258,10 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="muted" style="text-align:center;padding:24px;">No sales records yet. Mark a vehicle as sold from the Inventory tab.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7"><div class="sales-empty-state">' +
+        '<p>No sales recorded yet \u2014 mark a vehicle as sold to get started.</p>' +
+        '<button class="ghost-btn" type="button" data-goto="inventory">Go to Inventory</button>' +
+        '</div></td></tr>';
       return;
     }
     data.forEach(function (sale) {
@@ -5319,6 +5431,14 @@
         if (panel) panel.classList.add('hide');
       });
     }
+
+    // Stats error retry
+    if ($('statsRetryBtn')) $('statsRetryBtn').addEventListener('click', function () {
+      statsCache = { data: null, time: 0, period: '' };
+      var banner = $('statsErrorBanner');
+      if (banner) banner.classList.add('hide');
+      renderOverview();
+    });
 
     // Inventory import/export
     $('loadFromSiteBtn').addEventListener('click', loadInventoryFromSite);

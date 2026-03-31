@@ -101,6 +101,12 @@
             <button class="subtab" type="button" data-subtab="insights">Insights</button>
           </nav>
 
+          <!-- Stats load error banner (shown on timeout or fetch failure) -->
+          <div id="statsErrorBanner" class="stats-error-banner hide" role="alert">
+            <span>Couldn't load analytics data.</span>
+            <button id="statsRetryBtn" class="ghost-btn" type="button">Retry</button>
+          </div>
+
           <!-- ──── PERFORMANCE SUB-TAB ──── -->
           <div data-subpanel="performance">
             <!-- Row 1: Traffic & Inventory KPIs -->
@@ -1622,6 +1628,18 @@
           <button type="submit" class="primary-btn">Save Lead</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Reusable confirmation dialog -->
+  <div id="confirmOverlay" class="confirm-modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="confirm-modal-box">
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmMessage"></p>
+      <div class="confirm-modal-actions">
+        <button id="confirmCancelBtn" class="ghost-btn" type="button">Cancel</button>
+        <button id="confirmOkBtn" class="primary-btn" type="button">Confirm</button>
+      </div>
     </div>
   </div>
 

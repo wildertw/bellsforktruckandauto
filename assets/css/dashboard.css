@@ -2327,3 +2327,74 @@ button:hover {
 .mpg-status.mpg-success { color: #16a34a; }
 .mpg-status.mpg-approx  { color: #d97706; }
 .mpg-status.mpg-error   { color: #dc2626; }
+
+/* ─── Stats error / retry banner ─────────────────────────────────────────── */
+.stats-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: rgba(242, 85, 94, 0.07);
+  border: 1px solid rgba(242, 85, 94, 0.22);
+  border-radius: var(--radius-control);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ─── Custom confirmation dialog ─────────────────────────────────────────── */
+.confirm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-modal-overlay.hide { display: none; }
+.confirm-modal-box {
+  background: var(--surface0);
+  border-radius: var(--radius-card);
+  padding: 28px 32px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: var(--shadow-soft);
+}
+.confirm-modal-box h3 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.confirm-modal-box p {
+  margin: 0 0 24px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.confirm-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.danger-btn {
+  background: var(--danger, #f2555e) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+.danger-btn:hover { background: #d93c45 !important; }
+
+/* ─── Sales empty state ──────────────────────────────────────────────────── */
+.sales-empty-state {
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--text-secondary);
+}
+.sales-empty-state p { margin: 0 0 14px; font-size: 0.95rem; }
+
+/* ─── Bulk action disabled state ─────────────────────────────────────────── */
+.bulk-action-bar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
