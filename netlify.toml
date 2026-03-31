@@ -109,6 +109,13 @@
   [headers.values]
     Cache-Control = "public, max-age=300, stale-while-revalidate=600"
 
+# Vehicle listing feeds — 1 hour cache, CORS open for feed readers
+[[headers]]
+  for = "/feeds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=7200"
+    Access-Control-Allow-Origin = "*"
+
 # Non-www to www canonical redirect
 [[redirects]]
   from = "https://bellsforktruckandauto.com/*"

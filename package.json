@@ -21,7 +21,8 @@
     "build:phase1": "run-p build:js build:css \"build:images\"",
     "build:images": "node optimize-images.js",
     "build:phase2": "run-p build:vdp build:categories build:forms build:homepage build:inventory build:purge",
-    "build:phase3": "run-s build:sitemap build:stamp",
+    "build:feeds": "node generate-vehicle-feed.js",
+    "build:phase3": "run-s build:sitemap build:feeds build:stamp",
     "build": "run-s build:phase1 build:phase2 build:phase3"
   },
   "dependencies": {
