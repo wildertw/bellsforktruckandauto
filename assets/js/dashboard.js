@@ -963,10 +963,7 @@
     var ls = stats.leadsBySource || {};
     var setVal = function (id, val) { var el = $(id); if (el) el.textContent = String(val); };
 
-    setVal('kpiLeadsTotal2', stats.totalLeads);
-    setVal('kpiHotLeads', ls.hot || 0);
-    setVal('kpiWarmLeads', ls.warm || 0);
-    setVal('kpiColdLeads', ls.cold || 0);
+    // Lead KPI cards are populated by fetchLeads() with actual database counts
     setVal('kpiPhoneLeads2', stats.callsFromWebsite);
     setVal('kpiFormLeads2', stats.formsSubmitted);
     setVal('kpiPrequalifyLeads2', stats.prequalifySubmitted || 0);
@@ -1079,6 +1076,12 @@
       var data = await res.json();
       leadsData = data.leads || [];
       leadsSummary = data.summary || {};
+      // Update KPI cards with actual lead counts from database
+      var el;
+      el = $('kpiLeadsTotal2'); if (el) el.textContent = String(leadsSummary.active || 0);
+      el = $('kpiHotLeads'); if (el) el.textContent = String(leadsSummary.hot || 0);
+      el = $('kpiWarmLeads'); if (el) el.textContent = String(leadsSummary.warm || 0);
+      el = $('kpiColdLeads'); if (el) el.textContent = String(leadsSummary.cold || 0);
       renderLeadPipeline();
       renderLeadDatabase();
     } catch (err) {
