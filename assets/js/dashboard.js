@@ -129,6 +129,66 @@
     return String(text || '').toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90);
   }
 
+  // ─── Chip/Tag Input ─────────────────────────────────────────────────────────
+  function initChipInput(wrapId, hiddenId) {
+    var wrap = $(wrapId);
+    var hiddenInput = $(hiddenId);
+    var textInput = wrap && wrap.querySelector('.chips-text-input');
+    if (!wrap || !hiddenInput || !textInput) return;
+
+    function syncHidden() {
+      var chips = wrap.querySelectorAll('.chip-tag');
+      var values = [];
+      chips.forEach(function (chip) { values.push(chip.dataset.value); });
+      hiddenInput.value = values.join(', ');
+      hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function addChip(value) {
+      value = value.trim();
+      if (!value) return;
+      var existing = Array.from(wrap.querySelectorAll('.chip-tag')).map(function (c) { return c.dataset.value; });
+      if (existing.indexOf(value) !== -1) return;
+      var chip = document.createElement('span');
+      chip.className = 'chip-tag';
+      chip.dataset.value = value;
+      chip.innerHTML = value + '<button type="button" class="chip-remove" aria-label="Remove ' + value + '">&times;</button>';
+      chip.querySelector('.chip-remove').addEventListener('click', function () { chip.remove(); syncHidden(); });
+      wrap.insertBefore(chip, textInput);
+      syncHidden();
+    }
+
+    function refreshFromValue() {
+      wrap.querySelectorAll('.chip-tag').forEach(function (c) { c.remove(); });
+      var val = hiddenInput.value;
+      if (val) { val.split(',').forEach(function (v) { if (v.trim()) addChip(v.trim()); }); }
+      textInput.value = '';
+    }
+
+    textInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        var val = textInput.value.replace(',', '').trim();
+        if (val) { addChip(val); textInput.value = ''; }
+      } else if (e.key === 'Backspace' && !textInput.value) {
+        var chips = wrap.querySelectorAll('.chip-tag');
+        if (chips.length) { chips[chips.length - 1].remove(); syncHidden(); }
+      }
+    });
+
+    textInput.addEventListener('blur', function () {
+      var val = textInput.value.trim();
+      if (val) { addChip(val); textInput.value = ''; }
+    });
+
+    wrap.addEventListener('click', function (e) {
+      if (e.target === wrap) textInput.focus();
+    });
+
+    refreshFromValue();
+    hiddenInput._refreshChips = refreshFromValue;
+  }
+
   function showFeedback(el, msg, isError) {
     if (!el) return;
     el.textContent = msg;
@@ -451,8 +511,9 @@
   // ─── Auth ───────────────────────────────────────────────────────────────────
   function toggleAuth(showDashboard, user) {
     authPanel.style.display = showDashboard ? 'none' : 'grid';
-    dashboard.style.filter = showDashboard ? 'none' : 'blur(1px)';
-    dashboard.dataset.noScroll = showDashboard ? 'true' : 'false';
+    dashboard.style.display = showDashboard ? '' : 'none';
+    dashboard.setAttribute('aria-hidden', showDashboard ? 'false' : 'true');
+    if (showDashboard) { dashboard.removeAttribute('inert'); } else { dashboard.setAttribute('inert', ''); }
     currentUser.textContent = user ? 'Signed in as ' + user : '';
   }
 
@@ -1773,6 +1834,9 @@
       $('editDoors').value = item.doors || '4D';
       $('editDescription').value = item.description || '';
       $('editFeatures').value = Array.isArray(item.features) ? item.features.join(', ') : (item.features || '');
+      if ($('editFeatures')._refreshChips) $('editFeatures')._refreshChips();
+      if ($('editSwatchHex')) $('editSwatchHex').value = item.swatchHex || '';
+      if ($('editSwatchPicker')) $('editSwatchPicker').value = (item.swatchHex && /^#[0-9a-fA-F]{3,6}$/.test(item.swatchHex)) ? item.swatchHex : '#d9d9d6';
       // Reset photo state
       editPhotoFiles = [];
       editKeptImages = item.images ? item.images.slice() : [];
@@ -2262,6 +2326,7 @@
       editingItem.description = $('editDescription').value.trim();
       var featVal = $('editFeatures').value.trim();
       editingItem.features = featVal ? featVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean) : (editingItem.features || []);
+      if ($('editSwatchHex')) editingItem.swatchHex = $('editSwatchHex').value.trim() || null;
 
       // Upload new photos to Netlify Blobs if any were selected
       var newImageUrls = [];
@@ -2586,6 +2651,7 @@
       oem_scan: null,
       photo_roles: [],
       color_display: null,
+      swatchHex: ($('addSwatchHex') ? $('addSwatchHex').value.trim() : null) || null,
     };
   }
 
@@ -2620,6 +2686,10 @@
     $('addDoors').value = item.doors || '4D';
     $('addDescription').value = item.description || '';
     $('addFeatures').value = (item.features || []).join(', ');
+    if ($('addFeatures')._refreshChips) $('addFeatures')._refreshChips();
+    if ($('addSwatchHex')) $('addSwatchHex').value = item.swatchHex || '';
+    if ($('addSwatchPicker')) $('addSwatchPicker').value = (item.swatchHex && /^#[0-9a-fA-F]{3,6}$/.test(item.swatchHex)) ? item.swatchHex : '#d9d9d6';
+    showWizardStep(1);
 
     // Store OEM metadata on the form element for preservation during edits
     var addFormEl = document.getElementById('addForm') || document.querySelector('form');
@@ -3698,6 +3768,7 @@
       if (analysis.cabType && !existingLower.includes(analysis.cabType.toLowerCase())) existing.push(analysis.cabType);
       if (analysis.bedLength && !existingLower.includes(analysis.bedLength.toLowerCase())) existing.push(analysis.bedLength);
       $('editFeatures').value = existing.join(', ');
+      if ($('editFeatures')._refreshChips) $('editFeatures')._refreshChips();
     }
 
     showFeedback($('editFeedback'), 'Photo scan data applied to form.');
@@ -3741,6 +3812,7 @@
       if (analysis.cabType && !existingLower.includes(analysis.cabType.toLowerCase())) existing.push(analysis.cabType);
       if (analysis.bedLength && !existingLower.includes(analysis.bedLength.toLowerCase())) existing.push(analysis.bedLength);
       $('addFeatures').value = existing.join(', ');
+      if ($('addFeatures')._refreshChips) $('addFeatures')._refreshChips();
     }
 
     showFeedback(addFeedback, 'Photo scan data applied to form.');
@@ -4379,6 +4451,7 @@
     currentBlogSlug = post.slug || '';
     $('blogTitle').value = post.title || '';
     $('blogSlug').value = post.slug || '';
+    $('blogSlug').dispatchEvent(new Event('input', { bubbles: true }));
     $('blogAuthor').value = post.author || '';
     $('blogCategory').value = post.category || 'Updates';
     $('blogTags').value = (post.tags || []).join(', ');
@@ -4395,6 +4468,7 @@
     currentBlogSlug = '';
     $('blogTitle').value = '';
     $('blogSlug').value = '';
+    $('blogSlug').dispatchEvent(new Event('input', { bubbles: true }));
     $('blogAuthor').value = '';
     $('blogCategory').value = '';
     $('blogTags').value = '';
@@ -4514,13 +4588,30 @@
     event.target.value = '';
   }
 
-  // Auto-generate slug from title
+  // Auto-generate slug from title + live preview
   function setupBlogSlugGen() {
+    function updateSlugPreview() {
+      var preview = $('blogSlugPreview');
+      if (!preview) return;
+      var slug = ($('blogSlug').value || '').trim();
+      if (!slug) { preview.textContent = ''; preview.className = 'slug-preview'; return; }
+      var invalid = /[^a-z0-9-]/.test(slug);
+      if (invalid) {
+        preview.textContent = 'Use only lowercase letters, numbers, and hyphens.';
+        preview.className = 'slug-preview slug-error';
+      } else {
+        preview.textContent = '/blog/' + slug;
+        preview.className = 'slug-preview';
+      }
+    }
     $('blogTitle').addEventListener('input', () => {
       if (!currentBlogSlug) {
         $('blogSlug').value = slugify($('blogTitle').value);
+        updateSlugPreview();
       }
     });
+    $('blogSlug').addEventListener('input', updateSlugPreview);
+    updateSlugPreview();
   }
 
   // ─── Comment Moderation ─────────────────────────────────────────────────────
@@ -5317,6 +5408,41 @@
     refreshSalesViews();
   }
 
+  // ─── Add Vehicle Wizard ─────────────────────────────────────────────────────
+  var addWizardStep = 1;
+  var ADD_WIZARD_TOTAL = 5;
+
+  function showWizardStep(n) {
+    addWizardStep = Math.max(1, Math.min(n, ADD_WIZARD_TOTAL));
+    document.querySelectorAll('#addInventoryForm .wizard-step-panel').forEach(function (panel) {
+      panel.hidden = (parseInt(panel.dataset.wstep, 10) !== addWizardStep);
+    });
+    var vinSection = $('addVinSection');
+    if (vinSection) vinSection.hidden = (addWizardStep !== 1);
+    document.querySelectorAll('#addWizardProgress .wizard-step-dot').forEach(function (dot) {
+      var s = parseInt(dot.dataset.wstep, 10);
+      dot.classList.toggle('active', s === addWizardStep);
+      dot.classList.toggle('done', s < addWizardStep);
+    });
+    var label = $('addWizardStepLabel');
+    if (label) label.textContent = 'Step ' + addWizardStep + ' of ' + ADD_WIZARD_TOTAL;
+    var backBtn = $('addWizardBack');
+    var nextBtn = $('addWizardNext');
+    if (backBtn) backBtn.hidden = (addWizardStep === 1);
+    if (nextBtn) nextBtn.hidden = (addWizardStep === ADD_WIZARD_TOTAL);
+  }
+
+  function initAddVehicleWizard() {
+    showWizardStep(1);
+    var nextBtn = $('addWizardNext');
+    if (nextBtn) nextBtn.addEventListener('click', function () { showWizardStep(addWizardStep + 1); });
+    var backBtn = $('addWizardBack');
+    if (backBtn) backBtn.addEventListener('click', function () { showWizardStep(addWizardStep - 1); });
+    document.querySelectorAll('#addWizardProgress .wizard-step-dot').forEach(function (dot) {
+      dot.addEventListener('click', function () { showWizardStep(parseInt(dot.dataset.wstep, 10)); });
+    });
+  }
+
   // ─── Init ───────────────────────────────────────────────────────────────────
   function init() {
     // Auth
@@ -5445,10 +5571,15 @@
     $('importInventoryFile').addEventListener('change', importInventoryFile);
     $('clearLocalBtn').addEventListener('click', clearLocalInventory);
 
-    // Add Vehicle
+    // Add Vehicle wizard + chip inputs
+    initAddVehicleWizard();
+    initChipInput('addChipsWrap', 'addFeatures');
+    initChipInput('editChipsWrap', 'editFeatures');
     addForm.addEventListener('submit', handleAddSubmit);
     $('clearAdd').addEventListener('click', () => {
       addForm.reset(); hideFeedback(addFeedback); updateLivePreview();
+      showWizardStep(1);
+      if ($('addFeatures')._refreshChips) $('addFeatures')._refreshChips();
       addPhotoFiles = []; addPreviewIndex = 0;
       // Clean up thumbnail object URLs
       thumbnailCache.forEach(function (url) { if (url && url.startsWith('blob:')) URL.revokeObjectURL(url); });
@@ -5535,6 +5666,37 @@
     if (soldModal) soldModal.addEventListener('click', closeModals);
     $('soldForm').addEventListener('submit', handleSoldSubmit);
     $('soldLeadType').addEventListener('change', toggleLeadDetail);
+
+    // Bookings collapsible toggle
+    var bookingsToggle = $('bookingsToggle');
+    var bookingsMenu = $('bookingsMenu');
+    if (bookingsToggle && bookingsMenu) {
+      bookingsToggle.addEventListener('click', function () {
+        var expanded = bookingsToggle.getAttribute('aria-expanded') === 'true';
+        bookingsToggle.setAttribute('aria-expanded', String(!expanded));
+        bookingsMenu.classList.toggle('collapsed', expanded);
+        var arrow = bookingsToggle.querySelector('.collapse-arrow');
+        if (arrow) arrow.style.transform = expanded ? 'rotate(-90deg)' : '';
+      });
+    }
+
+    // Color picker ↔ hex text sync (add form)
+    (function () {
+      var hexAdd = $('addSwatchHex'), pickerAdd = $('addSwatchPicker');
+      if (hexAdd && pickerAdd) {
+        pickerAdd.addEventListener('input', function () { hexAdd.value = pickerAdd.value; });
+        hexAdd.addEventListener('input', function () {
+          if (/^#[0-9a-fA-F]{6}$/.test(hexAdd.value.trim())) pickerAdd.value = hexAdd.value.trim();
+        });
+      }
+      var hexEdit = $('editSwatchHex'), pickerEdit = $('editSwatchPicker');
+      if (hexEdit && pickerEdit) {
+        pickerEdit.addEventListener('input', function () { hexEdit.value = pickerEdit.value; });
+        hexEdit.addEventListener('input', function () {
+          if (/^#[0-9a-fA-F]{6}$/.test(hexEdit.value.trim())) pickerEdit.value = hexEdit.value.trim();
+        });
+      }
+    })();
 
     // Theme toggle
     var themeBtn = $('themeToggleBtn');

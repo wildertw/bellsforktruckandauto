@@ -2398,3 +2398,104 @@ button:hover {
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ─── Sidebar: section labels + sub-nav ──────────────────────────────────── */
+.nav-section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-muted);
+  padding-left: var(--space-sm); margin-top: var(--space-xs);
+}
+.tab-subnav {
+  padding-left: calc(var(--space-sm) + 14px);
+  font-size: 13px; color: var(--text-muted);
+}
+.tab-subnav:hover { color: var(--text-primary); }
+.tab-subnav.active { background: rgba(79, 70, 229, 0.12); color: var(--secondary-500); box-shadow: none; }
+
+/* ─── Bookings collapsible ────────────────────────────────────────────────── */
+.collapsible-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; text-align: left;
+  font-size: 12px; color: var(--text-muted);
+  padding: 0 var(--space-sm);
+  background: transparent; border: none; cursor: pointer;
+}
+.collapsible-toggle:hover { color: var(--text-primary); }
+.collapse-arrow { transition: transform 0.2s ease; display: inline-block; }
+.collapsible-content { display: grid; gap: var(--space-xs); overflow: hidden; }
+.collapsible-content.collapsed { display: none; }
+
+/* ─── Add Vehicle Wizard ─────────────────────────────────────────────────── */
+.wizard-progress {
+  display: flex; align-items: center; gap: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface1); border-radius: var(--radius-card);
+  margin-bottom: var(--space-md);
+}
+.wizard-step-dot {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  flex: 1; background: none; border: none; cursor: pointer;
+  padding: 4px 2px; color: var(--text-muted); font-size: 11px;
+}
+.wdot-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--surface2); color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; transition: all 0.2s;
+}
+.wizard-step-dot.active .wdot-num {
+  background: var(--secondary-500); color: #fff; box-shadow: var(--glow-indigo);
+}
+.wizard-step-dot.done .wdot-num {
+  background: #16a34a; color: #fff;
+}
+.wizard-step-dot.active .wdot-label { color: var(--secondary-500); font-weight: 600; }
+.wdot-label { font-size: 10px; white-space: nowrap; }
+.wdot-connector { flex: 1; height: 2px; background: var(--surface2); max-width: 32px; align-self: center; }
+.wizard-step-panel[hidden] { display: none !important; }
+.wizard-nav-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--divider);
+  margin-top: var(--space-sm);
+}
+.wizard-step-label { font-size: 0.8rem; }
+
+/* ─── Chip / Tag input ────────────────────────────────────────────────────── */
+.chips-field { display: grid; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.chips-wrap {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  min-height: 38px; padding: 6px 8px;
+  border: 1px solid var(--surface2); border-radius: var(--radius-control);
+  background: var(--surface1); cursor: text;
+  transition: border-color 0.15s;
+}
+.chips-wrap:focus-within { border-color: var(--secondary-500); box-shadow: 0 0 0 2px rgba(79,70,229,0.1); }
+.chip-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(79,70,229,0.1); color: var(--secondary-500);
+  border-radius: 6px; padding: 2px 6px 2px 8px;
+  font-size: 12px; font-weight: 500;
+}
+.chip-remove {
+  background: none; border: none; cursor: pointer;
+  color: inherit; padding: 0; line-height: 1; font-size: 14px; opacity: 0.7;
+}
+.chip-remove:hover { opacity: 1; }
+.chips-text-input {
+  border: none; outline: none; background: none;
+  font: inherit; color: var(--text-primary); font-size: 13px;
+  min-width: 140px; flex: 1;
+}
+
+/* ─── Blog image field ────────────────────────────────────────────────────── */
+.blog-img-or {
+  font-size: 11px; color: var(--text-muted); text-align: center;
+  display: block; padding: 2px 0;
+}
+
+/* ─── Slug preview ────────────────────────────────────────────────────────── */
+.slug-preview {
+  font-size: 11px; color: var(--text-muted); font-family: monospace;
+}
+.slug-preview.slug-error { color: var(--danger); }

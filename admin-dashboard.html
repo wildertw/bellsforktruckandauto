@@ -34,7 +34,7 @@
     </div>
   </div>
 
-  <div class="app-frame" id="dashboard" data-no-scroll="false">
+  <div class="app-frame" id="dashboard" style="display:none" aria-hidden="true">
     <header class="top-nav">
       <div class="brand-wrap">
         <span class="brand-mark" aria-hidden="true"></span>
@@ -54,18 +54,24 @@
     <div class="app-shell">
       <aside class="sidebar">
         <nav class="tab-nav" aria-label="Dashboard sections">
+          <div class="side-label nav-section-label">Analytics</div>
           <button class="tab active" type="button" data-tab="overview">Dashboard</button>
+          <div class="side-label nav-section-label" style="margin-top:4px">Manage</div>
           <button class="tab" type="button" data-tab="inventory">Inventory</button>
-          <button class="tab" type="button" data-tab="add">Add Vehicle</button>
+          <button class="tab tab-subnav" type="button" data-tab="add">&#43; Add Vehicle</button>
           <button class="tab" type="button" data-tab="publish">Publish</button>
           <button class="tab" type="button" data-tab="blog">Blog CMS</button>
           <button class="tab" type="button" data-tab="sales">Sales</button>
         </nav>
 
         <div class="sidebar-group">
-          <div class="side-label">Bookings</div>
-          <button class="rail-btn" type="button">Calendar</button>
-          <button class="rail-btn" type="button">Waiting List</button>
+          <button class="side-label collapsible-toggle" id="bookingsToggle" type="button" aria-expanded="true" aria-controls="bookingsMenu">
+            Bookings <span class="collapse-arrow" aria-hidden="true">&#9662;</span>
+          </button>
+          <div id="bookingsMenu" class="collapsible-content">
+            <button class="rail-btn" type="button">Calendar</button>
+            <button class="rail-btn" type="button">Waiting List</button>
+          </div>
         </div>
 
         <div class="sidebar-group">
@@ -632,8 +638,31 @@
         <section class="tab-panel" data-panel="add">
           <div class="add-vehicle-layout">
             <div class="add-vehicle-main">
-              <!-- VIN Decoder -->
-              <div class="card panel-card vin-section">
+              <!-- Add Vehicle Wizard Progress -->
+              <nav class="wizard-progress" id="addWizardProgress" aria-label="Add vehicle steps">
+                <button class="wizard-step-dot active" type="button" data-wstep="1">
+                  <span class="wdot-num">1</span><span class="wdot-label">Identity</span>
+                </button>
+                <span class="wdot-connector" aria-hidden="true"></span>
+                <button class="wizard-step-dot" type="button" data-wstep="2">
+                  <span class="wdot-num">2</span><span class="wdot-label">Specs</span>
+                </button>
+                <span class="wdot-connector" aria-hidden="true"></span>
+                <button class="wizard-step-dot" type="button" data-wstep="3">
+                  <span class="wdot-num">3</span><span class="wdot-label">Appearance</span>
+                </button>
+                <span class="wdot-connector" aria-hidden="true"></span>
+                <button class="wizard-step-dot" type="button" data-wstep="4">
+                  <span class="wdot-num">4</span><span class="wdot-label">Photos</span>
+                </button>
+                <span class="wdot-connector" aria-hidden="true"></span>
+                <button class="wizard-step-dot" type="button" data-wstep="5">
+                  <span class="wdot-num">5</span><span class="wdot-label">Details</span>
+                </button>
+              </nav>
+
+              <!-- VIN Decoder (shown on step 1) -->
+              <div class="card panel-card vin-section" id="addVinSection">
                 <h3>VIN Decoder</h3>
                 <div class="vin-row">
                   <input id="addVin" type="text" maxlength="17" placeholder="1FTFW1ET5DFC10312" class="vin-input" autocomplete="off">
@@ -661,6 +690,8 @@
                   <h3 id="addFormTitle">Vehicle Details</h3>
                   <span id="editModeBadge" class="user-badge hide">Editing</span>
                 </div>
+                <!-- ── Step 1: Vehicle Identity ── -->
+                <div class="wizard-step-panel" data-wstep="1">
                 <div class="panel-grid">
                   <label>Year<input id="addYear" type="number" min="1950" max="2099"></label>
                   <label>Make<input id="addMake" type="text"></label>
@@ -679,6 +710,12 @@
                       <option value="Diesel">Diesel Vehicle</option>
                     </select>
                   </label>
+                </div><!-- end step 1 panel-grid -->
+                </div><!-- end wizard-step-panel 1 -->
+
+                <!-- ── Step 2: Specifications ── -->
+                <div class="wizard-step-panel" data-wstep="2">
+                <div class="panel-grid">
                   <label>Price<input id="addPrice" type="number" min="0" step="0.01" value="0"></label>
                   <label>Mileage<input id="addMileage" type="number" min="0" value="0"></label>
                   <label>Engine<input id="addEngine" type="text" placeholder="5.0L V8"></label>
@@ -731,13 +768,19 @@
                     <button id="addMpgLookupBtn" class="ghost-btn small-btn mpg-lookup-btn" type="button">&#128269; Look Up MPG</button>
                     <span id="addMpgStatus" class="mpg-status hide"></span>
                   </div>
+                </div><!-- end step 2 panel-grid -->
+                </div><!-- end wizard-step-panel 2 -->
+
+                <!-- ── Step 3: Appearance ── -->
+                <div class="wizard-step-panel" data-wstep="3">
+                <div class="panel-grid">
                   <label>Exterior Color<input id="addExteriorColor" type="text"></label>
                   <label>Interior Color<input id="addInteriorColor" type="text"></label>
                   <label>Paint Code<input id="addPaintCode" type="text" placeholder="e.g. GBA, YZ, 040"></label>
                   <label>Swatch Hex
                     <span style="display:flex;align-items:center;gap:6px;">
                       <input id="addSwatchHex" type="text" placeholder="#D9D9D6" maxlength="7" style="flex:1;">
-                      <span id="addSwatchPreview" style="display:inline-block;width:22px;height:22px;border-radius:4px;border:1px solid #ccc;background:#eee;flex-shrink:0;"></span>
+                      <input id="addSwatchPicker" type="color" value="#d9d9d6" title="Pick a color" style="width:30px;height:30px;padding:2px;border:1px solid #ccc;border-radius:4px;cursor:pointer;flex-shrink:0;background:none;">
                     </span>
                   </label>
                   <label>Quantity<input id="addQuantity" type="number" min="0" value="1"></label>
@@ -759,16 +802,11 @@
                     </select>
                   </label>
                   <label>Supplier<input id="addSupplier" type="text"></label>
-                </div>
-                <label class="full-field">
-                  <span class="desc-label-row">
-                    <span>Description</span>
-                    <button id="generateDescBtn" class="ghost-btn small-btn" type="button">Generate with AI</button>
-                  </span>
-                  <textarea id="addDescription" placeholder="4WD SuperCrew, 5.0L V8, clean interior"></textarea>
-                </label>
-                <label class="full-field">Features (comma separated)<input id="addFeatures" type="text" placeholder="4x4, Tow package, Bluetooth"></label>
+                </div><!-- end step 3 panel-grid -->
+                </div><!-- end wizard-step-panel 3 -->
 
+                <!-- ── Step 4: Photos ── -->
+                <div class="wizard-step-panel" data-wstep="4">
                 <!-- Batch Media Upload -->
                 <div class="photo-section full-field">
                   <div class="photo-upload-header">
@@ -836,6 +874,24 @@
                       </div>
                     </div>
                   </div>
+                </div><!-- end photo-section -->
+                </div><!-- end wizard-step-panel 4 -->
+
+                <!-- ── Step 5: Description, Features & Admin ── -->
+                <div class="wizard-step-panel" data-wstep="5">
+                <label class="full-field">
+                  <span class="desc-label-row">
+                    <span>Description</span>
+                    <button id="generateDescBtn" class="ghost-btn small-btn" type="button">Generate with AI</button>
+                  </span>
+                  <textarea id="addDescription" placeholder="4WD SuperCrew, 5.0L V8, clean interior"></textarea>
+                </label>
+                <div class="full-field chips-field">
+                  <label for="addFeaturesInput">Features</label>
+                  <div class="chips-wrap" id="addChipsWrap">
+                    <input id="addFeaturesInput" type="text" placeholder="Type a feature and press Enter&#x2026;" class="chips-text-input" autocomplete="off">
+                  </div>
+                  <input id="addFeatures" type="hidden">
                 </div>
 
                 <div class="form-section-header" style="margin-top:var(--space-md)">
@@ -843,7 +899,11 @@
                 </div>
                 <div class="panel-grid">
                   <label>Condition
-                    <input id="addCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+                    <select id="addCondition">
+                      <option value="Used" selected>Used</option>
+                      <option value="New">New</option>
+                      <option value="Certified Pre-Owned">Certified Pre-Owned</option>
+                    </select>
                   </label>
                   <label>Title Status
                     <select id="addTitleState">
@@ -863,6 +923,14 @@
                   <button id="clearAdd" class="ghost-btn" type="button">Clear</button>
                   <button id="cancelEditVehicle" class="ghost-btn hide" type="button">Cancel Edit</button>
                   <button class="primary-btn" type="submit" id="submitVehicleBtn">Save Vehicle</button>
+                </div>
+                </div><!-- end wizard-step-panel 5 -->
+
+                <!-- Wizard Navigation -->
+                <div class="wizard-nav-bar" id="addWizardNav">
+                  <button type="button" id="addWizardBack" class="ghost-btn wizard-back-btn">&#8592; Back</button>
+                  <span id="addWizardStepLabel" class="wizard-step-label muted">Step 1 of 5</span>
+                  <button type="button" id="addWizardNext" class="primary-btn wizard-next-btn">Next &#8594;</button>
                 </div>
               </form>
             </div>
@@ -993,7 +1061,10 @@
                 </div>
                 <div class="panel-grid">
                   <label>Title<input id="blogTitle" type="text" required maxlength="160"></label>
-                  <label>Slug<input id="blogSlug" type="text" maxlength="100" placeholder="auto-generated"></label>
+                  <label>Slug
+                    <input id="blogSlug" type="text" maxlength="100" placeholder="auto-generated">
+                    <small id="blogSlugPreview" class="slug-preview"></small>
+                  </label>
                   <label>Author<input id="blogAuthor" type="text" maxlength="80"></label>
                   <label>Category<input id="blogCategory" type="text" placeholder="Updates"></label>
                   <label>Tags<input id="blogTags" type="text" placeholder="comma, separated"></label>
@@ -1004,8 +1075,11 @@
                       <option value="published">Published</option>
                     </select>
                   </label>
-                  <label>Featured Image URL<input id="blogImage" type="text" placeholder="https://..."></label>
-                  <label>Upload Image<input id="blogImageFile" type="file" accept="image/*"></label>
+                  <label class="full-field">Featured Image
+                    <input id="blogImage" type="text" placeholder="https://... or upload below">
+                    <span class="blog-img-or" aria-hidden="true">— or upload a file —</span>
+                    <input id="blogImageFile" type="file" accept="image/*">
+                  </label>
                   <label>Excerpt<textarea id="blogExcerpt" rows="2" maxlength="320" placeholder="Brief summary..."></textarea></label>
                   <label>Meta Description<input id="blogMeta" type="text" maxlength="320"></label>
                 </div>
@@ -1315,7 +1389,7 @@
               <label>Swatch Hex
                 <span style="display:flex;align-items:center;gap:6px;">
                   <input id="editSwatchHex" type="text" placeholder="#D9D9D6" maxlength="7" style="flex:1;">
-                  <span id="editSwatchPreview" style="display:inline-block;width:22px;height:22px;border-radius:4px;border:1px solid #ccc;background:#eee;flex-shrink:0;"></span>
+                  <input id="editSwatchPicker" type="color" value="#d9d9d6" title="Pick a color" style="width:30px;height:30px;padding:2px;border:1px solid #ccc;border-radius:4px;cursor:pointer;flex-shrink:0;background:none;">
                 </span>
               </label>
               <label>Quantity<input id="editQuantity" type="number" min="0"></label>
@@ -1345,16 +1419,24 @@
               </span>
               <textarea id="editDescription" placeholder="Vehicle description..."></textarea>
             </label>
-            <label class="full-field">Features (comma separated)
-              <input id="editFeatures" type="text" placeholder="4x4, Tow package, Bluetooth">
-            </label>
+            <div class="full-field chips-field">
+              <label for="editFeaturesInput">Features</label>
+              <div class="chips-wrap" id="editChipsWrap">
+                <input id="editFeaturesInput" type="text" placeholder="Type a feature and press Enter&#x2026;" class="chips-text-input" autocomplete="off">
+              </div>
+              <input id="editFeatures" type="hidden">
+            </div>
 
             <div class="form-section-header" style="margin-top:var(--space-md)">
               <h4>Administrative Details</h4>
             </div>
             <div class="panel-grid">
               <label>Condition
-                <input id="editCondition" type="text" value="Used" readonly style="opacity:0.7;cursor:default">
+                <select id="editCondition">
+                  <option value="Used" selected>Used</option>
+                  <option value="New">New</option>
+                  <option value="Certified Pre-Owned">Certified Pre-Owned</option>
+                </select>
               </label>
               <label>Title Status
                 <select id="editTitleState">
