@@ -34,7 +34,7 @@ export async function handleLogin(event, { loadBlogPosts, loadBlogComments, load
 
     sessionStorage.setItem('bf_admin_session', JSON.stringify({
       authenticated: true, user: state.blogUser, username: user,
-      passwordHash: passwordHash, loginTime: Date.now(),
+      passwordHash: passwordHash, token: data.token, loginTime: Date.now(),
     }));
 
     toggleAuth(true, state.blogUser);

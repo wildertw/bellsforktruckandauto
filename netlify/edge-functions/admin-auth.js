@@ -113,7 +113,11 @@ const LOGIN_PAGE = `<!DOCTYPE html>
           body: JSON.stringify({ username: user, passwordHash: hash }),
         });
         if (!res.ok) throw new Error('Invalid credentials');
-        // Cookie is set by the blog-auth response, reload to pass through edge function
+        var data = await res.json();
+        sessionStorage.setItem('bf_admin_session', JSON.stringify({
+          authenticated: true, user: data.user || user, username: user,
+          passwordHash: hash, token: data.token, loginTime: Date.now(),
+        }));
         window.location.reload();
       } catch (err) {
         errEl.textContent = 'Invalid username or password.';
