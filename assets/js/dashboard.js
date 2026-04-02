@@ -4294,7 +4294,7 @@
         if (!data.vehicles || !Array.isArray(data.vehicles)) throw new Error('Missing "vehicles" array');
         parsedPublishInventory = data;
         $('publishDropLabel').innerHTML = '<strong>&#10003; ' + file.name + ' loaded</strong>';
-        dropZone.classList.add('file-ready');
+        $('publishDropZone').classList.add('file-ready');
         $('pubBadge1').classList.add('done');
         showFeedback($('publishParseStatus'), data.vehicles.length + ' vehicles found.');
         renderPublishReview(data);
