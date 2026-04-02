@@ -541,7 +541,7 @@
       // Store session for publish pipeline compatibility
       sessionStorage.setItem('bf_admin_session', JSON.stringify({
         authenticated: true, user: blogUser, username: user,
-        passwordHash: passwordHash, loginTime: Date.now(),
+        passwordHash: passwordHash, token: data.token, loginTime: Date.now(),
       }));
 
       toggleAuth(true, blogUser);
@@ -5448,6 +5448,26 @@
 
   // ─── Init ───────────────────────────────────────────────────────────────────
   function init() {
+    // Auto-restore session (eliminates double-login after edge function auth)
+    try {
+      var saved = sessionStorage.getItem('bf_admin_session');
+      if (saved) {
+        var session = JSON.parse(saved);
+        if (session.authenticated && session.token) {
+          blogToken = session.token;
+          blogUser = session.user || '';
+          authPasswordHash = session.passwordHash || '';
+          toggleAuth(true, blogUser);
+          Promise.all([loadBlogPosts(), loadBlogComments()]).then(function () {
+            renderOverview();
+          });
+          loadInventoryFromSite();
+        }
+      }
+    } catch (e) {
+      // Corrupt session data — ignore, user will see login form
+    }
+
     // Auth
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', () => {
