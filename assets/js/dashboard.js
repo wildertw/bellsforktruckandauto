@@ -2383,41 +2383,50 @@
 
   // ─── Inventory Import/Export ────────────────────────────────────────────────
   function loadInventoryFromSite() {
-    showFeedback(editFeedback, 'Loading inventory from site...');
-    fetch('/inventory.json')
-      .then((res) => res.json())
-      .then((data) => {
-        const vehicles = data.vehicles || data;
+    showToast('Loading inventory from site...');
+    fetch('/inventory.json?_t=' + Date.now(), { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        var vehicles = data.vehicles || data;
         if (!Array.isArray(vehicles)) throw new Error('Invalid format');
         // Convert site format to dashboard format
-        inventory = vehicles.map((v, i) => ({
-          sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
-          name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
-          category: v.type || v.category || 'Vehicle',
-          quantity: 1,
-          price: Number(v.price) || 0,
-          description: v.description || '',
-          supplier: '',
-          year: v.year, make: v.make, model: v.model, trim: v.trim,
-          vin: v.vin, stockNumber: v.stockNumber,
-          engine: v.engine, transmission: v.transmission,
-          mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
-          exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
-          features: v.features || [], status: v.status || 'available',
-          badge: v.badge, featured: v.featured || false,
-          drivetrain: v.drivetrain, fuelType: v.fuelType,
-          condition: v.condition || 'Used',
-          titleState: v.titleState || 'Clean',
-          warranty: v.warranty || 'Extended Warranty Available',
-          cylinders: v.cylinders || '',
-          doors: v.doors || '',
-          images: v.images,
-        }));
+        inventory = vehicles.map(function (v, i) {
+          return {
+            sku: v.stockNumber || v.vin || ('SITE-' + String(i + 1).padStart(3, '0')),
+            name: [v.year, normalizeVehicleText(v.make), normalizeVehicleText(v.model)].filter(Boolean).join(' ') || 'Vehicle',
+            category: v.type || v.category || 'Vehicle',
+            quantity: 1,
+            price: Number(v.price) || 0,
+            description: v.description || '',
+            supplier: '',
+            year: v.year, make: v.make, model: v.model, trim: v.trim,
+            vin: v.vin, stockNumber: v.stockNumber,
+            engine: v.engine, transmission: v.transmission,
+            mileage: v.mileage, mpgCity: v.mpgCity, mpgHighway: v.mpgHighway,
+            exteriorColor: v.exteriorColor, interiorColor: v.interiorColor,
+            features: v.features || [], status: v.status || 'available',
+            badge: v.badge, featured: v.featured || false,
+            drivetrain: v.drivetrain, fuelType: v.fuelType,
+            condition: v.condition || 'Used',
+            titleState: v.titleState || 'Clean',
+            warranty: v.warranty || 'Extended Warranty Available',
+            cylinders: v.cylinders || '',
+            doors: v.doors || '',
+            images: v.images,
+          };
+        });
         persistInventory();
         renderInventoryTable();
-        showFeedback(editFeedback, 'Loaded ' + inventory.length + ' vehicles from site.');
+        showToast('Loaded ' + inventory.length + ' vehicles from site.', 'success');
+        setTimeout(hideToast, 4000);
       })
-      .catch((err) => showFeedback(editFeedback, 'Failed to load: ' + err.message, true));
+      .catch(function (err) {
+        showToast('Failed to load inventory: ' + err.message, 'error');
+        setTimeout(hideToast, 8000);
+      });
   }
 
   function importInventoryFile(event) {

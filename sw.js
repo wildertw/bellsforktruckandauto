@@ -51,6 +51,7 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/.netlify/functions')) return;
   if (url.pathname.startsWith('/.netlify/scripts')) return;
   if (url.pathname.startsWith('/admin')) return;
+  if (url.pathname === '/inventory.json') return;
 
   // For HTML pages: network-first with cache fallback
   if (event.request.headers.get('accept')?.includes('text/html')) {
