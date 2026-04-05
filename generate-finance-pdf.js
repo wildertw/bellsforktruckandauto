@@ -28,6 +28,7 @@ const PDFDocument = require('pdfkit');
 
 function sanitize(val) {
   if (val == null) return '';
+  // eslint-disable-next-line no-control-regex
   return String(val).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
 }
 
@@ -258,18 +259,18 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    console.log('Usage: node generate-finance-pdf.js <submission.json> [submission2.json ...]');
-    console.log('');
-    console.log('Each JSON file should contain the form field data, e.g.:');
-    console.log('  {');
-    console.log('    "applicant_first_name": "John",');
-    console.log('    "applicant_last_name": "Doe",');
-    console.log('    "applicant_phone": "(252) 555-0123",');
-    console.log('    ...');
-    console.log('  }');
-    console.log('');
-    console.log('Optionally include a "submitted_at" field (ISO date string) for the timestamp.');
-    console.log('PDFs will be saved to ./finance-pdfs/');
+    console.warn('Usage: node generate-finance-pdf.js <submission.json> [submission2.json ...]');
+    console.warn('');
+    console.warn('Each JSON file should contain the form field data, e.g.:');
+    console.warn('  {');
+    console.warn('    "applicant_first_name": "John",');
+    console.warn('    "applicant_last_name": "Doe",');
+    console.warn('    "applicant_phone": "(252) 555-0123",');
+    console.warn('    ...');
+    console.warn('  }');
+    console.warn('');
+    console.warn('Optionally include a "submitted_at" field (ISO date string) for the timestamp.');
+    console.warn('PDFs will be saved to ./finance-pdfs/');
     process.exit(1);
   }
 
@@ -331,13 +332,13 @@ async function main() {
       }
 
       fs.writeFileSync(outPath, pdfBuffer);
-      console.log(`  ${filename}  (${pdfBuffer.length} bytes)`);
+      console.warn(`  ${filename}  (${pdfBuffer.length} bytes)`);
     } catch (err) {
       console.error(`Failed to generate PDF for ${file}: ${err.message}`);
     }
   }
 
-  console.log(`\nDone. PDFs saved to ${outDir}`);
+  console.warn(`\nDone. PDFs saved to ${outDir}`);
 }
 
 main();

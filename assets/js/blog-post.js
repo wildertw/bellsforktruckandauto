@@ -72,7 +72,7 @@
       try {
         await navigator.clipboard.writeText(url);
         document.getElementById('copyLinkBtn').textContent = 'Copied';
-      } catch (_) {
+      } catch {
         document.getElementById('copyLinkBtn').textContent = 'Copy failed';
       }
       setTimeout(() => { document.getElementById('copyLinkBtn').textContent = 'Copy Link'; }, 1600);
@@ -89,7 +89,7 @@
         return;
       }
       list.innerHTML = comments.map(buildCommentCard).join('');
-    } catch (_) {
+    } catch {
       list.innerHTML = '<div class="text-danger small">Unable to load comments right now.</div>';
     }
   }
@@ -185,7 +185,7 @@
           schema.author = { '@type': 'Person', 'name': post.author, 'jobTitle': 'Dealer Principal', 'url': 'https://bellsforktruckandauto.com/about' };
         }
         schemaEl.textContent = JSON.stringify(schema);
-      } catch (_) { /* schema update failed silently */ }
+      } catch { /* schema update failed silently */ }
     }
   }
 
@@ -204,7 +204,7 @@
       loadingState.style.display = 'none';
       articleEl.style.display = '';
       errorEl.style.display = 'none';
-    } catch (_) {
+    } catch {
       loadingState.style.display = 'none';
       articleEl.style.display = 'none';
       errorEl.style.display = '';

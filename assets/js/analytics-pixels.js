@@ -115,8 +115,8 @@
 
     // VDP views → ViewContent event
     if (window.location.pathname.indexOf('/vdp/') === 0) {
-      var titleEl = document.querySelector('.vdp-vehicle-title');
-      var priceEl = document.querySelector('.vdp-price-tag');
+      titleEl = document.querySelector('.vdp-vehicle-title');
+      priceEl = document.querySelector('.vdp-price-tag');
       window.fbq('track', 'ViewContent', {
         content_name: titleEl ? titleEl.textContent.trim() : document.title,
         content_type: 'vehicle',
