@@ -263,11 +263,32 @@ exports.handler = async (event) => {
     if (action === 'post') {
       const slug = String(params.slug || '').trim();
       if (!slug) return json(400, { error: 'slug is required' });
-      const post = await postStore.get(slug, { type: 'json' }).catch(() => null);
-      if (!post || (post.status || 'draft') !== 'published') return json(404, { error: 'Post not found' });
+      let post = await postStore.get(slug, { type: 'json' }).catch(() => null);
+      // Fallback: scan all posts if direct key lookup misses (handles key/slug mismatches)
+      if (!post || (post.status || 'draft') !== 'published') {
+        const all = await getAllPosts(postStore);
+        post = all.find((p) => p.slug === slug && (p.status || 'draft') === 'published') || null;
+      }
+      if (!post) return json(404, { error: 'Post not found' });
       return json(200, post, {
         'Cache-Control': 'public, max-age=60, s-maxage=300, stale-while-revalidate=600',
       });
+    }
+
+    if (action === 'sitemap') {
+      const all = await getAllPosts(postStore);
+      const published = all.filter((p) => (p.status || 'draft') === 'published');
+      const siteUrl = 'https://bellsforktruckandauto.com';
+      const urls = published.map((p) => {
+        const lastmod = (p.updatedAt || p.publishedAt || '').slice(0, 10);
+        return `  <url>\n    <loc>${siteUrl}/blog/${encodeURIComponent(p.slug)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
+      });
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
+      return {
+        statusCode: 200,
+        headers: { ..._cors, 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600, s-maxage=7200' },
+        body: xml,
+      };
     }
 
     if (action === 'categories') {

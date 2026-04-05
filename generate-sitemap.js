@@ -66,9 +66,27 @@ ${entries.join('\n\n')}
 </urlset>
 `;
 
-  const sitemapPath = path.join(__dirname, 'sitemap.xml');
-  fs.writeFileSync(sitemapPath, xml, 'utf-8');
-  console.log(`Sitemap generated: ${STATIC_PAGES.length + vehicles.length} URLs`);
+  const mainSitemapPath = path.join(__dirname, 'sitemap-main.xml');
+  fs.writeFileSync(mainSitemapPath, xml, 'utf-8');
+  console.log(`Main sitemap generated: ${STATIC_PAGES.length + vehicles.length} URLs`);
+
+  // Generate sitemap index that references both static and dynamic blog sitemaps
+  const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-main.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/blog-sitemap.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>
+`;
+
+  const sitemapIndexPath = path.join(__dirname, 'sitemap.xml');
+  fs.writeFileSync(sitemapIndexPath, sitemapIndex, 'utf-8');
+  console.log('Sitemap index generated: sitemap.xml -> sitemap-main.xml + blog-sitemap.xml');
 }
 
 main();

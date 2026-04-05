@@ -182,6 +182,7 @@ function buildSchema(v) {
         ...(v.mpgCity && v.mpgHighway ? {
           fuelEfficiency: `${v.mpgCity} city / ${v.mpgHighway} highway MPG`
         } : {}),
+        ...(v.bodyStyle || v.type ? { bodyType: v.bodyStyle || v.type } : {}),
         vehicleConfiguration: v.trim || undefined,
         itemCondition: 'https://schema.org/UsedCondition',
         offers: {
