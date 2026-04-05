@@ -130,6 +130,12 @@
   force = true
 
 [[redirects]]
+  from = "/blog-sitemap.xml"
+  to = "/.netlify/functions/blog?action=sitemap"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/blog/:slug"
   to = "/blog-post.html?slug=:slug"
   status = 200

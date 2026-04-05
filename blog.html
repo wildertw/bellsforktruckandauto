@@ -8,7 +8,7 @@
   <title>Blog | Bells Fork Truck & Auto | Car Tips, Truck Advice & Dealer News</title>
   <meta name="description" content="Car buying tips, truck maintenance advice, financing guides, and dealership news from Bells Fork Truck & Auto in Greenville, NC." />
   <meta name="keywords" content="car buying tips Greenville NC, truck maintenance Greenville, used car advice, auto dealer blog, Bells Fork Truck & Auto blog" />
-  <link rel="canonical" href="https://bellsforktruckandauto.com/blog.html" />
+  <link rel="canonical" href="https://bellsforktruckandauto.com/blog" />
 
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <meta name="author" content="Bells Fork Truck & Auto" />
@@ -133,12 +133,12 @@
   </style>
 
   <!-- Schema.org Blog -->
-  <script type="application/ld+json">
+  <script type="application/ld+json" id="blogSchema">
   {
     "@context": "https://schema.org",
     "@type": "Blog",
     "name": "Bells Fork Truck & Auto Blog",
-    "url": "https://bellsforktruckandauto.com/blog.html",
+    "url": "https://bellsforktruckandauto.com/blog",
     "publisher": {
       "@type": "AutoDealer",
       "name": "Bells Fork Truck & Auto",
@@ -453,6 +453,23 @@
         allPosts = await res.json();
         buildCategoryFilter(allPosts);
         renderPosts(allPosts);
+        // Update Blog schema with BlogPosting items
+        var schemaEl = document.getElementById('blogSchema');
+        if (schemaEl && allPosts.length) {
+          try {
+            var schema = JSON.parse(schemaEl.textContent);
+            schema.blogPost = allPosts.map(function(p) {
+              return {
+                '@type': 'BlogPosting',
+                'headline': p.title,
+                'url': 'https://bellsforktruckandauto.com/blog/' + p.slug,
+                'datePublished': p.publishedAt || '',
+                'author': { '@type': 'Person', 'name': p.author || 'Bells Fork Team', 'jobTitle': 'Dealer Principal' }
+              };
+            });
+            schemaEl.textContent = JSON.stringify(schema);
+          } catch (_) {}
+        }
       } catch (err) {
         showBlogState('error');
         console.error('Blog load error:', err);

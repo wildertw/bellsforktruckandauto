@@ -182,7 +182,7 @@
         schema.image = image;
         schema.mainEntityOfPage['@id'] = pageUrl;
         if (post.author) {
-          schema.author = { '@type': 'Person', 'name': post.author };
+          schema.author = { '@type': 'Person', 'name': post.author, 'jobTitle': 'Dealer Principal', 'url': 'https://bellsforktruckandauto.com/about' };
         }
         schemaEl.textContent = JSON.stringify(schema);
       } catch (_) { /* schema update failed silently */ }
