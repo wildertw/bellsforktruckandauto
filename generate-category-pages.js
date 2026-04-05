@@ -6,11 +6,11 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ASSET_VERSION, versioned,
+  versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
-  DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB,
-  escapeHtml, escapeAttr, titleCase, formatMoney, todayISO,
+  DEALER_LAT, DEALER_LNG,
+  escapeHtml, escapeAttr, titleCase,
   buildVDPPath, resolveImg, loadAvailableVehicles,
 } = require('./build-utils');
 
@@ -577,7 +577,7 @@ ${buildFAQSchema(cat.faqs)}
 
 function main() {
   const vehicles = loadAvailableVehicles();
-  console.log(`Generating category pages for ${vehicles.length} vehicles...`);
+  console.warn(`Generating category pages for ${vehicles.length} vehicles...`);
 
   for (const cat of CATEGORIES) {
     const dirPath = path.join(__dirname, cat.slug);
@@ -590,10 +590,10 @@ function main() {
     const count = cat.filterFn
       ? vehicles.filter(cat.filterFn).length
       : vehicles.filter(v => v._inferredType === cat.filterType).length;
-    console.log(`  ${cat.slug}/index.html — ${count} vehicles`);
+    console.warn(`  ${cat.slug}/index.html — ${count} vehicles`);
   }
 
-  console.log(`Done! Generated ${CATEGORIES.length} category pages.`);
+  console.warn(`Done! Generated ${CATEGORIES.length} category pages.`);
 }
 
 main();

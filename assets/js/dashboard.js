@@ -1,3 +1,4 @@
+/* global Chart Quill */
 (function () {
   'use strict';
 
@@ -76,7 +77,7 @@
 
   let currentPage = 1;
   const pageSize = 6;
-  let currentFilter = '';
+
   let editingItem = null;
   let filteredInventory = [];
   let vinDecodeData = null;
@@ -552,7 +553,7 @@
       loadInventoryFromSite();
       // Load dashboard overview stats on login
       renderOverview();
-    } catch (err) {
+    } catch {
       showFeedback(loginFeedback, 'Credentials do not match.');
     }
   }
@@ -749,7 +750,7 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+          legend: { labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' } } },
           tooltip: { mode: 'index', intersect: false },
         },
         scales: {
@@ -939,9 +940,9 @@
         'kpiDaysOnLot', 'kpiInventoryValue', 'kpiMostViewed', 'kpiLeadConversion', 'kpiLeadToSale',
       ];
       dashKpiIds.forEach(function (id) { var el = $(id); if (el) el.textContent = '-'; });
-      var topPagesBody = $('topPagesBody');
+      topPagesBody = $('topPagesBody');
       if (topPagesBody) topPagesBody.innerHTML = '<tr><td colspan="2" class="muted">No data available</td></tr>';
-      var actEl = $('recentActivity');
+      actEl = $('recentActivity');
       if (actEl) actEl.innerHTML = '<p class="muted">Analytics will appear after deployment.</p>';
       var refBody = $('referrerTableBody');
       if (refBody) refBody.innerHTML = '<tr><td colspan="3" class="muted">No data available</td></tr>';
@@ -960,7 +961,6 @@
 
   // ─── Leads & Conversion Sub-Tab ────────────────────────────────────────────
   function renderLeadsPanel(stats) {
-    var ls = stats.leadsBySource || {};
     var setVal = function (id, val) { var el = $(id); if (el) el.textContent = String(val); };
 
     // Lead KPI cards are populated by fetchLeads() with actual database counts
@@ -992,7 +992,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+              legend: { position: 'bottom', labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' } } },
             },
           },
         });
@@ -1034,7 +1034,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+              legend: { labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' } } },
               tooltip: { mode: 'index', intersect: false },
             },
             scales: {
@@ -1556,7 +1556,7 @@
         renderInsightsPanel(statsCache.data);
         setTimeout(function () { hideFeedback($('goalsFeedback')); }, 3000);
       }
-    } catch (e) { showFeedback($('goalsFeedback'), 'Error saving goals', true); }
+    } catch { showFeedback($('goalsFeedback'), 'Error saving goals', true); }
   }
 
   var saveGoalsBtn = $('saveGoalsBtn');
@@ -2004,6 +2004,7 @@
     }
   }
 
+  // eslint-disable-next-line no-unused-vars
   function clearDraftFlags() {
     inventory.forEach(function(v) { delete v._bulkDraft; delete v._draft; delete v._pendingDelete; });
     persistInventory();
@@ -2667,6 +2668,7 @@
     };
   }
 
+  // eslint-disable-next-line no-unused-vars
   function enterEditMode(item) {
     $('addName').value = item.name || '';
     $('addSku').value = item.sku || '';
@@ -2938,6 +2940,7 @@
     statusEl.className = 'mpg-status mpg-' + type; // loading | success | approx | error
     statusEl.classList.remove('hide');
   }
+  // eslint-disable-next-line no-unused-vars
   function hideMpgStatus(statusEl) {
     statusEl.classList.add('hide');
     statusEl.className = 'mpg-status hide';
@@ -3406,6 +3409,7 @@
     processBatchFiles(Array.from(files));
   }
 
+  // eslint-disable-next-line no-unused-vars
   function renderAddPhotoPreview() {
     renderBatchGallery();
   }
@@ -3453,7 +3457,7 @@
             var d = clean(r.Doors);
             merged.doors = (d === '2' || d.includes('2')) ? '2D' : '4D';
           }
-        } catch (e) { /* VIN decode failed, continue */ }
+        } catch { /* VIN decode failed, continue */ }
       }
 
       // Step 2: Photo analysis (if photos uploaded or existing)
@@ -3491,7 +3495,7 @@
               if (data.analysis.bodyStyle && !merged.bodyStyle) merged.bodyStyle = data.analysis.bodyStyle;
             }
           }
-        } catch (e) { /* Photo scan failed, continue with VIN data */ }
+        } catch { /* Photo scan failed, continue with VIN data */ }
       }
 
       // Step 3: MPG Lookup (if we have enough vehicle info)
@@ -3515,7 +3519,7 @@
               merged.mpgCity = String(mpgResult.mpgCity);
               merged.mpgHighway = String(mpgResult.mpgHighway);
             }
-          } catch (e) { /* MPG lookup failed, continue */ }
+          } catch { /* MPG lookup failed, continue */ }
         }
       }
 
@@ -3786,6 +3790,7 @@
     showFeedback($('editFeedback'), 'Photo scan data applied to form.');
   }
 
+  // eslint-disable-next-line no-unused-vars
   function applyAddScanResults(analysis) {
     if (!analysis) return;
     // Colors always from photos
@@ -4294,7 +4299,7 @@
         if (!data.vehicles || !Array.isArray(data.vehicles)) throw new Error('Missing "vehicles" array');
         parsedPublishInventory = data;
         $('publishDropLabel').innerHTML = '<strong>&#10003; ' + file.name + ' loaded</strong>';
-        dropZone.classList.add('file-ready');
+        $('publishDropZone').classList.add('file-ready');
         $('pubBadge1').classList.add('done');
         showFeedback($('publishParseStatus'), data.vehicles.length + ' vehicles found.');
         renderPublishReview(data);
@@ -4451,7 +4456,7 @@
         try {
           const post = await blogAdminRequest('?action=admin-get&slug=' + encodeURIComponent(slug));
           applyBlogPostToForm(post);
-        } catch (err) {
+        } catch {
           const cached = blogPosts.find((p) => p.slug === slug);
           if (cached) applyBlogPostToForm(cached);
         }
@@ -4633,7 +4638,7 @@
       const comments = await blogAdminRequest('?action=admin-comments');
       blogComments = Array.isArray(comments) ? comments : [];
       renderComments();
-    } catch (err) {
+    } catch {
       blogComments = [];
       renderComments();
     }
@@ -4670,7 +4675,7 @@
             body: JSON.stringify({ slug, id, status }),
           });
           await loadBlogComments();
-        } catch (err) {
+        } catch {
           // silently fail
         }
       });
@@ -4706,7 +4711,7 @@
       }
       // Clean up any old client-side key storage
       localStorage.removeItem('bf_openai_key');
-    } catch (e) {
+    } catch {
       // Server load failed — display fields remain as-is
     }
   }
@@ -4759,7 +4764,7 @@
           }),
         });
       }
-    } catch (e) { /* server save failed, localStorage still has it */ }
+    } catch { /* server save failed, localStorage still has it */ }
     if (googleKey && !googleKey.startsWith('*')) $('settingsGoogleKey').value = '********';
     showFeedback($('settingsGoogleStatus'), 'Google Reviews settings saved. Set GOOGLE_PLACES_API_KEY and GOOGLE_PLACE_ID as Netlify environment variables for the reviews to load.');
   }
@@ -4900,7 +4905,7 @@
       });
       if (!res.ok) return [];
       return await res.json();
-    } catch (e) {
+    } catch {
       return [];
     }
   }
@@ -5278,7 +5283,7 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { labels: { color: chartTextColor, font: { family: "'Space Grotesk'" } } },
+          legend: { labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' } } },
           tooltip: { mode: 'index', intersect: false },
         },
         scales: {
@@ -5313,7 +5318,7 @@
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: chartTextColor, font: { family: "'Space Grotesk'" }, padding: 16 },
+            labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 16 },
           },
         },
       },
@@ -5348,7 +5353,7 @@
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: chartTextColor, font: { family: "'Space Grotesk'" }, padding: 12, boxWidth: 12 },
+            labels: { color: chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 12, boxWidth: 12 },
           },
         },
       },
@@ -5407,7 +5412,7 @@
     // Merge local sold inventory with blob records
     var localSold = getSoldFromInventory();
     var blobRecords = [];
-    try { blobRecords = await readSalesBlob(); } catch (e) { /* local only */ }
+    try { blobRecords = await readSalesBlob(); } catch { /* local only */ }
     allSalesRecords = mergeSalesRecords(localSold, blobRecords);
     populateSalesFilterDropdowns(allSalesRecords);
     filterSalesData();
@@ -5473,7 +5478,7 @@
           loadInventoryFromSite();
         }
       }
-    } catch (e) {
+    } catch {
       // Corrupt session data — ignore, user will see login form
     }
 
