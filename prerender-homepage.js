@@ -253,7 +253,7 @@ function main() {
   console.log(`  - Popular Make Models: ${makeModelsHTML ? 'injected' : 'empty'}`);
   console.log(`  - Featured Vehicles: ${featuredHTML ? 'injected' : 'empty'}`);
   console.log(`  - Hero Count: ${vehicles.length}`);
-  console.log(`  - Reviews fallback: injected`);
+  console.log('  - Reviews fallback: injected');
 }
 
 main();

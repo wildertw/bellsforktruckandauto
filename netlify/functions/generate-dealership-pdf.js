@@ -22,6 +22,7 @@ const path = require('path');
 
 function clean(val) {
   if (val == null) return '';
+  // eslint-disable-next-line no-control-regex
   return String(val).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
 }
 
@@ -86,15 +87,17 @@ function truncate(text, font, fontSize, maxWidth) {
 // Coordinates were calibrated by overlaying a grid + test markers on the
 // template PDF and visually aligning with the printed field boxes.
 
-// Column landmarks (approximate x positions of field left edges)
+// Column landmarks (approximate x positions of field left edges).
+// Only COL1 is currently referenced; COL2–COL8 are retained for calibration
+// reference and prefixed with _ to satisfy no-unused-vars.
 const COL1 = 168;   // First column (leftmost field)
-const COL2 = 360;   // Second column
-const COL3 = 460;   // Third column
-const COL4 = 550;   // Fourth column
-const COL5 = 640;   // Fifth column
-const COL6 = 710;   // Sixth column
-const COL7 = 790;   // Seventh column
-const COL8 = 880;   // Eighth column (rightmost fields)
+const _COL2 = 360;  // Second column
+const _COL3 = 460;  // Third column
+const _COL4 = 550;  // Fourth column
+const _COL5 = 640;  // Fifth column
+const _COL6 = 710;  // Sixth column
+const _COL7 = 790;  // Seventh column
+const _COL8 = 880;  // Eighth column (rightmost fields)
 
 // Y-offset: fields in the template image have a label row then a value row below.
 // The value box baseline sits ~24pt below the label baseline.

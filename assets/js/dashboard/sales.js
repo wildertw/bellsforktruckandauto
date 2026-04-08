@@ -1,6 +1,7 @@
 /**
  * Sales Tab — charts, filters, KPIs, table rendering.
  */
+/* global Chart */
 import { $, state } from './state.js';
 import { formatMoney } from './utils.js';
 
@@ -163,7 +164,7 @@ function renderSalesOverTimeChart(data) {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" } } },
+        legend: { labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' } } },
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
@@ -190,7 +191,7 @@ function renderDoughnut(canvas, data, colors, setInstance) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" }, padding: 12, boxWidth: 12 },
+          labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 12, boxWidth: 12 },
         },
       },
     },
@@ -219,7 +220,7 @@ function renderSalesByTypeChart(data) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" }, padding: 16 },
+          labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 16 },
         },
       },
     },

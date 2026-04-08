@@ -63,7 +63,7 @@
       renderFilters();
       renderPosts();
     } catch (err) {
-      container.innerHTML = `<p class="muted">Unable to load blog posts right now.</p>`;
+      container.innerHTML = '<p class="muted">Unable to load blog posts right now.</p>';
       console.error('Home blog load error:', err);
     }
   }

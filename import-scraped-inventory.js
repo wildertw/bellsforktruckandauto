@@ -194,7 +194,7 @@ function generateDescription(v) {
   if (mileageStr) desc += ` With ${mileageStr} on the odometer, this vehicle has plenty of life left.`;
   if (featureStr) desc += ` ${featureStr}.`;
 
-  desc += ` Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.`;
+  desc += ' Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.';
 
   return desc;
 }
@@ -239,7 +239,7 @@ async function main() {
     console.log(`Processing: ${scraped.title} (${vin})`);
 
     // VIN decode via NHTSA
-    console.log(`  VIN decoding...`);
+    console.log('  VIN decoding...');
     const decoded = await decodeVin(vin);
     await new Promise(r => setTimeout(r, 300));
 
@@ -326,7 +326,7 @@ async function main() {
         console.log(`  UPDATED (duplicate): filled ${changes.join(', ')}`);
         updated++;
       } else {
-        console.log(`  SKIPPED (duplicate): no missing fields`);
+        console.log('  SKIPPED (duplicate): no missing fields');
         skipped++;
       }
     } else {

@@ -208,7 +208,7 @@
   }
 
   // ─── Track Page Views ────────────────────────────────────────────────────────
-  var pageCount = incrementPageCount();
+  incrementPageCount();
   var pvExtra = {};
   var stock = getStockNumber();
   if (stock) pvExtra.stockNumber = stock;
