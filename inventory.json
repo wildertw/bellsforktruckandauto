@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-08T15:31:21.133Z",
+  "lastUpdated": "2026-04-08T15:31:41.402Z",
   "vehicles": [
     {
       "vin": "1FTEW1E52LFB99732",
@@ -595,7 +595,7 @@
       ],
       "status": "available",
       "badge": "",
-      "featured": true,
+      "featured": false,
       "condition": "Used",
       "titleState": "Clean",
       "warranty": "Extended Warranty Available",
