@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-09T20:45:47.640Z",
+  "lastUpdated": "2026-04-09T20:48:01.768Z",
   "vehicles": [
     {
       "vin": "1C4SDHCT5LC381011",
@@ -32,8 +32,8 @@
       "cylinders": "8",
       "doors": "4D",
       "images": [
-        "blob:1C4SDHCT5LC381011-01.jpg",
         "blob:1C4SDHCT5LC381011-02.jpg",
+        "blob:1C4SDHCT5LC381011-01.jpg",
         "blob:1C4SDHCT5LC381011-03.jpg",
         "blob:1C4SDHCT5LC381011-04.jpg",
         "blob:1C4SDHCT5LC381011-05.jpg",
