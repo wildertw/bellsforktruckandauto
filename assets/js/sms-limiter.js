@@ -4,11 +4,11 @@
   var KEY = 'bf_sms_count';
 
   function getCount() {
-    try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) { return 0; }
+    try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch { return 0; }
   }
 
   function setCount(n) {
-    try { localStorage.setItem(KEY, n); } catch (e) { /* private browsing */ }
+    try { localStorage.setItem(KEY, n); } catch { /* private browsing */ }
   }
 
   document.addEventListener('DOMContentLoaded', function () {

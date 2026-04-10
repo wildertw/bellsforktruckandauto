@@ -7,16 +7,8 @@ const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
-const VEHICLE_DIR = path.join(__dirname, 'assets', 'vehicles');
 const HERO_DIR = path.join(__dirname, 'assets');
 const OUT_DIR = path.join(__dirname, 'assets', 'vehicles', 'optimized');
-
-// Sizes for vehicle images
-const VEHICLE_SIZES = [
-  { suffix: '400w', width: 400, quality: 72 },
-  { suffix: '800w', width: 800, quality: 78 },
-  { suffix: '1200w', width: 1200, quality: 82 },
-];
 
 // Hero image sizes
 const HERO_SIZES = [
@@ -83,7 +75,7 @@ async function optimizeHeroImages() {
         const ogSize = (fs.statSync(ogOut).size / 1024).toFixed(0);
         console.log(`    OG image: ${ogSize}KB`);
       } catch (err) {
-        console.error(`    Error creating OG image:`, err.message);
+        console.error('    Error creating OG image:', err.message);
       }
     }
 

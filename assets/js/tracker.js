@@ -18,12 +18,12 @@
   // Generate or retrieve persistent anonymous visitor ID
   function getVisitorId() {
     var id = null;
-    try { id = localStorage.getItem(VID_KEY); } catch (e) { /* private browsing */ }
+    try { id = localStorage.getItem(VID_KEY); } catch { /* private browsing */ }
     if (!id) {
       id = typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : 'v-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      try { localStorage.setItem(VID_KEY, id); } catch (e) { /* ignore */ }
+      try { localStorage.setItem(VID_KEY, id); } catch { /* ignore */ }
     }
     return id;
   }
@@ -31,12 +31,12 @@
   // Generate or retrieve session ID (per browser session via sessionStorage)
   function getSessionId() {
     var id = null;
-    try { id = sessionStorage.getItem(SESSION_KEY); } catch (e) { /* ignore */ }
+    try { id = sessionStorage.getItem(SESSION_KEY); } catch { /* ignore */ }
     if (!id) {
       id = typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : 's-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-      try { sessionStorage.setItem(SESSION_KEY, id); } catch (e) { /* ignore */ }
+      try { sessionStorage.setItem(SESSION_KEY, id); } catch { /* ignore */ }
     }
     return id;
   }
@@ -62,7 +62,7 @@
           host.indexOf('x.com') !== -1 || host.indexOf('tiktok') !== -1 ||
           host.indexOf('youtube') !== -1 || host.indexOf('linkedin') !== -1) return 'social';
       return 'other';
-    } catch (e) {
+    } catch {
       return 'other';
     }
   }
@@ -76,7 +76,7 @@
         return true;
       }
       return false;
-    } catch (e) {
+    } catch {
       return true; // private browsing, treat as new
     }
   }
@@ -102,7 +102,7 @@
       count++;
       sessionStorage.setItem(SESSION_PAGES_KEY, String(count));
       return count;
-    } catch (e) {
+    } catch {
       return 1;
     }
   }
@@ -110,7 +110,7 @@
   function getPageCount() {
     try {
       return parseInt(sessionStorage.getItem(SESSION_PAGES_KEY) || '0', 10);
-    } catch (e) {
+    } catch {
       return 0;
     }
   }
@@ -185,7 +185,7 @@
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.send(leadData);
       }
-    } catch (e) { /* ignore errors — analytics should never break the site */ }
+    } catch { /* ignore errors — analytics should never break the site */ }
   }
 
   // ─── Session Start (once per session) ──────────────────────────────────────
@@ -195,7 +195,7 @@
     if (isFirstPageInSession) {
       sessionStorage.setItem(SESSION_START_KEY, Date.now().toString());
     }
-  } catch (e) {
+  } catch {
     isFirstPageInSession = true;
   }
 
@@ -208,7 +208,7 @@
   }
 
   // ─── Track Page Views ────────────────────────────────────────────────────────
-  var pageCount = incrementPageCount();
+  incrementPageCount();
   var pvExtra = {};
   var stock = getStockNumber();
   if (stock) pvExtra.stockNumber = stock;
@@ -217,7 +217,7 @@
   // ─── Session End (on page unload) ──────────────────────────────────────────
   function sendSessionEnd() {
     var startTime = 0;
-    try { startTime = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0', 10); } catch (e) { /* ignore */ }
+    try { startTime = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0', 10); } catch { /* ignore */ }
     var duration = startTime > 0 ? Math.round((Date.now() - startTime) / 1000) : 0;
     send('session_end', {
       pageCount: getPageCount(),

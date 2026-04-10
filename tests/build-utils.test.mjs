@@ -14,7 +14,6 @@ const {
   versioned,
   buildLocalImageCandidates,
   resolveImg,
-  resolveImgAbs,
   inferVehicleType,
 } = require('../build-utils');
 
@@ -26,7 +25,7 @@ describe('escapeHtml', () => {
   });
 
   it('escapes ampersands and single quotes', () => {
-    expect(escapeHtml("Tom & Jerry's")).toBe('Tom &amp; Jerry&#39;s');
+    expect(escapeHtml('Tom & Jerry\'s')).toBe('Tom &amp; Jerry&#39;s');
   });
 
   it('handles null and undefined', () => {

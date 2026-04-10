@@ -42,7 +42,7 @@ export async function handleLogin(event, { loadBlogPosts, loadBlogComments, load
     await Promise.all([loadBlogPosts(), loadBlogComments()]);
     loadInventoryFromSite();
     renderOverview();
-  } catch (err) {
+  } catch {
     showFeedback(dom.loginFeedback, 'Credentials do not match.');
   }
 }

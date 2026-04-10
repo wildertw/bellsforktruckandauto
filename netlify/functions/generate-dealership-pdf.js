@@ -22,6 +22,7 @@ const path = require('path');
 
 function clean(val) {
   if (val == null) return '';
+  // eslint-disable-next-line no-control-regex
   return String(val).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
 }
 
@@ -88,13 +89,6 @@ function truncate(text, font, fontSize, maxWidth) {
 
 // Column landmarks (approximate x positions of field left edges)
 const COL1 = 168;   // First column (leftmost field)
-const COL2 = 360;   // Second column
-const COL3 = 460;   // Third column
-const COL4 = 550;   // Fourth column
-const COL5 = 640;   // Fifth column
-const COL6 = 710;   // Sixth column
-const COL7 = 790;   // Seventh column
-const COL8 = 880;   // Eighth column (rightmost fields)
 
 // Y-offset: fields in the template image have a label row then a value row below.
 // The value box baseline sits ~24pt below the label baseline.

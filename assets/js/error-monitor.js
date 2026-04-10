@@ -35,7 +35,7 @@
           JSON.stringify(payload)
         );
       }
-    } catch (e) {
+    } catch {
       // Silently ignore errors in the error reporter itself
     }
   }

@@ -43,6 +43,7 @@ try {
 /** Sanitize a value for safe rendering in the PDF */
 function sanitize(val) {
   if (val == null) return '';
+  // eslint-disable-next-line no-control-regex
   return String(val).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
 }
 
@@ -423,7 +424,7 @@ async function createLead({ contactName, contactPhone, contactEmail, vehicle, fo
     let leads;
     try {
       leads = await store.get('all', { type: 'json' });
-    } catch (e) {
+    } catch {
       // Key might not exist yet
     }
     if (!Array.isArray(leads)) leads = [];

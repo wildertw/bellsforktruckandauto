@@ -248,7 +248,7 @@ exports.handler = async (event) => {
     title: post.title,
     status: post.status,
     url: status === 'published' ? `/blog/${post.slug}` : null,
-    adminUrl: `/admin/blog`,
+    adminUrl: '/admin/blog',
     message: status === 'published'
       ? `Post "${title}" published at /blog/${slug}`
       : `Post "${title}" saved as draft. Review at /admin/blog`,

@@ -7,14 +7,14 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ASSET_VERSION, versioned,
+  versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
-  DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
-  escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
+  DEALER_LAT, DEALER_LNG, DEALER_FB,
+  escapeHtml, escapeAttr, titleCase, formatMoney,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
-  filterPublicImages, resolveVehicleColorDisplay,
+  resolveVehicleColorDisplay,
 } = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
@@ -145,9 +145,6 @@ function buildSchema(v) {
   const vdpUrl = `${SITE_URL}${buildVDPPath(v)}`;
   // Use public images only (OEM labels excluded) for schema
   const pubImages = v._publicImages || v.images || [];
-  const mainImage = pubImages.length > 0
-    ? resolveImgAbs(pubImages[0])
-    : `${SITE_URL}/assets/logo.png`;
 
   const schema = {
     '@context': 'https://schema.org',
@@ -210,7 +207,7 @@ function buildSchema(v) {
         '@id': `${SITE_URL}/#business`,
         name: DEALER_NAME,
         url: `${SITE_URL}/`,
-        telephone: `+1-252-496-0005`,
+        telephone: '+1-252-496-0005',
         address: {
           '@type': 'PostalAddress',
           streetAddress: DEALER_STREET,
@@ -270,9 +267,6 @@ function generateVDPHtml(v, allVehicles) {
   const vinB64 = vin ? Buffer.from(vin).toString('base64') : '';
   // Use public images (OEM label photos excluded) for gallery + OG image
   const vdpPubImages = v._publicImages || v.images || [];
-  const mainImage = vdpPubImages.length > 0
-    ? resolveImg(vdpPubImages[0], ASSET_PREFIX)
-    : '';
   const mainImageAbs = vdpPubImages.length > 0
     ? resolveImgAbs(vdpPubImages[0])
     : `${SITE_URL}/assets/hero/shop-front-og.jpg`;
@@ -312,7 +306,6 @@ function generateVDPHtml(v, allVehicles) {
   // ── Section 3: Appearance ──
   const cd = v._colorDisplay || {};
   const extColorDisplay = cd.exterior_color_name || v.exteriorColor || '—';
-  const paintCodeDisplay = cd.paint_code || v.paintCode || '';
   const swatchHex = cd.web_swatch_hex || '';
   const appearSpecs = [
     { label: 'Exterior Color', value: extColorDisplay, swatch: swatchHex },
@@ -1148,7 +1141,7 @@ ${similar.map(sv => {
   const svMiles = sv.mileage ? `${Number(sv.mileage).toLocaleString()} mi` : '';
   return `          <div class="col-6 col-md-4 col-lg-2">
             <a href="${svHref}" class="vdp-similar-card">
-${svImg ? `              <img src="${escapeAttr(svImg)}" alt="${escapeAttr(svTitle)}" width="200" height="160" loading="lazy">` : `              <div style="height:160px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8rem;">No Photo</div>`}
+${svImg ? `              <img src="${escapeAttr(svImg)}" alt="${escapeAttr(svTitle)}" width="200" height="160" loading="lazy">` : '              <div style="height:160px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;font-size:.8rem;">No Photo</div>'}
               <div class="vdp-similar-body">
                 <div class="vdp-similar-title">${escapeHtml(svTitle)}</div>
                 <div class="vdp-similar-price">${escapeHtml(svPrice)}</div>
@@ -1316,7 +1309,7 @@ function generateSitemap(vehicles) {
     { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
   ];
 
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
   for (const page of staticPages) {
     xml += `\n  <url>\n    <loc>${SITE_URL}${page.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
@@ -1327,7 +1320,7 @@ function generateSitemap(vehicles) {
     xml += `\n  <url>\n    <loc>${SITE_URL}${vdpPath}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
   }
 
-  xml += `\n</urlset>\n`;
+  xml += '\n</urlset>\n';
   return xml;
 }
 

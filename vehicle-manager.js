@@ -58,17 +58,6 @@ function downloadInventoryJSON(inv) {
   link.click();
 }
 
-function safeSlug(str) {
-  return (str || '')
-    .toString()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-zA-Z0-9\-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .toLowerCase();
-}
-
 // Automotive-aware title case normalization
 var VM_UPPER_WORDS = new Set([
   'BMW', 'GMC', 'RAM', 'AMG', 'GT', 'SRT', 'TRD',
@@ -444,7 +433,6 @@ function setupVinDecoder() {
       const driveType    = get('Drive Type');
       const bodyClass    = get('Body Class');
       const fuelType     = get('Fuel Type - Primary');
-      const doors        = get('Doors');
 
       // Populate basic fields
       if ($('year'))  $('year').value  = year;
@@ -963,7 +951,7 @@ function setupFormHandlers() {
       const action = editTarget ? 'updated' : 'added';
       const photoMsg = newImageKeys.length ? `\n${newImageKeys.length} photo(s) uploaded to server.` : '';
       alert(`Vehicle ${action}!\n\n${vehicle.year || ''} ${vehicle.make || ''} ${vehicle.model || ''}`.trim() +
-        photoMsg + `\n\ninventory.json has been downloaded.\nUpload it to your website root to publish changes.`);
+        photoMsg + '\n\ninventory.json has been downloaded.\nUpload it to your website root to publish changes.');
 
       cancelEdit();
       loadInventoryTable();
@@ -1122,7 +1110,7 @@ function loadInventoryTable() {
     return;
   }
 
-  tbody.innerHTML = filtered.map((v, idxInFiltered) => {
+  tbody.innerHTML = filtered.map((v) => {
     const realIdx = vehicles.indexOf(v);
     const title = `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim();
     const trim = v.trim ? `<br><small class="text-muted">${v.trim}</small>` : '';
@@ -1132,7 +1120,7 @@ function loadInventoryTable() {
       ? (String(v.images[0]).startsWith('http') ? v.images[0] : `assets/vehicles/${v.images[0]}`)
       : '';
     const thumb = hasImg
-      ? `<img src="${thumbSrc}" alt="${title}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #dee2e6;" onerror="this.style.objectFit='contain';this.style.padding='10px';this.src='data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"80\" height=\"60\" viewBox=\"0 0 16 16\"><rect x=\"1\" y=\"3\" width=\"14\" height=\"12\" rx=\"1\" fill=\"none\" stroke=\"%23adb5bd\"/><circle cx=\"5.2\" cy=\"14\" r=\"1.2\" fill=\"%23adb5bd\"/><circle cx=\"12.8\" cy=\"14\" r=\"1.2\" fill=\"%23adb5bd\"/></svg>')}';">`
+      ? `<img src="${thumbSrc}" alt="${title}" style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid #dee2e6;" onerror="this.style.objectFit='contain';this.style.padding='10px';this.src='data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="60" viewBox="0 0 16 16"><rect x="1" y="3" width="14" height="12" rx="1" fill="none" stroke="%23adb5bd"/><circle cx="5.2" cy="14" r="1.2" fill="%23adb5bd"/><circle cx="12.8" cy="14" r="1.2" fill="%23adb5bd"/></svg>')}';">`
       : `<div style="width:80px;height:60px;background:#e9ecef;border-radius:6px;display:flex;align-items:center;justify-content:center;border:1px solid #dee2e6;">
             <svg width="26" height="26" fill="#6c757d" viewBox="0 0 16 16" aria-hidden="true">
               <rect x="1" y="3" width="15" height="13" rx="1" fill="none" stroke="currentColor" stroke-width="1"/>
@@ -1142,7 +1130,7 @@ function loadInventoryTable() {
           </div>`;
 
     const stockVin = `
-      ${v.stockNumber ? `<div><span class=\"badge bg-secondary\">Stock #${v.stockNumber}</span></div>` : ''}
+      ${v.stockNumber ? `<div><span class="badge bg-secondary">Stock #${v.stockNumber}</span></div>` : ''}
       <div class="small mono">${v.vin || '—'}</div>
     `;
 
@@ -1310,7 +1298,7 @@ ${detailLines}`;
     let aiData = {};
     try {
       aiData = JSON.parse(rawText);
-    } catch (e) {
+    } catch {
       // Fallback: treat entire response as description only
       aiData = { description: rawText };
     }

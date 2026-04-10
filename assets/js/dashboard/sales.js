@@ -163,7 +163,7 @@ function renderSalesOverTimeChart(data) {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" } } },
+        legend: { labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' } } },
         tooltip: { mode: 'index', intersect: false },
       },
       scales: {
@@ -190,7 +190,7 @@ function renderDoughnut(canvas, data, colors, setInstance) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" }, padding: 12, boxWidth: 12 },
+          labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 12, boxWidth: 12 },
         },
       },
     },
@@ -219,7 +219,7 @@ function renderSalesByTypeChart(data) {
       plugins: {
         legend: {
           position: 'bottom',
-          labels: { color: state.chartTextColor, font: { family: "'Space Grotesk'" }, padding: 16 },
+          labels: { color: state.chartTextColor, font: { family: '\'Space Grotesk\'' }, padding: 16 },
         },
       },
     },
@@ -278,7 +278,7 @@ export function filterSalesData() {
 export async function refreshSalesViews(readSalesBlob) {
   var localSold = getSoldFromInventory();
   var blobRecords = [];
-  try { blobRecords = await readSalesBlob(); } catch (e) { /* local only */ }
+  try { blobRecords = await readSalesBlob(); } catch { /* local only */ }
   state.allSalesRecords = mergeSalesRecords(localSold, blobRecords);
   populateSalesFilterDropdowns(state.allSalesRecords);
   filterSalesData();

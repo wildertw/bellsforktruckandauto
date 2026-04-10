@@ -49,7 +49,7 @@ http.createServer((req, res) => {
       'Access-Control-Allow-Origin': '*',
     });
     res.end(data);
-  } catch (err) {
+  } catch {
     res.writeHead(500, { 'Content-Type': 'text/plain' });
     res.end('500 Internal Server Error');
   }
