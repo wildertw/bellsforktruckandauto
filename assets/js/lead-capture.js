@@ -8,7 +8,6 @@
 
   var DEALER_PHONE_TEL = '+12524960005';
   var DEALER_SMS_TEL = '+12529170551';
-  var DEALER_PHONE = '(252) 496-0005';
 
   // ─── Helpers ───
   function qs(sel) { return document.querySelector(sel); }

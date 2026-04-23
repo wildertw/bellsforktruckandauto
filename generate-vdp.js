@@ -7,14 +7,15 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ASSET_VERSION, versioned,
+  versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
-  DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
-  escapeHtml, escapeAttr, titleCase, formatMoney, slugify,
+  DEALER_LAT, DEALER_LNG,
+  DEALER_FB,
+  escapeHtml, escapeAttr, titleCase, formatMoney,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
-  filterPublicImages, resolveVehicleColorDisplay,
+  resolveVehicleColorDisplay,
 } = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
@@ -145,9 +146,6 @@ function buildSchema(v) {
   const vdpUrl = `${SITE_URL}${buildVDPPath(v)}`;
   // Use public images only (OEM labels excluded) for schema
   const pubImages = v._publicImages || v.images || [];
-  const mainImage = pubImages.length > 0
-    ? resolveImgAbs(pubImages[0])
-    : `${SITE_URL}/assets/logo.png`;
 
   const schema = {
     '@context': 'https://schema.org',
@@ -270,9 +268,6 @@ function generateVDPHtml(v, allVehicles) {
   const vinB64 = vin ? Buffer.from(vin).toString('base64') : '';
   // Use public images (OEM label photos excluded) for gallery + OG image
   const vdpPubImages = v._publicImages || v.images || [];
-  const mainImage = vdpPubImages.length > 0
-    ? resolveImg(vdpPubImages[0], ASSET_PREFIX)
-    : '';
   const mainImageAbs = vdpPubImages.length > 0
     ? resolveImgAbs(vdpPubImages[0])
     : `${SITE_URL}/assets/hero/shop-front-og.jpg`;
@@ -312,7 +307,6 @@ function generateVDPHtml(v, allVehicles) {
   // ── Section 3: Appearance ──
   const cd = v._colorDisplay || {};
   const extColorDisplay = cd.exterior_color_name || v.exteriorColor || '—';
-  const paintCodeDisplay = cd.paint_code || v.paintCode || '';
   const swatchHex = cd.web_swatch_hex || '';
   const appearSpecs = [
     { label: 'Exterior Color', value: extColorDisplay, swatch: swatchHex },

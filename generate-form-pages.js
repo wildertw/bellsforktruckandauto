@@ -7,10 +7,10 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  ASSET_VERSION, versioned,
+  versioned,
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
-  DEALER_LAT, DEALER_LNG, DEALER_FB,
+  DEALER_LAT, DEALER_LNG,
   escapeHtml, escapeAttr,
 } = require('./build-utils');
 

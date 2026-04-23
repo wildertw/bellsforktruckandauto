@@ -14,7 +14,6 @@ const {
   versioned,
   buildLocalImageCandidates,
   resolveImg,
-  resolveImgAbs,
   inferVehicleType,
 } = require('../build-utils');
 

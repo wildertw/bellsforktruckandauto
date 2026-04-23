@@ -401,7 +401,6 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers: corsHeaders(event), body: JSON.stringify({ error: 'Missing lead id' }) };
       }
 
-      let found = false;
       try {
         await withLeadsLock(store, function (currentLeads) {
           const initialLen = currentLeads.length;
@@ -412,7 +411,6 @@ exports.handler = async (event) => {
           // Replace contents in-place so the reference used by withLeadsLock is updated
           currentLeads.length = 0;
           filtered.forEach(function (l) { currentLeads.push(l); });
-          found = true;
         });
       } catch (err) {
         if (err.statusCode === 404) {

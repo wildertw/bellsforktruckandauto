@@ -166,11 +166,11 @@ exports.handler = async (event) => {
       case 'session_start':
         daily.totalSessions++;
         // Track device type
-        if (extra.device && daily.devices.hasOwnProperty(extra.device)) {
+        if (extra.device && Object.prototype.hasOwnProperty.call(daily.devices, extra.device)) {
           daily.devices[extra.device]++;
         }
         // Track referrer source
-        if (extra.referrer && daily.referrers.hasOwnProperty(extra.referrer)) {
+        if (extra.referrer && Object.prototype.hasOwnProperty.call(daily.referrers, extra.referrer)) {
           daily.referrers[extra.referrer]++;
         }
         // Track new vs returning
