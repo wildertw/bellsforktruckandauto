@@ -120,10 +120,20 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
   let todayFormSubmits = 0;
   let todayPrequalifySubmits = 0;
 
+  // Fetch all daily blobs in parallel — this is the dominant latency cost.
+  // Sequential `await` in a loop made `period=month` issue 30 round trips
+  // back-to-back, frequently breaching the client's load timeout on cold starts.
+  const dayDates = [];
   for (let i = 0; i < daysBack; i++) {
-    const d = new Date(endDate.getTime() - i * 86400000);
-    const key = dateKey(d);
-    const daily = await analyticsStore.get(key, { type: 'json' });
+    dayDates.push(new Date(endDate.getTime() - i * 86400000));
+  }
+  const dailyBlobs = await Promise.all(
+    dayDates.map(function (d) { return analyticsStore.get(dateKey(d), { type: 'json' }); })
+  );
+
+  for (let i = 0; i < daysBack; i++) {
+    const d = dayDates[i];
+    const daily = dailyBlobs[i];
 
     if (daily) {
       const views = daily.pageViews || 0;
@@ -344,23 +354,22 @@ exports.handler = async (event) => {
 
   try {
     const analyticsStore = blobStore({ name: 'site-analytics', consistency: 'strong' });
+    const inventoryStore = blobStore('inventory');
     const now = new Date();
-
-    // Current period aggregation
-    const current = await aggregatePeriod(analyticsStore, now, daysBack);
-
-    // Previous period aggregation (for trend comparison)
     const prevEnd = new Date(now.getTime() - daysBack * 86400000);
-    const prev = await aggregatePeriod(analyticsStore, prevEnd, daysBack);
+
+    // Run current-period, previous-period, and inventory reads concurrently.
+    const [current, prev, currentInventory] = await Promise.all([
+      aggregatePeriod(analyticsStore, now, daysBack),
+      aggregatePeriod(analyticsStore, prevEnd, daysBack),
+      inventoryStore.get('current', { type: 'json' }),
+    ]);
 
     // Inventory counts
     let carsInInventory = 0;
     let carsSold = 0;
     let carsPending = 0;
     let vehicles = [];
-
-    const inventoryStore = blobStore('inventory');
-    const currentInventory = await inventoryStore.get('current', { type: 'json' });
 
     if (currentInventory && currentInventory.vehicles) {
       vehicles = currentInventory.vehicles;

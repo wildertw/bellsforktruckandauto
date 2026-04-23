@@ -817,7 +817,9 @@
     renderLatestInventory();
 
     var statsLoadTimeout = new Promise(function (_, reject) {
-      setTimeout(function () { reject(new Error('timeout')); }, 5000);
+      // Allow time for cold starts of the dashboard-stats Netlify function
+      // (which fans out blob reads for two periods + inventory).
+      setTimeout(function () { reject(new Error('timeout')); }, 15000);
     });
     try {
       var stats = await Promise.race([fetchDashboardStats(currentPeriod), statsLoadTimeout]);
