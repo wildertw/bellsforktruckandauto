@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  escapeHtml, escapeAttr, titleCase, formatMoney, loadAvailableVehicles,
+  escapeHtml, escapeAttr, titleCase, loadAvailableVehicles,
   buildVDPPath, resolveImg,
 } = require('./build-utils');
 

@@ -98,7 +98,7 @@ exports.handler = async (event) => {
   }
 
   // Validate stockNumber format — alphanumeric + hyphens only, max 20 chars
-  const cleanStock = String(stockNumber).replace(/[^A-Za-z0-9\-]/g, '').slice(0, 20);
+  const cleanStock = String(stockNumber).replace(/[^A-Za-z0-9-]/g, '').slice(0, 20);
   if (!cleanStock) {
     return {
       statusCode: 400,
