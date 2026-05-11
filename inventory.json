@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-15T16:21:44.438Z",
+  "lastUpdated": "2026-05-11T15:26:34.924Z",
   "vehicles": [
     {
       "vin": "JTHFN45Y799021050",
@@ -45,7 +45,7 @@
         "blob:JTHFN45Y799021050-13.jpg",
         "blob:JTHFN45Y799021050-14.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -96,7 +96,7 @@
         "blob:1C4SDHCT5LC381011-12.jpg",
         "blob:1C4SDHCT5LC381011-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -146,7 +146,7 @@
         "blob:3GCPYFED0MG388743-13.jpg",
         "blob:3GCPYFED0MG388743-14.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -195,7 +195,7 @@
         "blob:1FTEW1E52LFB99732-12.jpg",
         "blob:1FTEW1E52LFB99732-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -250,7 +250,7 @@
         "blob:03068-14.jpg",
         "blob:03068-15.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -308,7 +308,7 @@
         "blob:03051-14.jpg",
         "blob:03051-15.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -372,7 +372,7 @@
         "blob:02937BF-08.jpg",
         "blob:02937BF-09.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -435,7 +435,7 @@
         "blob:02914BF-09.jpg",
         "blob:02914BF-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -491,7 +491,7 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -543,7 +543,7 @@
         "blob:02926BF-09.jpg",
         "blob:02926BF-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -595,7 +595,7 @@
         "blob:02930BF-09.jpg",
         "blob:02930BF-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -641,7 +641,7 @@
         "blob:02955BF-09.jpg",
         "blob:02955BF-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -700,7 +700,7 @@
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728615/ct1r4kf94gmhxvjjrwbf.jpg",
         "https://res.cloudinary.com/dwy0m2b57/image/upload/v1772728616/eecet9tzlxum7jooa7qi.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -720,7 +720,7 @@
       "mpgCity": 17,
       "mpgHighway": 23,
       "mileage": 90844,
-      "price": 60000,
+      "price": 5200,
       "type": "Truck",
       "exteriorColor": "Gray",
       "interiorColor": "Black",
@@ -775,7 +775,7 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -845,7 +845,7 @@
         "VEHICLE-3GTU2WEC1EG333280-12.jpg",
         "VEHICLE-3GTU2WEC1EG333280-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -902,7 +902,7 @@
         "blob:2907-09.jpg",
         "blob:2907-10.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -961,7 +961,7 @@
         "VEHICLE-1GCHK23U04F175472-13.jpg",
         "VEHICLE-1GCHK23U04F175472-14.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1011,7 +1011,7 @@
         "VEHICLE-1FTFX1EF6DKE83738-10.jpg",
         "VEHICLE-1FTFX1EF6DKE83738-11.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1079,7 +1079,7 @@
         "VEHICLE-5TFHY5F14EX339447-14.jpg",
         "VEHICLE-5TFHY5F14EX339447-15.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1152,7 +1152,7 @@
         "VEHICLE-1GNSCJKC7FR289449-17.jpg",
         "VEHICLE-1GNSCJKC7FR289449-18.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1221,7 +1221,7 @@
         "VEHICLE-WDDUG8FB5FA200319-14.jpg",
         "VEHICLE-WDDUG8FB5FA200319-15.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1286,7 +1286,7 @@
         "VEHICLE-1FT7W2BT0GEB02234-12.jpg",
         "VEHICLE-1FT7W2BT0GEB02234-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1345,7 +1345,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1398,7 +1398,7 @@
         "VEHICLE-1C4BJWDGXGL268370-10.jpg",
         "VEHICLE-1C4BJWDGXGL268370-11.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1459,7 +1459,7 @@
         "VEHICLE-3GCUKREC2HG250205-11.jpg",
         "VEHICLE-3GCUKREC2HG250205-12.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1525,7 +1525,7 @@
         "VEHICLE-1GC1KWEY7HF203959-11.jpg",
         "VEHICLE-1GC1KWEY7HF203959-12.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1586,7 +1586,7 @@
         "VEHICLE-1FTFW1EF7HFA76996-15.jpg",
         "VEHICLE-1FTFW1EF7HFA76996-16.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1651,7 +1651,7 @@
         "VEHICLE-1G1FH1R7XJ0156632-12.jpg",
         "VEHICLE-1G1FH1R7XJ0156632-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1720,7 +1720,7 @@
         "VEHICLE-1GNSCBKC2JR250590-13.jpg",
         "VEHICLE-1GNSCBKC2JR250590-14.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1772,7 +1772,7 @@
         "VEHICLE-1FTEW1EP1JKE38404-10.jpg",
         "VEHICLE-1FTEW1EP1JKE38404-11.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1834,7 +1834,7 @@
         "VEHICLE-1FTFX1E59JKD87637-16.jpg",
         "VEHICLE-1FTFX1E59JKD87637-17.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1899,7 +1899,7 @@
         "VEHICLE-1GKS1AKC0KR400775-12.jpg",
         "VEHICLE-1GKS1AKC0KR400775-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1973,7 +1973,7 @@
         "VEHICLE-SAJWA2G79K8W20017-18.jpg",
         "VEHICLE-SAJWA2G79K8W20017-19.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -2033,7 +2033,7 @@
         "VEHICLE-1C6RREFT4KN770971-12.jpg",
         "VEHICLE-1C6RREFT4KN770971-13.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -2100,7 +2100,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -2159,7 +2159,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -2218,7 +2218,7 @@
         "VEHICLE-3TMAZ5CN1MM156792-11.jpg",
         "VEHICLE-3TMAZ5CN1MM156792-12.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -2284,7 +2284,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-04-15",
+      "dateAdded": "2026-05-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
