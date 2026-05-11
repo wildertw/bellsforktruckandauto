@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-11T15:26:34.924Z",
+  "lastUpdated": "2026-05-11T15:30:31.309Z",
   "vehicles": [
     {
       "vin": "JTHFN45Y799021050",
@@ -720,7 +720,7 @@
       "mpgCity": 17,
       "mpgHighway": 23,
       "mileage": 90844,
-      "price": 5200,
+      "price": 52000,
       "type": "Truck",
       "exteriorColor": "Gray",
       "interiorColor": "Black",
