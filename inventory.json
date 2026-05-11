@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-11T15:52:18.586Z",
+  "lastUpdated": "2026-05-11T15:53:05.127Z",
   "vehicles": [
     {
       "vin": "JTHFN45Y799021050",
@@ -221,56 +221,6 @@
         "VEHICLE-1FTEW1E53KFB96224-19.jpg",
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
-      ],
-      "dateAdded": "2026-05-11",
-      "paintCode": "",
-      "oem_scan": null,
-      "photo_roles": [],
-      "color_display": null
-    },
-    {
-      "vin": "1FTFX1EF6DKE83738",
-      "stockNumber": "E83738BF",
-      "year": 2013,
-      "make": "Ford",
-      "model": "F-150",
-      "trim": "XL",
-      "engine": "5.0L 8-Cyl",
-      "transmission": "Automatic",
-      "drivetrain": "4WD",
-      "fuelType": "Gasoline",
-      "mpgCity": 14,
-      "mpgHighway": 19,
-      "mileage": 100406,
-      "price": 15000,
-      "type": "Truck",
-      "exteriorColor": "White",
-      "interiorColor": "Gray",
-      "description": "This 2013 Ford F-150 XL is a well-maintained pre-owned vehicle featuring 4WD, 5.0L 8-Cyl, Automatic transmission. With 100,406 miles on the odometer, this vehicle has plenty of life left. Equipped with Navigation, Stability Control. Stop by Bells Fork Truck & Auto in Greenville, NC or call (252) 496-0005 for more information.",
-      "features": [
-        "Navigation",
-        "Stability Control"
-      ],
-      "status": "available",
-      "badge": "",
-      "featured": false,
-      "condition": "Used",
-      "titleState": "Clean",
-      "warranty": "Extended Warranty Available",
-      "cylinders": "",
-      "doors": "4D",
-      "images": [
-        "VEHICLE-1FTFX1EF6DKE83738-01.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-02.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-03.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-04.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-05.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-06.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-07.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-08.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-09.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-10.jpg",
-        "VEHICLE-1FTFX1EF6DKE83738-11.jpg"
       ],
       "dateAdded": "2026-05-11",
       "paintCode": "",
