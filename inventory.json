@@ -1,6 +1,53 @@
 {
-  "lastUpdated": "2026-05-11T16:10:02.346Z",
+  "lastUpdated": "2026-05-12T13:39:14.337Z",
   "vehicles": [
+    {
+      "vin": "1C4RJHDG4N8606095",
+      "stockNumber": "03139BF",
+      "year": 2022,
+      "make": "Jeep",
+      "model": "Grand Cherokee",
+      "trim": "Overland",
+      "engine": "3.6L V6",
+      "transmission": "Automatic",
+      "drivetrain": "4WD",
+      "fuelType": "Gasoline",
+      "mpgCity": 19,
+      "mpgHighway": 26,
+      "mileage": 58657,
+      "price": 35000,
+      "type": "SUV",
+      "exteriorColor": "BLACK",
+      "interiorColor": "White/Black",
+      "description": "Discover the perfect blend of luxury and capability with this 2022 Jeep Grand Cherokee Overland, featuring a robust 3.6L V6 engine and only 58,657 miles. Equipped with advanced safety features like adaptive cruise control and blind-spot monitoring, as well as convenient amenities such as keyless entry and remote start, this SUV is designed to provide a comfortable and secure driving experience for any adventure.",
+      "features": [
+        "Keyless entry & push-button start"
+      ],
+      "status": "available",
+      "badge": "Great Value",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "6",
+      "doors": "4D",
+      "images": [
+        "blob:03139BF-01.jpg",
+        "blob:03139BF-02.jpg",
+        "blob:03139BF-03.jpg",
+        "blob:03139BF-04.jpg",
+        "blob:03139BF-05.jpg",
+        "blob:03139BF-06.jpg",
+        "blob:03139BF-07.jpg",
+        "blob:03139BF-08.jpg",
+        "blob:03139BF-09.jpg"
+      ],
+      "dateAdded": "2026-05-12",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "JTHFN45Y799021050",
       "stockNumber": "BF-038",
@@ -45,7 +92,7 @@
         "blob:JTHFN45Y799021050-13.jpg",
         "blob:JTHFN45Y799021050-14.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -101,7 +148,7 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -147,7 +194,7 @@
         "blob:02955BF-09.jpg",
         "blob:02955BF-10.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -222,7 +269,7 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -281,7 +328,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -348,7 +395,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -407,7 +454,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -473,7 +520,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-05-11",
+      "dateAdded": "2026-05-12",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
