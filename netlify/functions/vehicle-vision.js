@@ -120,16 +120,12 @@ exports.handler = async (event) => {
   if (!openaiKey) {
     // Try loading from saved admin settings in Netlify Blobs
     try {
-      const { getStore } = require('@netlify/blobs');
-      const siteID = process.env.SITE_ID;
-      const token = process.env.NF_API_TOKEN;
-      if (siteID && token) {
-        const store = getStore({ name: 'admin-config', siteID, token, apiURL: 'https://api.netlify.com' });
-        const raw = await store.get('admin-settings');
-        if (raw) {
-          const saved = JSON.parse(raw);
-          if (saved.openaiKey) openaiKey = saved.openaiKey;
-        }
+      const { blobStore } = require('../lib/blobStore');
+      const store = blobStore('admin-config');
+      const raw = await store.get('admin-settings');
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved.openaiKey) openaiKey = saved.openaiKey;
       }
     } catch { /* blob read failed, try header next */ }
   }

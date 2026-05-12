@@ -28,7 +28,7 @@
 
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
-const { getStore } = require('@netlify/blobs');
+const { blobStore: sharedBlobStore } = require('../lib/blobStore');
 
 // Defensive import: dealership PDF generation must never crash the main handler
 let generateDealershipPDF = null;
@@ -69,12 +69,13 @@ function fieldLabel(key) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** Get a Netlify Blob store */
+/** Get a Netlify Blob store (returns null on local/missing config) */
 function blobStore(name) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) return null;
-  return getStore({ name, siteID, token, apiURL: 'https://api.netlify.com', consistency: 'strong' });
+  try {
+    return sharedBlobStore({ name, consistency: 'strong' });
+  } catch {
+    return null;
+  }
 }
 
 // ─── Form Configuration ─────────────────────────────────────────────────────
