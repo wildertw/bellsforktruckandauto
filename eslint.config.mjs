@@ -58,7 +58,7 @@ export default [
   // Node CommonJS: build scripts at the repo root + Netlify Functions.
   // Build scripts legitimately use console.log for CLI output, so allow it.
   {
-    files: ['netlify/functions/**/*.js', '*.js'],
+    files: ['netlify/functions/**/*.js', 'netlify/lib/**/*.js', '*.js'],
     languageOptions: {
       sourceType: 'commonjs',
       globals: { ...globals.node },
