@@ -131,13 +131,23 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
     dayDates.map(function (d) { return analyticsStore.get(dateKey(d), { type: 'json' }); })
   );
 
+  const asArray = function (v) {
+    if (Array.isArray(v)) return v;
+    if (v && typeof v === 'object') return Object.keys(v);
+    return [];
+  };
+
   for (let i = 0; i < daysBack; i++) {
     const d = dayDates[i];
     const daily = dailyBlobs[i];
 
     if (daily) {
+      const uniqueVisitorsArr = asArray(daily.uniqueVisitors);
+      const newVisitorsArr = asArray(daily.newVisitors);
+      const returningVisitorsArr = asArray(daily.returningVisitors);
+
       const views = daily.pageViews || 0;
-      const uniques = (daily.uniqueVisitors || []).length;
+      const uniques = uniqueVisitorsArr.length;
       const calls = daily.phoneClicks || 0;
       const forms = daily.formSubmits || 0;
       const prequalify = daily.prequalifySubmits || 0;
@@ -146,7 +156,7 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
       totalPhoneClicks += calls;
       totalFormSubmits += forms;
       totalPrequalifySubmits += prequalify;
-      (daily.uniqueVisitors || []).forEach(function (id) { allVisitorIds.add(id); });
+      uniqueVisitorsArr.forEach(function (id) { allVisitorIds.add(id); });
 
       // Enhanced field aggregation (backward compatible)
       if (daily.devices) {
@@ -159,8 +169,8 @@ async function aggregatePeriod(analyticsStore, endDate, daysBack) {
           referrers[k] += (daily.referrers[k] || 0);
         });
       }
-      (daily.newVisitors || []).forEach(function (id) { allNewVisitors.add(id); });
-      (daily.returningVisitors || []).forEach(function (id) { allReturningVisitors.add(id); });
+      newVisitorsArr.forEach(function (id) { allNewVisitors.add(id); });
+      returningVisitorsArr.forEach(function (id) { allReturningVisitors.add(id); });
       totalBounces += daily.bounces || 0;
       totalSessions += daily.totalSessions || 0;
       totalSessionDuration += daily.totalSessionDuration || 0;
@@ -554,11 +564,15 @@ exports.handler = async (event) => {
       body: JSON.stringify(result),
     };
   } catch (err) {
-    console.error('Dashboard stats error:', err);
+    console.error('Dashboard stats error:', err && err.stack ? err.stack : err);
     return {
       statusCode: 500,
-      headers: corsHeaders(event),
-      body: JSON.stringify({ error: 'Internal error' }),
+      headers: { ...corsHeaders(event), 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'Internal error',
+        message: (err && err.message) || String(err),
+        where: (err && err.stack) ? String(err.stack).split('\n').slice(0, 3).join(' | ') : undefined,
+      }),
     };
   }
 };
