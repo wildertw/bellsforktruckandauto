@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-12T13:39:14.337Z",
+  "lastUpdated": "2026-05-12T13:40:10.547Z",
   "vehicles": [
     {
       "vin": "1C4RJHDG4N8606095",
@@ -25,7 +25,7 @@
       ],
       "status": "available",
       "badge": "Great Value",
-      "featured": false,
+      "featured": true,
       "condition": "Used",
       "titleState": "Clean",
       "warranty": "Extended Warranty Available",
