@@ -1,14 +1,5 @@
-const { getStore } = require('@netlify/blobs');
 const mammoth = require('mammoth');
-
-function blobStore(name) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) {
-    throw new Error('Blob config missing');
-  }
-  return getStore({ name, siteID, token, apiURL: 'https://api.netlify.com' });
-}
+const { blobStore } = require('../lib/blobStore');
 
 const POSTS_STORE = 'blog-posts';
 

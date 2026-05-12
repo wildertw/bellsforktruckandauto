@@ -13,13 +13,10 @@
  *   REVIEW_CACHE_HOURS — Cache duration in hours (default: 24)
  */
 
-const { getStore } = require('@netlify/blobs');
+const { blobStore: sharedBlobStore } = require('../lib/blobStore');
 
 function blobStore(name) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) return null;
-  return getStore({ name, siteID, token, apiURL: 'https://api.netlify.com' });
+  try { return sharedBlobStore(name); } catch { return null; }
 }
 
 const ALLOWED_ORIGINS = new Set([

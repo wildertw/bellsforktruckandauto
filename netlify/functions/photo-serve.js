@@ -9,19 +9,7 @@
  * Accessed via redirect: /photos/* → /.netlify/functions/photo-serve/:splat
  */
 
-const { getStore } = require('@netlify/blobs');
-
-// V1 function blob config
-function blobStore(nameOrOpts) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) {
-    throw new Error('Blob config missing');
-  }
-  const cfg = { siteID, token, apiURL: 'https://api.netlify.com' };
-  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
-  return getStore({ ...nameOrOpts, ...cfg });
-}
+const { blobStore } = require('../lib/blobStore');
 
 const MIME_TYPES = {
   png:  'image/png',

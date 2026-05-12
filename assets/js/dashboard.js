@@ -661,7 +661,12 @@
     var res = await fetch(STATS_API + '?period=' + period, {
       headers: { 'Authorization': 'Basic ' + authStr },
     });
-    if (!res.ok) throw new Error('Stats fetch failed: ' + res.status);
+    if (!res.ok) {
+      var bodyText = '';
+      try { bodyText = await res.text(); } catch (e) { bodyText = '(no body)'; }
+      console.error('dashboard-stats ' + res.status + ' body:', bodyText);
+      throw new Error('Stats fetch failed: ' + res.status + ' — ' + bodyText.slice(0, 300));
+    }
     var data = await res.json();
     statsCache = { data: data, time: now, period: period };
     return data;

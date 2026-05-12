@@ -7,19 +7,7 @@
  * Stores daily aggregates in Netlify Blobs (site-analytics store).
  */
 
-const { getStore } = require('@netlify/blobs');
-
-// V1 function blob config — required for legacy exports.handler functions
-function blobStore(nameOrOpts) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) {
-    throw new Error('Blob config missing: SITE_ID=' + (siteID ? 'set' : 'UNSET') + ', NETLIFY_API_TOKEN=' + (token ? 'set' : 'UNSET'));
-  }
-  const cfg = { siteID, token, apiURL: 'https://api.netlify.com' };
-  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
-  return getStore({ ...nameOrOpts, ...cfg });
-}
+const { blobStore } = require('../lib/blobStore');
 
 const ALLOWED_ORIGINS = new Set([
   'https://bellsforktruckandauto.com',

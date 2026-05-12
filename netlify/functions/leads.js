@@ -16,18 +16,7 @@
  */
 
 const crypto = require('crypto');
-const { getStore } = require('@netlify/blobs');
-
-function blobStore(nameOrOpts) {
-  const siteID = process.env.SITE_ID;
-  const token = process.env.NF_API_TOKEN;
-  if (!siteID || !token) {
-    throw new Error('Blob config missing');
-  }
-  const cfg = { siteID, token, apiURL: 'https://api.netlify.com' };
-  if (typeof nameOrOpts === 'string') return getStore({ name: nameOrOpts, ...cfg });
-  return getStore({ ...nameOrOpts, ...cfg });
-}
+const { blobStore } = require('../lib/blobStore');
 
 const ALLOWED_ORIGINS = new Set([
   'https://bellsforktruckandauto.com',
