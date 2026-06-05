@@ -1,6 +1,56 @@
 {
-  "lastUpdated": "2026-06-04T14:22:33.011Z",
+  "lastUpdated": "2026-06-05T14:52:30.810Z",
   "vehicles": [
+    {
+      "vin": "1C6RR7YT1JS152709",
+      "stockNumber": "bf045",
+      "year": 2018,
+      "make": "RAM",
+      "model": "1500",
+      "trim": "Rebel",
+      "engine": "5.7L V8",
+      "transmission": "Automatic",
+      "drivetrain": "4WD",
+      "fuelType": "Gasoline",
+      "mpgCity": 15,
+      "mpgHighway": 21,
+      "mileage": 107547,
+      "price": 28000,
+      "type": "Truck",
+      "exteriorColor": "Black",
+      "interiorColor": "Black",
+      "description": "Explore the rugged versatility of this 2018 RAM 1500 Rebel, equipped with a powerful 5.7L V8 engine and just 107,547 miles on the odometer. With its bold design and exceptional performance capabilities, this truck is ready to tackle any adventure with style and confidence.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "8",
+      "doors": "4D",
+      "images": [
+        "blob:BF045-01.jpg",
+        "blob:BF045-02.jpg",
+        "blob:BF045-03.jpg",
+        "blob:BF045-04.jpg",
+        "blob:BF045-05.jpg",
+        "blob:BF045-06.jpg",
+        "blob:BF045-07.jpg",
+        "blob:BF045-08.jpg",
+        "blob:BF045-09.jpg",
+        "blob:BF045-10.jpg",
+        "blob:BF045-11.jpg",
+        "blob:BF045-12.jpg",
+        "blob:BF045-13.jpg",
+        "blob:BF045-14.jpg"
+      ],
+      "dateAdded": "2026-06-05",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "1C4AJWBGXHL752121",
       "stockNumber": "03187BF",
@@ -45,7 +95,7 @@
         "blob:03187BF-13.jpg",
         "blob:03187BF-14.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -98,7 +148,7 @@
         "blob:03128-16.jpg",
         "blob:03128-17.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -156,7 +206,7 @@
         "blob:03116TC-21.jpg",
         "blob:03116TC-22.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -209,7 +259,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -263,7 +313,7 @@
         "blob:WDDUG8FB0GA261210-17.jpg",
         "blob:WDDUG8FB0GA261210-18.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -315,7 +365,7 @@
         "blob:03052BF-15.jpg",
         "blob:03052BF-16.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -366,7 +416,7 @@
         "blob:03130BF-14.jpg",
         "blob:03130BF-15.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -415,7 +465,7 @@
         "blob:124872-12.jpg",
         "blob:124872-13.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -464,7 +514,7 @@
         "blob:03183BF-12.jpg",
         "blob:03183BF-13.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -517,7 +567,7 @@
         "blob:BF-012-16.jpg",
         "blob:BF-012-17.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -566,7 +616,7 @@
         "blob:03159-12.jpg",
         "blob:03159-13.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -610,7 +660,7 @@
         "blob:03146BF-03.jpg",
         "blob:03146BF-04.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -657,7 +707,7 @@
         "blob:03139BF-08.jpg",
         "blob:03139BF-09.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -707,7 +757,7 @@
         "blob:JTHFN45Y799021050-13.jpg",
         "blob:JTHFN45Y799021050-14.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -763,7 +813,7 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -809,7 +859,7 @@
         "blob:02955BF-09.jpg",
         "blob:02955BF-10.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -884,7 +934,7 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -943,7 +993,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1010,7 +1060,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1069,7 +1119,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1135,7 +1185,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-06-04",
+      "dateAdded": "2026-06-05",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
