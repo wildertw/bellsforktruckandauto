@@ -1,6 +1,55 @@
 {
-  "lastUpdated": "2026-06-18T13:36:01.884Z",
+  "lastUpdated": "2026-06-19T15:04:25.787Z",
   "vehicles": [
+    {
+      "vin": "2C3CDXHG2MH650515",
+      "stockNumber": "BF-025",
+      "year": 2021,
+      "make": "Dodge",
+      "model": "Charger",
+      "trim": "GT",
+      "engine": "3.6L V6",
+      "transmission": "Automatic",
+      "drivetrain": "RWD",
+      "fuelType": "Gasoline",
+      "mpgCity": 19,
+      "mpgHighway": 30,
+      "mileage": 20712,
+      "price": 27995,
+      "type": "Car",
+      "exteriorColor": "black",
+      "interiorColor": "black",
+      "description": "Experience the perfect blend of power and style with this 2021 Dodge Charger GT, featuring a robust 3.6L V6 engine and only 20,712 miles. With its sleek design and performance-driven features, this Charger is ready to deliver an exhilarating driving experience while ensuring reliability and comfort.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "6",
+      "doors": "4D",
+      "images": [
+        "blob:2C3CDXHG2MH650515-01.jpg",
+        "blob:2C3CDXHG2MH650515-02.jpg",
+        "blob:2C3CDXHG2MH650515-03.jpg",
+        "blob:2C3CDXHG2MH650515-04.jpg",
+        "blob:2C3CDXHG2MH650515-05.jpg",
+        "blob:2C3CDXHG2MH650515-06.jpg",
+        "blob:2C3CDXHG2MH650515-07.jpg",
+        "blob:2C3CDXHG2MH650515-08.jpg",
+        "blob:2C3CDXHG2MH650515-09.jpg",
+        "blob:2C3CDXHG2MH650515-10.jpg",
+        "blob:2C3CDXHG2MH650515-11.jpg",
+        "blob:2C3CDXHG2MH650515-12.jpg",
+        "blob:2C3CDXHG2MH650515-13.jpg"
+      ],
+      "dateAdded": "2026-06-19",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "1GCVKREC8JZ364428",
       "stockNumber": "BF-024",
@@ -45,7 +94,7 @@
         "blob:1GCVKREC8JZ364428-13.jpg",
         "blob:1GCVKREC8JZ364428-14.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -93,7 +142,7 @@
         "blob:3GCUYEET1LG385630-11.jpg",
         "blob:3GCUYEET1LG385630-12.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -143,7 +192,7 @@
         "blob:BF045-13.jpg",
         "blob:BF045-14.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -193,7 +242,7 @@
         "blob:03187BF-13.jpg",
         "blob:03187BF-14.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -246,7 +295,7 @@
         "blob:03128-16.jpg",
         "blob:03128-17.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -304,7 +353,7 @@
         "blob:03116TC-21.jpg",
         "blob:03116TC-22.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -357,7 +406,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -411,7 +460,7 @@
         "blob:WDDUG8FB0GA261210-17.jpg",
         "blob:WDDUG8FB0GA261210-18.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -463,7 +512,7 @@
         "blob:03052BF-15.jpg",
         "blob:03052BF-16.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -514,7 +563,7 @@
         "blob:03130BF-14.jpg",
         "blob:03130BF-15.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -563,7 +612,7 @@
         "blob:124872-12.jpg",
         "blob:124872-13.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -612,7 +661,7 @@
         "blob:03183BF-12.jpg",
         "blob:03183BF-13.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -665,7 +714,7 @@
         "blob:BF-012-16.jpg",
         "blob:BF-012-17.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -714,7 +763,7 @@
         "blob:03159-12.jpg",
         "blob:03159-13.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -758,7 +807,7 @@
         "blob:03146BF-03.jpg",
         "blob:03146BF-04.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -805,7 +854,7 @@
         "blob:03139BF-08.jpg",
         "blob:03139BF-09.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -855,7 +904,7 @@
         "blob:JTHFN45Y799021050-13.jpg",
         "blob:JTHFN45Y799021050-14.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -911,7 +960,7 @@
         "VEHICLE-1FTEW1C59KFA20135-09.jpg",
         "VEHICLE-1FTEW1C59KFA20135-10.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -957,7 +1006,7 @@
         "blob:02955BF-09.jpg",
         "blob:02955BF-10.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1032,7 +1081,7 @@
         "VEHICLE-1FTEW1E53KFB96224-20.jpg",
         "VEHICLE-1FTEW1E53KFB96224-21.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1091,7 +1140,7 @@
         "VEHICLE-3GTU2MEC5GG322869-10.jpg",
         "VEHICLE-3GTU2MEC5GG322869-11.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1158,7 +1207,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1217,7 +1266,7 @@
         "VEHICLE-JF1VA1A68M9805926-10.jpg",
         "VEHICLE-JF1VA1A68M9805926-11.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1283,7 +1332,7 @@
         "VEHICLE-1C6HJTFG9NL104313-14.jpg",
         "VEHICLE-1C6HJTFG9NL104313-15.jpg"
       ],
-      "dateAdded": "2026-06-18",
+      "dateAdded": "2026-06-19",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
