@@ -1581,6 +1581,19 @@ html {
   box-shadow: 0 0 0 .15rem rgba(220,53,69,.12);
   outline: none;
 }
+.was-validated .app-field input:invalid,
+.was-validated .app-field select:invalid,
+.was-validated .sig-field input:invalid {
+  border-color: #dc3545 !important;
+  border-bottom-color: #dc3545 !important;
+  box-shadow: 0 0 0 .15rem rgba(220,53,69,.15);
+}
+.app-field .invalid-feedback,
+.sig-field .invalid-feedback {
+  font-size: .78rem;
+  margin-top: .2rem;
+  color: #dc3545;
+}
 
 .co-applicant-toggle {
   background: none;

@@ -15,6 +15,22 @@
           form.classList.add('was-validated');
           e.preventDefault();
           e.stopPropagation();
+          // Reveal any hidden section (e.g. collapsed co-applicant) that
+          // contains the first invalid field, then scroll/focus it so the
+          // user can see why submission was blocked.
+          var firstInvalid = form.querySelector(':invalid');
+          if (firstInvalid) {
+            var hiddenParent = firstInvalid.closest('.co-section-hidden');
+            if (hiddenParent) hiddenParent.classList.remove('co-section-hidden');
+            try {
+              firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (_) {
+              firstInvalid.scrollIntoView();
+            }
+            setTimeout(function () {
+              try { firstInvalid.focus({ preventScroll: true }); } catch (_) { firstInvalid.focus(); }
+            }, 250);
+          }
           return;
         }
         // Block double submit

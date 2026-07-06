@@ -165,9 +165,9 @@
     <div class="app-section-label"><span>Applicant</span></div>
     <div class="app-section-body">
       <div class="app-row">
-        <div class="app-field"><label for="fin-app-first">First Name</label><input type="text" id="fin-app-first" name="applicant_first_name" required autocomplete="given-name"></div>
+        <div class="app-field"><label for="fin-app-first">First Name</label><input type="text" id="fin-app-first" name="applicant_first_name" required autocomplete="given-name"><div class="invalid-feedback">Please enter your first name.</div></div>
         <div class="app-field"><label for="fin-app-middle">Middle Name</label><input type="text" id="fin-app-middle" name="applicant_middle_name" autocomplete="additional-name"></div>
-        <div class="app-field"><label for="fin-app-last">Last Name</label><input type="text" id="fin-app-last" name="applicant_last_name" required autocomplete="family-name"></div>
+        <div class="app-field"><label for="fin-app-last">Last Name</label><input type="text" id="fin-app-last" name="applicant_last_name" required autocomplete="family-name"><div class="invalid-feedback">Please enter your last name.</div></div>
         <div class="app-field xs"><label for="fin-app-suffix">Suffix</label>
           <select id="fin-app-suffix" name="applicant_suffix">
             <option value=""></option><option>Jr.</option><option>Sr.</option><option>II</option><option>III</option><option>IV</option>
@@ -175,23 +175,23 @@
         </div>
       </div>
       <div class="app-row">
-        <div class="app-field wide"><label for="fin-app-address">Residence Address</label><input type="text" id="fin-app-address" name="applicant_address" required autocomplete="street-address"></div>
+        <div class="app-field wide"><label for="fin-app-address">Residence Address</label><input type="text" id="fin-app-address" name="applicant_address" required autocomplete="street-address"><div class="invalid-feedback">Please enter your address.</div></div>
         <div class="app-field xs"><label for="fin-app-apt">Apt #</label><input type="text" id="fin-app-apt" name="applicant_apt"></div>
         <div class="app-field narrow"><label for="fin-app-time-addr">Time at Address</label><input type="text" id="fin-app-time-addr" name="applicant_time_at_address" placeholder="Yrs. Mos."></div>
       </div>
       <div class="app-row">
-        <div class="app-field"><label for="fin-app-city">City</label><input type="text" id="fin-app-city" name="applicant_city" required autocomplete="address-level2"></div>
+        <div class="app-field"><label for="fin-app-city">City</label><input type="text" id="fin-app-city" name="applicant_city" required autocomplete="address-level2"><div class="invalid-feedback">Please enter your city.</div></div>
         <div class="app-field narrow"><label for="fin-app-state">State</label>
           <select id="fin-app-state" name="applicant_state" autocomplete="address-level1">
             <option value="">…</option><option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>DC</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option>TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
           </select>
         </div>
-        <div class="app-field narrow"><label for="fin-app-zip">ZIP</label><input type="text" id="fin-app-zip" name="applicant_zip" required autocomplete="postal-code" maxlength="10"></div>
+        <div class="app-field narrow"><label for="fin-app-zip">ZIP</label><input type="text" id="fin-app-zip" name="applicant_zip" required autocomplete="postal-code" maxlength="10"><div class="invalid-feedback">Please enter your ZIP code.</div></div>
       </div>
       <div class="app-row">
-        <div class="app-field"><label for="fin-app-dob">DOB</label><input type="date" id="fin-app-dob" name="applicant_dob" required></div>
+        <div class="app-field"><label for="fin-app-dob">DOB</label><input type="date" id="fin-app-dob" name="applicant_dob" required><div class="invalid-feedback">Please enter your date of birth.</div></div>
         <div class="app-field"><label for="fin-app-ssn">Social Security #</label><input type="password" id="fin-app-ssn" name="applicant_ssn" maxlength="11" placeholder="XXX-XX-XXXX" autocomplete="off"></div>
-        <div class="app-field"><label for="fin-app-phone">Cell Phone #</label><input type="tel" id="fin-app-phone" name="applicant_phone" required autocomplete="tel"></div>
+        <div class="app-field"><label for="fin-app-phone">Cell Phone #</label><input type="tel" id="fin-app-phone" name="applicant_phone" required autocomplete="tel"><div class="invalid-feedback">Please enter your phone number.</div></div>
         <div class="app-field"><label for="fin-app-dl">Driver License #</label><input type="text" id="fin-app-dl" name="applicant_drivers_license" autocomplete="off"></div>
         <div class="app-field xs"><label for="fin-app-dl-state">DL State</label>
           <select id="fin-app-dl-state" name="applicant_dl_state">
@@ -207,7 +207,7 @@
             <option value="">Select…</option><option>Own</option><option>Rent</option><option>Other</option>
           </select>
         </div>
-        <div class="app-field"><label for="fin-app-email">Email</label><input type="email" id="fin-app-email" name="applicant_email" required autocomplete="email"></div>
+        <div class="app-field"><label for="fin-app-email">Email</label><input type="email" id="fin-app-email" name="applicant_email" required autocomplete="email"><div class="invalid-feedback">Please enter a valid email address.</div></div>
       </div>
     </div>
   </div>
@@ -376,10 +376,12 @@
       <div class="sig-field">
         <label for="fin-sig-applicant">Applicant Signature (Type Full Name)</label>
         <input type="text" id="fin-sig-applicant" name="applicant_signature" required style="border:none;border-bottom:1px solid #333;width:100%;font-style:italic;">
+        <div class="invalid-feedback">Please type your full name to sign.</div>
       </div>
       <div class="sig-field" style="flex:0 0 130px;">
         <label for="fin-sig-date">Date</label>
         <input type="date" id="fin-sig-date" name="applicant_signature_date" required style="border:none;border-bottom:1px solid #333;width:100%;">
+        <div class="invalid-feedback">Please select today's date.</div>
       </div>
       <div class="sig-field">
         <label for="fin-sig-co">Co-Applicant Signature (Type Full Name)</label>
