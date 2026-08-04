@@ -81,9 +81,24 @@ exports.handler = async (event) => {
     } catch { /* cache miss, fetch fresh */ }
   }
 
-  // Fetch from Google Places API
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  const placeId = process.env.GOOGLE_PLACE_ID;
+  // Fetch from Google Places API. Env vars take precedence, but fall back to
+  // credentials saved via the admin dashboard (Settings → Google Reviews),
+  // which are persisted in the "admin-config" blob store under "admin-settings"
+  // — otherwise saving them there silently does nothing.
+  let apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  let placeId = process.env.GOOGLE_PLACE_ID;
+
+  if (!apiKey || !placeId) {
+    const configStore = blobStore('admin-config');
+    if (configStore) {
+      try {
+        const raw = await configStore.get('admin-settings');
+        const saved = raw ? JSON.parse(raw) : {};
+        apiKey = apiKey || saved.googleKey;
+        placeId = placeId || saved.placeId;
+      } catch { /* no saved settings */ }
+    }
+  }
 
   if (!apiKey || !placeId) {
     // No Google config — return any manually added reviews from blobs
