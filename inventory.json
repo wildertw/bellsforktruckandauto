@@ -1,6 +1,61 @@
 {
-  "lastUpdated": "2026-09-10T14:11:35.395Z",
+  "lastUpdated": "2026-09-15T16:58:01.133Z",
   "vehicles": [
+    {
+      "vin": "3TMCZ5AN4PM619413",
+      "stockNumber": "03274BF",
+      "year": 2023,
+      "make": "Toyota",
+      "model": "Tacoma",
+      "trim": "SR5",
+      "engine": "3.5L V6",
+      "transmission": "Automatic",
+      "drivetrain": "4WD",
+      "fuelType": "Gasoline",
+      "mpgCity": 18,
+      "mpgHighway": 22,
+      "mileage": 137415,
+      "price": 0,
+      "type": "Truck",
+      "exteriorColor": "Red",
+      "interiorColor": "Black",
+      "description": "Discover the perfect blend of rugged capability and modern comfort with this 2023 Toyota Tacoma SR5, featuring a powerful 3.5L V6 engine and 137,415 miles. With its impressive towing capacity and advanced technology, this Tacoma is ready for both work and weekend adventures.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "6",
+      "doors": "4D",
+      "images": [
+        "blob:03274BF-01.jpg",
+        "blob:03274BF-02.jpg",
+        "blob:03274BF-03.jpg",
+        "blob:03274BF-04.jpg",
+        "blob:03274BF-05.jpg",
+        "blob:03274BF-06.jpg",
+        "blob:03274BF-07.jpg",
+        "blob:03274BF-08.jpg",
+        "blob:03274BF-09.jpg",
+        "blob:03274BF-10.jpg",
+        "blob:03274BF-11.jpg",
+        "blob:03274BF-12.jpg",
+        "blob:03274BF-13.jpg",
+        "blob:03274BF-14.jpg",
+        "blob:03274BF-15.jpg",
+        "blob:03274BF-16.jpg",
+        "blob:03274BF-17.jpg",
+        "blob:03274BF-18.jpg",
+        "blob:03274BF-19.jpg"
+      ],
+      "dateAdded": "2026-09-15",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "1FA6P8CF4K5200251",
       "stockNumber": "03335BF",
@@ -47,7 +102,7 @@
         "blob:03335BF-15.jpg",
         "blob:03335BF-16.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -102,7 +157,7 @@
         "blob:00320-18.jpg",
         "blob:00320-19.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -156,7 +211,7 @@
         "blob:03217-17.jpg",
         "blob:03217-18.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -212,7 +267,7 @@
         "blob:03314BF-19.jpg",
         "blob:03314BF-20.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -266,7 +321,7 @@
         "blob:03309BF-17.jpg",
         "blob:03309BF-18.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -319,7 +374,7 @@
         "blob:03239BF-16.jpg",
         "blob:03239BF-17.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -373,7 +428,7 @@
         "blob:03282BF-17.jpg",
         "blob:03282BF-18.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -426,7 +481,7 @@
         "blob:03299BF-16.jpg",
         "blob:03299BF-17.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -481,7 +536,7 @@
         "blob:03275BF-18.jpg",
         "blob:03275BF-19.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -534,7 +589,7 @@
         "blob:03295BF-16.jpg",
         "blob:03295BF-17.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -589,7 +644,7 @@
         "blob:03313BF-18.jpg",
         "blob:03313BF-19.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -648,7 +703,7 @@
         "blob:03312BF-22.jpg",
         "blob:03312BF-23.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -697,7 +752,7 @@
         "blob:03283BF-12.jpg",
         "blob:03283BF-13.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -749,7 +804,7 @@
         "blob:1GKS1CKJXKR296127-15.jpg",
         "blob:1GKS1CKJXKR296127-16.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -807,7 +862,7 @@
         "blob:03116TC-21.jpg",
         "blob:03116TC-22.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -860,7 +915,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -914,7 +969,7 @@
         "blob:WDDUG8FB0GA261210-17.jpg",
         "blob:WDDUG8FB0GA261210-18.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -965,7 +1020,7 @@
         "blob:03130BF-14.jpg",
         "blob:03130BF-15.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1012,7 +1067,7 @@
         "blob:03139BF-08.jpg",
         "blob:03139BF-09.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1079,7 +1134,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-09-10",
+      "dateAdded": "2026-09-15",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
