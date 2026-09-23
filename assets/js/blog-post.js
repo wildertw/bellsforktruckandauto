@@ -158,7 +158,7 @@
   function applyPostToPage(post) {
     const pageUrl = `${SITE_ORIGIN}/blog/${post.slug}`;
     const desc = post.metaDescription || post.excerpt || 'Bells Fork Truck & Auto blog post';
-    const title = `${post.title} | Bells Fork Truck & Auto Blog`;
+    const title = `${post.title} | Bells Fork Truck & Auto`;
     const image = absoluteUrl(post.featuredImage) || `${SITE_ORIGIN}/assets/hero/shop-front-og.jpg`;
 
     document.title = title;
