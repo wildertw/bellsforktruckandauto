@@ -13,7 +13,7 @@ const {
   DEALER_LAT, DEALER_LNG,
   DEALER_FB,
   escapeHtml, escapeAttr, titleCase, formatMoney,
-  buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
+  buildVDPSlug, buildVDPId, buildVDPPath,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
   resolveVehicleColorDisplay,
 } = require('./build-utils');
@@ -1288,43 +1288,6 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
 </html>`;
 }
 
-// ── Sitemap generation ──
-function generateSitemap(vehicles) {
-  const today = todayISO();
-  const staticPages = [
-    { loc: '/', priority: '1.0', changefreq: 'weekly' },
-    { loc: '/inventory', priority: '0.9', changefreq: 'daily' },
-    { loc: '/used-trucks-greenville-nc/', priority: '0.9', changefreq: 'daily' },
-    { loc: '/used-suvs-greenville-nc/', priority: '0.9', changefreq: 'daily' },
-    { loc: '/used-cars-greenville-nc/', priority: '0.9', changefreq: 'daily' },
-    { loc: '/used-diesel-trucks-greenville-nc/', priority: '0.9', changefreq: 'daily' },
-    { loc: '/financing/', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/schedule-test-drive/', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/make-an-offer/', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/trade-in-value/', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/consignment/', priority: '0.7', changefreq: 'monthly' },
-    { loc: '/contact', priority: '0.8', changefreq: 'monthly' },
-    { loc: '/about', priority: '0.7', changefreq: 'monthly' },
-    { loc: '/reviews', priority: '0.7', changefreq: 'weekly' },
-    { loc: '/blog', priority: '0.6', changefreq: 'monthly' },
-    { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
-  ];
-
-  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
-  for (const page of staticPages) {
-    xml += `\n  <url>\n    <loc>${SITE_URL}${page.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${page.changefreq}</changefreq>\n    <priority>${page.priority}</priority>\n  </url>\n`;
-  }
-
-  for (const v of vehicles) {
-    const vdpPath = buildVDPPath(v);
-    xml += `\n  <url>\n    <loc>${SITE_URL}${vdpPath}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
-  }
-
-  xml += `\n</urlset>\n`;
-  return xml;
-}
-
 // ── Data quality validation ──
 const REQUIRED_FIELDS = ['price', 'mileage', 'type', 'transmission', 'fuelType'];
 const MIN_PHOTOS = 6;
@@ -1395,11 +1358,7 @@ function main() {
     }
   }
 
-  // Generate updated sitemap
-  const sitemapPath = path.join(rootDir, 'sitemap.xml');
-  const sitemap = generateSitemap(vehicles);
-  fs.writeFileSync(sitemapPath, sitemap, 'utf-8');
-  console.log(`\nSitemap updated: ${sitemapPath} (${vehicles.length} VDP entries added)`);
+  // sitemap.xml is owned by generate-sitemap.js (build phase 3), which also lists blog posts.
 
   // ── Redirect rules for sold vehicles ──
   // Netlify _redirects file: sold VDP URLs → inventory page (301 permanent)
