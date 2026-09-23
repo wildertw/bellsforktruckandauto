@@ -1,5 +1,7 @@
 (() => {
   const API = '/.netlify/functions/blog';
+  // Canonical host: netlify.toml 301s the apex domain to www, so www is what actually serves.
+  const SITE_ORIGIN = 'https://www.bellsforktruckandauto.com';
 
   const qs = new URLSearchParams(window.location.search);
   const slugFromQuery = (qs.get('slug') || '').trim();
@@ -7,14 +9,17 @@
     const m = window.location.pathname.match(/^\/blog\/([^/?#]+)/i);
     return m ? decodeURIComponent(m[1]) : '';
   })();
-  const slug = slugFromPath || slugFromQuery;
-
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   const loadingState = document.getElementById('loadingState');
   const articleEl = document.getElementById('article');
   const errorEl = document.getElementById('errorState');
+
+  // Pages built by prerender-blog.js already contain the article and its <head> metadata
+  const prerendered = Boolean(articleEl && articleEl.dataset.prerendered === 'true');
+  const slug = (prerendered && articleEl.dataset.slug) || slugFromPath || slugFromQuery;
+
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   function escapeHtml(str) {
     return String(str || '')
@@ -34,6 +39,27 @@
   function setMeta(id, value) {
     const el = document.getElementById(id);
     if (el) el.setAttribute('content', value);
+  }
+
+  // Create the <head> tag if the template doesn't ship one (canonical / og:url are per-post only)
+  function ensureHeadTag(tagName, id, attrs) {
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement(tagName);
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    Object.keys(attrs).forEach((k) => el.setAttribute(k, attrs[k]));
+    return el;
+  }
+
+  function absoluteUrl(url) {
+    if (!url) return '';
+    try {
+      return new URL(url, SITE_ORIGIN).href;
+    } catch {
+      return '';
+    }
   }
 
   async function getPost() {
@@ -61,7 +87,7 @@
   }
 
   function bindShare(post) {
-    const url = window.location.origin + `/blog/${post.slug}`;
+    const url = `${SITE_ORIGIN}/blog/${post.slug}`;
     const text = `${post.title} | Bells Fork Truck & Auto`;
 
     document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
@@ -130,18 +156,18 @@
   }
 
   function applyPostToPage(post) {
-    const pageUrl = `${window.location.origin}/blog/${post.slug}`;
+    const pageUrl = `${SITE_ORIGIN}/blog/${post.slug}`;
     const desc = post.metaDescription || post.excerpt || 'Bells Fork Truck & Auto blog post';
-    const title = `${post.title} | Bells Fork Truck & Auto Blog`;
-    const image = post.featuredImage || `${window.location.origin}/assets/hero/shop-front-og.jpg`;
+    const title = `${post.title} | Bells Fork Truck & Auto`;
+    const image = absoluteUrl(post.featuredImage) || `${SITE_ORIGIN}/assets/hero/shop-front-og.jpg`;
 
     document.title = title;
     document.getElementById('pageTitle').textContent = title;
     document.getElementById('metaDescription').setAttribute('content', desc);
-    document.getElementById('canonicalLink').setAttribute('href', pageUrl);
+    ensureHeadTag('link', 'canonicalLink', { rel: 'canonical', href: pageUrl });
+    ensureHeadTag('meta', 'ogUrl', { property: 'og:url', content: pageUrl });
     setMeta('ogTitle', title);
     setMeta('ogDescription', desc);
-    setMeta('ogUrl', pageUrl);
     setMeta('ogImage', image);
     setMeta('twTitle', title);
     setMeta('twDescription', desc);
@@ -180,16 +206,20 @@
         schema.datePublished = post.publishedAt || post.createdAt || '';
         schema.dateModified = post.updatedAt || post.publishedAt || '';
         schema.image = image;
-        schema.mainEntityOfPage['@id'] = pageUrl;
-        if (post.author) {
-          schema.author = { '@type': 'Person', 'name': post.author, 'jobTitle': 'Dealer Principal', 'url': 'https://bellsforktruckandauto.com/about' };
-        }
+        schema.mainEntityOfPage = { '@type': 'WebPage', '@id': pageUrl };
+        schema.author = { '@type': 'Organization', 'name': 'Bells Fork Truck & Auto', 'url': `${SITE_ORIGIN}/` };
         schemaEl.textContent = JSON.stringify(schema);
       } catch { /* schema update failed silently */ }
     }
   }
 
   async function init() {
+    if (prerendered) {
+      bindShare({ slug, title: articleEl.dataset.title || document.title });
+      bindCommentForm();
+      await loadComments();
+      return;
+    }
     if (!slug) {
       loadingState.style.display = 'none';
       errorEl.style.display = '';

@@ -135,11 +135,13 @@
   status = 200
   force = true
 
+# Blog posts: NOT forced. prerender-blog.js writes blog/<slug>.html at build time and the
+# static file must win (it carries the article + per-post canonical/meta). This rewrite is
+# only the fallback for posts without a prerendered file (e.g. published since the last build).
 [[redirects]]
   from = "/blog/:slug"
   to = "/blog-post.html?slug=:slug"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/admin"
