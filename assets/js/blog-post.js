@@ -207,9 +207,7 @@
         schema.dateModified = post.updatedAt || post.publishedAt || '';
         schema.image = image;
         schema.mainEntityOfPage = { '@type': 'WebPage', '@id': pageUrl };
-        if (post.author) {
-          schema.author = { '@type': 'Person', 'name': post.author, 'jobTitle': 'Dealer Principal', 'url': 'https://bellsforktruckandauto.com/about' };
-        }
+        schema.author = { '@type': 'Organization', 'name': 'Bells Fork Truck & Auto', 'url': `${SITE_ORIGIN}/` };
         schemaEl.textContent = JSON.stringify(schema);
       } catch { /* schema update failed silently */ }
     }

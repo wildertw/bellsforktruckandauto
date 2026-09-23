@@ -116,3 +116,46 @@ describe('per-post <head> metadata', () => {
     );
   });
 });
+
+describe('BlogPosting JSON-LD', () => {
+  function extractSchema(html) {
+    const blocks = [
+      ...html.matchAll(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g),
+    ];
+    expect(blocks).toHaveLength(1);
+    return JSON.parse(blocks[0][1]);
+  }
+
+  it('describes this post with Google Article properties', () => {
+    const s = extractSchema(renderPostPage(template, towing));
+    const url = `${BLOG_ORIGIN}/blog/${towing.slug}`;
+    expect(s['@context']).toBe('https://schema.org');
+    expect(s['@type']).toBe('BlogPosting');
+    expect(s.headline).toBe(towing.title);
+    expect(s.description).toBe(towing.metaDescription);
+    expect(s.image).toEqual([
+      `${BLOG_ORIGIN}/.netlify/functions/blog?action=image&id=1750000000000-towing.jpg`,
+    ]);
+    expect(s.datePublished).toBe('2026-05-12T14:30:00.000Z');
+    expect(s.dateModified).toBe('2026-06-02T09:15:00.000Z');
+    expect(s.author).toEqual({
+      '@type': 'Organization',
+      name: 'Bells Fork Truck & Auto',
+      url: `${BLOG_ORIGIN}/`,
+    });
+    expect(s.publisher['@type']).toBe('Organization');
+    expect(s.publisher.logo).toEqual({
+      '@type': 'ImageObject',
+      url: `${BLOG_ORIGIN}/assets/logo.png`,
+    });
+    expect(s.mainEntityOfPage).toEqual({ '@type': 'WebPage', '@id': url });
+    expect(s.url).toBe(url);
+  });
+
+  it('cannot be broken out of by post content', () => {
+    const evil = { ...diesel, metaDescription: 'x</script><script>alert(1)</script>' };
+    const html = renderPostPage(template, evil);
+    expect(html).not.toContain('</script><script>alert(1)');
+    expect(extractSchema(html).description).toBe('x</script><script>alert(1)</script>');
+  });
+});

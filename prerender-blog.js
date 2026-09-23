@@ -93,6 +93,42 @@ function postMeta(post) {
   };
 }
 
+// ── Structured data ──
+
+function buildBlogPostingSchema(post) {
+  const m = postMeta(post);
+  const org = { '@type': 'Organization', name: SITE_NAME, url: `${BLOG_ORIGIN}/` };
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${m.url}#article`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': m.url },
+    url: m.url,
+    headline: m.headline,
+    description: m.description,
+    image: [m.image],
+    datePublished: m.published || undefined,
+    dateModified: m.modified || undefined,
+    author: org,
+    publisher: {
+      ...org,
+      logo: { '@type': 'ImageObject', url: `${BLOG_ORIGIN}/assets/logo.png` },
+    },
+    articleSection: m.section,
+    keywords: m.tags.length ? m.tags.join(', ') : undefined,
+    inLanguage: 'en-US',
+  };
+  return schema;
+}
+
+/** JSON for an inline <script>: escape "<" (and JS line separators) so content can't close the tag. */
+function jsonForScript(value) {
+  return JSON.stringify(value, null, 2)
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 // ── Template surgery (throws if the template no longer has the expected anchors) ──
 
 function mustReplace(html, pattern, replacer, label) {
@@ -254,11 +290,12 @@ function renderPostPage(template, post) {
     () => renderHeadMeta(post),
     'blog:head-meta markers'
   );
-  // The template's generic BlogPosting JSON-LD describes no real post — drop it
+  // Replace the template's placeholder BlogPosting JSON-LD with this post's
   html = mustReplace(
     html,
-    /\s*<!-- BlogPosting JSON-LD[^>]*-->\s*<script type="application\/ld\+json" id="blogPostingSchema">[\s\S]*?<\/script>/,
-    '',
+    /<!-- BlogPosting JSON-LD[^>]*-->(\s*)<script type="application\/ld\+json" id="blogPostingSchema">[\s\S]*?<\/script>/,
+    (_m, ws) =>
+      `<!-- BlogPosting JSON-LD (prerender-blog.js) -->${ws}<script type="application/ld+json" id="blogPostingSchema">\n${jsonForScript(buildBlogPostingSchema(post))}\n  </script>`,
     'script#blogPostingSchema'
   );
 
@@ -313,6 +350,7 @@ if (require.main === module) {
 module.exports = {
   renderPostPage,
   postMeta,
+  buildBlogPostingSchema,
   postUrl,
   absoluteUrl,
   htmlToText,
