@@ -1,5 +1,7 @@
 (() => {
   const API = '/.netlify/functions/blog';
+  // Canonical host: netlify.toml 301s the apex domain to www, so www is what actually serves.
+  const SITE_ORIGIN = 'https://www.bellsforktruckandauto.com';
 
   const qs = new URLSearchParams(window.location.search);
   const slugFromQuery = (qs.get('slug') || '').trim();
@@ -36,6 +38,27 @@
     if (el) el.setAttribute('content', value);
   }
 
+  // Create the <head> tag if the template doesn't ship one (canonical / og:url are per-post only)
+  function ensureHeadTag(tagName, id, attrs) {
+    let el = document.getElementById(id);
+    if (!el) {
+      el = document.createElement(tagName);
+      el.id = id;
+      document.head.appendChild(el);
+    }
+    Object.keys(attrs).forEach((k) => el.setAttribute(k, attrs[k]));
+    return el;
+  }
+
+  function absoluteUrl(url) {
+    if (!url) return '';
+    try {
+      return new URL(url, SITE_ORIGIN).href;
+    } catch {
+      return '';
+    }
+  }
+
   async function getPost() {
     const res = await fetch(`${API}?action=post&slug=${encodeURIComponent(slug)}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -61,7 +84,7 @@
   }
 
   function bindShare(post) {
-    const url = window.location.origin + `/blog/${post.slug}`;
+    const url = `${SITE_ORIGIN}/blog/${post.slug}`;
     const text = `${post.title} | Bells Fork Truck & Auto`;
 
     document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
@@ -130,18 +153,18 @@
   }
 
   function applyPostToPage(post) {
-    const pageUrl = `${window.location.origin}/blog/${post.slug}`;
+    const pageUrl = `${SITE_ORIGIN}/blog/${post.slug}`;
     const desc = post.metaDescription || post.excerpt || 'Bells Fork Truck & Auto blog post';
     const title = `${post.title} | Bells Fork Truck & Auto Blog`;
-    const image = post.featuredImage || `${window.location.origin}/assets/hero/shop-front-og.jpg`;
+    const image = absoluteUrl(post.featuredImage) || `${SITE_ORIGIN}/assets/hero/shop-front-og.jpg`;
 
     document.title = title;
     document.getElementById('pageTitle').textContent = title;
     document.getElementById('metaDescription').setAttribute('content', desc);
-    document.getElementById('canonicalLink').setAttribute('href', pageUrl);
+    ensureHeadTag('link', 'canonicalLink', { rel: 'canonical', href: pageUrl });
+    ensureHeadTag('meta', 'ogUrl', { property: 'og:url', content: pageUrl });
     setMeta('ogTitle', title);
     setMeta('ogDescription', desc);
-    setMeta('ogUrl', pageUrl);
     setMeta('ogImage', image);
     setMeta('twTitle', title);
     setMeta('twDescription', desc);
@@ -180,7 +203,7 @@
         schema.datePublished = post.publishedAt || post.createdAt || '';
         schema.dateModified = post.updatedAt || post.publishedAt || '';
         schema.image = image;
-        schema.mainEntityOfPage['@id'] = pageUrl;
+        schema.mainEntityOfPage = { '@type': 'WebPage', '@id': pageUrl };
         if (post.author) {
           schema.author = { '@type': 'Person', 'name': post.author, 'jobTitle': 'Dealer Principal', 'url': 'https://bellsforktruckandauto.com/about' };
         }
