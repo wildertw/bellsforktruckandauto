@@ -266,10 +266,11 @@ exports.handler = async (event) => {
     if (action === 'sitemap') {
       const all = await getAllPosts(postStore);
       const published = all.filter((p) => (p.status || 'draft') === 'published');
-      const siteUrl = 'https://bellsforktruckandauto.com';
+      // Legacy endpoint (build-time sitemap-main.xml now lists posts); keep URLs on the canonical www host
+      const siteUrl = 'https://www.bellsforktruckandauto.com';
       const urls = published.map((p) => {
         const lastmod = (p.updatedAt || p.publishedAt || '').slice(0, 10);
-        return `  <url>\n    <loc>${siteUrl}/blog/${encodeURIComponent(p.slug)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
+        return `  <url>\n    <loc>${siteUrl}/blog/${encodeURIComponent(p.slug)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
       });
       const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
       return {

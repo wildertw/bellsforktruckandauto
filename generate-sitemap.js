@@ -5,6 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 const { SITE_URL, buildVDPPath, loadAvailableVehicles, todayISO } = require('./build-utils');
+const { loadPublishedBlogPosts } = require('./blog-source');
+const { postUrl } = require('./prerender-blog');
 
 const today = todayISO();
 
@@ -32,18 +34,26 @@ function escapeXml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function urlEntry(loc, changefreq, priority) {
+function urlEntry(loc, changefreq, priority, lastmod = today) {
   return `  <url>
-    <loc>${escapeXml(SITE_URL + loc)}</loc>
-    <lastmod>${today}</lastmod>
+    <loc>${escapeXml(loc.startsWith('http') ? loc : SITE_URL + loc)}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
 }
 
-function main() {
+// Real per-post lastmod (YYYY-MM-DD) from the CMS timestamps
+function postLastmod(post) {
+  const d = new Date(post.updatedAt || post.publishedAt || post.createdAt || '');
+  return Number.isNaN(d.getTime()) ? today : d.toISOString().slice(0, 10);
+}
+
+async function main() {
   const vehicles = loadAvailableVehicles();
-  console.log(`Generating sitemap with ${STATIC_PAGES.length} static pages + ${vehicles.length} VDPs...`);
+  // Same published-only source as prerender-blog.js; throws (fails the build) on fetch errors
+  const posts = (await loadPublishedBlogPosts()) || [];
+  console.log(`Generating sitemap with ${STATIC_PAGES.length} static pages + ${vehicles.length} VDPs + ${posts.length} blog posts...`);
 
   const entries = [];
 
@@ -58,6 +68,11 @@ function main() {
     entries.push(urlEntry(vdpPath, 'weekly', '0.8'));
   }
 
+  // Add blog posts (canonical www URLs, matching each post's <link rel="canonical">)
+  for (const post of posts) {
+    entries.push(urlEntry(postUrl(post), 'monthly', '0.7', postLastmod(post)));
+  }
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
@@ -68,17 +83,14 @@ ${entries.join('\n\n')}
 
   const mainSitemapPath = path.join(__dirname, 'sitemap-main.xml');
   fs.writeFileSync(mainSitemapPath, xml, 'utf-8');
-  console.log(`Main sitemap generated: ${STATIC_PAGES.length + vehicles.length} URLs`);
+  console.log(`Main sitemap generated: ${entries.length} URLs`);
 
-  // Generate sitemap index that references both static and dynamic blog sitemaps
+  // Sitemap index. Blog posts are listed in sitemap-main.xml (build time, www canonicals), so the
+  // runtime /blog-sitemap.xml function is no longer referenced here.
   const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${SITE_URL}/sitemap-main.xml</loc>
-    <lastmod>${today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>${SITE_URL}/blog-sitemap.xml</loc>
     <lastmod>${today}</lastmod>
   </sitemap>
 </sitemapindex>
@@ -86,7 +98,10 @@ ${entries.join('\n\n')}
 
   const sitemapIndexPath = path.join(__dirname, 'sitemap.xml');
   fs.writeFileSync(sitemapIndexPath, sitemapIndex, 'utf-8');
-  console.log('Sitemap index generated: sitemap.xml -> sitemap-main.xml + blog-sitemap.xml');
+  console.log('Sitemap index generated: sitemap.xml -> sitemap-main.xml');
 }
 
-main();
+main().catch((err) => {
+  console.error(`[generate-sitemap] FAILED: ${err.stack || err.message}`);
+  process.exit(1);
+});
