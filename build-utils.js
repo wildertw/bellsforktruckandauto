@@ -13,7 +13,9 @@ function versioned(assetPath) {
 }
 
 // ── Dealer constants ──
-const SITE_URL = 'https://bellsforktruckandauto.com';
+// Canonical origin. netlify.toml 301s the apex domain to www, so every canonical, og:url,
+// JSON-LD URL, sitemap <loc> and feed link must use www, not a URL that redirects.
+const SITE_URL = 'https://www.bellsforktruckandauto.com';
 const DEALER_NAME = 'Bells Fork Truck & Auto';
 const DEALER_PHONE = '(252) 496-0005';
 const DEALER_PHONE_TEL = '+12524960005';

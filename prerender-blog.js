@@ -8,11 +8,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { escapeHtml, escapeAttr } = require('./build-utils');
+const { escapeHtml, escapeAttr, SITE_URL } = require('./build-utils');
 const { loadPublishedBlogPosts } = require('./blog-source');
 
-// netlify.toml 301s the apex domain to www, so www is the host that actually serves.
-const BLOG_ORIGIN = 'https://www.bellsforktruckandauto.com';
+const BLOG_ORIGIN = SITE_URL;
 const SITE_NAME = 'Bells Fork Truck & Auto';
 const DEFAULT_IMAGE = `${BLOG_ORIGIN}/assets/hero/shop-front-og.jpg`;
 const ROBOTS = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
