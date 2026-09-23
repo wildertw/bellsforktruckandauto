@@ -1,0 +1,59 @@
+[
+  {
+    "id": "p_towing01",
+    "slug": "towing-capacity-explained-how-to-choose-a-used-truck-that-can-handle-your-load-in-eastern",
+    "title": "Towing Capacity Explained: How to Choose a Used Truck That Can Handle Your Load in Eastern NC",
+    "author": "Frank",
+    "category": "Buying Guides",
+    "tags": ["towing", "trucks", "Greenville NC"],
+    "featuredImage": "/.netlify/functions/blog?action=image&id=1750000000000-towing.jpg",
+    "metaDescription": "Learn how GVWR, GCWR & payload work so you pick a used truck that tows your boat, camper or trailer safely in Eastern North Carolina.",
+    "excerpt": "Towing capacity is more than one number on a brochure...",
+    "content": "<p>Towing capacity is more than one number on a brochure. Here is what matters when you shop for a used truck in Greenville, NC.</p><h2>GVWR vs. GCWR</h2><p>The <strong>Gross Vehicle Weight Rating</strong> is the max the truck can weigh loaded &amp; ready.</p><div class=\"note\"><div>Nested div content survives.</div></div><h2>Payload</h2><p>Payload &lt; towing capacity — always check the door-jamb sticker.</p>",
+    "status": "published",
+    "publishedAt": "2026-05-12T14:30:00.000Z",
+    "createdAt": "2026-05-10T10:00:00.000Z",
+    "updatedAt": "2026-06-02T09:15:00.000Z",
+    "lastEditedBy": "frank"
+  },
+  {
+    "id": "p_diesel02",
+    "slug": "diesel-vs-gas-trucks",
+    "title": "Diesel vs. Gas Trucks: \"Which\" Is Right for <You>?",
+    "author": "",
+    "category": "",
+    "tags": [],
+    "featuredImage": "",
+    "metaDescription": "",
+    "excerpt": "Diesel or gas? We break down fuel costs, maintenance & resale value for Eastern NC drivers...",
+    "content": "<p>Diesel engines deliver torque. Gas engines cost less up front.</p>",
+    "status": "published",
+    "publishedAt": "2026-04-01T12:00:00.000Z",
+    "createdAt": "2026-04-01T12:00:00.000Z",
+    "updatedAt": "2026-04-01T12:00:00.000Z"
+  },
+  {
+    "id": "p_draft03",
+    "slug": "secret-draft-post",
+    "title": "Secret Draft Post",
+    "author": "Frank",
+    "category": "News",
+    "tags": [],
+    "featuredImage": "",
+    "metaDescription": "This draft must never be prerendered or listed.",
+    "excerpt": "Draft excerpt",
+    "content": "<p>DRAFT CONTENT SHOULD NOT SHIP</p>",
+    "status": "draft",
+    "publishedAt": null,
+    "createdAt": "2026-06-10T12:00:00.000Z",
+    "updatedAt": "2026-06-10T12:00:00.000Z"
+  },
+  {
+    "id": "p_nostatus04",
+    "slug": "no-status-defaults-to-draft",
+    "title": "No Status",
+    "content": "<p>NO STATUS CONTENT SHOULD NOT SHIP</p>",
+    "createdAt": "2026-06-11T12:00:00.000Z",
+    "updatedAt": "2026-06-11T12:00:00.000Z"
+  }
+]

@@ -9,14 +9,17 @@
     const m = window.location.pathname.match(/^\/blog\/([^/?#]+)/i);
     return m ? decodeURIComponent(m[1]) : '';
   })();
-  const slug = slugFromPath || slugFromQuery;
-
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   const loadingState = document.getElementById('loadingState');
   const articleEl = document.getElementById('article');
   const errorEl = document.getElementById('errorState');
+
+  // Pages built by prerender-blog.js already contain the article and its <head> metadata
+  const prerendered = Boolean(articleEl && articleEl.dataset.prerendered === 'true');
+  const slug = (prerendered && articleEl.dataset.slug) || slugFromPath || slugFromQuery;
+
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
   function escapeHtml(str) {
     return String(str || '')
@@ -213,6 +216,12 @@
   }
 
   async function init() {
+    if (prerendered) {
+      bindShare({ slug, title: articleEl.dataset.title || document.title });
+      bindCommentForm();
+      await loadComments();
+      return;
+    }
     if (!slug) {
       loadingState.style.display = 'none';
       errorEl.style.display = '';

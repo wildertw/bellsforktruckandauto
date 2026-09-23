@@ -30,6 +30,11 @@ const GENERATED_DIRS = [
   'trade-in-value',
 ];
 
+// Directories whose generated *.html files are all stamped
+const GENERATED_HTML_DIRS = [
+  'blog', // prerender-blog.js — copies of blog-post.html, one per post
+];
+
 // ── Asset path patterns that should be versioned ──
 // Matches href="..." or src="..." containing local asset paths (starting with /)
 // Excludes external URLs (http/https), data: URIs, and sw.js (service worker)
@@ -76,6 +81,15 @@ for (const file of STATIC_HTML) {
 for (const dir of GENERATED_DIRS) {
   const idx = path.join(__dirname, dir, 'index.html');
   if (stampFile(idx)) count++;
+}
+
+// Stamp every page in fully generated directories
+for (const dir of GENERATED_HTML_DIRS) {
+  const abs = path.join(__dirname, dir);
+  if (!fs.existsSync(abs)) continue;
+  for (const name of fs.readdirSync(abs)) {
+    if (name.endsWith('.html') && stampFile(path.join(abs, name))) count++;
+  }
 }
 
 console.log(`[stamp-versions] Versioned ${count} file(s) with v=${ASSET_VERSION}`);
