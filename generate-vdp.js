@@ -602,8 +602,9 @@ ${buildSchema(v)}
       font-weight: 800;
       color: #28a745;
     }
-    .vdp-price-fees { font-size: .85rem; color: #666; }
-    .vdp-price-total { font-size: 1.05rem; font-weight: 700; color: #28a745; }
+    /* Same proportions as the inventory price box: fees 35%, total 40% of the price size */
+    .vdp-price-fees { font-size: .7rem; color: #666; margin-top: .2rem; }
+    .vdp-price-total { font-size: .8rem; font-weight: 700; color: #28a745; }
     .vdp-price-label {
       font-size: .75rem;
       text-transform: uppercase;
@@ -750,6 +751,8 @@ ${buildSchema(v)}
     /* Responsive */
     @media (max-width: 991px) {
       .vdp-price-tag { font-size: 1.6rem; }
+      .vdp-price-fees { font-size: .56rem; }
+      .vdp-price-total { font-size: .64rem; }
       .vdp-vehicle-title { font-size: 1.3rem; }
       .vdp-features-grid { grid-template-columns: 1fr 1fr !important; }
     }
