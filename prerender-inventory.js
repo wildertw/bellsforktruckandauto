@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   escapeHtml, escapeAttr, titleCase, loadAvailableVehicles,
-  buildVDPPath, resolveImg,
+  buildVDPPath, resolveImg, formatMoney, DOC_FEE, priceWithDocFee,
 } = require('./build-utils');
 
 // ── Build a single vehicle card (mirrors client-side buildRow) ──
@@ -43,6 +43,10 @@ function buildRow(v) {
   const stockParam = encodeURIComponent(v.stockNumber || '');
   const vehicleParam = encodeURIComponent(fullTitle);
   const priceParam = encodeURIComponent(v.price || '');
+  const total = priceWithDocFee(v.price);
+  const docFeeHtml = total
+    ? `<span class="inv-price-fees">Doc Fees ${formatMoney(DOC_FEE)}</span><span class="inv-price-total">Total ${formatMoney(total)}</span>`
+    : '';
 
   return `<div class="inv-row mb-2">
 <div class="inv-row-header"></div>
@@ -62,7 +66,7 @@ function buildRow(v) {
 </div>
 <div class="inv-action-col">
 <div class="inv-price-retail">Our Price</div>
-<div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
+<div class="inv-price-main${v.price ? '' : ' call-price'}">${price}${docFeeHtml}</div>
 <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
 <a href="financing.html?vehicle=${vehicleParam}&stock=${stockParam}&price=${priceParam}#applications" class="inv-btn inv-btn-financing">Apply for Financing</a>
 <a href="contact.html?vehicle=${vehicleParam}&stock=${stockParam}#appointment" class="inv-btn inv-btn-inquiry">Inquiry</a>

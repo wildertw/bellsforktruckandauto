@@ -12,7 +12,7 @@ const {
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG,
   DEALER_FB,
-  escapeHtml, escapeAttr, titleCase, formatMoney,
+  escapeHtml, escapeAttr, titleCase, formatMoney, DOC_FEE, priceWithDocFee,
   buildVDPSlug, buildVDPId, buildVDPPath,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
   resolveVehicleColorDisplay,
@@ -262,6 +262,7 @@ function generateVDPHtml(v, allVehicles) {
   const title = vehicleTitle(v);
   const vdpUrl = `${SITE_URL}${buildVDPPath(v)}`;
   const price = v.price ? formatMoney(v.price) : 'Call for Price';
+  const totalWithFees = priceWithDocFee(v.price);
   const miles = v.mileage ? `${Number(v.mileage).toLocaleString()} mi` : '';
   const stock = v.stockNumber ? `Stock #${v.stockNumber}` : '';
   const vin = v.vin || '';
@@ -601,6 +602,8 @@ ${buildSchema(v)}
       font-weight: 800;
       color: #28a745;
     }
+    .vdp-price-fees { font-size: .85rem; color: #666; }
+    .vdp-price-total { font-size: 1.05rem; font-weight: 700; color: #28a745; }
     .vdp-price-label {
       font-size: .75rem;
       text-transform: uppercase;
@@ -908,6 +911,8 @@ ${vdpPubImages.length > 0 ? `      <div class="swiper vdp-gallery" style="border
           <div class="text-end">
             <div class="vdp-price-label">Our Price</div>
             <div class="vdp-price-tag">${escapeHtml(price)}</div>
+${totalWithFees ? `            <div class="vdp-price-fees">Doc Fees ${formatMoney(DOC_FEE)}</div>
+            <div class="vdp-price-total">Total ${formatMoney(totalWithFees)}</div>` : ''}
 ${v.monthlyPayment ? `            <div class="text-muted" style="font-size:.85rem;">$${v.monthlyPayment}/month</div>` : ''}
           </div>
         </div>
