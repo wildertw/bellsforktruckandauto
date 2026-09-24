@@ -4,6 +4,9 @@
 //  - Optional inventory grid cards (if #inventoryGrid exists)
 
 class InventoryLoader {
+  // Keep in sync with DOC_FEE in build-utils.js
+  static DOC_FEE = 399;
+
   static TRUCK_MODELS = /f-?150|f-?250|f-?350|silverado|sierra|tundra|tacoma|ram\s*1500|ram\s*2500|ram\s*3500|gladiator|ranger|colorado|canyon|titan|frontier|2500|3500/i;
   static SUV_MODELS = /suburban|tahoe|bronco|explorer|expedition|4runner|highlander|pathfinder|pilot|traverse|blazer|equinox|qx80|qx60|santa\s*fe|wrangler|cherokee|durango|sequoia/i;
   static CAR_MODELS = /camaro|corvette|mustang|challenger|charger|altima|civic|accord|corolla|camry|jetta|xjl|portfolio|impala|malibu|maxima|sentra/i;
@@ -454,7 +457,8 @@ class InventoryLoader {
         <div class="featured-body">
           <p class="featured-ymm">${this.escapeHtml(yearMake)}</p>
           <p class="featured-model">${this.escapeHtml(model)}</p>
-          ${v.price ? `<p class="featured-price">${this.formatMoney(v.price)}</p>` : ''}
+          ${v.price ? `<p class="featured-price">${this.formatMoney(v.price)}</p>
+          <p class="featured-fees">Doc Fees ${this.formatMoney(InventoryLoader.DOC_FEE)}<strong>Total ${this.formatMoney(Number(v.price) + InventoryLoader.DOC_FEE)}</strong></p>` : ''}
         </div>
       </a>
     `;

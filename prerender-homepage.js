@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   escapeHtml, escapeAttr, titleCase, formatMoney, loadAvailableVehicles,
-  buildVDPPath,
+  buildVDPPath, DOC_FEE, priceWithDocFee,
 } = require('./build-utils');
 
 // ── Helpers ──
@@ -187,6 +187,7 @@ function buildFeaturedHTML(vehicles) {
           <p class="featured-ymm">${escapeHtml(yearMake)}</p>
           <p class="featured-model">${escapeHtml(model)}</p>
           ${v.price ? `<p class="featured-price">${formatMoney(v.price)}</p>` : ''}
+          ${priceWithDocFee(v.price) ? `<p class="featured-fees">Doc Fees ${formatMoney(DOC_FEE)}<strong>Total ${formatMoney(priceWithDocFee(v.price))}</strong></p>` : ''}
         </div>
       </a>`;
   }).join('\n');
