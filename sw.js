@@ -67,21 +67,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // For static assets: stale-while-revalidate
-  // Use stripped-query URL for cache matching so versioned requests hit cache
+  // For static assets: stale-while-revalidate, keyed on the full URL so a new
+  // ?v=<build> after a deploy is a cache miss and fetches the fresh file.
+  // The query-stripped copy is only an offline fallback.
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
-      const cacheKey = stripQuery(event.request.url);
-      return cache.match(cacheKey).then((cached) => {
+      const bareKey = stripQuery(event.request.url);
+      return cache.match(event.request.url).then((cached) => {
         const networkFetch = fetch(event.request)
           .then((response) => {
             if (response.ok) {
-              // Store under the query-stripped key so future versions still get a cache hit
-              cache.put(cacheKey, response.clone());
+              cache.put(event.request.url, response.clone());
+              if (bareKey !== event.request.url) cache.put(bareKey, response.clone());
             }
             return response;
           })
-          .catch(() => cached || new Response('Not found', { status: 404 }));
+          .catch(() => cached || cache.match(bareKey).then((bare) => bare || new Response('Not found', { status: 404 })));
 
         return cached || networkFetch;
       });
