@@ -80,6 +80,16 @@ function formatMoney(n) {
   return `$${num.toLocaleString('en-US')}`;
 }
 
+// Dealer documentation fee added on top of every priced vehicle.
+const DOC_FEE = 399;
+
+/** Price plus DOC_FEE, or null when the vehicle has no numeric price. */
+function priceWithDocFee(price) {
+  const num = Number(price);
+  if (!price || !Number.isFinite(num)) return null;
+  return num + DOC_FEE;
+}
+
 function slugify(str) {
   return String(str || '').trim().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
@@ -256,7 +266,7 @@ module.exports = {
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
-  escapeHtml, escapeAttr, titleCase, normalizeVehicleText, normalizeVehicleTitle, formatMoney, slugify,
+  escapeHtml, escapeAttr, titleCase, normalizeVehicleText, normalizeVehicleTitle, formatMoney, DOC_FEE, priceWithDocFee, slugify,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   buildLocalImageCandidates, resolveInventoryImageName, resolveImg, resolveImgAbs,
   inferVehicleType, loadAvailableVehicles,

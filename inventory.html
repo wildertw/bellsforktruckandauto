@@ -1912,6 +1912,9 @@
     renderList(filtered);
   }
 
+  // Keep in sync with DOC_FEE in build-utils.js
+  const DOC_FEE = 399;
+
   function priceRange(p) {
     if (!p || p <= 0) return 'none';
     if (p < 10000) return 'under10';
@@ -2110,7 +2113,7 @@
         </div>
         <div class="inv-action-col">
           <div class="inv-price-retail">Our Price</div>
-          <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}</div>
+          <div class="inv-price-main${v.price ? '' : ' call-price'}">${price}${v.price ? `<span class="inv-price-fees">Doc Fees $${DOC_FEE.toLocaleString()}</span><span class="inv-price-total">Total $${(Number(v.price) + DOC_FEE).toLocaleString()}</span>` : ''}</div>
           <a href="${vdpUrl}" class="inv-btn inv-btn-details">View Details</a>
           <a href="/financing.html?vehicle=${encodeURIComponent(title+(trim?' '+trim:''))}&stock=${encodeURIComponent(v.stockNumber||'')}&price=${encodeURIComponent(v.price||'')}#applications"
              class="inv-btn inv-btn-financing">Apply for Financing</a>
