@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-09-28T21:20:36.633Z",
+  "lastUpdated": "2026-09-28T21:22:15.936Z",
   "vehicles": [
     {
       "vin": "1C4BJWDG5GL324988",
@@ -19,7 +19,7 @@
       "type": "SUV",
       "exteriorColor": "White",
       "interiorColor": "Black",
-      "description": "",
+      "description": "Discover adventure with this 2016 Jeep Wrangler Sport, featuring a powerful 3.6L V6 engine and just 58,264 miles on the odometer. This rugged SUV combines iconic style with off-road capability, making it the perfect companion for both city driving and outdoor exploration.",
       "features": [],
       "status": "available",
       "badge": "",
@@ -29,7 +29,26 @@
       "warranty": "Extended Warranty Available",
       "cylinders": "6",
       "doors": "4D",
-      "images": [],
+      "images": [
+        "blob:1C4BJWDG5GL324988-01.jpg",
+        "blob:1C4BJWDG5GL324988-02.jpg",
+        "blob:1C4BJWDG5GL324988-03.jpg",
+        "blob:1C4BJWDG5GL324988-04.jpg",
+        "blob:1C4BJWDG5GL324988-05.jpg",
+        "blob:1C4BJWDG5GL324988-06.jpg",
+        "blob:1C4BJWDG5GL324988-07.jpg",
+        "blob:1C4BJWDG5GL324988-08.jpg",
+        "blob:1C4BJWDG5GL324988-09.jpg",
+        "blob:1C4BJWDG5GL324988-10.jpg",
+        "blob:1C4BJWDG5GL324988-11.jpg",
+        "blob:1C4BJWDG5GL324988-12.jpg",
+        "blob:1C4BJWDG5GL324988-13.jpg",
+        "blob:1C4BJWDG5GL324988-14.jpg",
+        "blob:1C4BJWDG5GL324988-15.jpg",
+        "blob:1C4BJWDG5GL324988-16.jpg",
+        "blob:1C4BJWDG5GL324988-17.jpg",
+        "blob:1C4BJWDG5GL324988-18.jpg"
+      ],
       "dateAdded": "2026-09-28",
       "paintCode": "",
       "oem_scan": null,
