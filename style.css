@@ -1975,10 +1975,31 @@ html {
   .desktop-cta-bar { display: none !important; }
 }
 
+/* ── Clearance for the TECOBI widget launcher ──
+   TECOBI pins its launcher, and its wider "live support" greeting panel, to the
+   bottom-right corner on top of these full-width bottom bars — whose buttons also sit
+   on the right, so "Browse Inventory" ended up underneath it. Reserve room for it.
+   If the launcher is ever repositioned, this one value is the only thing to change. */
+:root {
+  --tecobi-launcher-clearance: 360px;
+}
+
+.desktop-cta-bar .container,
+.bf-vdp-sticky .container {
+  padding-right: var(--tecobi-launcher-clearance);
+}
+
+@media (max-width: 991.98px) {
+  /* Not enough width left for the tagline once the launcher is accounted for —
+     the buttons are what matter here. */
+  .desktop-cta-bar .cta-text { display: none; }
+}
+
 /* ── Engagement prompt (scroll-triggered) ── */
 .engage-prompt {
   position: fixed;
-  bottom: 4.5rem;
+  /* Sits above the TECOBI launcher, which occupies the bottom-right corner. */
+  bottom: 12rem;
   right: 1.5rem;
   z-index: 1025;
   background: #fff;
