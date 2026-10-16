@@ -1982,11 +1982,21 @@ html {
    If the launcher is ever repositioned, this one value is the only thing to change. */
 :root {
   --tecobi-launcher-clearance: 360px;
+  /* Collapsed bubble only — on phones the launcher is a circle in the corner.
+     Capped at 20vw so a 320px screen still leaves the three buttons room. */
+  --tecobi-launcher-clearance-mobile: min(76px, 20vw);
 }
 
 .desktop-cta-bar .container,
 .bf-vdp-sticky .container {
   padding-right: var(--tecobi-launcher-clearance);
+}
+
+/* The mobile action bar is full-width with three equal items, so the launcher sat on
+   top of "Directions". Reserve its corner and let the three items share what is left.
+   (Declared after the .mobile-action-bar shorthand above so this longhand wins.) */
+.mobile-action-bar {
+  padding-right: calc(0.75rem + var(--tecobi-launcher-clearance-mobile));
 }
 
 @media (max-width: 991.98px) {
