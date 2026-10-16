@@ -2089,37 +2089,11 @@ html {
   .bf-vdp-sticky { display: none; }
 }
 
-/* ── Floating SMS Button (desktop) ── */
-.bf-floating-sms {
-  position: fixed;
-  bottom: 6rem;
-  right: 1.5rem;
-  z-index: 1025;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  background: #0d6efd;
-  color: #fff;
-  padding: .7rem 1.1rem;
-  border-radius: 50px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: .9rem;
-  box-shadow: 0 4px 16px rgba(13,110,253,.4);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: opacity .3s ease, visibility .3s ease, transform .3s ease, background .2s;
-}
-.bf-floating-sms.visible { opacity: 1; visibility: visible; transform: translateY(0); }
-.bf-floating-sms:hover { background: #0b5ed7; color: #fff; }
-.bf-floating-sms svg { flex-shrink: 0; }
-@media (max-width: 767.98px) {
-  .bf-floating-sms { display: none !important; }
-}
+/* The floating "Text Us" bubble was removed — TECOBI's widget provides its own
+   persistent launcher in the same corner, so the custom one was a duplicate. */
+
 @media (prefers-reduced-motion: reduce) {
-  .bf-vdp-sticky,
-  .bf-floating-sms { transition: none; }
+  .bf-vdp-sticky { transition: none; }
 }
 
 /* ═══════════════════════════════════════════════════════
