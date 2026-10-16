@@ -34,7 +34,10 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(self), payment=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net https://plugin.qualifywizard.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: blob: res.cloudinary.com; frame-src 'self' www.google.com https://plugin.qualifywizard.com; connect-src 'self' vpic.nhtsa.dot.gov https://plugin.qualifywizard.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+    # TECOBI SMS/lead widget (widget.tecobi.com, client 2966) needs script/frame/connect/img/
+    # style/font/media. Wildcarded because the vendor's API, iframe and asset hosts were not
+    # observable when this was written — narrow to the exact origins seen in the browser console.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net https://plugin.qualifywizard.com https://tecobi.com https://*.tecobi.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com https://*.tecobi.com; font-src 'self' fonts.gstatic.com https://*.tecobi.com; img-src 'self' data: blob: res.cloudinary.com https://*.tecobi.com; media-src 'self' https://*.tecobi.com; frame-src 'self' www.google.com https://plugin.qualifywizard.com https://*.tecobi.com; connect-src 'self' vpic.nhtsa.dot.gov https://plugin.qualifywizard.com https://*.tecobi.com wss://*.tecobi.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
 
 # ── Caching Headers ──
 

@@ -12,6 +12,7 @@ const {
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG,
   escapeHtml, escapeAttr,
+  tecobiWidgetTag,
 } = require('./build-utils');
 
 const ASSET_PREFIX = '/';
@@ -70,15 +71,30 @@ const FORM_PAGES = [
 
 function extractPaneContent(html, paneId) {
   // Find the tab-pane div by its id
-  const paneRegex = new RegExp(`<div[^>]*id="${paneId}"[^>]*>([\\s\\S]*?)(?=<div[^>]*class="tab-pane|$)`, 'i');
-  const match = html.match(paneRegex);
-  if (!match) return '';
+  const openMatch = html.match(new RegExp(`<div[^>]*id="${paneId}"[^>]*>`, 'i'));
+  if (!openMatch) return '';
 
-  let content = match[1];
-  // Remove the trailing </div> that closes the tab-pane
-  // The content ends just before the next tab-pane or end of tab-content
-  content = content.replace(/\s*<\/div>\s*$/, '');
-  return content.trim();
+  const start = openMatch.index + openMatch[0].length;
+
+  // Walk forward tracking <div>/</div> depth and stop at the pane's OWN closing tag.
+  // The previous version matched up to the next `class="tab-pane"` or end-of-string, so
+  // the LAST pane (consignment) ran off the end of financing.html and duplicated its
+  // whole footer — nav, every script, and a second </body> — into the generated page.
+  const tagRegex = /<\/?div\b[^>]*>/gi;
+  tagRegex.lastIndex = start;
+  let depth = 1;
+  let tag;
+  while ((tag = tagRegex.exec(html)) !== null) {
+    if (tag[0][1] === '/') {
+      depth -= 1;
+      if (depth === 0) return html.slice(start, tag.index).trim();
+    } else {
+      depth += 1;
+    }
+  }
+
+  // Unbalanced markup — fail loudly rather than emitting a half page.
+  throw new Error(`extractPaneContent: no matching </div> for #${paneId} in financing.html`);
 }
 
 // ── Build cross-links ──
@@ -309,6 +325,7 @@ function generateFormPage(page, formContent) {
   <script src="${versioned('/assets/js/lead-capture.js')}" defer></script>
   <script src="${versioned('/assets/js/analytics-pixels.js')}" defer></script>
   <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+${tecobiWidgetTag()}
 </body>
 </html>`;
 }

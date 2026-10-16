@@ -16,6 +16,7 @@ const {
   buildVDPSlug, buildVDPId, buildVDPPath,
   resolveInventoryImageName, resolveImg, resolveImgAbs,
   resolveVehicleColorDisplay,
+  tecobiWidgetTag, TECOBI_QUICK_QUALIFY,
 } = require('./build-utils');
 
 // ── Vehicle description generator (Enhanced) ──
@@ -699,6 +700,13 @@ ${buildSchema(v)}
       margin-bottom: .6rem;
       font-size: .92rem;
       transition: background .15s, color .15s;
+      /* The TECOBI CTAs are <button>s alongside <a> siblings — strip the UA chrome so
+         they are indistinguishable. .outline sets its own border and is declared later. */
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
     }
     .vdp-cta-btn.primary { background: #dc3545; color: #fff; }
     .vdp-cta-btn.primary:hover { background: #bb2d3b; }
@@ -1074,7 +1082,9 @@ ${v.interior.map(i => `                <li class="py-1">${escapeHtml(i)}</li>`).
           <div class="vdp-cta-card">
             <div class="vdp-cta-header">Interested in This Vehicle?</div>
             <div class="vdp-cta-body">
-              <a href="${applyHref}" class="vdp-cta-btn primary">Apply for Financing</a>
+              <button type="button" class="vdp-cta-btn primary tecobi-contact-us-toggle">Text Us</button>
+              ${TECOBI_QUICK_QUALIFY ? `<button type="button" class="vdp-cta-btn outline tecobi-quick-qualify-toggle">Quickly Qualify</button>` : ''}
+              <a href="${applyHref}" class="vdp-cta-btn outline">Apply for Financing</a>
               <a href="${inquireHref}" class="vdp-cta-btn outline">Send an Inquiry</a>
               <a href="tel:${DEALER_PHONE_TEL}" class="vdp-cta-btn secondary">
                 <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1"><path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/></svg>
@@ -1292,6 +1302,7 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
   <script src="${versioned('/assets/js/lead-capture.js')}" defer></script>
   <script src="${versioned('/assets/js/analytics-pixels.js')}" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+${tecobiWidgetTag()}
 </body>
 </html>`;
 }

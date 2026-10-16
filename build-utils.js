@@ -31,6 +31,29 @@ const DEALER_EMAIL = 'bellsforkautoandtruck@gmail.com';
 const DEALER_FB = 'https://www.facebook.com/profile.php?id=61585590120772';
 const VEHICLE_ASSET_DIR = path.join(__dirname, 'assets', 'vehicles');
 
+// ── TECOBI (SMS / lead platform) ──
+// Client ID assigned to this dealership by TECOBI. The widget script must be present on
+// every public page or the CTA toggle classes and data-tecobi-embed containers do nothing.
+const TECOBI_CLIENT_ID = '2966';
+// Quick Qualify is only available when the 700 Credit integration is active for the
+// dealership. Flip to false to drop every "Quickly Qualify" CTA in one place.
+const TECOBI_QUICK_QUALIFY = true;
+
+/**
+ * The TECOBI widget include, exactly as the vendor documents it.
+ * Goes immediately before </body>. Keep the id attribute and do not add defer —
+ * the vendor's loader reads its own tag, and their support expects this snippet verbatim.
+ * The 12 hand-maintained HTML pages carry this same literal; tests/tecobi-widget.test.mjs
+ * pins them to this function so the two cannot drift apart.
+ */
+function tecobiWidgetTag() {
+  return (
+    '<script id="tecobi-widget-include" src="https://widget.tecobi.com/widget.js?clientId=' +
+    TECOBI_CLIENT_ID +
+    '"></script>'
+  );
+}
+
 // ── Helpers ──
 
 function escapeHtml(str) {
@@ -266,6 +289,7 @@ module.exports = {
   SITE_URL, DEALER_NAME, DEALER_PHONE, DEALER_PHONE_TEL, DEALER_SMS_TEL,
   DEALER_ADDRESS, DEALER_STREET, DEALER_CITY, DEALER_STATE, DEALER_ZIP,
   DEALER_LAT, DEALER_LNG, DEALER_EMAIL, DEALER_FB, VEHICLE_ASSET_DIR,
+  TECOBI_CLIENT_ID, TECOBI_QUICK_QUALIFY, tecobiWidgetTag,
   escapeHtml, escapeAttr, titleCase, normalizeVehicleText, normalizeVehicleTitle, formatMoney, DOC_FEE, priceWithDocFee, slugify,
   buildVDPSlug, buildVDPId, buildVDPPath, todayISO,
   buildLocalImageCandidates, resolveInventoryImageName, resolveImg, resolveImgAbs,

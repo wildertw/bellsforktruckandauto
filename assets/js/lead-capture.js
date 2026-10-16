@@ -2,6 +2,11 @@
  * Bells Fork Truck & Auto — Lead Capture Enhancements
  * 1. VDP sticky lead bar (scrolls into view on vehicle detail pages)
  * 2. Click-to-text SMS CTA (floating button)
+ * 3. TECOBI fallback guard for the CTAs above
+ *
+ * The text CTAs here open TECOBI forms (traceable SMS opt-in + automated follow-up) but
+ * keep their legacy sms:/financing href as a fallback, so they still work if the TECOBI
+ * widget fails to load. See initTecobiFallback() at the bottom.
  */
 (function () {
   'use strict';
@@ -41,8 +46,8 @@
         '</div>' +
         '<div class="bf-vdp-sticky-actions">' +
           '<a href="tel:' + DEALER_PHONE_TEL + '" class="bf-vdp-sticky-btn call">Call Now</a>' +
-          '<a href="sms:' + DEALER_SMS_TEL + '?body=' + encodeURIComponent('Hi, I\'m interested in the ' + vehicleName + '. Is it still available?') + '" class="bf-vdp-sticky-btn text sms-limited">Text Us</a>' +
-          '<a href="/financing.html?vehicle=' + encodeURIComponent(vehicleName) + '" class="bf-vdp-sticky-btn apply">Get Pre-Qualified</a>' +
+          '<a href="sms:' + DEALER_SMS_TEL + '?body=' + encodeURIComponent('Hi, I\'m interested in the ' + vehicleName + '. Is it still available?') + '" class="bf-vdp-sticky-btn text tecobi-contact-us-toggle" data-tecobi-fallback>Text Us</a>' +
+          '<a href="/financing.html?vehicle=' + encodeURIComponent(vehicleName) + '" class="bf-vdp-sticky-btn apply tecobi-quick-qualify-toggle" data-tecobi-fallback>Get Pre-Qualified</a>' +
         '</div>' +
       '</div>';
 
@@ -81,8 +86,9 @@
       ? encodeURIComponent('Hi, I\'m interested in the ' + vehicleName + '. Is it still available?')
       : encodeURIComponent('Hi, I\'m interested in a vehicle. Can you help?');
 
-    var btn = ce('a', 'bf-floating-sms');
+    var btn = ce('a', 'bf-floating-sms tecobi-contact-us-toggle');
     btn.href = 'sms:' + DEALER_SMS_TEL + '?body=' + smsBody;
+    btn.setAttribute('data-tecobi-fallback', '');
     btn.setAttribute('aria-label', 'Text us');
     btn.innerHTML =
       '<svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M2.678 11.894a1 1 0 0 1 .287.801 10.97 10.97 0 0 1-.398 2c1.395-.323 2.247-.697 2.634-.893a1 1 0 0 1 .71-.074A8.06 8.06 0 0 0 8 14c3.996 0 7-2.807 7-6 0-3.192-3.004-6-7-6S1 4.808 1 8c0 1.468.617 2.83 1.678 3.894zm-.493 3.905a21.682 21.682 0 0 1-.713.129c-.2.032-.352-.176-.273-.362a9.68 9.68 0 0 0 .244-.637l.003-.01c.248-.72.45-1.548.524-2.319C.743 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.52.263-1.639.742-3.468 1.105z"/></svg>' +
@@ -97,11 +103,61 @@
   }
 
   // ═══════════════════════════════════════════════════════
+  // TECOBI FALLBACK GUARD
+  // ═══════════════════════════════════════════════════════
+  // Every converted CTA carries both a TECOBI toggle class and its legacy href, so the
+  // button is never dead if the widget fails to load (CSP, vendor outage, blocker).
+  //
+  // We assume TECOBI will handle the click and suppress the navigation up front, then
+  // follow the legacy href only if the widget never materializes. Doing it the other way
+  // round — waiting to detect the widget before suppressing — double-fires when TECOBI
+  // builds its modal lazily on first click: the native SMS app and the modal both open.
+  //
+  // We never call stopPropagation, so TECOBI's own (possibly delegated) handler still runs.
+  var TECOBI_FALLBACK_MS = 700;
+
+  // TODO: confirm the real global and overlay selector on a deploy preview — the widget
+  // host is unreachable from CI, so this list is a best guess from the vendor's docs.
+  function tecobiReady() {
+    if (window.TECOBI || window.tecobi) return true;
+    return !!document.querySelector(
+      'iframe[src*="tecobi.com"], [data-tecobi-widget], .tecobi-widget, .tecobi-widget-frame'
+    );
+  }
+
+  function initTecobiFallback() {
+    // No widget include on the page means these are plain links — stay out of the way.
+    if (!document.getElementById('tecobi-widget-include')) return;
+
+    document.addEventListener(
+      'click',
+      function (e) {
+        var t = e.target;
+        if (!t || typeof t.closest !== 'function') return;
+        var el = t.closest('[data-tecobi-fallback]');
+        if (!el) return;
+
+        var href = el.getAttribute('href');
+        if (!href) return;
+
+        e.preventDefault();
+        if (tecobiReady()) return; // widget is up; it owns this click
+
+        setTimeout(function () {
+          if (!tecobiReady()) window.location.href = href;
+        }, TECOBI_FALLBACK_MS);
+      },
+      true
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════
   // INIT — run after DOM ready
   // ═══════════════════════════════════════════════════════
   function init() {
     initVdpStickyBar();
     initFloatingSms();
+    initTecobiFallback();
   }
 
   if (document.readyState === 'loading') {

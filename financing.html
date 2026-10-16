@@ -28,13 +28,13 @@
   <meta name="twitter:image" content="https://www.bellsforktruckandauto.com/assets/hero/shop-front-og.jpg" />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mnds1fby">
+  <link rel="icon" type="image/png" href="/assets/favicon.png?v=mvb4qh60">
 
   <!-- Bootstrap + custom styles (async, non-render-blocking) -->
-  <link rel="preload" href="/assets/vendor/bootstrap.min.css?v=mnds1fby" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/assets/vendor/bootstrap.min.css?v=mnds1fby"></noscript>
-  <link rel="preload" href="/style.min.css?v=mnds1fby" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/style.min.css?v=mnds1fby"></noscript>
+  <link rel="preload" href="/assets/vendor/bootstrap.min.css?v=mvb4qh60" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/assets/vendor/bootstrap.min.css?v=mvb4qh60"></noscript>
+  <link rel="preload" href="/style.min.css?v=mvb4qh60" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/style.min.css?v=mvb4qh60"></noscript>
 
   <style>
     /* Page-specific polish (safe defaults if assets/style.css is missing) */
@@ -629,7 +629,18 @@
           <div class="tab-content mt-4" id="appTabsContent">
 
         <div class="tab-pane fade show active" id="pane-financing" role="tabpanel" aria-labelledby="tab-financing" tabindex="0">
+          <div class="card shadow-soft border-0 p-4 p-md-5 mb-4">
+            <h3 class="h5 fw-bold text-uppercase mb-2">Apply by Text &mdash; Fastest Option</h3>
+            <p class="text-muted small mb-3">Start your credit application by text and we'll walk you through it. Or check what you qualify for first &mdash; it only takes a minute.</p>
+            <div class="tecobi-embed-wrap"><div data-tecobi-embed="full-credit-app" style="width: 100%; height: 100%;"></div></div>
+            <div class="tecobi-cta-band mt-3">
+              <span class="tecobi-cta-band-text">Not ready for the full application?</span>
+              <button type="button" class="btn btn-outline-dark btn-sm tecobi-quick-qualify-toggle">Quickly Qualify</button>
+            </div>
+          </div>
+
           <div class="card shadow-soft border-0 p-4 p-md-5">
+            <h3 class="h5 fw-bold text-uppercase mb-3">Prefer to fill out the full form?</h3>
             <form name="financing-application" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="finance-app needs-validation" novalidate>
   <p class="d-none"><label>Don’t fill this out: <input name="bot-field"></label></p>
   <input type="hidden" name="request_type" value="Financing Application">
@@ -2164,7 +2175,7 @@
   </footer>
 
   <!-- Bootstrap JS -->
-  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mnds1fby" defer></script>
+  <script src="/assets/vendor/bootstrap.bundle.min.js?v=mvb4qh60" defer></script>
 
   <script>
     // Set copyright year
@@ -2281,11 +2292,12 @@
        href="https://www.google.com/maps?q=3840+Charles+Blvd+Greenville+NC+27858"
        target="_blank" rel="noopener">Directions</a>
   </nav>
-  <script src="/assets/js/sms-limiter.js?v=mnds1fby" defer></script>
-<script src="/assets/js/submit-lock.js?v=mnds1fby" defer></script>
-<script src="/assets/js/tracker.js?v=mnds1fby" defer></script>
-  <script src="/assets/js/lead-capture.js?v=mnds1fby" defer></script>
-  <script src="/assets/js/analytics-pixels.js?v=mnds1fby" defer></script>
+  <script src="/assets/js/sms-limiter.js?v=mvb4qh60" defer></script>
+<script src="/assets/js/submit-lock.js?v=mvb4qh60" defer></script>
+<script src="/assets/js/tracker.js?v=mvb4qh60" defer></script>
+  <script src="/assets/js/lead-capture.js?v=mvb4qh60" defer></script>
+  <script src="/assets/js/analytics-pixels.js?v=mvb4qh60" defer></script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+<script id="tecobi-widget-include" src="https://widget.tecobi.com/widget.js?clientId=2966"></script>
 </body>
 </html>

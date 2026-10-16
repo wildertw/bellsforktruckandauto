@@ -12,6 +12,7 @@ const {
   DEALER_LAT, DEALER_LNG,
   escapeHtml, escapeAttr, titleCase,
   buildVDPPath, resolveImg, loadAvailableVehicles,
+  tecobiWidgetTag, TECOBI_QUICK_QUALIFY,
 } = require('./build-utils');
 
 const ASSET_PREFIX = '/';
@@ -435,6 +436,11 @@ ${buildFAQSchema(cat.faqs)}
     <!-- Vehicle Listings -->
     <section class="py-4" style="background:#f1f1f1;">
       <div class="container">
+        <div class="tecobi-cta-band">
+          <span class="tecobi-cta-band-text">Questions? Get answers by text</span>
+          <button type="button" class="btn btn-danger btn-sm tecobi-contact-us-toggle">Text Us</button>
+          ${TECOBI_QUICK_QUALIFY ? `<button type="button" class="btn btn-outline-dark btn-sm tecobi-quick-qualify-toggle">Quickly Qualify</button>` : ''}
+        </div>
         <div class="row g-4">
         ${cardsHTML || '<div class="col-12"><p class="text-center text-muted py-5">No vehicles currently available in this category. Check back soon or <a href="/inventory">browse all inventory</a>.</p></div>'}
         </div>
@@ -569,6 +575,7 @@ ${buildFAQSchema(cat.faqs)}
   <script src="${versioned('/assets/js/lead-capture.js')}" defer></script>
   <script src="${versioned('/assets/js/analytics-pixels.js')}" defer></script>
   <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+${tecobiWidgetTag()}
 </body>
 </html>`;
 }

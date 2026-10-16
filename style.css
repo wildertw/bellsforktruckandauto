@@ -2121,3 +2121,51 @@ html {
   .bf-vdp-sticky,
   .bf-floating-sms { transition: none; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   TECOBI — text-contact CTA band + embedded form wrappers
+   ═══════════════════════════════════════════════════════ */
+
+/* Page-level "Text Us" / "Quickly Qualify" band on SRPs and finance pages.
+   Styled to sit alongside .inv-filter-bar without competing with it. */
+.tecobi-cta-band {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  padding: .65rem 1rem;
+  margin-bottom: 1rem;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+.tecobi-cta-band-text {
+  margin-right: auto;
+  font-weight: 700;
+  font-size: .82rem;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: #212529;
+}
+
+/* The vendor's embed div is width:100%;height:100% — it collapses to zero height
+   without a sized parent, so the wrapper supplies the height. */
+.tecobi-embed-wrap {
+  position: relative;
+  width: 100%;
+  /* A definite height, not just min-height: the vendor's embed div is height:100%, and
+     a percentage height against an indefinite parent resolves to auto (collapses to 0). */
+  height: 620px;
+  min-height: 620px;
+  overflow: auto;
+  border-radius: 4px;
+}
+.tecobi-embed-wrap > [data-tecobi-embed] { width: 100%; height: 100%; }
+.tecobi-embed-wrap iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+@media (max-width: 575.98px) {
+  .tecobi-cta-band { justify-content: stretch; }
+  .tecobi-cta-band-text { flex: 0 0 100%; margin-right: 0; margin-bottom: .25rem; }
+  .tecobi-cta-band .btn { flex: 1 1 auto; }
+  .tecobi-embed-wrap { height: 560px; min-height: 560px; }
+}
