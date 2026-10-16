@@ -1997,6 +1997,15 @@ html {
    (Declared after the .mobile-action-bar shorthand above so this longhand wins.) */
 .mobile-action-bar {
   padding-right: calc(0.75rem + var(--tecobi-launcher-clearance-mobile));
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Set by initMobileBarYield() in lead-capture.js while the TECOBI panel covers the bar.
+   Deliberately only fades it — moving it (e.g. translateY) would take its rect out of
+   the viewport, the hit-test would read "uncovered", and the two would fight. */
+.mobile-action-bar.tecobi-yielded {
+  opacity: 0;
+  visibility: hidden;
 }
 
 @media (max-width: 991.98px) {

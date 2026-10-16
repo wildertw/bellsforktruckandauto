@@ -2,6 +2,7 @@
  * Bells Fork Truck & Auto — Lead Capture Enhancements
  * 1. VDP sticky lead bar (scrolls into view on vehicle detail pages)
  * 2. TECOBI fallback guard for its CTAs
+ * 3. Mobile action bar yields while the TECOBI panel is open
  *
  * The text CTAs here open TECOBI forms (traceable SMS opt-in + automated follow-up) but
  * keep their legacy sms:/financing href as a fallback, so they still work if the TECOBI
@@ -68,6 +69,85 @@
   }
 
   // ═══════════════════════════════════════════════════════
+  // MOBILE ACTION BAR — YIELD TO THE TECOBI PANEL
+  // ═══════════════════════════════════════════════════════
+  // Call / Text / Directions is pinned to the bottom edge, which is exactly where TECOBI
+  // opens its panel — on a phone that panel is nearly full width, so it buries the bar.
+  // The vendor's markup cannot be inspected from CI, so instead of hard-coding their
+  // class names this hit-tests the bar's own strip: if a fixed layer that isn't ours is
+  // painted over most of it, the bar steps aside until that layer goes away. Once the
+  // widget collapses back to its corner bubble, only one sample point is covered and the
+  // bar returns.
+  //
+  // It fails open — anything unexpected leaves the bar visible.
+
+  var YIELD_CLASS = 'tecobi-yielded';
+  var OUR_FIXED_UI = '.mobile-action-bar, .bf-vdp-sticky, .desktop-cta-bar, .engage-prompt, .back-to-top';
+  var SAMPLE_POINTS = 5;
+
+  function isOurs(el) {
+    return !!(el && el.closest && el.closest(OUR_FIXED_UI));
+  }
+
+  // Page content scrolls underneath a fixed bar, so only another fixed layer can sit on
+  // top of it. (elementFromPoint already skips pointer-events:none, so a transparent
+  // full-screen wrapper never registers here.)
+  function isFixedOverlay(el) {
+    var cs = window.getComputedStyle(el);
+    if (cs.visibility === 'hidden' || cs.opacity === '0') return false;
+    for (var node = el; node && node !== document.body; node = node.parentElement) {
+      if (window.getComputedStyle(node).position === 'fixed') return true;
+    }
+    return false;
+  }
+
+  function initMobileBarYield() {
+    var bar = qs('.mobile-action-bar');
+    if (!bar) return;
+
+    function coveredPoints() {
+      var r = bar.getBoundingClientRect();
+      if (!r.width || !r.height) return 0; // display:none above the mobile breakpoint
+      var y = Math.round(r.top + r.height / 2);
+      if (y < 0 || y >= window.innerHeight) return 0;
+
+      var covered = 0;
+      for (var i = 0; i < SAMPLE_POINTS; i++) {
+        var x = Math.round(r.left + (r.width * (i + 0.5)) / SAMPLE_POINTS);
+        var el = document.elementFromPoint(x, y);
+        if (el && !isOurs(el) && isFixedOverlay(el)) covered++;
+      }
+      return covered;
+    }
+
+    var scheduled = false;
+    function update() {
+      scheduled = false;
+      // Toggling to the value it already has does not touch the attribute, so this
+      // cannot feed itself through the observer below.
+      bar.classList.toggle(YIELD_CLASS, coveredPoints() > SAMPLE_POINTS / 2);
+    }
+
+    function schedule() {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(update);
+    }
+
+    schedule();
+    new MutationObserver(schedule).observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style', 'class', 'hidden', 'aria-hidden'],
+    });
+    window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('orientationchange', schedule, { passive: true });
+    // Backstop: a widget can open inside its own iframe without touching our DOM.
+    setInterval(schedule, 600);
+  }
+
+  // ═══════════════════════════════════════════════════════
   // TECOBI FALLBACK GUARD
   // ═══════════════════════════════════════════════════════
   // Every converted CTA carries both a TECOBI toggle class and its legacy href, so the
@@ -121,6 +201,7 @@
   // ═══════════════════════════════════════════════════════
   function init() {
     initVdpStickyBar();
+    initMobileBarYield();
     initTecobiFallback();
   }
 
