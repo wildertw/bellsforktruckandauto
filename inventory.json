@@ -1,6 +1,63 @@
 {
-  "lastUpdated": "2026-10-20T21:25:28.314Z",
+  "lastUpdated": "2026-10-21T14:09:39.707Z",
   "vehicles": [
+    {
+      "vin": "1FT7W2BT8HEB83260",
+      "stockNumber": "03410BF",
+      "year": 2017,
+      "make": "Ford",
+      "model": "F-250",
+      "trim": "CREW CAB 6.7L LARIAT",
+      "engine": "6.7L V8",
+      "transmission": "Automatic",
+      "drivetrain": "4WD",
+      "fuelType": "Diesel",
+      "mpgCity": null,
+      "mpgHighway": null,
+      "mileage": 183835,
+      "price": 31000,
+      "type": "Truck",
+      "exteriorColor": "Black",
+      "interiorColor": "Black",
+      "description": "Discover the robust performance of this 2017 Ford F-250 Crew Cab Lariat, featuring a powerful 6.7L V8 engine and a spacious interior, perfect for both work and leisure. With 183,835 miles, this well-maintained truck offers reliability and comfort, making it an exceptional choice for your next adventure.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "8",
+      "doors": "4D",
+      "images": [
+        "blob:03410BF-01.jpg",
+        "blob:03410BF-02.jpg",
+        "blob:03410BF-03.jpg",
+        "blob:03410BF-04.jpg",
+        "blob:03410BF-05.jpg",
+        "blob:03410BF-06.jpg",
+        "blob:03410BF-07.jpg",
+        "blob:03410BF-08.jpg",
+        "blob:03410BF-09.jpg",
+        "blob:03410BF-10.jpg",
+        "blob:03410BF-11.jpg",
+        "blob:03410BF-12.jpg",
+        "blob:03410BF-13.jpg",
+        "blob:03410BF-14.jpg",
+        "blob:03410BF-15.jpg",
+        "blob:03410BF-16.jpg",
+        "blob:03410BF-17.jpg",
+        "blob:03410BF-18.jpg",
+        "blob:03410BF-19.jpg",
+        "blob:03410BF-20.jpg",
+        "blob:03410BF-21.jpg"
+      ],
+      "dateAdded": "2026-10-21",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "1G1YB2D74H5102408",
       "stockNumber": "03402BF",
@@ -46,7 +103,7 @@
         "blob:03402BF-14.jpg",
         "blob:03402BF-15.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -101,7 +158,7 @@
         "blob:3GNMCGE06BG146953-18.jpg",
         "blob:3GNMCGE06BG146953-19.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -154,7 +211,7 @@
         "blob:03412BF-16.jpg",
         "blob:03412BF-17.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -207,7 +264,7 @@
         "blob:03238BF-16.jpg",
         "blob:03238BF-17.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -265,7 +322,7 @@
         "blob:03388BF-21.jpg",
         "blob:03388BF-22.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -321,7 +378,7 @@
         "blob:03336-19.jpg",
         "blob:03336-20.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -380,7 +437,7 @@
         "blob:03334BF-22.jpg",
         "blob:03334BF-23.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -437,7 +494,7 @@
         "blob:03293BF-20.jpg",
         "blob:03293BF-21.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -492,7 +549,7 @@
         "blob:03289BF-18.jpg",
         "blob:03289BF-19.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -549,7 +606,7 @@
         "blob:03348-20.jpg",
         "blob:03348-21.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -603,7 +660,7 @@
         "blob:1C4BJWDG5GL324988-17.jpg",
         "blob:1C4BJWDG5GL324988-18.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -658,7 +715,7 @@
         "blob:03274BF-18.jpg",
         "blob:03274BF-19.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -712,7 +769,7 @@
         "blob:03217-17.jpg",
         "blob:03217-18.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -768,7 +825,7 @@
         "blob:03314BF-19.jpg",
         "blob:03314BF-20.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -822,7 +879,7 @@
         "blob:03309BF-17.jpg",
         "blob:03309BF-18.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -875,7 +932,7 @@
         "blob:03239BF-16.jpg",
         "blob:03239BF-17.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -929,7 +986,7 @@
         "blob:03282BF-17.jpg",
         "blob:03282BF-18.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -984,7 +1041,7 @@
         "blob:03275BF-18.jpg",
         "blob:03275BF-19.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1039,7 +1096,7 @@
         "blob:03313BF-18.jpg",
         "blob:03313BF-19.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1088,7 +1145,7 @@
         "blob:03283BF-12.jpg",
         "blob:03283BF-13.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1140,7 +1197,7 @@
         "blob:1GKS1CKJXKR296127-15.jpg",
         "blob:1GKS1CKJXKR296127-16.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1193,7 +1250,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1260,7 +1317,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-10-20",
+      "dateAdded": "2026-10-21",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
