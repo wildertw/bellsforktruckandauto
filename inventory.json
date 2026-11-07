@@ -1,6 +1,58 @@
 {
-  "lastUpdated": "2026-11-04T23:25:59.424Z",
+  "lastUpdated": "2026-11-07T14:49:11.159Z",
   "vehicles": [
+    {
+      "vin": "2HJYK16508H534348",
+      "stockNumber": "03474BF",
+      "year": 2008,
+      "make": "Honda",
+      "model": "Ridgeline",
+      "trim": "RTL",
+      "engine": "3.474057568L V6",
+      "transmission": "Automatic",
+      "drivetrain": "",
+      "fuelType": "Gasoline",
+      "mpgCity": 15,
+      "mpgHighway": 20,
+      "mileage": 122629,
+      "price": 12500,
+      "type": "Truck",
+      "exteriorColor": "Gray",
+      "interiorColor": "Gray",
+      "description": "Experience versatility and reliability with this 2008 Honda Ridgeline RTL, equipped with a robust 3.5L V6 engine and only 122,629 miles. This well-maintained truck offers a smooth ride, ample cargo space, and a host of features designed for both work and play.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "6",
+      "doors": "4D",
+      "images": [
+        "blob:03474BF-01.jpg",
+        "blob:03474BF-02.jpg",
+        "blob:03474BF-03.jpg",
+        "blob:03474BF-04.jpg",
+        "blob:03474BF-05.jpg",
+        "blob:03474BF-06.jpg",
+        "blob:03474BF-07.jpg",
+        "blob:03474BF-08.jpg",
+        "blob:03474BF-09.jpg",
+        "blob:03474BF-10.jpg",
+        "blob:03474BF-11.jpg",
+        "blob:03474BF-12.jpg",
+        "blob:03474BF-13.jpg",
+        "blob:03474BF-14.jpg",
+        "blob:03474BF-15.jpg",
+        "blob:03474BF-16.jpg"
+      ],
+      "dateAdded": "2026-11-07",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "3GTU2PEC9HG258192",
       "stockNumber": "03403BF",
@@ -52,7 +104,7 @@
         "blob:03403BF-20.jpg",
         "blob:03403BF-21.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -103,7 +155,7 @@
         "blob:03262BF-14.jpg",
         "blob:03262BF-15.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -161,7 +213,7 @@
         "blob:03458BF-21.jpg",
         "blob:03458BF-22.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -213,7 +265,7 @@
         "blob:02223-15.jpg",
         "blob:02223-16.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -267,7 +319,7 @@
         "blob:03411BF-17.jpg",
         "blob:03411BF-18.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -325,7 +377,7 @@
         "blob:03480BF-21.jpg",
         "blob:03480BF-22.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -382,7 +434,7 @@
         "blob:03429BF-20.jpg",
         "blob:03429BF-21.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -439,7 +491,7 @@
         "blob:03410BF-20.jpg",
         "blob:03410BF-21.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -492,7 +544,7 @@
         "blob:03238BF-16.jpg",
         "blob:03238BF-17.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -550,7 +602,7 @@
         "blob:03388BF-21.jpg",
         "blob:03388BF-22.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -606,7 +658,7 @@
         "blob:03336-19.jpg",
         "blob:03336-20.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -665,7 +717,7 @@
         "blob:03334BF-22.jpg",
         "blob:03334BF-23.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -722,7 +774,7 @@
         "blob:03293BF-20.jpg",
         "blob:03293BF-21.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -777,7 +829,7 @@
         "blob:03274BF-18.jpg",
         "blob:03274BF-19.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -831,7 +883,7 @@
         "blob:03217-17.jpg",
         "blob:03217-18.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -885,7 +937,7 @@
         "blob:03309BF-17.jpg",
         "blob:03309BF-18.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -938,7 +990,7 @@
         "blob:03239BF-16.jpg",
         "blob:03239BF-17.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -993,7 +1045,7 @@
         "blob:03275BF-18.jpg",
         "blob:03275BF-19.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1042,7 +1094,7 @@
         "blob:03283BF-12.jpg",
         "blob:03283BF-13.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1094,7 +1146,7 @@
         "blob:1GKS1CKJXKR296127-15.jpg",
         "blob:1GKS1CKJXKR296127-16.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1147,7 +1199,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1214,7 +1266,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-11-04",
+      "dateAdded": "2026-11-07",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
