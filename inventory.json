@@ -1,6 +1,59 @@
 {
-  "lastUpdated": "2026-11-10T19:03:56.016Z",
+  "lastUpdated": "2026-11-11T14:32:56.251Z",
   "vehicles": [
+    {
+      "vin": "WP1AA2AY4MDA04048",
+      "stockNumber": "03493",
+      "year": 2021,
+      "make": "Porsche",
+      "model": "Cayenne",
+      "trim": "3.0 T",
+      "engine": "3.0L V6",
+      "transmission": "Automatic",
+      "drivetrain": "AWD",
+      "fuelType": "Gasoline",
+      "mpgCity": 19,
+      "mpgHighway": 23,
+      "mileage": 72783,
+      "price": 32800,
+      "type": "SUV",
+      "exteriorColor": "White",
+      "interiorColor": "Black",
+      "description": "Experience elegance and performance with this 2021 Porsche Cayenne 3.0 T, featuring a robust 3.0L V6 engine and only 72,783 miles on the odometer. This luxurious SUV combines cutting-edge technology with exceptional handling, making it the perfect choice for those who demand both style and capability.",
+      "features": [],
+      "status": "available",
+      "badge": "",
+      "featured": false,
+      "condition": "Used",
+      "titleState": "Clean",
+      "warranty": "Extended Warranty Available",
+      "cylinders": "6",
+      "doors": "4D",
+      "images": [
+        "blob:03493-01.jpg",
+        "blob:03493-02.jpg",
+        "blob:03493-03.jpg",
+        "blob:03493-04.jpg",
+        "blob:03493-05.jpg",
+        "blob:03493-06.jpg",
+        "blob:03493-07.jpg",
+        "blob:03493-08.jpg",
+        "blob:03493-09.jpg",
+        "blob:03493-10.jpg",
+        "blob:03493-11.jpg",
+        "blob:03493-12.jpg",
+        "blob:03493-13.jpg",
+        "blob:03493-14.jpg",
+        "blob:03493-15.jpg",
+        "blob:03493-16.jpg",
+        "blob:03493-17.jpg"
+      ],
+      "dateAdded": "2026-11-11",
+      "paintCode": "",
+      "oem_scan": null,
+      "photo_roles": [],
+      "color_display": null
+    },
     {
       "vin": "1GCGSBEA7G1313105",
       "stockNumber": "03466BF",
@@ -49,7 +102,7 @@
         "blob:03466BF-17.jpg",
         "blob:03466BF-18.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -104,7 +157,7 @@
         "blob:03471-18.jpg",
         "blob:03471-19.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -158,7 +211,7 @@
         "blob:03438BF-17.jpg",
         "blob:03438BF-18.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -210,7 +263,7 @@
         "blob:03474BF-15.jpg",
         "blob:03474BF-16.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -261,7 +314,7 @@
         "blob:03262BF-14.jpg",
         "blob:03262BF-15.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -319,7 +372,7 @@
         "blob:03458BF-21.jpg",
         "blob:03458BF-22.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -371,7 +424,7 @@
         "blob:02223-15.jpg",
         "blob:02223-16.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -425,7 +478,7 @@
         "blob:03411BF-17.jpg",
         "blob:03411BF-18.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -483,7 +536,7 @@
         "blob:03480BF-21.jpg",
         "blob:03480BF-22.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -540,7 +593,7 @@
         "blob:03429BF-20.jpg",
         "blob:03429BF-21.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -593,7 +646,7 @@
         "blob:03238BF-16.jpg",
         "blob:03238BF-17.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -651,7 +704,7 @@
         "blob:03388BF-21.jpg",
         "blob:03388BF-22.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -707,7 +760,7 @@
         "blob:03336-19.jpg",
         "blob:03336-20.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -766,7 +819,7 @@
         "blob:03334BF-22.jpg",
         "blob:03334BF-23.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -823,7 +876,7 @@
         "blob:03293BF-20.jpg",
         "blob:03293BF-21.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -878,7 +931,7 @@
         "blob:03274BF-18.jpg",
         "blob:03274BF-19.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -932,7 +985,7 @@
         "blob:03217-17.jpg",
         "blob:03217-18.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -986,7 +1039,7 @@
         "blob:03309BF-17.jpg",
         "blob:03309BF-18.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1039,7 +1092,7 @@
         "blob:03239BF-16.jpg",
         "blob:03239BF-17.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1094,7 +1147,7 @@
         "blob:03275BF-18.jpg",
         "blob:03275BF-19.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1143,7 +1196,7 @@
         "blob:03283BF-12.jpg",
         "blob:03283BF-13.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1195,7 +1248,7 @@
         "blob:1GKS1CKJXKR296127-15.jpg",
         "blob:1GKS1CKJXKR296127-16.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1248,7 +1301,7 @@
         "blob:02942BF-16.jpg",
         "blob:02942BF-17.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
@@ -1315,7 +1368,7 @@
         "VEHICLE-1GTP9EED1MZ234288-13.jpg",
         "VEHICLE-1GTP9EED1MZ234288-14.jpg"
       ],
-      "dateAdded": "2026-11-10",
+      "dateAdded": "2026-11-11",
       "paintCode": "",
       "oem_scan": null,
       "photo_roles": [],
